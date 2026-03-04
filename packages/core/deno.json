@@ -1,0 +1,6 @@
+{
+  "name": "@cosmos/core",
+  "exports": {
+    ".": "./src/mod.ts"
+  }
+}
