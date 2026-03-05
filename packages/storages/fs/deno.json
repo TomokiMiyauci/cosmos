@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/fs-storage",
+  "name": "@cosmos/storage-fs",
   "exports": {
     ".": "./src/mod.ts"
   },

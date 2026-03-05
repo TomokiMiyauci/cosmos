@@ -1,1 +1,1 @@
-export { FileSystem } from "./storage.ts";
+export { FsStorage } from "./storage.ts";
