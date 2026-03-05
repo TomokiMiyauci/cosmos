@@ -50,11 +50,11 @@ export interface BooleanField extends BaseField {
   type: "boolean";
 }
 
-export interface Adaptor {
-  handle(request: Request, ctx: Context): Promise<Response> | Response;
+export interface Delivery {
+  handle(request: Request, ctx: DeliveryContext): Promise<Response> | Response;
 }
 
-export interface Context {
+export interface DeliveryContext {
   manifest: Manifest;
 }
 
