@@ -1,0 +1,6 @@
+{
+  "name": "@cosmos/indexer",
+  "exports": {
+    ".": "./src/mod.ts"
+  }
+}
