@@ -34,7 +34,7 @@ export interface Model {
 
 export type Format = "json";
 
-export type Field = StringField | BooleanField;
+export type Field = StringField | BooleanField | ReferenceField;
 
 interface BaseField {
   required?: boolean;
@@ -48,6 +48,11 @@ export interface StringField extends BaseField {
 
 export interface BooleanField extends BaseField {
   type: "boolean";
+}
+
+export interface ReferenceField extends BaseField {
+  type: "reference";
+  to: string;
 }
 
 export interface Delivery {

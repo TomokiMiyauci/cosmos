@@ -1,9 +1,9 @@
 export type {
-  Adaptor,
   BooleanField,
   Collection,
   Config,
-  Context,
+  Delivery,
+  DeliveryContext,
   Field,
   FieldMeta,
   FieldType,
@@ -12,6 +12,7 @@ export type {
   Manifest,
   Model,
   RawContent,
+  ReferenceField,
   Storage,
   StringField,
 } from "./type.ts";
