@@ -1,34 +1,57 @@
-export interface FieldMeta {
+export type Schema = FieldMetaString | FieldMetaBoolean | FieldMetaReference;
+
+export interface FieldMetaBase {
   name: string;
-  type: FieldType;
   required: boolean;
   description: string;
 }
 
-export type FieldType = Field["type"];
-
-export interface Collection {
-  name: string;
-  typeName: string;
-  meta: FieldMeta[];
-  documents: Record<string, unknown>[];
+export interface FieldMetaString extends FieldMetaBase {
+  type: "string";
 }
+
+export interface FieldMetaBoolean extends FieldMetaBase {
+  type: "boolean";
+}
+
+export interface FieldMetaReference extends FieldMetaBase {
+  type: "reference";
+  to: string;
+}
+
+export type FieldType = Field["type"];
 
 export interface Manifest {
   version: string;
-  collections: Collection[];
+  definitions: Definition[];
+}
+
+export interface Definition {
+  name: string;
+  schemas: Schema[];
+  members: string[];
+}
+
+export interface Entry {
+  key: string;
+  value: unknown;
 }
 
 export interface Config {
   source: Storage;
+  locator: Locator;
+  model: ModelDefinition;
+}
 
+export interface ModelDefinition {
   models: Model[];
+  pattern: URLPatternInit;
 }
 
 export interface Model {
   name: string;
   fields: Field[];
-  path: string;
+  pattern: URLPatternInit;
   format: Format;
 }
 
@@ -61,15 +84,24 @@ export interface Delivery {
 
 export interface DeliveryContext {
   manifest: Manifest;
+  fetcher: Fetcher;
+}
+
+export interface Fetcher {
+  fetch(url: URL): Content | Promise<Content>;
+}
+
+export interface Locator {
+  locate(location: URLPattern): Promise<URL[]> | URL[];
 }
 
 export interface Storage {
-  fetch(model: Model, ctx: { config: Config }): Promise<RawContent[]>;
+  read(url: URL): Uint8Array | Promise<Uint8Array>;
+  write(url: URL, conetnt: Uint8Array): void | Promise<void>;
 }
 
-export interface RawContent {
-  id: string;
-  content: string;
+export interface Content {
+  [k: string]: unknown;
 }
 
 export interface Formatter {
