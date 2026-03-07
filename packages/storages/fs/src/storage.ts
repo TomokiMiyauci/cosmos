@@ -1,25 +1,11 @@
-import type { Model, RawContent, Storage } from "@cosmos/core";
-import { join } from "@std/path";
-import { expandGlob } from "@std/fs";
+import type { Storage } from "@cosmos/core";
 
 export class FsStorage implements Storage {
-  constructor(public rootDir: string) {}
-  save(): Promise<void> | void {}
+  write(url: URL, conetnt: Uint8Array): void | Promise<void> {
+    return Deno.writeFile(url, conetnt);
+  }
 
-  async fetch(model: Model): Promise<RawContent[]> {
-    const base = join(this.rootDir, model.path);
-    const iterator = expandGlob(base);
-
-    const entries = await Array.fromAsync(iterator);
-    const paths = entries.map((entry) => entry.path);
-
-    const contents = await Promise.all(
-      paths.map(async (path) => ({
-        path,
-        content: await Deno.readTextFile(path),
-      })),
-    );
-
-    return contents.map(({ content, path }) => ({ content, id: path }));
+  read(url: URL): Promise<Uint8Array> {
+    return Deno.readFile(url);
   }
 }
