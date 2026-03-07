@@ -4,7 +4,7 @@ import { createSchema, createYoga } from "graphql-yoga";
 
 export class GraphQLDelivery implements Delivery {
   handle(request: Request, ctx: DeliveryContext): Promise<Response> {
-    const schema = createSchemaFromManifest(ctx.manifest);
+    const schema = createSchemaFromManifest(ctx.manifest, ctx.fetcher);
 
     const yoga = createYoga({
       schema: createSchema({ typeDefs: schema }),
