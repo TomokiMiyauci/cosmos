@@ -1,0 +1,6 @@
+{
+  "name": "@cosmos/storage-memory",
+  "exports": {
+    ".": "./src/mod.ts"
+  }
+}
