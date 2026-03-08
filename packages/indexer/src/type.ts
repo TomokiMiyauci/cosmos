@@ -1,17 +1,18 @@
-export interface BaseNode {
-  name: string;
-}
-
-export interface LeafNode extends BaseNode {
-  value: unknown;
-  type: "string" | "boolean" | "reference";
-}
-
-export interface NodeTree extends BaseNode {
-  id: string;
-  children: LeafNode[];
-}
+import type { Config, ContentNode } from "@cosmos/core";
 
 export interface Transformer {
-  transform(node: LeafNode): unknown;
+  transform(
+    contentNode: Readonly<ContentNode>,
+    ctx: Readonly<TransformContext>,
+  ): ContentNode | undefined;
+}
+
+export interface TransformContext {
+  config: Config;
+  contents: ContentSource[];
+}
+
+export interface ContentSource {
+  source: URL;
+  content: Iterable<ContentNode>;
 }

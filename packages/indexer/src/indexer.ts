@@ -6,21 +6,23 @@ import {
   type Formatter,
   JSONFormatter,
   type Manifest,
+  mergeURLPatternInput,
+  Parser,
   type Schema,
   type Storage,
 } from "@cosmos/core";
-import { nodeTreeToOrigin, originToNodeTree, Visitor } from "./util.ts";
+import { Visitor } from "./util.ts";
+import type { ContentSource } from "./type.ts";
 import { ReferenceTransfomer } from "./transformers/reference.ts";
-import { join } from "@std/path";
 
 export class Indexer {
   constructor(public config: Config) {}
 
   async index(storage: Storage): Promise<Manifest> {
     const { model, locator, source } = this.config;
-    const contentsMap = new Map<string, unknown>();
+    const contensSource: ContentSource[] = [];
     const promise = model.models.map(async (def) => {
-      const patternInit = mergeURLPatternInput(model.pattern, def.pattern);
+      const patternInit = mergeURLPatternInput(model.base, def.pattern);
       const pattern = new URLPattern(patternInit);
       const urls = await locator.locate(pattern);
       const contents = await Promise.all(urls.map(async (url) => {
@@ -45,7 +47,9 @@ export class Indexer {
 
       const members = jsons.map(({ key }) => key.toString());
       jsons.forEach(({ key, value }) => {
-        contentsMap.set(key.toString(), value);
+        const parsed = new Parser().parse(value, def);
+
+        contensSource.push({ source: key, content: parsed });
       });
 
       const definition = {
@@ -58,35 +62,22 @@ export class Indexer {
     });
 
     const definitions = await Promise.all(promise);
-    const entries = contentsMap.entries().map(([key, value]) => ({
-      key,
-      value,
-    })).toArray();
 
-    const nodeTrees = originToNodeTree({ definitions, entries });
-    function resolveId(original: URLPatternInit): string {
-      const init = mergeURLPatternInput(model.pattern, original);
-      const pattern = new URLPattern(init);
-
-      for (const url of contentsMap.keys()) {
-        if (pattern.test(url)) return url;
-      }
-
-      throw new Error();
-    }
-    const visitor = new Visitor([
-      new ReferenceTransfomer(resolveId),
-    ]);
-    const transformed = visitor.visit(nodeTrees);
-    const finalEntries = nodeTreeToOrigin(transformed);
-
-    finalEntries.forEach((entry) => {
-      const url = new URL(entry.key);
-      const value = JSON.stringify(entry.value);
-      const encoded = new TextEncoder().encode(value);
-
-      storage.write(url, encoded);
+    const visitor = new Visitor({
+      config: this.config,
+      transformers: [
+        new ReferenceTransfomer(),
+      ],
     });
+
+    const result = visitor.visit(contensSource);
+
+    for (const source of result) {
+      const content = new Parser().stringify(source.content);
+      const value = JSON.stringify(content);
+      const encoded = new TextEncoder().encode(value);
+      storage.write(source.source, encoded);
+    }
 
     return {
       version: "1",
@@ -123,36 +114,4 @@ function fieldToSchema(field: Field): Schema {
     type,
     description,
   };
-}
-
-function mergeURLPatternInput(
-  left: URLPatternInit,
-  right: URLPatternInit,
-): URLPatternInit {
-  return {
-    protocol: right.protocol ?? left.protocol,
-    hash: right.hash ?? left.hash,
-    hostname: right.hostname ?? left.hostname,
-    password: right.password ?? left.password,
-    port: right.port ?? left.port,
-    baseURL: right.baseURL ?? left.baseURL,
-    search: right.search ?? left.search,
-    username: right.username ?? left.username,
-    pathname: mergePathname(right.pathname, left.pathname),
-  };
-}
-
-function mergePathname(
-  left: string | undefined,
-  right: string | undefined,
-): string | undefined {
-  if (typeof left === "undefined" && typeof right === "undefined") return;
-
-  if (typeof left === "string" && typeof right === "string") {
-    return join(right, left);
-  }
-
-  if (typeof left === "string") return left;
-
-  return right;
 }

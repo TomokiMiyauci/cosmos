@@ -1,14 +1,28 @@
-import type { LeafNode, Transformer } from "../type.ts";
+import { type ContentNode, StructuredURL } from "@cosmos/core";
+import type { TransformContext, Transformer } from "../type.ts";
 
 export class ReferenceTransfomer implements Transformer {
-  constructor(public resolveId: (value: string) => string) {}
-  transform(node: LeafNode): unknown {
-    if (node.type !== "reference") return;
+  transform(node: ContentNode, ctx: TransformContext): ContentNode | undefined {
+    if (node.value.type !== "reference") return;
 
     const { value } = node;
 
-    if (typeof value !== "string") throw new Error();
+    const base = new StructuredURL(value.value, ctx.config.model.base);
 
-    return this.resolveId(value);
+    const urls = ctx.contents.map(({ source }) => source);
+
+    for (const url of urls) {
+      if (url.toString() === base.toString()) {
+        return {
+          name: node.name,
+          value: {
+            type: "reference",
+            value: url,
+          },
+        };
+      }
+    }
+
+    return node;
   }
 }
