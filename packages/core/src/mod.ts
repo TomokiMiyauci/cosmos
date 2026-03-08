@@ -1,6 +1,7 @@
 export type {
   BooleanField,
   Config,
+  ContentNode,
   Definition,
   Delivery,
   DeliveryContext,
@@ -20,3 +21,5 @@ export type {
 } from "./type.ts";
 export { JSONFormatter } from "./formatters/json.ts";
 export { FileLocator } from "./locators/file.ts";
+export { Parser } from "./parser.ts";
+export { mergeURLPatternInput, StructuredURL } from "./url.ts";

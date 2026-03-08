@@ -45,7 +45,7 @@ export interface Config {
 
 export interface ModelDefinition {
   models: Model[];
-  pattern: URLPatternInit;
+  base: URLPatternInit;
 }
 
 export interface Model {
@@ -108,4 +108,26 @@ export interface Formatter {
   parse(content: string): Record<string, unknown>;
 
   serialize(content: Record<string, unknown>): string;
+}
+
+export interface ReferenceValue {
+  type: "reference";
+  value: URLPatternInit;
+}
+
+export interface StringValue {
+  type: "string";
+  value: string;
+}
+
+export interface BooleanValue {
+  type: "boolean";
+  value: boolean;
+}
+
+export type ContentValue = StringValue | BooleanValue | ReferenceValue;
+
+export interface ContentNode {
+  name: string;
+  value: ContentValue;
 }
