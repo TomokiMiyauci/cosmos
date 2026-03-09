@@ -2,14 +2,15 @@ import type { Fetcher, Manifest, Schema } from "@cosmos/core";
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
-  GraphQLID,
-  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
   type ThunkObjMap,
 } from "graphql";
+import type { GraphEntry } from "./type.ts";
+import { SingleQueryFeature } from "./plugins/queries/single/feature.ts";
+import { AllQueryFeature } from "./plugins/queries/all/feature.ts";
 
 export function createSchemaFromManifest(
   manifest: Manifest,
@@ -47,7 +48,7 @@ export function createSchemaFromManifest(
       sources,
     };
   });
-  const queryFields = [new SinletonQueryFeature(), new AllQueryFeature()]
+  const queryFields = [new SingleQueryFeature(), new AllQueryFeature()]
     .map((registry) => {
       return registry.provide({ fetcher, entries });
     })
@@ -108,92 +109,4 @@ function resolveScalarType(
     type: schema.required ? new GraphQLNonNull(type) : type,
     description: schema.description || undefined,
   };
-}
-
-export interface GrqphQLSchemaPlugin {
-  name: string;
-
-  feature: Feature;
-}
-
-type Feature = QueryFeature | FieldFeature;
-
-interface QueryFeature {
-  feature: "query";
-  provide: QueryProvider;
-}
-
-interface FieldFeature {
-  feature: "field";
-  provide: FieldProvider;
-}
-
-interface FieldProvider {
-  (ctx: QueryContext): GraphQLQueryField[];
-}
-
-interface QueryProvider {
-  (ctx: QueryContext): GraphQLQueryField[];
-}
-
-interface QueryContext {
-  fetcher: Fetcher;
-  entries: GraphEntry[];
-}
-
-interface GraphEntry {
-  type: GraphQLObjectType;
-  sources: URL[];
-}
-
-interface GraphQLQueryField {
-  name: string;
-  field: GraphQLFieldConfig<unknown, unknown>;
-}
-
-export class AllQueryFeature implements QueryFeature {
-  feature = "query" as const;
-
-  provide(ctx: QueryContext): GraphQLQueryField[] {
-    const { fetcher, entries } = ctx;
-
-    return entries.map((schema) => {
-      return {
-        name: `all${schema.type.name}s`,
-        field: {
-          type: new GraphQLList(schema.type),
-          resolve: async () => {
-            const result = await Promise.all(
-              schema.sources.map((url) => fetcher.fetch(url)),
-            );
-
-            return result;
-          },
-        },
-      };
-    });
-  }
-}
-
-class SinletonQueryFeature implements QueryFeature {
-  feature = "query" as const;
-
-  provide(ctx: QueryContext): GraphQLQueryField[] {
-    const { fetcher, entries } = ctx;
-
-    return entries.map((schema) => {
-      return {
-        name: schema.type.name,
-        field: {
-          type: schema.type,
-          args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-          resolve: (_, { id }) => {
-            const url = new URL(id);
-
-            return fetcher.fetch(url);
-          },
-        },
-      };
-    });
-  }
 }
