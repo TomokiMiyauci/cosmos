@@ -15,10 +15,6 @@ export function createSchemaFromManifest(
   manifest: Manifest,
   fetcher: Fetcher,
 ): GraphQLSchema {
-  const queryFields: ThunkObjMap<
-    GraphQLFieldConfig<unknown, unknown>
-  > = {};
-
   const models = manifest.definitions.map((definition) => {
     const fields: ThunkObjMap<GraphQLFieldConfig<unknown, unknown>> = () =>
       definition.schemas.reduce((acc, cur) => {
@@ -80,30 +76,118 @@ export function createSchemaFromManifest(
     };
   }
 
-  models.forEach(([model, members]) => {
-    queryFields[model.name] = {
+  const entries: GraphEntry[] = models.map(([model, ids]) => {
+    const sources = ids.map((id) => new URL(id));
+
+    return {
       type: model,
-      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-      resolve: (_, { id }) => {
-        const url = new URL(id);
-
-        return fetcher.fetch(url);
-      },
-    };
-
-    queryFields[`all${model.name}s`] = {
-      type: new GraphQLList(model),
-      resolve: async () => {
-        const urls = members.map((key) => new URL(key));
-
-        const result = await Promise.all(urls.map((url) => fetcher.fetch(url)));
-
-        return result;
-      },
+      sources,
     };
   });
+  const queryFields = [new SinletonQueryFeature(), new AllQueryFeature()]
+    .map((registry) => {
+      return registry.provide({ fetcher, entries });
+    })
+    .flat();
+
+  const fields = queryFields.reduce<
+    ThunkObjMap<GraphQLFieldConfig<unknown, unknown, unknown>>
+  >((acc, field) => {
+    return {
+      ...acc,
+      [field.name]: field.field,
+    };
+  }, {});
 
   return new GraphQLSchema({
-    query: new GraphQLObjectType({ name: "Query", fields: queryFields }),
+    query: new GraphQLObjectType({ name: "Query", fields }),
   });
+}
+
+export interface GrqphQLSchemaPlugin {
+  name: string;
+
+  feature: Feature;
+}
+
+type Feature = QueryFeature | FieldFeature;
+
+interface QueryFeature {
+  feature: "query";
+  provide: QueryProvider;
+}
+
+interface FieldFeature {
+  feature: "field";
+  provide: FieldProvider;
+}
+
+interface FieldProvider {
+  (ctx: QueryContext): GraphQLQueryField[];
+}
+
+interface QueryProvider {
+  (ctx: QueryContext): GraphQLQueryField[];
+}
+
+interface QueryContext {
+  fetcher: Fetcher;
+  entries: GraphEntry[];
+}
+
+interface GraphEntry {
+  type: GraphQLObjectType;
+  sources: URL[];
+}
+
+interface GraphQLQueryField {
+  name: string;
+  field: GraphQLFieldConfig<unknown, unknown>;
+}
+
+export class AllQueryFeature implements QueryFeature {
+  feature = "query" as const;
+
+  provide(ctx: QueryContext): GraphQLQueryField[] {
+    const { fetcher, entries } = ctx;
+
+    return entries.map((schema) => {
+      return {
+        name: `all${schema.type.name}s`,
+        field: {
+          type: new GraphQLList(schema.type),
+          resolve: async () => {
+            const result = await Promise.all(
+              schema.sources.map((url) => fetcher.fetch(url)),
+            );
+
+            return result;
+          },
+        },
+      };
+    });
+  }
+}
+
+class SinletonQueryFeature implements QueryFeature {
+  feature = "query" as const;
+
+  provide(ctx: QueryContext): GraphQLQueryField[] {
+    const { fetcher, entries } = ctx;
+
+    return entries.map((schema) => {
+      return {
+        name: schema.type.name,
+        field: {
+          type: schema.type,
+          args: { id: { type: new GraphQLNonNull(GraphQLID) } },
+          resolve: (_, { id }) => {
+            const url = new URL(id);
+
+            return fetcher.fetch(url);
+          },
+        },
+      };
+    });
+  }
 }
