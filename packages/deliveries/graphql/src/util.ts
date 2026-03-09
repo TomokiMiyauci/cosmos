@@ -18,7 +18,11 @@ export function createSchemaFromManifest(
   const models = manifest.definitions.map((definition) => {
     const fields: ThunkObjMap<GraphQLFieldConfig<unknown, unknown>> = () =>
       definition.schemas.reduce((acc, cur) => {
-        const field = resolveScalarType(cur);
+        const field = resolveScalarType(
+          cur,
+          fetcher,
+          models.map(([model]) => model),
+        );
 
         return {
           ...acc,
@@ -34,47 +38,6 @@ export function createSchemaFromManifest(
       definition.members,
     ] satisfies [GraphQLObjectType, string[]];
   });
-
-  function resolveScalarType(
-    schema: Schema,
-  ): GraphQLFieldConfig<object, unknown> {
-    function resolveBase(): GraphQLFieldConfig<object, unknown> {
-      switch (schema.type) {
-        case "reference": {
-          const model = models.find(([model]) => schema.to === model.name)?.[0];
-
-          if (!model) throw new Error("unreachable");
-
-          const field = {
-            type: model,
-            resolve: (source) => {
-              const key = Reflect.get(source, model.name);
-              const url = new URL(key);
-
-              return fetcher.fetch(url);
-            },
-          } satisfies GraphQLFieldConfig<object, unknown>;
-
-          return field;
-        }
-
-        case "boolean": {
-          return { type: GraphQLBoolean };
-        }
-
-        case "string": {
-          return { type: GraphQLString };
-        }
-      }
-    }
-
-    const { type, ...rest } = resolveBase();
-    return {
-      ...rest,
-      type: schema.required ? new GraphQLNonNull(type) : type,
-      description: schema.description || undefined,
-    };
-  }
 
   const entries: GraphEntry[] = models.map(([model, ids]) => {
     const sources = ids.map((id) => new URL(id));
@@ -102,6 +65,49 @@ export function createSchemaFromManifest(
   return new GraphQLSchema({
     query: new GraphQLObjectType({ name: "Query", fields }),
   });
+}
+
+function resolveScalarType(
+  schema: Schema,
+  fetcher: Fetcher,
+  models: GraphQLObjectType[],
+): GraphQLFieldConfig<object, unknown> {
+  function resolveBase(): GraphQLFieldConfig<object, unknown> {
+    switch (schema.type) {
+      case "reference": {
+        const model = models.find((model) => schema.to === model.name);
+
+        if (!model) throw new Error("unreachable");
+
+        const field = {
+          type: model,
+          resolve: (source) => {
+            const key = Reflect.get(source, model.name);
+            const url = new URL(key);
+
+            return fetcher.fetch(url);
+          },
+        } satisfies GraphQLFieldConfig<object, unknown>;
+
+        return field;
+      }
+
+      case "boolean": {
+        return { type: GraphQLBoolean };
+      }
+
+      case "string": {
+        return { type: GraphQLString };
+      }
+    }
+  }
+
+  const { type, ...rest } = resolveBase();
+  return {
+    ...rest,
+    type: schema.required ? new GraphQLNonNull(type) : type,
+    description: schema.description || undefined,
+  };
 }
 
 export interface GrqphQLSchemaPlugin {
