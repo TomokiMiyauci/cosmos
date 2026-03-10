@@ -1,5 +1,5 @@
 {
-  "name": "@costom/formatter/json",
+  "name": "@cosmos/formatter-json",
   "exports": {
     ".": "./src/mod.ts"
   }
