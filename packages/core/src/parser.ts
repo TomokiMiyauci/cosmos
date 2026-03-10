@@ -81,10 +81,10 @@ class BooleanSerializer {
 }
 
 class ReferenceSerializer {
-  serialize(node: ReferenceValue): Structure {
-    return {
-      ...node.value,
-    };
+  serialize(node: ReferenceValue): StructureValue {
+    // TODO
+    // deno-lint-ignore no-explicit-any
+    return node.value as any;
   }
 }
 
