@@ -24,7 +24,7 @@ export class Parser {
             continue;
           }
 
-          throw new Error("fff");
+          throw new Error();
         }
         case "boolean": {
           if (new BooleanValidator().validate(value)) {
