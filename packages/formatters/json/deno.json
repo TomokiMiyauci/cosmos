@@ -1,0 +1,6 @@
+{
+  "name": "@costom/formatter/json",
+  "exports": {
+    ".": "./src/mod.ts"
+  }
+}
