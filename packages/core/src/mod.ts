@@ -1,6 +1,7 @@
 export type {
   BooleanField,
   Config,
+  Content,
   ContentNode,
   Definition,
   Delivery,
