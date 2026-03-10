@@ -1,9 +1,9 @@
 import {
-  type Content,
   type FormatDefinition,
   type Formatter,
   type FormatterContext,
   resolveFormatter,
+  type Structure,
 } from "@cosmos/core";
 import { Frontmatter } from "./parser.ts";
 
@@ -12,7 +12,7 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
   parse(
     content: string,
     ctx: FormatterContext<FrontmatterOptions>,
-  ): Content {
+  ): Structure {
     const formatterMap = ctx.config.formatters.reduce(
       (acc, { type, formatter }) => {
         return {

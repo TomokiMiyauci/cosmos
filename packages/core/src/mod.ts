@@ -1,7 +1,6 @@
 export type {
   BooleanField,
   Config,
-  Content,
   ContentNode,
   Definition,
   Delivery,
@@ -23,6 +22,8 @@ export type {
   Schema,
   Storage,
   StringField,
+  Structure,
+  StructureValue,
 } from "./type.ts";
 export { FileLocator } from "./locators/file.ts";
 export { Parser } from "./parser.ts";

@@ -105,7 +105,7 @@ export interface DeliveryContext {
 }
 
 export interface Fetcher {
-  fetch(url: URL): Content | Promise<Content>;
+  fetch(url: URL): Structure | Promise<Structure>;
 }
 
 export interface Locator {
@@ -117,8 +117,10 @@ export interface Storage {
   write(url: URL, conetnt: Uint8Array): void | Promise<void>;
 }
 
-export interface Content {
-  [k: string]: string;
+export type StructureValue = string | Structure;
+
+export interface Structure {
+  [k: string]: StructureValue;
 }
 
 export interface FormatterContext<T = unknown> {
@@ -127,9 +129,9 @@ export interface FormatterContext<T = unknown> {
 }
 
 export interface Formatter<T = unknown> {
-  parse(content: string, ctx: FormatterContext<T>): Content;
+  parse(content: string, ctx: FormatterContext<T>): Structure;
 
-  serialize(content: Content, ctx: FormatterContext<T>): string;
+  serialize(content: Structure, ctx: FormatterContext<T>): string;
 }
 
 export interface ReferenceValue {

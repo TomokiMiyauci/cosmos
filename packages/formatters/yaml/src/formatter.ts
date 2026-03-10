@@ -1,8 +1,8 @@
-import type { Content, Formatter } from "@cosmos/core";
+import type { Formatter, Structure } from "@cosmos/core";
 import { parse, stringify } from "@std/yaml";
 
 export class YamlFormatter implements Formatter {
-  parse(content: string): Content {
+  parse(content: string): Structure {
     const result = parse(content);
 
     this.#assert(result);
@@ -10,11 +10,11 @@ export class YamlFormatter implements Formatter {
     return result;
   }
 
-  serialize(content: Content): string {
+  serialize(content: Structure): string {
     return stringify(content);
   }
 
-  #assert(_: unknown): asserts _ is Content {
+  #assert(_: unknown): asserts _ is Structure {
     // TODO(miyauci)
   }
 }

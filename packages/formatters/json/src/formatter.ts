@@ -1,11 +1,11 @@
-import type { Content, Formatter } from "@cosmos/core";
+import type { Formatter, Structure } from "@cosmos/core";
 
 export class JSONFormatter implements Formatter {
-  parse(content: string): Content {
+  parse(content: string): Structure {
     return JSON.parse(content);
   }
 
-  serialize(content: Content): string {
+  serialize(content: Structure): string {
     return JSON.stringify(content);
   }
 }

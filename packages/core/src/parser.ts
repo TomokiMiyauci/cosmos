@@ -1,15 +1,15 @@
 import type {
   BooleanValue,
-  Content,
   ContentNode,
   ContentValue,
   Model,
   ReferenceValue,
   StringValue,
+  Structure,
 } from "./type.ts";
 
 export class Parser {
-  *parse(content: Content, model: Model): Iterable<ContentNode> {
+  *parse(content: Structure, model: Model): Iterable<ContentNode> {
     for (const def of model.fields) {
       if (!def.required && !(def.name in content)) {
         continue;
@@ -47,8 +47,8 @@ export class Parser {
     }
   }
 
-  stringify(contentNodes: Iterable<ContentNode>): Content {
-    return [...contentNodes].reduce<Content>((acc, cur) => {
+  stringify(contentNodes: Iterable<ContentNode>): Structure {
+    return [...contentNodes].reduce<Structure>((acc, cur) => {
       acc[cur.name] = strinigy(cur.value);
 
       return acc;
