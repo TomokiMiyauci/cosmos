@@ -1,3 +1,4 @@
+import type { StructureValue } from "@cosmos/core";
 import type {
   BooleanValue,
   ContentNode,
@@ -56,7 +57,7 @@ export class Parser {
   }
 }
 
-function strinigy(value: ContentValue): unknown {
+function strinigy(value: ContentValue): StructureValue {
   switch (value.type) {
     case "string":
       return new StringSerializer().serialize(value);
@@ -74,14 +75,16 @@ class StringSerializer {
 }
 
 class BooleanSerializer {
-  serialize(node: BooleanValue): boolean {
-    return node.value;
+  serialize(node: BooleanValue): string {
+    return node.value.toString();
   }
 }
 
 class ReferenceSerializer {
-  serialize(node: ReferenceValue): URLPatternInit {
-    return node.value;
+  serialize(node: ReferenceValue): Structure {
+    return {
+      ...node.value,
+    };
   }
 }
 
