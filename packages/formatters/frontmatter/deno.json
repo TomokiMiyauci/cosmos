@@ -1,0 +1,9 @@
+{
+  "name": "@cosmos/formatter-frontmatter",
+  "exports": {
+    ".": "./src/mod.ts"
+  },
+  "imports": {
+    "gray-matter": "npm:gray-matter@^4.0.3"
+  }
+}
