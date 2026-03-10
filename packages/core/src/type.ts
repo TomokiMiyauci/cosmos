@@ -41,6 +41,12 @@ export interface Config {
   source: Storage;
   locator: Locator;
   model: ModelDefinition;
+  formatters: FormatterDefinition[];
+}
+
+export interface FormatterDefinition {
+  type: string;
+  formatter: Formatter;
 }
 
 export interface ModelDefinition {
@@ -52,10 +58,21 @@ export interface Model {
   name: string;
   fields: Field[];
   pattern: URLPatternInit;
-  format: Format;
+  format: FormatDefinition;
 }
 
-export type Format = "json";
+export type FormatDefinition = {
+  [K in keyof FormatterRegistry]:
+    & FormatterDefinitionBase<K>
+    & FormatterRegistry[K];
+}[keyof FormatterRegistry];
+
+export interface FormatterDefinitionBase<T> {
+  type: T;
+}
+
+// deno-lint-ignore no-empty-interface
+export interface FormatterRegistry {}
 
 export type Field = StringField | BooleanField | ReferenceField;
 
@@ -101,13 +118,18 @@ export interface Storage {
 }
 
 export interface Content {
-  [k: string]: unknown;
+  [k: string]: string;
 }
 
-export interface Formatter {
-  parse(content: string): Record<string, unknown>;
+export interface FormatterContext<T = unknown> {
+  config: Config;
+  options: T;
+}
 
-  serialize(content: Record<string, unknown>): string;
+export interface Formatter<T = unknown> {
+  parse(content: string, ctx: FormatterContext<T>): Content;
+
+  serialize(content: Content, ctx: FormatterContext<T>): string;
 }
 
 export interface ReferenceValue {

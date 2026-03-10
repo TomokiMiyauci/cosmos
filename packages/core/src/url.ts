@@ -1,4 +1,5 @@
 import { join } from "@std/path";
+import type { FormatDefinition, Formatter } from "./type.ts";
 
 export class StructuredURL extends URL implements URL {
   constructor(url: URLPatternInit, base?: URLPatternInit) {
@@ -67,4 +68,19 @@ export function mergePathname(
   if (typeof left === "string") return left;
 
   return right;
+}
+
+export function resolveFormatter(
+  format: FormatDefinition,
+  map: FormatterMap,
+): Formatter {
+  const formatter = map[format.type];
+
+  if (!formatter) throw new Error("unknown formatter");
+
+  return formatter;
+}
+
+export interface FormatterMap {
+  [type: string]: Formatter;
 }

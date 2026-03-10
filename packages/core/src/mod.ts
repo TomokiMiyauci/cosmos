@@ -9,8 +9,12 @@ export type {
   Fetcher,
   Field,
   FieldType,
-  Format,
+  FormatDefinition,
   Formatter,
+  FormatterContext,
+  FormatterDefinition,
+  FormatterDefinitionBase,
+  FormatterRegistry,
   Manifest,
   Model,
   ModelDefinition,
@@ -19,7 +23,10 @@ export type {
   Storage,
   StringField,
 } from "./type.ts";
-export { JSONFormatter } from "./formatters/json.ts";
 export { FileLocator } from "./locators/file.ts";
 export { Parser } from "./parser.ts";
-export { mergeURLPatternInput, StructuredURL } from "./url.ts";
+export {
+  mergeURLPatternInput,
+  resolveFormatter,
+  StructuredURL,
+} from "./url.ts";
