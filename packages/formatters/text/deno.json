@@ -1,0 +1,6 @@
+{
+  "name": "@cosmos/formatter-text",
+  "exports": {
+    ".": "./src/mod.ts"
+  }
+}
