@@ -2,12 +2,10 @@ import {
   type Config,
   type Definition,
   type Field,
-  type Format,
-  type Formatter,
-  JSONFormatter,
   type Manifest,
   mergeURLPatternInput,
   Parser,
+  resolveFormatter,
   type Schema,
   type Storage,
 } from "@cosmos/core";
@@ -19,7 +17,13 @@ export class Indexer {
   constructor(public config: Config) {}
 
   async index(storage: Storage): Promise<Manifest> {
-    const { model, locator, source } = this.config;
+    const { model, locator, source, formatters } = this.config;
+    const formatterMap = formatters.reduce((acc, { type, formatter }) => {
+      return {
+        ...acc,
+        [type]: formatter,
+      };
+    }, {});
     const contensSource: ContentSource[] = [];
     const promise = model.models.map(async (def) => {
       const patternInit = mergeURLPatternInput(model.base, def.pattern);
@@ -33,7 +37,7 @@ export class Indexer {
       }));
 
       const schemas = def.fields.map(fieldToSchema);
-      const formatter = resolveFormatter(def.format);
+      const formatter = resolveFormatter(def.format, formatterMap);
       const decoder = new TextDecoder();
 
       const jsons = contents.map(({ content, url }) => {
@@ -41,7 +45,10 @@ export class Indexer {
 
         return {
           key: url,
-          value: formatter.parse(text),
+          value: formatter.parse(text, {
+            config: this.config,
+            options: def.format,
+          }),
         };
       });
 
@@ -83,13 +90,6 @@ export class Indexer {
       version: "1",
       definitions,
     };
-  }
-}
-
-function resolveFormatter(format: Format): Formatter {
-  switch (format) {
-    case "json":
-      return new JSONFormatter();
   }
 }
 
