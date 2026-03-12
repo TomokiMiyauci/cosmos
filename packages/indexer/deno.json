@@ -4,6 +4,7 @@
     ".": "./src/mod.ts"
   },
   "imports": {
+    "@std/collections": "jsr:@std/collections@^1.1.6",
     "@std/path": "jsr:@std/path@^1.1.4"
   }
 }

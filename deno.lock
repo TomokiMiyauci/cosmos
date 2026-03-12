@@ -1,6 +1,7 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/collections@^1.1.6": "1.1.6",
     "jsr:@std/fs@^1.0.23": "1.0.23",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/path@^1.1.4": "1.1.4",
@@ -10,6 +11,9 @@
     "npm:gray-matter@^4.0.3": "4.0.3"
   },
   "jsr": {
+    "@std/collections@1.1.6": {
+      "integrity": "b458160ce65ea5ad35da05d0a5cbee4b583677c8b443a10d7beb0c4ac63f2baa"
+    },
     "@std/fs@1.0.23": {
       "integrity": "3ecbae4ce4fee03b180fa710caff36bb5adb66631c46a6460aaad49515565a37",
       "dependencies": [
@@ -281,6 +285,7 @@
       },
       "packages/deliveries/graphql": {
         "dependencies": [
+          "jsr:@std/collections@^1.1.6",
           "npm:graphql-yoga@^5.18.0",
           "npm:graphql@^16.13.0"
         ]
@@ -297,6 +302,7 @@
       },
       "packages/indexer": {
         "dependencies": [
+          "jsr:@std/collections@^1.1.6",
           "jsr:@std/path@^1.1.4"
         ]
       },

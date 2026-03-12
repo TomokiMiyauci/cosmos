@@ -1,4 +1,13 @@
-import type { Fetcher, Manifest, Schema } from "@cosmos/core";
+import type {
+  BooleanNode,
+  Fetcher,
+  IdNode,
+  Manifest,
+  MapNode,
+  Node,
+  Schema,
+  StringNode,
+} from "@cosmos/core";
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
@@ -25,9 +34,11 @@ export function createSchemaFromManifest(
           models.map(([model]) => model),
         );
 
+        const finalField = resolverOverride(field, cur.name);
+
         return {
           ...acc,
-          [cur.name]: field,
+          [cur.name]: finalField,
         };
       }, {});
 
@@ -72,10 +83,10 @@ function resolveScalarType(
   schema: Schema,
   fetcher: Fetcher,
   models: GraphQLObjectType[],
-): GraphQLFieldConfig<object, unknown> {
-  function resolveBase(): GraphQLFieldConfig<object, unknown> {
+): GraphQLFieldConfig<Node, unknown> {
+  function resolveBase(): GraphQLFieldConfig<Node, unknown> {
     switch (schema.type) {
-      case "reference": {
+      case "id": {
         const model = models.find((model) => schema.to === model.name);
 
         if (!model) throw new Error("unreachable");
@@ -83,22 +94,54 @@ function resolveScalarType(
         const field = {
           type: model,
           resolve: (source) => {
-            const key = Reflect.get(source, model.name);
-            const url = new URL(key);
-
-            return fetcher.fetch(url);
+            return fetcher.fetch((source as IdNode).value);
           },
-        } satisfies GraphQLFieldConfig<object, unknown>;
+        } satisfies GraphQLFieldConfig<Node, unknown>;
+
+        return field;
+      }
+
+      case "map": {
+        const fields = schema.fields.reduce((acc, field) => {
+          const config = resolveScalarType(field, fetcher, models);
+          const finalConfig = resolverOverride(config, field.name);
+
+          return {
+            ...acc,
+            [field.name]: finalConfig,
+          };
+        }, {});
+        const type = new GraphQLObjectType({
+          fields,
+          name: schema.name,
+        });
+
+        const field = {
+          type,
+          resolve: (node) => {
+            return (node as MapNode).value;
+          },
+        } satisfies GraphQLFieldConfig<Node, unknown>;
 
         return field;
       }
 
       case "boolean": {
-        return { type: GraphQLBoolean };
+        return {
+          type: GraphQLBoolean,
+          resolve: (node) => {
+            return (node as BooleanNode).value;
+          },
+        };
       }
 
       case "string": {
-        return { type: GraphQLString };
+        return {
+          type: GraphQLString,
+          resolve: (node) => {
+            return (node as StringNode).value;
+          },
+        };
       }
     }
   }
@@ -108,5 +151,27 @@ function resolveScalarType(
     ...rest,
     type: schema.required ? new GraphQLNonNull(type) : type,
     description: schema.description || undefined,
+  };
+}
+
+function resolverOverride(
+  config: GraphQLFieldConfig<Node, unknown, unknown>,
+  name: string,
+): GraphQLFieldConfig<Node, unknown, unknown> {
+  const { resolve, ...rest } = config;
+
+  return {
+    ...rest,
+    resolve(node, ...rest): unknown {
+      const value = (node as MapNode).value;
+      const item = value[name];
+
+      if (!item) return null;
+
+      if (resolve) {
+        return resolve(item, ...rest);
+      }
+      return item;
+    },
   };
 }

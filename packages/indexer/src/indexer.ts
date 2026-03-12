@@ -6,11 +6,11 @@ import {
   mergeURLPatternInput,
   Parser,
   resolveFormatter,
+  type Resource,
   type Schema,
   type Storage,
 } from "@cosmos/core";
 import { Visitor } from "./util.ts";
-import type { ContentSource } from "./type.ts";
 import { ReferenceTransfomer } from "./transformers/reference.ts";
 
 export class Indexer {
@@ -24,7 +24,7 @@ export class Indexer {
         [type]: formatter,
       };
     }, {});
-    const contensSource: ContentSource[] = [];
+    const resources: Resource[] = [];
     const promise = model.models.map(async (def) => {
       const patternInit = mergeURLPatternInput(model.base, def.pattern);
       const pattern = new URLPattern(patternInit);
@@ -54,9 +54,9 @@ export class Indexer {
 
       const members = jsons.map(({ key }) => key.toString());
       jsons.forEach(({ key, value }) => {
-        const parsed = new Parser().parse(value, def);
+        const node = new Parser().parse(value, def, { config: this.config });
 
-        contensSource.push({ source: key, content: parsed });
+        resources.push({ id: key.toString(), node });
       });
 
       const definition = {
@@ -72,18 +72,23 @@ export class Indexer {
 
     const visitor = new Visitor({
       config: this.config,
+
       transformers: [
-        new ReferenceTransfomer(),
+        // new ReferenceTransfomer(),
       ],
+    }, resources);
+
+    const result = resources.map((resource) => {
+      return {
+        id: resource.id,
+        node: visitor.visit(resource.node),
+      };
     });
 
-    const result = visitor.visit(contensSource);
-
     for (const source of result) {
-      const content = new Parser().stringify(source.content);
-      const value = JSON.stringify(content);
+      const value = JSON.stringify(source.node);
       const encoded = new TextEncoder().encode(value);
-      storage.write(source.source, encoded);
+      storage.write(new URL(source.id), encoded);
     }
 
     return {
@@ -101,7 +106,7 @@ function fieldToSchema(field: Field): Schema {
       return {
         name,
         required,
-        type,
+        type: "id",
         description,
         to: field.to,
       };

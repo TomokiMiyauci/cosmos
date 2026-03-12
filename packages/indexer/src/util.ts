@@ -1,5 +1,5 @@
-import type { Config } from "@cosmos/core";
-import type { ContentSource, Transformer } from "./type.ts";
+import type { Config, Node, Resource } from "@cosmos/core";
+import type { Transformer } from "./type.ts";
 
 export interface VisitorConfig {
   config: Config;
@@ -7,25 +7,41 @@ export interface VisitorConfig {
 }
 
 export class Visitor {
-  constructor(private config: VisitorConfig) {}
+  constructor(private config: VisitorConfig, private resources: Resource[]) {}
 
-  *visit(contents: ContentSource[]): Iterable<ContentSource> {
-    for (const content of contents) {
-      const transformed = [...content.content].map((node) => {
-        const transformed = this.config.transformers.reduce(
-          (node, transfomer) => {
-            return transfomer.transform(node, {
-              config: this.config.config,
-              contents,
-            }) ?? node;
-          },
-          node,
-        );
+  visit(node: Node): Node {
+    const { transformers, config } = this.config;
 
-        return transformed;
-      });
+    return walk(node, (node) => {
+      const result = transformers.reduce(
+        (acc, transformer) =>
+          transformer.transform(acc, {
+            config,
+            resources: this.resources,
+          }),
+        node,
+      );
 
-      yield { source: content.source, content: transformed };
+      return result;
+    });
+  }
+}
+
+function walk(node: Node, on: (node: Node) => Node): Node {
+  const current = on(node);
+
+  switch (current.type) {
+    case "map": {
+      const nextValue: Record<string, Node> = {};
+      for (const [key, child] of Object.entries(current.value)) {
+        nextValue[key] = walk(child, on);
+      }
+      return { ...current, value: nextValue };
     }
+
+    case "string":
+    case "boolean":
+    case "id":
+      return current;
   }
 }

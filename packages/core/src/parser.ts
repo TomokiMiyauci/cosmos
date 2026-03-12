@@ -1,107 +1,69 @@
-import type { StructureValue } from "@cosmos/core";
-import type {
-  BooleanValue,
-  ContentNode,
-  ContentValue,
-  Model,
-  ReferenceValue,
-  StringValue,
-  Structure,
-} from "./type.ts";
+import type { Config, Field, StructureValue } from "@cosmos/core";
+import type { Model, Node, Structure } from "./type.ts";
+
+interface CodecContext {
+  config: Config;
+}
 
 export class Parser {
-  *parse(content: Structure, model: Model): Iterable<ContentNode> {
-    for (const def of model.fields) {
-      if (!def.required && !(def.name in content)) {
-        continue;
+  parse(
+    content: Structure,
+    model: Model,
+    _: CodecContext,
+  ): Node {
+    if (typeof content === "string") throw new Error("syntax error");
+
+    const value = model.fields.reduce((acc, field) => {
+      const { name } = field;
+
+      if (name in content) {
+        const node = parseNode(content[name], field);
+
+        return {
+          ...acc,
+          [name]: node,
+        };
       }
-
-      const value = content[def.name];
-
-      switch (def.type) {
-        case "string": {
-          if (new StringValidator().validate(value)) {
-            yield { name: def.name, value: { type: "string", value } };
-            continue;
-          }
-
-          throw new Error();
-        }
-        case "boolean": {
-          if (new BooleanValidator().validate(value)) {
-            yield { name: def.name, value: { type: "boolean", value } };
-            continue;
-          }
-
-          throw new Error();
-        }
-
-        case "reference": {
-          if (new ReferenceValidator().validate(value)) {
-            yield { name: def.name, value: { type: "reference", value } };
-            continue;
-          }
-
-          throw new Error();
-        }
-      }
-    }
-  }
-
-  stringify(contentNodes: Iterable<ContentNode>): Structure {
-    return [...contentNodes].reduce<Structure>((acc, cur) => {
-      acc[cur.name] = strinigy(cur.value);
 
       return acc;
     }, {});
+
+    return {
+      type: "map",
+      value,
+    };
+  }
+
+  stringify(): Structure {
+    throw new Error("unimplemented");
   }
 }
 
-function strinigy(value: ContentValue): StructureValue {
-  switch (value.type) {
-    case "string":
-      return new StringSerializer().serialize(value);
-    case "boolean":
-      return new BooleanSerializer().serialize(value);
-    case "reference":
-      return new ReferenceSerializer().serialize(value);
-  }
-}
+function parseNode(content: StructureValue, field: Field): Node {
+  switch (field.type) {
+    case "string": {
+      if (typeof content !== "string") throw new SyntaxError();
 
-class StringSerializer {
-  serialize(node: StringValue): string {
-    return node.value;
-  }
-}
+      return {
+        type: "string",
+        value: content,
+      };
+    }
+    case "boolean": {
+      if (content === "true" || content === "false") throw new SyntaxError();
 
-class BooleanSerializer {
-  serialize(node: BooleanValue): string {
-    return node.value.toString();
-  }
-}
+      return {
+        type: "boolean",
+        value: content === "true" ? true : false,
+      };
+    }
+    case "reference": {
+      if (typeof content !== "string") throw new SyntaxError();
 
-class ReferenceSerializer {
-  serialize(node: ReferenceValue): StructureValue {
-    // TODO
-    // deno-lint-ignore no-explicit-any
-    return node.value as any;
-  }
-}
-
-class StringValidator {
-  validate(value: unknown): value is string {
-    return typeof value === "string";
-  }
-}
-
-class BooleanValidator {
-  validate(value: unknown): value is boolean {
-    return typeof value === "boolean";
-  }
-}
-
-class ReferenceValidator {
-  validate(value: unknown): value is URLPatternInit {
-    return !!value && typeof value === "object";
+      return {
+        type: "id",
+        value: content,
+      };
+    }
   }
 }

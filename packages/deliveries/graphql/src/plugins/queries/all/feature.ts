@@ -18,7 +18,7 @@ export class AllQueryFeature implements QueryFeature {
           type: new GraphQLList(schema.type),
           resolve: async () => {
             const result = await Promise.all(
-              schema.sources.map((url) => fetcher.fetch(url)),
+              schema.sources.map((url) => fetcher.fetch(url.toString())),
             );
 
             return result;

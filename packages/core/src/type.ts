@@ -1,26 +1,3 @@
-export type Schema = FieldMetaString | FieldMetaBoolean | FieldMetaReference;
-
-export interface FieldMetaBase {
-  name: string;
-  required: boolean;
-  description: string;
-}
-
-export interface FieldMetaString extends FieldMetaBase {
-  type: "string";
-}
-
-export interface FieldMetaBoolean extends FieldMetaBase {
-  type: "boolean";
-}
-
-export interface FieldMetaReference extends FieldMetaBase {
-  type: "reference";
-  to: string;
-}
-
-export type FieldType = Field["type"];
-
 export interface Manifest {
   version: string;
   definitions: Definition[];
@@ -61,6 +38,33 @@ export interface Model {
   format: FormatDefinition;
 }
 
+export type Field = StringField | BooleanField | ReferenceField;
+
+export interface FieldBase {
+  name: string;
+  description?: string;
+  required?: boolean;
+  type: string;
+}
+
+export interface StringField extends FieldBase {
+  type: "string";
+}
+
+export interface BooleanField extends FieldBase {
+  type: "boolean";
+}
+
+export interface ReferenceField extends FieldBase {
+  type: "reference";
+  to: string;
+}
+
+export interface MapField extends FieldBase {
+  type: "map";
+  fields: Field[];
+}
+
 export type FormatDefinition = {
   [K in keyof FormatterRegistry]:
     & FormatterDefinitionBase<K>
@@ -74,27 +78,6 @@ export interface FormatterDefinitionBase<T> {
 // deno-lint-ignore no-empty-interface
 export interface FormatterRegistry {}
 
-export type Field = StringField | BooleanField | ReferenceField;
-
-interface BaseField {
-  required?: boolean;
-  description?: string;
-  name: string;
-}
-
-export interface StringField extends BaseField {
-  type: "string";
-}
-
-export interface BooleanField extends BaseField {
-  type: "boolean";
-}
-
-export interface ReferenceField extends BaseField {
-  type: "reference";
-  to: string;
-}
-
 export interface Delivery {
   handle(request: Request, ctx: DeliveryContext): Promise<Response> | Response;
 }
@@ -105,7 +88,7 @@ export interface DeliveryContext {
 }
 
 export interface Fetcher {
-  fetch(url: URL): Structure | Promise<Structure>;
+  fetch(id: string): Node | Promise<Node>;
 }
 
 export interface Locator {
@@ -134,24 +117,56 @@ export interface Formatter<T = unknown> {
   serialize(content: Structure, ctx: FormatterContext<T>): string;
 }
 
-export interface ReferenceValue {
-  type: "reference";
-  value: URLPatternInit;
+export interface BaseSchema {
+  name: string;
+  type: string;
+  required: boolean;
+  description: string;
 }
 
-export interface StringValue {
+export interface IdSchema extends BaseSchema {
+  type: "id";
+  to: string;
+}
+
+export interface StringSchema extends BaseSchema {
   type: "string";
+}
+
+export interface BooleanSchema extends BaseSchema {
+  type: "boolean";
+}
+
+export interface MapSchema extends BaseSchema {
+  type: "map";
+  fields: Schema[];
+}
+
+export type Schema = IdSchema | StringSchema | BooleanSchema | MapSchema;
+
+export interface IdNode {
+  type: IdSchema["type"];
   value: string;
 }
 
-export interface BooleanValue {
-  type: "boolean";
+export interface StringNode {
+  type: StringSchema["type"];
+  value: string;
+}
+
+export interface BooleanNode {
+  type: BooleanSchema["type"];
   value: boolean;
 }
 
-export type ContentValue = StringValue | BooleanValue | ReferenceValue;
+export type Node = IdNode | StringNode | BooleanNode | MapNode;
 
-export interface ContentNode {
-  name: string;
-  value: ContentValue;
+export interface MapNode {
+  type: MapSchema["type"];
+  value: Record<string, Node>;
+}
+
+export interface Resource {
+  id: string;
+  node: Node;
 }

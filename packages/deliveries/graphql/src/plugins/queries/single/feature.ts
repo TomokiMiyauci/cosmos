@@ -18,9 +18,7 @@ export class SingleQueryFeature implements QueryFeature {
           type: schema.type,
           args: { id: { type: new GraphQLNonNull(GraphQLID) } },
           resolve: (_, { id }) => {
-            const url = new URL(id);
-
-            return fetcher.fetch(url);
+            return fetcher.fetch(id);
           },
         },
       };

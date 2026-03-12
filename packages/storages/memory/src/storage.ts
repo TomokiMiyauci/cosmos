@@ -6,6 +6,12 @@ export class MemoryStorage implements Storage {
   read(url: URL): Uint8Array {
     const content = this.#map.get(url.toString());
 
+    if (!content) {
+      console.log({
+        url,
+      });
+    }
+
     if (!content) throw new Error();
 
     return content;

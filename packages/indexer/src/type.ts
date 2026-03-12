@@ -1,18 +1,13 @@
-import type { Config, ContentNode } from "@cosmos/core";
+import type { Config, Node, Resource } from "@cosmos/core";
 
 export interface Transformer {
   transform(
-    contentNode: Readonly<ContentNode>,
+    contentNode: Readonly<Node>,
     ctx: Readonly<TransformContext>,
-  ): ContentNode | undefined;
+  ): Node;
 }
 
 export interface TransformContext {
   config: Config;
-  contents: ContentSource[];
-}
-
-export interface ContentSource {
-  source: URL;
-  content: Iterable<ContentNode>;
+  resources: Resource[];
 }

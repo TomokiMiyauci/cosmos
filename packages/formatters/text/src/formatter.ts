@@ -13,6 +13,8 @@ export class TextFormatter implements Formatter<TextOptions> {
   serialize(content: Structure, ctx: FormatterContext<TextOptions>): string {
     const body = content[ctx.options.field];
 
+    if (typeof body !== "string") throw new Error();
+
     return body;
   }
 }
