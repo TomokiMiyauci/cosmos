@@ -9,16 +9,22 @@ export interface Definition {
   members: string[];
 }
 
-export interface Entry {
-  key: string;
-  value: unknown;
-}
-
 export interface Config {
   source: Storage;
   locator: Locator;
   model: ModelDefinition;
   formatters: FormatterDefinition[];
+  fields: FieldDefinition;
+}
+
+export type FieldDefinition = {
+  [k in FieldType]: FieldCodec;
+};
+
+export interface FieldCodec {
+  parse(structure: StructureValue): Node;
+
+  strinigify(node: Node): StructureValue;
 }
 
 export interface FormatterDefinition {
@@ -40,27 +46,29 @@ export interface Model {
 
 export type Field = StringField | BooleanField | ReferenceField;
 
-export interface FieldBase {
+export interface BaseField {
   name: string;
   description?: string;
   required?: boolean;
   type: string;
 }
 
-export interface StringField extends FieldBase {
+type FieldType = Field["type"];
+
+export interface StringField extends BaseField {
   type: "string";
 }
 
-export interface BooleanField extends FieldBase {
+export interface BooleanField extends BaseField {
   type: "boolean";
 }
 
-export interface ReferenceField extends FieldBase {
+export interface ReferenceField extends BaseField {
   type: "reference";
   to: string;
 }
 
-export interface MapField extends FieldBase {
+export interface MapField extends BaseField {
   type: "map";
   fields: Field[];
 }
