@@ -1,14 +1,14 @@
 import type {
   GraphQLQueryField,
   QueryContext,
-  QueryFeature,
+  SchemaPlugin,
 } from "../../../type.ts";
 import { GraphQLID, GraphQLNonNull } from "graphql";
 
-export class SingleQueryFeature implements QueryFeature {
-  feature = "query" as const;
+export class ItemPlugin implements SchemaPlugin {
+  name = "item";
 
-  provide(ctx: QueryContext): GraphQLQueryField[] {
+  provideQuery(ctx: QueryContext): GraphQLQueryField[] {
     const { fetcher, entries } = ctx;
 
     return entries.map((schema) => {
