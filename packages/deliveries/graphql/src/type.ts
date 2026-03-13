@@ -17,10 +17,15 @@ export interface QueryContext {
 
 export interface GraphEntry {
   type: GraphQLObjectType;
-  sources: URL[];
+  sources: string[];
 }
 
 export interface GraphQLQueryField {
   name: string;
   field: GraphQLFieldConfig<unknown, unknown>;
+}
+
+export interface SchemaPlugin {
+  name: string;
+  provideQuery(ctx: QueryContext): GraphQLQueryField[];
 }

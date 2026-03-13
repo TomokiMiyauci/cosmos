@@ -17,71 +17,74 @@ import {
   GraphQLString,
   type ThunkObjMap,
 } from "graphql";
-import type { GraphEntry } from "./type.ts";
-import { SingleQueryFeature } from "./plugins/queries/single/feature.ts";
-import { AllQueryFeature } from "./plugins/queries/all/feature.ts";
-import { RelayQueryFeature } from "./plugins/queries/relay/feature.ts";
+import type { GraphEntry, SchemaPlugin } from "./type.ts";
 
-export function createSchemaFromManifest(
-  manifest: Manifest,
-  fetcher: Fetcher,
-): GraphQLSchema {
-  const models = manifest.definitions.map((definition) => {
-    const fields: ThunkObjMap<GraphQLFieldConfig<unknown, unknown>> = () =>
-      definition.schemas.reduce((acc, cur) => {
-        const field = resolveScalarType(
-          cur,
-          fetcher,
-          models.map(([model]) => model),
-        );
+export interface SchemaConfig {
+  plugins: SchemaPlugin[];
+}
 
-        const finalField = resolverOverride(field, cur.name);
+export interface BuilderContext {
+  manifest: Manifest;
+  fetcher: Fetcher;
+}
 
-        return {
-          ...acc,
-          [cur.name]: finalField,
-        };
-      }, {});
+export class SchemaBuilder {
+  constructor(private config: SchemaConfig) {}
 
-    return [
-      new GraphQLObjectType({
-        name: definition.name,
-        fields,
-      }),
-      definition.members,
-    ] satisfies [GraphQLObjectType, string[]];
-  });
+  build(ctx: BuilderContext): GraphQLSchema {
+    const models = ctx.manifest.definitions.map((definition) => {
+      const fields: ThunkObjMap<GraphQLFieldConfig<unknown, unknown>> = () =>
+        definition.schemas.reduce((acc, cur) => {
+          const field = resolveScalarType(
+            cur,
+            ctx.fetcher,
+            models.map(([model]) => model),
+          );
 
-  const entries: GraphEntry[] = models.map(([model, ids]) => {
-    const sources = ids.map((id) => new URL(id));
+          const finalField = resolverOverride(field, cur.name);
 
-    return {
-      type: model,
-      sources,
-    };
-  });
-  const queryFields = [
-    new SingleQueryFeature(),
-    new AllQueryFeature(),
-    new RelayQueryFeature(),
-  ]
-    .map((registry) => {
-      return registry.provide({ fetcher, entries });
-    })
-    .flat();
+          return {
+            ...acc,
+            [cur.name]: finalField,
+          };
+        }, {});
 
-  const fields = queryFields.reduce<
-    ThunkObjMap<GraphQLFieldConfig<unknown, unknown, unknown>>
-  >((acc, field) => {
-    return {
-      ...acc,
-      [field.name]: field.field,
-    };
-  }, {});
+      return [
+        new GraphQLObjectType({
+          name: definition.name,
+          fields,
+        }),
+        definition.members,
+      ] satisfies [GraphQLObjectType, string[]];
+    });
 
-  return new GraphQLSchema({
-    query: new GraphQLObjectType({ name: "Query", fields }),
-  });
+    const entries: GraphEntry[] = models.map(([model, ids]) => {
+      return {
+        type: model,
+        sources: ids,
+      };
+    });
+
+    const queryFields = this.config.plugins
+      .map((registry) => {
+        return registry.provideQuery({ fetcher: ctx.fetcher, entries });
+      })
+      .flat();
+
+    const fields = queryFields.reduce<
+      ThunkObjMap<GraphQLFieldConfig<unknown, unknown, unknown>>
+    >((acc, field) => {
+      return {
+        ...acc,
+        [field.name]: field.field,
+      };
+    }, {});
+
+    const query = new GraphQLObjectType({ name: "Query", fields });
+    const shcema = new GraphQLSchema({ query });
+
+    return shcema;
+  }
 }
 
 function resolveScalarType(
