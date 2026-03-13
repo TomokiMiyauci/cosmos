@@ -20,6 +20,7 @@ import {
 import type { GraphEntry } from "./type.ts";
 import { SingleQueryFeature } from "./plugins/queries/single/feature.ts";
 import { AllQueryFeature } from "./plugins/queries/all/feature.ts";
+import { RelayQueryFeature } from "./plugins/queries/relay/feature.ts";
 
 export function createSchemaFromManifest(
   manifest: Manifest,
@@ -59,7 +60,11 @@ export function createSchemaFromManifest(
       sources,
     };
   });
-  const queryFields = [new SingleQueryFeature(), new AllQueryFeature()]
+  const queryFields = [
+    new SingleQueryFeature(),
+    new AllQueryFeature(),
+    new RelayQueryFeature(),
+  ]
     .map((registry) => {
       return registry.provide({ fetcher, entries });
     })
