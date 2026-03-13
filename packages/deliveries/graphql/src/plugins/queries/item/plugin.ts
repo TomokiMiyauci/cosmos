@@ -4,7 +4,7 @@ import type {
   SchemaPlugin,
 } from "../../../type.ts";
 import { GraphQLID, GraphQLNonNull } from "graphql";
-
+import { toCamelCase } from "@std/text";
 export class ItemPlugin implements SchemaPlugin {
   name = "item";
 
@@ -12,8 +12,10 @@ export class ItemPlugin implements SchemaPlugin {
     const { fetcher, entries } = ctx;
 
     return entries.map((schema) => {
+      const name = toCamelCase(schema.type.name);
+
       return {
-        name: schema.type.name,
+        name,
         field: {
           type: schema.type,
           args: { id: { type: new GraphQLNonNull(GraphQLID) } },

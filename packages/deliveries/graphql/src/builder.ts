@@ -18,6 +18,7 @@ import {
   type ThunkObjMap,
 } from "graphql";
 import type { GraphEntry, SchemaPlugin } from "./type.ts";
+import { toPascalCase } from "@std/text";
 
 export interface SchemaConfig {
   plugins: SchemaPlugin[];
@@ -51,7 +52,7 @@ export class SchemaBuilder {
 
       return [
         new GraphQLObjectType({
-          name: definition.name,
+          name: toPascalCase(definition.name),
           fields,
         }),
         definition.members,
@@ -95,7 +96,9 @@ function resolveScalarType(
   function resolveBase(): GraphQLFieldConfig<Node, unknown> {
     switch (schema.type) {
       case "id": {
-        const model = models.find((model) => schema.to === model.name);
+        const model = models.find((model) =>
+          toPascalCase(schema.to) === model.name
+        );
 
         if (!model) throw new Error("unreachable");
 
