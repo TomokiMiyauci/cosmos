@@ -1,14 +1,14 @@
 {
-    "name": "Deno",
-    "dockerFile": "Dockerfile",
-    "customizations": {
-        "vscode": {
-            "settings": {
-                "terminal.integrated.shell.linux": "/bin/bash"
-            },
-            "extensions": [
-                "denoland.vscode-deno"
-            ]
-        }
+  "name": "Deno",
+  "dockerFile": "Dockerfile",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      },
+      "extensions": [
+        "denoland.vscode-deno"
+      ]
     }
+  }
 }
