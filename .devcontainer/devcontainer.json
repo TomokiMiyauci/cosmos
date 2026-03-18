@@ -1,6 +1,6 @@
 {
   "name": "Deno",
-  "dockerFile": "Dockerfile",
+  "image": "denoland/deno",
   "customizations": {
     "vscode": {
       "settings": {
@@ -9,6 +9,11 @@
       "extensions": [
         "denoland.vscode-deno"
       ]
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
     }
   }
 }
