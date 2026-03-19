@@ -17,11 +17,13 @@ import {
   GraphQLString,
   type ThunkObjMap,
 } from "graphql";
-import type { GraphEntry, SchemaPlugin } from "./type.ts";
-import { toPascalCase } from "@std/text";
+import type { GraphEntry, NamingStrategy, SchemaPlugin } from "./type.ts";
+import { toCamelCase, toPascalCase } from "@std/text";
+import { overrideName } from "./util.ts";
 
 export interface SchemaConfig {
   plugins: SchemaPlugin[];
+  namer?: NamingStrategy;
 }
 
 export interface BuilderContext {
@@ -30,7 +32,10 @@ export interface BuilderContext {
 }
 
 export class SchemaBuilder {
-  constructor(private config: SchemaConfig) {}
+  #namer: NamingStrategy;
+  constructor(private config: SchemaConfig) {
+    this.#namer = config.namer ?? defaultNamer;
+  }
 
   build(ctx: BuilderContext): GraphQLSchema {
     const models = ctx.manifest.definitions.map((definition) => {
@@ -77,16 +82,26 @@ export class SchemaBuilder {
     >((acc, field) => {
       return {
         ...acc,
-        [field.name]: field.field,
+        [field.name]: field.type,
       };
     }, {});
 
     const query = new GraphQLObjectType({ name: "Query", fields });
-    const shcema = new GraphQLSchema({ query });
+    const schema = new GraphQLSchema({ query });
+    const finalSchema = overrideName(this.#namer, schema);
 
-    return shcema;
+    return finalSchema;
   }
 }
+
+const defaultNamer = {
+  field(name): string {
+    return toCamelCase(name);
+  },
+  type(name): string {
+    return toPascalCase(name);
+  },
+} satisfies NamingStrategy;
 
 function resolveScalarType(
   schema: Schema,

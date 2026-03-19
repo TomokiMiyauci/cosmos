@@ -1,6 +1,7 @@
 {
   "name": "@cosmos/delivery-graphql",
   "imports": {
+    "@graphql-tools/utils": "npm:@graphql-tools/utils@^11.0.0",
     "@std/collections": "jsr:@std/collections@^1.1.6",
     "@std/text": "jsr:@std/text@^1.0.17",
     "graphql": "npm:graphql@^16.13.0",

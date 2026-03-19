@@ -29,3 +29,8 @@ export interface SchemaPlugin {
   name: string;
   provideQuery(ctx: QueryContext): GraphQLQueryField[];
 }
+
+export interface NamingStrategy {
+  field(name: string): string;
+  type(name: string): string;
+}
