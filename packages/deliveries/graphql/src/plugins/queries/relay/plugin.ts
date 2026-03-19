@@ -23,7 +23,7 @@ export class RelayPlugin implements SchemaPlugin {
 
       return {
         name,
-        field: {
+        type: {
           type: connectionType,
           args: connectionArgs,
           async resolve(_, args): Promise<Connection<Node>> {

@@ -22,7 +22,7 @@ export interface GraphEntry {
 
 export interface GraphQLQueryField {
   name: string;
-  field: GraphQLFieldConfig<unknown, unknown>;
+  type: GraphQLFieldConfig<unknown, unknown>;
 }
 
 export interface SchemaPlugin {

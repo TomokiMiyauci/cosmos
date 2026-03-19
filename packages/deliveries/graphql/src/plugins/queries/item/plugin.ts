@@ -16,7 +16,7 @@ export class ItemPlugin implements SchemaPlugin {
 
       return {
         name,
-        field: {
+        type: {
           type: schema.type,
           args: { id: { type: new GraphQLNonNull(GraphQLID) } },
           resolve: (_, { id }) => {
