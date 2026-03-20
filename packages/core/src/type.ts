@@ -174,7 +174,7 @@ export interface MapNode {
   value: Record<string, Node>;
 }
 
-export interface Resource {
+export interface NodeObject {
   id: string;
   node: Node;
 }

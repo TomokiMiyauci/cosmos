@@ -21,7 +21,7 @@ export type {
   Model,
   ModelDefinition,
   Node,
-  Resource,
+  NodeObject,
   Schema,
   Storage,
   StringNode,

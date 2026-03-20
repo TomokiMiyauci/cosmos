@@ -4,14 +4,13 @@ import {
   type Field,
   type Manifest,
   mergeURLPatternInput,
+  type NodeObject,
   Parser,
   resolveFormatter,
-  type Resource,
   type Schema,
   type Storage,
 } from "@cosmos/core";
 import { Visitor } from "./util.ts";
-import { ReferenceTransfomer } from "./transformers/reference.ts";
 
 export class Indexer {
   constructor(public config: Config) {}
@@ -24,7 +23,7 @@ export class Indexer {
         [type]: formatter,
       };
     }, {});
-    const resources: Resource[] = [];
+    const resources: NodeObject[] = [];
     const promise = model.models.map(async (def) => {
       const patternInit = mergeURLPatternInput(model.base, def.pattern);
       const pattern = new URLPattern(patternInit);
