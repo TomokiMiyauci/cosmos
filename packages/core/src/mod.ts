@@ -17,7 +17,7 @@ export type {
   IdNode,
   Indexer,
   IndexerDefinition,
-  IndexerManager,
+  IndexManager,
   Manifest,
   MapNode,
   MapSchema,

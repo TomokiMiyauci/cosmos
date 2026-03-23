@@ -14,7 +14,7 @@ export interface Config {
   fields: FieldDefinition;
   resouces: Resource[];
   storages: StorageService[];
-  indexers: IndexerManager[];
+  indexes: IndexManager[];
 }
 
 export interface StorageService extends Storage {
@@ -127,9 +127,8 @@ export interface Indexer<T = unknown> {
   search(options: T): AsyncIterable<URL>;
 }
 
-export interface IndexerManager {
+export interface IndexManager extends Indexer {
   type: string;
-  indexer: Indexer;
 }
 
 export type StructureValue = string | Structure;
