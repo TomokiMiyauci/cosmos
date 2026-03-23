@@ -1,0 +1,6 @@
+{
+  "name": "@cosmos/service-file",
+  "exports": {
+    ".": "./src/mod.ts"
+  }
+}
