@@ -10,11 +10,15 @@ export interface Definition {
 }
 
 export interface Config {
-  source: Storage;
-  locator: Locator;
-  model: ModelDefinition;
   formatters: FormatterDefinition[];
   fields: FieldDefinition;
+  resouces: Resource[];
+  storages: StorageService[];
+  indexers: IndexerManager[];
+}
+
+export interface StorageService extends Storage {
+  supports(url: URL): boolean;
 }
 
 export type FieldDefinition = {
@@ -103,9 +107,29 @@ export interface Locator {
   locate(location: URLPattern): Promise<URL[]> | URL[];
 }
 
+export interface Resource {
+  model: Model;
+  indexer: IndexerDefinition;
+}
+
+export interface IndexerDefinition {
+  type: string;
+  options: unknown;
+}
+
 export interface Storage {
   read(url: URL): Uint8Array | Promise<Uint8Array>;
-  write(url: URL, conetnt: Uint8Array): void | Promise<void>;
+  write(url: URL, content: Uint8Array): void | Promise<void>;
+  delete(url: URL): void | Promise<void>;
+}
+
+export interface Indexer<T = unknown> {
+  search(options: T): AsyncIterable<URL>;
+}
+
+export interface IndexerManager {
+  type: string;
+  indexer: Indexer;
 }
 
 export type StructureValue = string | Structure;
