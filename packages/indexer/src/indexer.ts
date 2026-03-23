@@ -2,21 +2,22 @@ import {
   type Config,
   type Definition,
   type Field,
+  type IndexManager,
   type Manifest,
-  mergeURLPatternInput,
   type NodeObject,
   Parser,
   resolveFormatter,
   type Schema,
   type Storage,
+  type StorageService,
 } from "@cosmos/core";
 import { Visitor } from "./util.ts";
 
 export class Indexer {
-  constructor(public config: Config) {}
+  constructor(private config: Config) {}
 
   async index(storage: Storage): Promise<Manifest> {
-    const { model, locator, source, formatters } = this.config;
+    const { formatters, resouces, indexes, storages } = this.config;
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
       return {
         ...acc,
@@ -24,19 +25,28 @@ export class Indexer {
       };
     }, {});
     const resources: NodeObject[] = [];
-    const promise = model.models.map(async (def) => {
-      const patternInit = mergeURLPatternInput(model.base, def.pattern);
-      const pattern = new URLPattern(patternInit);
-      const urls = await locator.locate(pattern);
+    const promise = resouces.map(async (resource) => {
+      const { model } = resource;
+
+      const indexerType = resource.indexer.type;
+
+      const indexer = resolveIndexer(indexes, indexerType);
+      const iter = indexer.search(resource.indexer.options);
+
+      const urls = await Array.fromAsync(iter);
+
       const contents = await Promise.all(urls.map(async (url) => {
+        const storage = resolveStorage(storages, url);
+        const content = await storage.read(url);
+
         return {
           url,
-          content: await source.read(url),
+          content,
         };
       }));
 
-      const schemas = def.fields.map(fieldToSchema);
-      const formatter = resolveFormatter(def.format, formatterMap);
+      const schemas = model.fields.map(fieldToSchema);
+      const formatter = resolveFormatter(model.format, formatterMap);
       const decoder = new TextDecoder();
 
       const jsons = contents.map(({ content, url }) => {
@@ -46,20 +56,20 @@ export class Indexer {
           key: url,
           value: formatter.parse(text, {
             config: this.config,
-            options: def.format,
+            options: model.format,
           }),
         };
       });
 
       const members = jsons.map(({ key }) => key.toString());
       jsons.forEach(({ key, value }) => {
-        const node = new Parser().parse(value, def, { config: this.config });
+        const node = new Parser().parse(value, model, { config: this.config });
 
         resources.push({ id: key.toString(), node });
       });
 
       const definition = {
-        name: def.name,
+        name: model.name,
         schemas,
         members,
       } satisfies Definition;
@@ -95,6 +105,25 @@ export class Indexer {
       definitions,
     };
   }
+}
+
+function resolveIndexer(
+  indexers: IndexManager[],
+  type: string,
+): IndexManager {
+  const indexer = indexers.find((indexer) => indexer.type === type);
+
+  if (!indexer) throw new Error();
+
+  return indexer;
+}
+
+function resolveStorage(storages: StorageService[], url: URL): Storage {
+  for (const storage of storages) {
+    if (storage.supports(url)) return storage;
+  }
+
+  throw new Error();
 }
 
 function fieldToSchema(field: Field): Schema {
