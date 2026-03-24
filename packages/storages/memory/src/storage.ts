@@ -20,4 +20,8 @@ export class MemoryStorage implements Storage {
   write(url: URL, conetnt: Uint8Array): void {
     this.#map.set(url.toString(), conetnt);
   }
+
+  delete(url: URL): void {
+    this.#map.delete(url.toString());
+  }
 }

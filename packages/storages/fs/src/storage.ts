@@ -8,4 +8,8 @@ export class FsStorage implements Storage {
   read(url: URL): Promise<Uint8Array> {
     return Deno.readFile(url);
   }
+
+  delete(url: URL): Promise<void> {
+    return Deno.remove(url);
+  }
 }
