@@ -44,7 +44,6 @@ export interface ModelDefinition {
 export interface Model {
   name: string;
   fields: Field[];
-  pattern: URLPatternInit;
   format: FormatDefinition;
 }
 
