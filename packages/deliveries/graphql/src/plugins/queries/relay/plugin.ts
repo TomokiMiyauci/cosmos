@@ -10,7 +10,6 @@ import type {
   QueryContext,
   SchemaPlugin,
 } from "../../../type.ts";
-import { toCamelCase } from "@std/text";
 
 export class RelayPlugin implements SchemaPlugin {
   name = "relay";
@@ -19,7 +18,8 @@ export class RelayPlugin implements SchemaPlugin {
       const { connectionType } = connectionDefinitions({
         nodeType: entry.type,
       });
-      const name = `${toCamelCase(entry.type.name)}Collection`;
+      const name = `${entry.type.name}Collection`;
+      const fetch = ctx.fetcher.fetch.bind(ctx.fetcher);
 
       return {
         name,
@@ -28,7 +28,7 @@ export class RelayPlugin implements SchemaPlugin {
           args: connectionArgs,
           async resolve(_, args): Promise<Connection<Node>> {
             const sources = entry.sources;
-            const promise = sources.map(ctx.fetcher.fetch.bind(ctx.fetcher));
+            const promise = sources.map(fetch);
             const result = await Promise.all(promise);
             const collection = connectionFromArray(result, args);
 
