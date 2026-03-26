@@ -17,14 +17,14 @@ import {
   GraphQLString,
   type ThunkObjMap,
 } from "graphql";
-import type { GraphEntry, NamingStrategy, SchemaPlugin } from "./type.ts";
+import type { GraphEntry, Namer, SchemaPlugin } from "./type.ts";
 import { GraphQLDateTime } from "graphql-scalars";
 import { toCamelCase, toPascalCase } from "@std/text";
 import { overrideName } from "./util.ts";
 
 export interface SchemaConfig {
   plugins: SchemaPlugin[];
-  namer?: NamingStrategy;
+  namer?: Namer;
 }
 
 export interface BuilderContext {
@@ -33,7 +33,7 @@ export interface BuilderContext {
 }
 
 export class SchemaBuilder {
-  #namer: NamingStrategy;
+  #namer: Namer;
   constructor(private config: SchemaConfig) {
     this.#namer = config.namer ?? defaultNamer;
   }
@@ -102,7 +102,7 @@ const defaultNamer = {
   type(name): string {
     return toPascalCase(name);
   },
-} satisfies NamingStrategy;
+} satisfies Namer;
 
 function resolveScalarType(
   schema: Schema,

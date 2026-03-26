@@ -30,7 +30,7 @@ export interface SchemaPlugin {
   provideQuery(ctx: QueryContext): GraphQLQueryField[];
 }
 
-export interface NamingStrategy {
+export interface Namer {
   field(name: string): string;
   type(name: string): string;
 }
