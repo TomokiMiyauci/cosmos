@@ -19,8 +19,8 @@ import {
 } from "graphql";
 import type { GraphEntry, Namer, SchemaPlugin } from "./type.ts";
 import { GraphQLDateTime } from "graphql-scalars";
-import { toCamelCase, toPascalCase } from "@std/text";
 import { overrideName } from "./util.ts";
+import { StandardNamer } from "./namers/standard.ts";
 
 export interface SchemaConfig {
   plugins: SchemaPlugin[];
@@ -35,7 +35,7 @@ export interface BuilderContext {
 export class SchemaBuilder {
   #namer: Namer;
   constructor(private config: SchemaConfig) {
-    this.#namer = config.namer ?? defaultNamer;
+    this.#namer = config.namer ?? new StandardNamer();
   }
 
   build(ctx: BuilderContext): GraphQLSchema {
@@ -91,15 +91,6 @@ export class SchemaBuilder {
     return finalSchema;
   }
 }
-
-const defaultNamer = {
-  field(name): string {
-    return toCamelCase(name);
-  },
-  type(name): string {
-    return toPascalCase(name);
-  },
-} satisfies Namer;
 
 function resolveScalarType(
   schema: Schema,
