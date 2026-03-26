@@ -18,6 +18,7 @@ import {
   type ThunkObjMap,
 } from "graphql";
 import type { GraphEntry, NamingStrategy, SchemaPlugin } from "./type.ts";
+import { GraphQLDateTime } from "graphql-scalars";
 import { toCamelCase, toPascalCase } from "@std/text";
 import { overrideName } from "./util.ts";
 
@@ -164,6 +165,15 @@ function resolveScalarType(
       case "string": {
         return {
           type: GraphQLString,
+          resolve: (node) => {
+            return (node as StringNode).value;
+          },
+        };
+      }
+
+      case "datetime": {
+        return {
+          type: GraphQLDateTime,
           resolve: (node) => {
             return (node as StringNode).value;
           },
