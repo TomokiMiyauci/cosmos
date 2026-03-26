@@ -1,6 +1,0 @@
-{
-  "name": "@cosmos/storage-rdb",
-  "exports": {
-    ".": "./src/mod.ts"
-  }
-}
