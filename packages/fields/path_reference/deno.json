@@ -1,0 +1,9 @@
+{
+  "name": "@cosmos/field-path-reference",
+  "exports": {
+    ".": "./src/mod.ts"
+  },
+  "imports": {
+    "@std/path": "jsr:@std/path@^1.1.4"
+  }
+}
