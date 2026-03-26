@@ -110,10 +110,6 @@ export interface Fetcher {
   fetch(id: string): Node | Promise<Node>;
 }
 
-export interface Locator {
-  locate(location: URLPattern): Promise<URL[]> | URL[];
-}
-
 export interface Resource {
   model: Model;
   indexer: IndexerDefinition;

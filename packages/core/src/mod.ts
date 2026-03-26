@@ -36,10 +36,5 @@ export type {
   Structure,
   StructureValue,
 } from "./type.ts";
-export { FileLocator } from "./locators/file.ts";
 export { Parser } from "./parser.ts";
-export {
-  mergeURLPatternInput,
-  resolveFormatter,
-  StructuredURL,
-} from "./url.ts";
+export { resolveFormatter } from "./url.ts";
