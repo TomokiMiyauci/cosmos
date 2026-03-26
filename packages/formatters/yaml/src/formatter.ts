@@ -3,7 +3,7 @@ import { parse, stringify } from "@std/yaml";
 
 export class YamlFormatter implements Formatter {
   parse(content: string): Structure {
-    const result = parse(content);
+    const result = parse(content, { schema: "failsafe" });
 
     this.#assert(result);
 
