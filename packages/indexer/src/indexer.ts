@@ -63,7 +63,10 @@ export class Indexer {
 
       const members = jsons.map(({ key }) => key.toString());
       jsons.forEach(({ key, value }) => {
-        const node = new Parser().parse(value, model, { config: this.config });
+        const node = new Parser().parse(value, model, {
+          config: this.config,
+          url: key,
+        });
 
         resources.push({ id: key.toString(), node });
       });

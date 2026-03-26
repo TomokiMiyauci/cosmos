@@ -26,9 +26,13 @@ export type FieldDefinition = {
 };
 
 export interface FieldCodec {
-  parse(structure: StructureValue): Node;
+  parse(structure: StructureValue, ctx: FieldContext): Node;
 
   strinigify(node: Node): StructureValue;
+}
+
+export interface FieldContext {
+  url: URL;
 }
 
 export interface FormatterDefinition {

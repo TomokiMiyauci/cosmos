@@ -3,6 +3,7 @@ import type { Model, Node, Structure } from "./type.ts";
 
 interface CodecContext {
   config: Config;
+  url: URL;
 }
 
 export class Parser {
@@ -18,7 +19,7 @@ export class Parser {
 
       if (name in content) {
         const codec = ctx.config.fields[field.type];
-        const node = codec.parse(content[name]);
+        const node = codec.parse(content[name], { url: ctx.url });
 
         return {
           ...acc,

@@ -10,6 +10,7 @@ export type {
   Fetcher,
   Field,
   FieldCodec,
+  FieldContext,
   FieldDefinition,
   FormatDefinition,
   Formatter,
