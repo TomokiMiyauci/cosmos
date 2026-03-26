@@ -1,0 +1,6 @@
+{
+  "name": "@cosmos/field-datetime",
+  "exports": {
+    ".": "./src/mod.ts"
+  }
+}
