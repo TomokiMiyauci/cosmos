@@ -57,10 +57,7 @@ export class SchemaBuilder {
         }, {});
 
       return [
-        new GraphQLObjectType({
-          name: toPascalCase(definition.name),
-          fields,
-        }),
+        new GraphQLObjectType({ name: definition.name, fields }),
         definition.members,
       ] satisfies [GraphQLObjectType, string[]];
     });
@@ -112,9 +109,7 @@ function resolveScalarType(
   function resolveBase(): GraphQLFieldConfig<Node, unknown> {
     switch (schema.type) {
       case "id": {
-        const model = models.find((model) =>
-          toPascalCase(schema.to) === model.name
-        );
+        const model = models.find((model) => schema.to === model.name);
 
         if (!model) throw new Error("unreachable");
 
