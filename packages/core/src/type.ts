@@ -47,7 +47,7 @@ export interface Model {
   format: FormatDefinition;
 }
 
-export type Field = StringField | BooleanField | ReferenceField;
+export type Field = StringField | BooleanField | ReferenceField | DatetimeField;
 
 export interface BaseField {
   name: string;
@@ -56,7 +56,7 @@ export interface BaseField {
   type: string;
 }
 
-type FieldType = Field["type"];
+export type FieldType = Field["type"];
 
 export interface StringField extends BaseField {
   type: "string";
@@ -69,6 +69,10 @@ export interface BooleanField extends BaseField {
 export interface ReferenceField extends BaseField {
   type: "reference";
   to: string;
+}
+
+export interface DatetimeField extends BaseField {
+  type: "datetime";
 }
 
 export interface MapField extends BaseField {
@@ -167,12 +171,21 @@ export interface BooleanSchema extends BaseSchema {
   type: "boolean";
 }
 
+export interface DatatimeSchema extends BaseSchema {
+  type: "datetime";
+}
+
 export interface MapSchema extends BaseSchema {
   type: "map";
   fields: Schema[];
 }
 
-export type Schema = IdSchema | StringSchema | BooleanSchema | MapSchema;
+export type Schema =
+  | IdSchema
+  | StringSchema
+  | BooleanSchema
+  | MapSchema
+  | DatatimeSchema;
 
 export interface IdNode {
   type: IdSchema["type"];
@@ -189,7 +202,14 @@ export interface BooleanNode {
   value: boolean;
 }
 
-export type Node = IdNode | StringNode | BooleanNode | MapNode;
+export interface DatetimeNode {
+  type: DatatimeSchema["type"];
+  value: Date;
+}
+
+export type NodeValue = IdNode | StringNode | BooleanNode | DatetimeNode;
+
+export type Node = NodeValue | MapNode;
 
 export interface MapNode {
   type: MapSchema["type"];

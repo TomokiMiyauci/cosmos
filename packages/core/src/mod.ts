@@ -1,6 +1,9 @@
 export type {
   BooleanNode,
   Config,
+  DatatimeSchema,
+  DatetimeField,
+  DatetimeNode,
   Definition,
   Delivery,
   DeliveryContext,
