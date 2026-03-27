@@ -97,11 +97,11 @@ export interface FormatterDefinitionBase<T> {
 // deno-lint-ignore no-empty-interface
 export interface FormatterRegistry {}
 
-export interface Delivery {
-  handle(request: Request, ctx: DeliveryContext): Promise<Response> | Response;
+export interface Protocol {
+  handle(request: Request, ctx: ProtocolContext): Promise<Response> | Response;
 }
 
-export interface DeliveryContext {
+export interface ProtocolContext {
   manifest: Manifest;
   fetcher: Fetcher;
 }

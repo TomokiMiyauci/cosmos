@@ -1,15 +1,15 @@
-import type { Delivery, DeliveryContext } from "@cosmos/core";
+import type { Protocol, ProtocolContext } from "@cosmos/core";
 import { SchemaBuilder } from "./builder.ts";
 import { createSchema, createYoga } from "graphql-yoga";
 import type { SchemaPlugin } from "./type.ts";
 
-export interface GraphQLDeliveryConfig {
+export interface GraphqlConfig {
   plugins: SchemaPlugin[];
 }
 
-export class GraphQLDelivery implements Delivery {
-  constructor(private config: GraphQLDeliveryConfig) {}
-  handle(request: Request, ctx: DeliveryContext): Promise<Response> {
+export class GraphqlProtocol implements Protocol {
+  constructor(private config: GraphqlConfig) {}
+  handle(request: Request, ctx: ProtocolContext): Promise<Response> {
     const builder = new SchemaBuilder({ plugins: this.config.plugins });
     const schema = builder.build({
       manifest: ctx.manifest,

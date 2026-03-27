@@ -1,1 +1,1 @@
-export { GraphQLDelivery } from "./delivery.ts";
+export { GraphqlProtocol } from "./delivery.ts";
