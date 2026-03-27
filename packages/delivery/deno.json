@@ -1,0 +1,7 @@
+{
+  "name": "@cosmos/delivery",
+  "exports": {
+    ".": "./src/mod.ts",
+    "./lifetime-cache": "./src/middleware/lifetime_cache.ts"
+  }
+}
