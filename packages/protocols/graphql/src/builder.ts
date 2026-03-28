@@ -57,7 +57,11 @@ export class SchemaBuilder {
         }, {});
 
       return [
-        new GraphQLObjectType({ name: definition.name, fields }),
+        new GraphQLObjectType({
+          name: definition.name,
+          fields,
+          description: definition.description,
+        }),
         definition.members,
       ] satisfies [GraphQLObjectType, string[]];
     });

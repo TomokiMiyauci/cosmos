@@ -73,6 +73,7 @@ export class Indexer {
 
       const definition = {
         name: model.name,
+        description: model.description ?? "",
         schemas,
         members,
       } satisfies Definition;

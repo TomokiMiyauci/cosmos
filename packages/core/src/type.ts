@@ -5,6 +5,7 @@ export interface Manifest {
 
 export interface Definition {
   name: string;
+  description: string;
   schemas: Schema[];
   members: string[];
 }
@@ -47,6 +48,7 @@ export interface ModelDefinition {
 
 export interface Model {
   name: string;
+  description?: string;
   fields: Field[];
   format: FormatDefinition;
 }
