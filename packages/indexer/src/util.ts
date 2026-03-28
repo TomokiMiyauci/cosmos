@@ -27,7 +27,7 @@ export class Visitor {
   }
 }
 
-function walk(node: Node, on: (node: Node) => Node): Node {
+export function walk(node: Node, on: (node: Node) => Node): Node {
   const current = on(node);
 
   switch (current.type) {
@@ -43,6 +43,7 @@ function walk(node: Node, on: (node: Node) => Node): Node {
     case "string":
     case "boolean":
     case "id":
+    case "asset":
       return current;
   }
 }

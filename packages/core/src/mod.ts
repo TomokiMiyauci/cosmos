@@ -1,4 +1,8 @@
 export type {
+  AssetField,
+  AssetMapping,
+  AssetNode,
+  AssetSchema,
   BooleanNode,
   Config,
   DatatimeSchema,

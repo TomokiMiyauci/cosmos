@@ -87,6 +87,11 @@ function toJsonSchema(schema: Schema): OpenAPIV3_1.SchemaObject {
         type: "number",
       };
     }
+    case "asset": {
+      return {
+        type: "string",
+      };
+    }
     case "id":
     case "map": {
       return {};

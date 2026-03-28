@@ -1,5 +1,8 @@
 import type {
+  AssetMapping,
+  AssetNode,
   BooleanNode,
+  DatetimeNode,
   Fetcher,
   IdNode,
   Manifest,
@@ -18,7 +21,7 @@ import {
   type ThunkObjMap,
 } from "graphql";
 import type { GraphEntry, Namer, SchemaPlugin } from "./type.ts";
-import { GraphQLDateTime } from "graphql-scalars";
+import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
 import { overrideName } from "./util.ts";
 import { StandardNamer } from "./namers/standard.ts";
 
@@ -30,6 +33,7 @@ export interface SchemaConfig {
 export interface BuilderContext {
   manifest: Manifest;
   fetcher: Fetcher;
+  asset: AssetMapping;
 }
 
 export class SchemaBuilder {
@@ -46,6 +50,7 @@ export class SchemaBuilder {
             cur,
             ctx.fetcher,
             models.map(([model]) => model),
+            ctx.asset,
           );
 
           const finalField = resolverOverride(field, cur.name);
@@ -100,6 +105,7 @@ function resolveScalarType(
   schema: Schema,
   fetcher: Fetcher,
   models: GraphQLObjectType[],
+  asset: AssetMapping,
 ): GraphQLFieldConfig<Node, unknown> {
   function resolveBase(): GraphQLFieldConfig<Node, unknown> {
     switch (schema.type) {
@@ -120,7 +126,7 @@ function resolveScalarType(
 
       case "map": {
         const fields = schema.fields.reduce((acc, field) => {
-          const config = resolveScalarType(field, fetcher, models);
+          const config = resolveScalarType(field, fetcher, models, asset);
           const finalConfig = resolverOverride(config, field.name);
 
           return {
@@ -165,7 +171,18 @@ function resolveScalarType(
         return {
           type: GraphQLDateTime,
           resolve: (node) => {
-            return (node as StringNode).value;
+            return (node as DatetimeNode).value;
+          },
+        };
+      }
+      case "asset": {
+        return {
+          type: GraphQLURL,
+          resolve: (node) => {
+            const url = new URL((node as AssetNode).value);
+            const resolved = asset.resolve(url);
+
+            return resolved;
           },
         };
       }

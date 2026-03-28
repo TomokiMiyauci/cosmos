@@ -2,6 +2,7 @@
   "name": "@cosmos/delivery",
   "exports": {
     ".": "./src/mod.ts",
-    "./lifetime-cache": "./src/middleware/lifetime_cache.ts"
+    "./lifetime-cache": "./src/middleware/lifetime_cache.ts",
+    "./asset": "./src/middleware/asset.ts"
   }
 }

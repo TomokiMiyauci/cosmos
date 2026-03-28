@@ -1,9 +1,20 @@
-import type { Handler, Middleware, MiddlewareVariant } from "./type.ts";
+import type {
+  Handler,
+  Middleware,
+  MiddlewareContext,
+  MiddlewareVariant,
+} from "./type.ts";
 
-export function compose(middlewares: Middleware[], handler: Handler): Handler {
+interface ComponeContext extends Omit<MiddlewareContext, "next"> {}
+
+export function compose(
+  middlewares: Middleware[],
+  handler: Handler,
+  ctx: ComponeContext,
+): Handler {
   return middlewares.reduceRight<Handler>((next, pipeline) => {
     return (request: Request) => {
-      return pipeline(request, { next });
+      return pipeline(request, { next, ...ctx });
     };
   }, handler);
 }

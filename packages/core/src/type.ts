@@ -53,7 +53,12 @@ export interface Model {
   format: FormatDefinition;
 }
 
-export type Field = StringField | BooleanField | ReferenceField | DatetimeField;
+export type Field =
+  | StringField
+  | BooleanField
+  | ReferenceField
+  | DatetimeField
+  | AssetField;
 
 export interface BaseField {
   name: string;
@@ -81,6 +86,10 @@ export interface DatetimeField extends BaseField {
   type: "datetime";
 }
 
+export interface AssetField extends BaseField {
+  type: "asset";
+}
+
 export type FormatDefinition = {
   [K in keyof FormatterRegistry]:
     & FormatterDefinitionBase<K>
@@ -101,10 +110,21 @@ export interface Protocol {
 export interface ProtocolContext {
   manifest: Manifest;
   fetcher: Fetcher;
+  asset: AssetMapping;
 }
 
 export interface Fetcher {
   fetch(id: string): Node | Promise<Node>;
+  fetchAsset(id: string): Asset | Promise<Asset>;
+}
+
+export interface Asset {
+  stream: ReadableStream<Uint8Array>;
+  metadata: AssetMetadata;
+}
+
+export interface AssetMetadata {
+  mediaType: string;
 }
 
 export interface Resource {
@@ -177,12 +197,17 @@ export interface MapSchema extends BaseSchema {
   fields: Schema[];
 }
 
+export interface AssetSchema extends BaseSchema {
+  type: "asset";
+}
+
 export type Schema =
   | IdSchema
   | StringSchema
   | BooleanSchema
   | MapSchema
-  | DatatimeSchema;
+  | DatatimeSchema
+  | AssetSchema;
 
 export interface IdNode {
   type: IdSchema["type"];
@@ -204,7 +229,17 @@ export interface DatetimeNode {
   value: Date;
 }
 
-export type NodeValue = IdNode | StringNode | BooleanNode | DatetimeNode;
+export interface AssetNode {
+  type: AssetSchema["type"];
+  value: URL;
+}
+
+export type NodeValue =
+  | IdNode
+  | StringNode
+  | BooleanNode
+  | DatetimeNode
+  | AssetNode;
 
 export type Node = NodeValue | MapNode;
 
@@ -216,4 +251,9 @@ export interface MapNode {
 export interface NodeObject {
   id: string;
   node: Node;
+}
+
+export interface AssetMapping {
+  resolve(id: URL): URL | undefined;
+  lookup(publicUrl: URL): URL | undefined;
 }

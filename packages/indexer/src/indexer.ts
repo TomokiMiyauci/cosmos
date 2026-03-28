@@ -11,13 +11,17 @@ import {
   type Storage,
   type StorageService,
 } from "@cosmos/core";
-import { Visitor } from "./util.ts";
+import { Visitor, walk } from "./util.ts";
+import { AssetRegistry } from "./registry.ts";
 
 export class Indexer {
   constructor(private config: Config) {}
 
-  async index(storage: Storage): Promise<Manifest> {
+  async index(
+    storage: Storage,
+  ): Promise<{ manifest: Manifest; registry: AssetRegistry }> {
     const { formatters, resouces, indexes, storages } = this.config;
+    const registry = new AssetRegistry();
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
       return {
         ...acc,
@@ -69,6 +73,12 @@ export class Indexer {
         });
 
         resources.push({ id: key.toString(), node });
+        walk(node, (node) => {
+          if (node.type === "asset") {
+            registry.add(node.value, key);
+          }
+          return node;
+        });
       });
 
       const definition = {
@@ -105,8 +115,11 @@ export class Indexer {
     }
 
     return {
-      version: "1",
-      definitions,
+      manifest: {
+        version: "1",
+        definitions,
+      },
+      registry,
     };
   }
 }
