@@ -81,11 +81,6 @@ export interface DatetimeField extends BaseField {
   type: "datetime";
 }
 
-export interface MapField extends BaseField {
-  type: "map";
-  fields: Field[];
-}
-
 export type FormatDefinition = {
   [K in keyof FormatterRegistry]:
     & FormatterDefinitionBase<K>
