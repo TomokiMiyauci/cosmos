@@ -1,12 +1,21 @@
-import type { FieldCodec, Node, StructureValue } from "@cosmos/core";
+import type {
+  FieldCodec,
+  FieldContext,
+  Node,
+  StructureValue,
+} from "@cosmos/core";
+import { isAbsolute, join, toFileUrl } from "@std/path";
 
 export class AssetFieldCodec implements FieldCodec {
-  parse(structure: StructureValue): Node {
+  constructor(private rootDir: string) {}
+  parse(structure: StructureValue, ctx: FieldContext): Node {
     if (typeof structure !== "string") throw new SyntaxError();
+
+    const url = resolveUrl(this.rootDir, ctx.url, structure);
 
     return {
       type: "asset",
-      value: new URL(structure),
+      value: url,
     };
   }
 
@@ -15,4 +24,14 @@ export class AssetFieldCodec implements FieldCodec {
 
     return node.value.toString();
   }
+}
+
+function resolveUrl(rootDir: string, baseUrl: URL, path: string): URL {
+  if (isAbsolute(path)) {
+    const fullPath = join(rootDir, path);
+
+    return toFileUrl(fullPath);
+  }
+
+  return new URL(path, baseUrl);
 }
