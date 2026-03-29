@@ -16,6 +16,11 @@ export interface Config {
   resouces: Resource[];
   storages: StorageService[];
   indexes: IndexManager[];
+  assets?: AssetDefinition[];
+}
+
+export interface AssetDefinition {
+  indexer: IndexerDefinition;
 }
 
 export interface StorageService extends Storage {
