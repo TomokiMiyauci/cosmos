@@ -1,17 +1,18 @@
 import {
   type Config,
+  createIO,
   type Definition,
   type Field,
   type IndexManager,
+  type IO,
   type Manifest,
   type NodeObject,
   Parser,
   resolveFormatter,
   type Schema,
   type Storage,
-  type StorageService,
 } from "@cosmos/core";
-import { Visitor, walk } from "./util.ts";
+import { Visitor } from "./util.ts";
 import { AssetRegistry } from "./registry.ts";
 
 export class Indexer {
@@ -19,8 +20,9 @@ export class Indexer {
 
   async index(
     storage: Storage,
-  ): Promise<{ manifest: Manifest; registry: AssetRegistry }> {
-    const { formatters, resouces, indexes, storages } = this.config;
+  ): Promise<{ manifest: Manifest; registry: AssetRegistry; io: IO }> {
+    const { formatters, resouces, indexes, resolvers, assets = [] } =
+      this.config;
     const registry = new AssetRegistry();
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
       return {
@@ -28,6 +30,23 @@ export class Indexer {
         [type]: formatter,
       };
     }, {});
+
+    const io = createIO(resolvers);
+
+    const assetPromise = assets.map(async (asset) => {
+      const inderxer = resolveIndexer(indexes, asset.indexer.type);
+      const iter = inderxer.search(asset.indexer.options);
+
+      const urls = await Array.fromAsync(iter);
+
+      return urls;
+    });
+
+    const assetUrls = (await Promise.all(assetPromise)).flat();
+
+    for (const url of assetUrls) {
+      registry.add(url);
+    }
     const resources: NodeObject[] = [];
     const promise = resouces.map(async (resource) => {
       const { model } = resource;
@@ -40,8 +59,7 @@ export class Indexer {
       const urls = await Array.fromAsync(iter);
 
       const contents = await Promise.all(urls.map(async (url) => {
-        const storage = resolveStorage(storages, url);
-        const content = await storage.read(url);
+        const content = await io.storage.read(url);
 
         return {
           url,
@@ -73,12 +91,6 @@ export class Indexer {
         });
 
         resources.push({ id: key.toString(), node });
-        walk(node, (node) => {
-          if (node.type === "asset") {
-            registry.add(node.value, key);
-          }
-          return node;
-        });
       });
 
       const definition = {
@@ -120,6 +132,7 @@ export class Indexer {
         definitions,
       },
       registry,
+      io,
     };
   }
 }
@@ -133,14 +146,6 @@ function resolveIndexer(
   if (!indexer) throw new Error();
 
   return indexer;
-}
-
-function resolveStorage(storages: StorageService[], url: URL): Storage {
-  for (const storage of storages) {
-    if (storage.supports(url)) return storage;
-  }
-
-  throw new Error();
 }
 
 function fieldToSchema(field: Field): Schema {

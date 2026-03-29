@@ -14,17 +14,13 @@ export interface Config {
   formatters: FormatterDefinition[];
   fields: FieldDefinition;
   resouces: Resource[];
-  storages: StorageService[];
+  resolvers: Resolver[];
   indexes: IndexManager[];
   assets?: AssetDefinition[];
 }
 
 export interface AssetDefinition {
   indexer: IndexerDefinition;
-}
-
-export interface StorageService extends Storage {
-  supports(url: URL): boolean;
 }
 
 export type FieldDefinition = {
@@ -115,16 +111,21 @@ export interface Protocol {
 export interface ProtocolContext {
   manifest: Manifest;
   fetcher: Fetcher;
+  io: IO;
   asset: AssetMapping;
 }
 
 export interface Fetcher {
   fetch(id: string): Node | Promise<Node>;
-  fetchAsset(id: string): Asset | Promise<Asset>;
 }
 
 export interface Reader {
   read(url: URL): Asset | Promise<Asset>;
+}
+
+export interface IO {
+  storage: Storage;
+  reader: Reader;
 }
 
 export interface Asset {
@@ -150,6 +151,10 @@ export interface Storage {
   read(url: URL): Uint8Array | Promise<Uint8Array>;
   write(url: URL, content: Uint8Array): void | Promise<void>;
   delete(url: URL): void | Promise<void>;
+}
+
+export interface Resolver {
+  resolve(url: URL): IO | void;
 }
 
 export interface Indexer<T = unknown> {

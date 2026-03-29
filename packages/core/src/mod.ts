@@ -27,6 +27,7 @@ export type {
   Indexer,
   IndexerDefinition,
   IndexManager,
+  IO,
   Manifest,
   MapNode,
   MapSchema,
@@ -37,12 +38,12 @@ export type {
   Protocol,
   ProtocolContext,
   Reader,
+  Resolver,
   Schema,
   Storage,
-  StorageService,
   StringNode,
   Structure,
   StructureValue,
 } from "./type.ts";
 export { Parser } from "./parser.ts";
-export { resolveFormatter } from "./url.ts";
+export { createIO, resolveFormatter } from "./url.ts";
