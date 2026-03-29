@@ -1,5 +1,4 @@
 export type {
-  Asset,
   AssetDefinition,
   AssetField,
   AssetHeader,
@@ -37,7 +36,6 @@ export type {
   NodeObject,
   Protocol,
   ProtocolContext,
-  Reader,
   Resolver,
   Schema,
   Storage,

@@ -22,12 +22,6 @@ export interface FormatterMap {
 
 export function createIO(resolvers: Resolver[]): IO {
   return {
-    reader: {
-      read: (url) => {
-        const resolved = resolve(resolvers, url);
-        return resolved.reader.read(url);
-      },
-    },
     storage: {
       read: (url) => {
         const resolved = resolve(resolvers, url);

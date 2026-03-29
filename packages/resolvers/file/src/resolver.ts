@@ -1,6 +1,5 @@
 import type { IO, Resolver, Storage } from "@cosmos/core";
 import { FsStorage } from "@cosmos/storage-fs";
-import { FileReader } from "@cosmos/reader-file";
 
 export class FileResolver implements Resolver {
   storage: Storage;
@@ -12,7 +11,6 @@ export class FileResolver implements Resolver {
     if (url.protocol === "file:") {
       return {
         storage: this.storage,
-        reader: new FileReader(),
       };
     }
   }

@@ -119,18 +119,8 @@ export interface Fetcher {
   fetch(id: string): Node | Promise<Node>;
 }
 
-export interface Reader {
-  read(url: URL): Asset | Promise<Asset>;
-}
-
 export interface IO {
   storage: Storage;
-  reader: Reader;
-}
-
-export interface Asset {
-  header: AssetHeader;
-  body: ReadableStream<Uint8Array>;
 }
 
 export interface AssetHeader {
