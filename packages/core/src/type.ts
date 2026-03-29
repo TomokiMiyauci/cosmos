@@ -118,13 +118,17 @@ export interface Fetcher {
   fetchAsset(id: string): Asset | Promise<Asset>;
 }
 
-export interface Asset {
-  stream: ReadableStream<Uint8Array>;
-  metadata: AssetMetadata;
+export interface Reader {
+  read(url: URL): Asset | Promise<Asset>;
 }
 
-export interface AssetMetadata {
-  mediaType: string;
+export interface Asset {
+  header: AssetHeader;
+  body: ReadableStream<Uint8Array>;
+}
+
+export interface AssetHeader {
+  mimeType: string;
 }
 
 export interface Resource {
