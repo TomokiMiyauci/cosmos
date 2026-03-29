@@ -148,8 +148,10 @@ export interface IndexerDefinition {
 }
 
 export interface Storage {
-  read(url: URL): Uint8Array | Promise<Uint8Array>;
-  write(url: URL, content: Uint8Array): void | Promise<void>;
+  read(
+    url: URL,
+  ): ReadableStream<Uint8Array> | Promise<ReadableStream<Uint8Array>>;
+  write(url: URL, content: ReadableStream<Uint8Array>): void | Promise<void>;
   delete(url: URL): void | Promise<void>;
 }
 
