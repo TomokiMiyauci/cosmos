@@ -14,7 +14,6 @@ import {
 } from "@cosmos/core";
 import { Visitor } from "./util.ts";
 import { AssetRegistry } from "./registry.ts";
-import { Buffer, toArrayBuffer } from "@std/streams";
 
 export class Indexer {
   constructor(private config: Config) {}
@@ -73,7 +72,8 @@ export class Indexer {
       const decoder = new TextDecoder();
 
       const jsons = await Promise.all(contents.map(async ({ content, url }) => {
-        const buffer = await toArrayBuffer(content);
+        const buffer = await content.arrayBuffer();
+
         const text = decoder.decode(buffer);
 
         return {
@@ -125,9 +125,9 @@ export class Indexer {
     for (const source of result) {
       const value = JSON.stringify(source.node);
       const encoded = new TextEncoder().encode(value);
-      const readable = new Buffer(encoded).readable;
+      const blob = new Blob([encoded]);
 
-      storage.write(new URL(source.id), readable);
+      storage.write(new URL(source.id), blob);
     }
 
     return {

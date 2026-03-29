@@ -1,14 +1,14 @@
 import type { Storage } from "@cosmos/core";
 
 export class FsStorage implements Storage {
-  write(url: URL, conetnt: ReadableStream<Uint8Array>): void | Promise<void> {
-    return Deno.writeFile(url, conetnt);
+  write(url: URL, conetnt: Blob): Promise<void> {
+    return Deno.writeFile(url, conetnt.stream());
   }
 
-  async read(url: URL): Promise<ReadableStream<Uint8Array>> {
-    const fs = await Deno.open(url);
+  async read(url: URL): Promise<Blob> {
+    const u8 = await Deno.readFile(url);
 
-    return fs.readable;
+    return new Blob([u8], { type: "" });
   }
 
   delete(url: URL): Promise<void> {
