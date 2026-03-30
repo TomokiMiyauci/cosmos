@@ -10,7 +10,7 @@ export class StringFieldCodec implements FieldCodec {
     };
   }
 
-  strinigify(node: Node): StructureValue {
+  stringify(node: Node): StructureValue {
     if (node.type !== "string") throw new Error();
 
     return node.value;

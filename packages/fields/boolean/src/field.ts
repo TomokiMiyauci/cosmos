@@ -11,7 +11,7 @@ export class BooleanFieldCodec implements FieldCodec {
     };
   }
 
-  strinigify(): StructureValue {
+  stringify(): StructureValue {
     throw new Error("unimplemented");
   }
 }

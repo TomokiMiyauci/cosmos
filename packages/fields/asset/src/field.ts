@@ -19,7 +19,7 @@ export class AssetFieldCodec implements FieldCodec {
     };
   }
 
-  strinigify(node: Node): StructureValue {
+  stringify(node: Node): StructureValue {
     if (node.type !== "asset") throw new Error();
 
     return node.value.toString();

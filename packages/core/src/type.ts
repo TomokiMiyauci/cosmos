@@ -13,7 +13,7 @@ export interface Definition {
 export interface Config {
   formatters: FormatterDefinition[];
   fields: FieldDefinition;
-  resouces: Resource[];
+  resources: Resource[];
   storage: Storage;
   indexes: IndexManager[];
   assets?: AssetDefinition[];
@@ -30,7 +30,7 @@ export type FieldDefinition = {
 export interface FieldCodec {
   parse(structure: StructureValue, ctx: FieldContext): Node;
 
-  strinigify(node: Node): StructureValue;
+  stringify(node: Node): StructureValue;
 }
 
 export interface FieldContext {
@@ -192,7 +192,7 @@ export interface BooleanSchema extends BaseSchema {
   type: "boolean";
 }
 
-export interface DatatimeSchema extends BaseSchema {
+export interface DatetimeSchema extends BaseSchema {
   type: "datetime";
 }
 
@@ -210,7 +210,7 @@ export type Schema =
   | StringSchema
   | BooleanSchema
   | MapSchema
-  | DatatimeSchema
+  | DatetimeSchema
   | AssetSchema;
 
 export interface IdNode {
@@ -229,7 +229,7 @@ export interface BooleanNode {
 }
 
 export interface DatetimeNode {
-  type: DatatimeSchema["type"];
+  type: DatetimeSchema["type"];
   value: Date;
 }
 

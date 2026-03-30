@@ -10,7 +10,7 @@ export class DatetimeFieldCodec implements FieldCodec {
     };
   }
 
-  strinigify(node: Node): StructureValue {
+  stringify(node: Node): StructureValue {
     if (node.type !== "datetime") throw new Error();
 
     return node.value.toISOString();

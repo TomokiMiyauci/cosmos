@@ -19,7 +19,7 @@ export class PathReferenceFieldCodec implements FieldCodec {
     };
   }
 
-  strinigify(): StructureValue {
+  stringify(): StructureValue {
     throw new Error("unimplemented");
   }
 }

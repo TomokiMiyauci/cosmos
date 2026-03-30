@@ -26,7 +26,8 @@ export class Indexer {
       datalayer: Datalayer;
     }
   > {
-    const { formatters, resouces, indexes, storage, assets = [] } = this.config;
+    const { formatters, resources, indexes, storage, assets = [] } =
+      this.config;
     const registry = new AssetRegistry();
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
       return {
@@ -50,7 +51,7 @@ export class Indexer {
       registry.add(url);
     }
     const resources: NodeObject[] = [];
-    const promise = resouces.map(async (resource) => {
+    const promise = resources.map(async (resource) => {
       const { model } = resource;
 
       const indexerType = resource.indexer.type;
