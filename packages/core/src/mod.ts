@@ -2,6 +2,7 @@ export type {
   AssetDefinition,
   AssetField,
   AssetHeader,
+  AssetLayer,
   AssetMapping,
   AssetNode,
   AssetSchema,

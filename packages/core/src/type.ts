@@ -111,12 +111,16 @@ export interface Protocol {
 export interface ProtocolContext {
   manifest: Manifest;
   datalayer: Datalayer;
-  storage: Storage;
   asset: AssetMapping;
 }
 
 export interface Datalayer {
   fetch(id: string): Node | Promise<Node>;
+  asset: AssetLayer;
+}
+
+export interface AssetLayer {
+  fetch(id: string): Blob | Promise<Blob>;
 }
 
 export interface AssetHeader {

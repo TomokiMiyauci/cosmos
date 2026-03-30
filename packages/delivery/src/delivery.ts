@@ -1,10 +1,4 @@
-import type {
-  AssetMapping,
-  Datalayer,
-  Manifest,
-  Protocol,
-  Storage,
-} from "@cosmos/core";
+import type { AssetMapping, Datalayer, Manifest, Protocol } from "@cosmos/core";
 import type { Middleware, MiddlewareVariant } from "./type.ts";
 import { compose, normalizeMiddleware } from "./util.ts";
 import { mapKeys } from "@std/collections";
@@ -14,7 +8,6 @@ export interface DeliveryConfig {
   manifest: Manifest;
   datalayer: Datalayer;
   registory: AssetMap;
-  storage: Storage;
   middleware?: MiddlewareVariant[];
 }
 
@@ -58,14 +51,12 @@ export class Delivery {
         datalayer: config.datalayer,
         manifest: config.manifest,
         asset,
-        storage: config.storage,
       });
     }
 
     const componsed = compose(this.#middleware, handler, {
-      fetcher: this.config.datalayer,
+      datalayer: this.config.datalayer,
       asset,
-      storage: this.config.storage,
     });
 
     return componsed(request);

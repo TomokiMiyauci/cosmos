@@ -10,7 +10,6 @@ import {
   Parser,
   resolveFormatter,
   type Schema,
-  type Storage,
 } from "@cosmos/core";
 import { Visitor } from "./util.ts";
 import { AssetRegistry } from "./registry.ts";
@@ -23,12 +22,10 @@ export class Indexer {
     {
       manifest: Manifest;
       registry: AssetRegistry;
-      storage: Storage;
       datalayer: Datalayer;
     }
   > {
-    const { formatters, resouces, indexes, storage: io, assets = [] } =
-      this.config;
+    const { formatters, resouces, indexes, storage, assets = [] } = this.config;
     const registry = new AssetRegistry();
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
       return {
@@ -63,7 +60,7 @@ export class Indexer {
       const urls = await Array.fromAsync(iter);
 
       const contents = await Promise.all(urls.map(async (url) => {
-        const content = await io.read(url);
+        const content = await storage.read(url);
 
         return {
           url,
@@ -153,7 +150,6 @@ DO UPDATE SET
         definitions,
       },
       registry,
-      storage: io,
       datalayer: {
         fetch(id): Node {
           const result = db.prepare(
@@ -169,6 +165,11 @@ DO UPDATE SET
           const text = new TextDecoder().decode(data);
 
           return JSON.parse(text);
+        },
+        asset: {
+          fetch(id): Blob | Promise<Blob> {
+            return storage.read(new URL(id));
+          },
         },
       },
     };
