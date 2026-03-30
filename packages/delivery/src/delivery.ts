@@ -1,9 +1,9 @@
 import type {
   AssetMapping,
   Fetcher,
-  IO,
   Manifest,
   Protocol,
+  Storage,
 } from "@cosmos/core";
 import type { Middleware, MiddlewareVariant } from "./type.ts";
 import { compose, normalizeMiddleware } from "./util.ts";
@@ -14,7 +14,7 @@ export interface DeliveryConfig {
   manifest: Manifest;
   fetcher: Fetcher;
   registory: AssetMap;
-  io: IO;
+  storage: Storage;
   middleware?: MiddlewareVariant[];
 }
 
@@ -58,14 +58,14 @@ export class Delivery {
         fetcher: config.fetcher,
         manifest: config.manifest,
         asset,
-        io: config.io,
+        storage: config.storage,
       });
     }
 
     const componsed = compose(this.#middleware, handler, {
       fetcher: this.config.fetcher,
       asset,
-      io: this.config.io,
+      storage: this.config.storage,
     });
 
     return componsed(request);

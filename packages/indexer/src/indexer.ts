@@ -1,10 +1,8 @@
 import {
   type Config,
-  createIO,
   type Definition,
   type Field,
   type IndexManager,
-  type IO,
   type Manifest,
   type NodeObject,
   Parser,
@@ -20,8 +18,10 @@ export class Indexer {
 
   async index(
     storage: Storage,
-  ): Promise<{ manifest: Manifest; registry: AssetRegistry; io: IO }> {
-    const { formatters, resouces, indexes, resolvers, assets = [] } =
+  ): Promise<
+    { manifest: Manifest; registry: AssetRegistry; storage: Storage }
+  > {
+    const { formatters, resouces, indexes, storage: io, assets = [] } =
       this.config;
     const registry = new AssetRegistry();
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
@@ -30,8 +30,6 @@ export class Indexer {
         [type]: formatter,
       };
     }, {});
-
-    const io = createIO(resolvers);
 
     const assetPromise = assets.map(async (asset) => {
       const inderxer = resolveIndexer(indexes, asset.indexer.type);
@@ -59,7 +57,7 @@ export class Indexer {
       const urls = await Array.fromAsync(iter);
 
       const contents = await Promise.all(urls.map(async (url) => {
-        const content = await io.storage.read(url);
+        const content = await io.read(url);
 
         return {
           url,
@@ -136,7 +134,7 @@ export class Indexer {
         definitions,
       },
       registry,
-      io,
+      storage: io,
     };
   }
 }

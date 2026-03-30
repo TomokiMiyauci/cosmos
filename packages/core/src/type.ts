@@ -14,7 +14,7 @@ export interface Config {
   formatters: FormatterDefinition[];
   fields: FieldDefinition;
   resouces: Resource[];
-  resolvers: Resolver[];
+  storage: Storage;
   indexes: IndexManager[];
   assets?: AssetDefinition[];
 }
@@ -111,16 +111,12 @@ export interface Protocol {
 export interface ProtocolContext {
   manifest: Manifest;
   fetcher: Fetcher;
-  io: IO;
+  storage: Storage;
   asset: AssetMapping;
 }
 
 export interface Fetcher {
   fetch(id: string): Node | Promise<Node>;
-}
-
-export interface IO {
-  storage: Storage;
 }
 
 export interface AssetHeader {
@@ -141,10 +137,6 @@ export interface Storage {
   read(url: URL): Blob | Promise<Blob>;
   write(url: URL, content: Blob): void | Promise<void>;
   delete(url: URL): void | Promise<void>;
-}
-
-export interface Resolver {
-  resolve(url: URL): IO | void;
 }
 
 export interface Indexer<T = unknown> {

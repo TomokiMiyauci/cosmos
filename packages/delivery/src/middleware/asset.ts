@@ -12,7 +12,7 @@ export class Asset implements MiddlewareObject {
     const origin = ctx.asset.lookup(url);
 
     if (origin) {
-      const blog = await ctx.io.storage.read(origin);
+      const blog = await ctx.storage.read(origin);
 
       return new Response(blog.stream(), {
         headers: {

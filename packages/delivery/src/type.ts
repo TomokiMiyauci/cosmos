@@ -1,4 +1,4 @@
-import type { AssetMapping, Fetcher, IO } from "@cosmos/core";
+import type { AssetMapping, Fetcher, Storage } from "@cosmos/core";
 
 export interface Middleware {
   (request: Request, ctx: MiddlewareContext): Promise<Response> | Response;
@@ -19,7 +19,7 @@ export interface Middleware {
 export interface MiddlewareContext {
   next: Handler;
   fetcher: Fetcher;
-  io: IO;
+  storage: Storage;
   asset: AssetMapping;
 }
 

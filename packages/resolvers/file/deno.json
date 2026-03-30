@@ -1,6 +1,0 @@
-{
-  "name": "@cosmos/resolver-file",
-  "exports": {
-    ".": "./src/mod.ts"
-  }
-}
