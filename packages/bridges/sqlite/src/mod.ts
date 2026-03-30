@@ -1,1 +1,1 @@
-export { SqliteBridge } from "./bride.ts";
+export { SqliteStore } from "./bride.ts";

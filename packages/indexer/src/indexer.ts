@@ -1,5 +1,4 @@
 import {
-  type Bridge,
   type Config,
   type Datalayer,
   type Definition,
@@ -12,6 +11,7 @@ import {
   resolveFormatter,
   type Schema,
   type Storage,
+  type Store,
 } from "@cosmos/core";
 import { Visitor } from "./util.ts";
 import { AssetRegistry } from "./registry.ts";
@@ -19,7 +19,7 @@ import { AssetRegistry } from "./registry.ts";
 export class Indexer {
   constructor(private config: Config) {}
 
-  async index(bridge: Bridge): Promise<
+  async index(store: Store): Promise<
     {
       manifest: Manifest;
       registry: AssetRegistry;
@@ -131,10 +131,10 @@ export class Indexer {
     });
 
     for (const source of result) {
-      await bridge.add(source);
+      await store.save(source);
     }
 
-    const datalayer = createDatalayer(bridge, storage);
+    const datalayer = createDatalayer(store, storage);
 
     return {
       manifest: {
@@ -181,11 +181,11 @@ function fieldToSchema(field: Field): Schema {
   };
 }
 
-function createDatalayer(bridge: Bridge, storage: Storage): Datalayer {
+function createDatalayer(store: Store, storage: Storage): Datalayer {
   return {
     node: {
       fetch(id): Promise<Node> {
-        return bridge.get(id);
+        return store.get(id);
       },
     },
     asset: {

@@ -1,10 +1,10 @@
-import type { Bridge, Node, NodeEntry } from "@cosmos/core";
+import type { Node, NodeEntry, Store } from "@cosmos/core";
 import { DatabaseSync } from "node:sqlite";
 
-export class SqliteBridge implements Bridge {
+export class SqliteStore implements Store {
   constructor(private db: DatabaseSync) {}
 
-  add(source: NodeEntry): Promise<void> {
+  save(source: NodeEntry): Promise<void> {
     const value = JSON.stringify(source.data);
 
     this.db.prepare(
