@@ -1,4 +1,4 @@
-import type { Config, Node, NodeObject } from "@cosmos/core";
+import type { Config, Node, NodeEntry } from "@cosmos/core";
 import type { Transformer } from "./type.ts";
 
 export interface VisitorConfig {
@@ -7,7 +7,7 @@ export interface VisitorConfig {
 }
 
 export class Visitor {
-  constructor(private config: VisitorConfig, private resources: NodeObject[]) {}
+  constructor(private config: VisitorConfig, private resources: NodeEntry[]) {}
 
   visit(node: Node): Node {
     const { transformers, config } = this.config;

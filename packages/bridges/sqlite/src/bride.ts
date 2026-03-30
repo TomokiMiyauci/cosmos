@@ -1,11 +1,11 @@
-import type { Bridge, Node, NodeObject } from "@cosmos/core";
+import type { Bridge, Node, NodeEntry } from "@cosmos/core";
 import { DatabaseSync } from "node:sqlite";
 
 export class SqliteBridge implements Bridge {
   constructor(private db: DatabaseSync) {}
 
-  add(source: NodeObject): Promise<void> {
-    const value = JSON.stringify(source.node);
+  add(source: NodeEntry): Promise<void> {
+    const value = JSON.stringify(source.content);
 
     this.db.prepare(
       `INSERT INTO structures (id, model, data) VALUES (?, ?,CAST(? AS BLOB))
@@ -15,7 +15,7 @@ DO UPDATE SET
   data = excluded.data;`,
     ).run(
       source.id,
-      source.type,
+      source.model,
       value,
     );
 

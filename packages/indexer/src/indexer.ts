@@ -7,7 +7,7 @@ import {
   type IndexManager,
   type Manifest,
   type Node,
-  type NodeObject,
+  type NodeEntry,
   Parser,
   resolveFormatter,
   type Schema,
@@ -50,7 +50,7 @@ export class Indexer {
     for (const url of assetUrls) {
       registry.add(url);
     }
-    const resources: NodeObject[] = [];
+    const entries: NodeEntry[] = [];
     const promise = resources.map(async (resource) => {
       const { model } = resource;
 
@@ -99,7 +99,7 @@ export class Indexer {
           url: key,
         });
 
-        resources.push({ id: key.toString(), node, type });
+        entries.push({ id: key.toString(), content: node, type });
       });
 
       const definition = {
@@ -120,13 +120,13 @@ export class Indexer {
       transformers: [
         // new ReferenceTransfomer(),
       ],
-    }, resources);
+    }, entries);
 
-    const result = resources.map((resource) => {
+    const result = entries.map((entry) => {
       return {
-        id: resource.id,
-        node: visitor.visit(resource.node),
-        type: resource.type,
+        id: entry.id,
+        content: visitor.visit(entry.content),
+        model: entry.model,
       };
     });
 

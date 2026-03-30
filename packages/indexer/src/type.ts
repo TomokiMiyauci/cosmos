@@ -1,4 +1,4 @@
-import type { Config, Node, NodeObject } from "@cosmos/core";
+import type { Config, Node, NodeEntry } from "@cosmos/core";
 
 export interface Transformer {
   transform(
@@ -9,5 +9,5 @@ export interface Transformer {
 
 export interface TransformContext {
   config: Config;
-  resources: NodeObject[];
+  resources: NodeEntry[];
 }

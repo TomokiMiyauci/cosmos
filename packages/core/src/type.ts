@@ -252,10 +252,10 @@ export interface MapNode {
   value: Record<string, Node>;
 }
 
-export interface NodeObject {
+export interface NodeEntry {
   id: string;
-  node: Node;
-  type: string;
+  content: Node;
+  model: string;
 }
 
 export interface AssetMapping {
@@ -264,7 +264,7 @@ export interface AssetMapping {
 }
 
 export interface Bridge {
-  add(source: NodeObject): Promise<void>;
+  add(source: NodeEntry): Promise<void>;
 
   get(id: string): Promise<Node>;
 }
