@@ -99,7 +99,7 @@ export class Indexer {
           url: key,
         });
 
-        entries.push({ id: key.toString(), content: node, type });
+        entries.push({ id: key.toString(), data: node, model: type });
       });
 
       const definition = {
@@ -125,7 +125,7 @@ export class Indexer {
     const result = entries.map((entry) => {
       return {
         id: entry.id,
-        content: visitor.visit(entry.content),
+        data: visitor.visit(entry.data),
         model: entry.model,
       };
     });

@@ -252,11 +252,16 @@ export interface MapNode {
   value: Record<string, Node>;
 }
 
-export interface NodeEntry {
+export interface BaseEntry<T> {
   id: string;
-  content: Node;
+  data: T;
+}
+
+export interface NodeEntry extends BaseEntry<Node> {
   model: string;
 }
+
+export interface AssetEntry extends BaseEntry<Blob> {}
 
 export interface AssetMapping {
   resolve(id: URL): URL | undefined;

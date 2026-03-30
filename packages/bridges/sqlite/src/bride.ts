@@ -5,7 +5,7 @@ export class SqliteBridge implements Bridge {
   constructor(private db: DatabaseSync) {}
 
   add(source: NodeEntry): Promise<void> {
-    const value = JSON.stringify(source.content);
+    const value = JSON.stringify(source.data);
 
     this.db.prepare(
       `INSERT INTO structures (id, model, data) VALUES (?, ?,CAST(? AS BLOB))
