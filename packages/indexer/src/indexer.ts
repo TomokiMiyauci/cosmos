@@ -1,9 +1,11 @@
 import {
   type Config,
+  type Datalayer,
   type Definition,
   type Field,
   type IndexManager,
   type Manifest,
+  type Node,
   type NodeObject,
   Parser,
   resolveFormatter,
@@ -12,14 +14,18 @@ import {
 } from "@cosmos/core";
 import { Visitor } from "./util.ts";
 import { AssetRegistry } from "./registry.ts";
+import type { DatabaseSync } from "node:sqlite";
 
 export class Indexer {
   constructor(private config: Config) {}
 
-  async index(
-    storage: Storage,
-  ): Promise<
-    { manifest: Manifest; registry: AssetRegistry; storage: Storage }
+  async index(db: DatabaseSync): Promise<
+    {
+      manifest: Manifest;
+      registry: AssetRegistry;
+      storage: Storage;
+      datalayer: Datalayer;
+    }
   > {
     const { formatters, resouces, indexes, storage: io, assets = [] } =
       this.config;
@@ -62,6 +68,7 @@ export class Indexer {
         return {
           url,
           content,
+          type: model.name,
         };
       }));
 
@@ -69,28 +76,31 @@ export class Indexer {
       const formatter = resolveFormatter(model.format, formatterMap);
       const decoder = new TextDecoder();
 
-      const jsons = await Promise.all(contents.map(async ({ content, url }) => {
-        const buffer = await content.arrayBuffer();
+      const jsons = await Promise.all(
+        contents.map(async ({ content, url, type }) => {
+          const buffer = await content.arrayBuffer();
 
-        const text = decoder.decode(buffer);
+          const text = decoder.decode(buffer);
 
-        return {
-          key: url,
-          value: formatter.parse(text, {
-            config: this.config,
-            options: model.format,
-          }),
-        };
-      }));
+          return {
+            key: url,
+            value: formatter.parse(text, {
+              config: this.config,
+              options: model.format,
+            }),
+            type,
+          };
+        }),
+      );
 
       const members = jsons.map(({ key }) => key.toString());
-      jsons.forEach(({ key, value }) => {
+      jsons.forEach(({ key, value, type }) => {
         const node = new Parser().parse(value, model, {
           config: this.config,
           url: key,
         });
 
-        resources.push({ id: key.toString(), node });
+        resources.push({ id: key.toString(), node, type });
       });
 
       const definition = {
@@ -117,15 +127,24 @@ export class Indexer {
       return {
         id: resource.id,
         node: visitor.visit(resource.node),
+        type: resource.type,
       };
     });
 
     for (const source of result) {
       const value = JSON.stringify(source.node);
-      const encoded = new TextEncoder().encode(value);
-      const blob = new Blob([encoded]);
 
-      storage.write(new URL(source.id), blob);
+      db.prepare(
+        `INSERT INTO structures (id, model, data) VALUES (?, ?,CAST(? AS BLOB))
+ON CONFLICT(id)
+DO UPDATE SET 
+  model = excluded.model, 
+  data = excluded.data;`,
+      ).run(
+        source.id,
+        source.type,
+        value,
+      );
     }
 
     return {
@@ -135,6 +154,23 @@ export class Indexer {
       },
       registry,
       storage: io,
+      datalayer: {
+        fetch(id): Node {
+          const result = db.prepare(
+            `SELECT data from structures where id = ?;`,
+          ).get(id);
+
+          if (!result) throw new Error();
+
+          const data = result.data;
+
+          if (!(data instanceof Uint8Array)) throw new Error();
+
+          const text = new TextDecoder().decode(data);
+
+          return JSON.parse(text);
+        },
+      },
     };
   }
 }

@@ -13,7 +13,7 @@ export class GraphqlProtocol implements Protocol {
     const builder = new SchemaBuilder({ plugins: this.config.plugins ?? [] });
     const schema = builder.build({
       manifest: ctx.manifest,
-      fetcher: ctx.fetcher,
+      fetcher: ctx.datalayer,
       asset: ctx.asset,
     });
 

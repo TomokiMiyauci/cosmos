@@ -2,8 +2,8 @@ import type {
   AssetMapping,
   AssetNode,
   BooleanNode,
+  Datalayer,
   DatetimeNode,
-  Fetcher,
   IdNode,
   Manifest,
   MapNode,
@@ -32,7 +32,7 @@ export interface SchemaConfig {
 
 export interface BuilderContext {
   manifest: Manifest;
-  fetcher: Fetcher;
+  fetcher: Datalayer;
   asset: AssetMapping;
 }
 
@@ -103,7 +103,7 @@ export class SchemaBuilder {
 
 function resolveScalarType(
   schema: Schema,
-  fetcher: Fetcher,
+  fetcher: Datalayer,
   models: GraphQLObjectType[],
   asset: AssetMapping,
 ): GraphQLFieldConfig<Node, unknown> {

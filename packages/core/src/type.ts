@@ -110,12 +110,12 @@ export interface Protocol {
 
 export interface ProtocolContext {
   manifest: Manifest;
-  fetcher: Fetcher;
+  datalayer: Datalayer;
   storage: Storage;
   asset: AssetMapping;
 }
 
-export interface Fetcher {
+export interface Datalayer {
   fetch(id: string): Node | Promise<Node>;
 }
 
@@ -247,6 +247,7 @@ export interface MapNode {
 export interface NodeObject {
   id: string;
   node: Node;
+  type: string;
 }
 
 export interface AssetMapping {

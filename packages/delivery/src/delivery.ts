@@ -1,6 +1,6 @@
 import type {
   AssetMapping,
-  Fetcher,
+  Datalayer,
   Manifest,
   Protocol,
   Storage,
@@ -12,7 +12,7 @@ import { mapKeys } from "@std/collections";
 export interface DeliveryConfig {
   protocol: Protocol;
   manifest: Manifest;
-  fetcher: Fetcher;
+  datalayer: Datalayer;
   registory: AssetMap;
   storage: Storage;
   middleware?: MiddlewareVariant[];
@@ -55,7 +55,7 @@ export class Delivery {
 
     function handler(request: Request): Promise<Response> | Response {
       return config.protocol.handle(request, {
-        fetcher: config.fetcher,
+        datalayer: config.datalayer,
         manifest: config.manifest,
         asset,
         storage: config.storage,
@@ -63,7 +63,7 @@ export class Delivery {
     }
 
     const componsed = compose(this.#middleware, handler, {
-      fetcher: this.config.fetcher,
+      fetcher: this.config.datalayer,
       asset,
       storage: this.config.storage,
     });
