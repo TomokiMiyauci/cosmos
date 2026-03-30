@@ -1,0 +1,6 @@
+{
+  "name": "@cosmos/bridge-sqlite",
+  "exports": {
+    ".": "./src/mod.ts"
+  }
+}

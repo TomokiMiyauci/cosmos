@@ -262,3 +262,9 @@ export interface AssetMapping {
   resolve(id: URL): URL | undefined;
   lookup(publicUrl: URL): URL | undefined;
 }
+
+export interface Bridge {
+  add(source: NodeObject): Promise<void>;
+
+  get(id: string): Promise<Node>;
+}

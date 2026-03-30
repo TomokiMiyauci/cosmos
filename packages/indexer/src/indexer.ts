@@ -1,4 +1,5 @@
 import {
+  type Bridge,
   type Config,
   type Datalayer,
   type Definition,
@@ -10,15 +11,15 @@ import {
   Parser,
   resolveFormatter,
   type Schema,
+  type Storage,
 } from "@cosmos/core";
 import { Visitor } from "./util.ts";
 import { AssetRegistry } from "./registry.ts";
-import type { DatabaseSync } from "node:sqlite";
 
 export class Indexer {
   constructor(private config: Config) {}
 
-  async index(db: DatabaseSync): Promise<
+  async index(bridge: Bridge): Promise<
     {
       manifest: Manifest;
       registry: AssetRegistry;
@@ -129,20 +130,10 @@ export class Indexer {
     });
 
     for (const source of result) {
-      const value = JSON.stringify(source.node);
-
-      db.prepare(
-        `INSERT INTO structures (id, model, data) VALUES (?, ?,CAST(? AS BLOB))
-ON CONFLICT(id)
-DO UPDATE SET 
-  model = excluded.model, 
-  data = excluded.data;`,
-      ).run(
-        source.id,
-        source.type,
-        value,
-      );
+      await bridge.add(source);
     }
+
+    const datalayer = createDatalayer(bridge, storage);
 
     return {
       manifest: {
@@ -150,30 +141,7 @@ DO UPDATE SET
         definitions,
       },
       registry,
-      datalayer: {
-        node: {
-          fetch(id): Node {
-            const result = db.prepare(
-              `SELECT data from structures where id = ?;`,
-            ).get(id);
-
-            if (!result) throw new Error();
-
-            const data = result.data;
-
-            if (!(data instanceof Uint8Array)) throw new Error();
-
-            const text = new TextDecoder().decode(data);
-
-            return JSON.parse(text);
-          },
-        },
-        asset: {
-          fetch(id): Blob | Promise<Blob> {
-            return storage.read(new URL(id));
-          },
-        },
-      },
+      datalayer,
     };
   }
 }
@@ -209,5 +177,20 @@ function fieldToSchema(field: Field): Schema {
     required,
     type,
     description,
+  };
+}
+
+function createDatalayer(bridge: Bridge, storage: Storage): Datalayer {
+  return {
+    node: {
+      fetch(id): Promise<Node> {
+        return bridge.get(id);
+      },
+    },
+    asset: {
+      fetch(id): Blob | Promise<Blob> {
+        return storage.read(new URL(id));
+      },
+    },
   };
 }

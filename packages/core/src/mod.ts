@@ -7,6 +7,7 @@ export type {
   AssetNode,
   AssetSchema,
   BooleanNode,
+  Bridge,
   Config,
   Datalayer,
   DatatimeSchema,
