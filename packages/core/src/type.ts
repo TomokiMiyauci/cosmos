@@ -115,8 +115,12 @@ export interface ProtocolContext {
 }
 
 export interface Datalayer {
-  fetch(id: string): Node | Promise<Node>;
+  node: NodeLayer;
   asset: AssetLayer;
+}
+
+export interface NodeLayer {
+  fetch(id: string): Node | Promise<Node>;
 }
 
 export interface AssetLayer {

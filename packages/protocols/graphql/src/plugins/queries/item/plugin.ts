@@ -20,7 +20,7 @@ export class ItemPlugin implements SchemaPlugin {
           type: schema.type,
           args: { id: { type: new GraphQLNonNull(GraphQLID) } },
           resolve: (_, { id }) => {
-            return fetcher.fetch(id);
+            return fetcher.node.fetch(id);
           },
         },
       };

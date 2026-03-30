@@ -117,7 +117,7 @@ function resolveScalarType(
         const field = {
           type: model,
           resolve: (source) => {
-            return fetcher.fetch((source as IdNode).value);
+            return fetcher.node.fetch((source as IdNode).value);
           },
         } satisfies GraphQLFieldConfig<Node, unknown>;
 

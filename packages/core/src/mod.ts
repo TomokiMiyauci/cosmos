@@ -33,6 +33,7 @@ export type {
   Model,
   ModelDefinition,
   Node,
+  NodeLayer,
   NodeObject,
   Protocol,
   ProtocolContext,

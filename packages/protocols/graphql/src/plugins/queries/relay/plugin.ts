@@ -19,7 +19,7 @@ export class RelayPlugin implements SchemaPlugin {
         nodeType: entry.type,
       });
       const name = `${entry.type.name}Collection`;
-      const fetch = ctx.fetcher.fetch.bind(ctx.fetcher);
+      const fetch = ctx.fetcher.node.fetch.bind(ctx.fetcher);
 
       return {
         name,

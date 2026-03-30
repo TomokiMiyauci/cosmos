@@ -151,20 +151,22 @@ DO UPDATE SET
       },
       registry,
       datalayer: {
-        fetch(id): Node {
-          const result = db.prepare(
-            `SELECT data from structures where id = ?;`,
-          ).get(id);
+        node: {
+          fetch(id): Node {
+            const result = db.prepare(
+              `SELECT data from structures where id = ?;`,
+            ).get(id);
 
-          if (!result) throw new Error();
+            if (!result) throw new Error();
 
-          const data = result.data;
+            const data = result.data;
 
-          if (!(data instanceof Uint8Array)) throw new Error();
+            if (!(data instanceof Uint8Array)) throw new Error();
 
-          const text = new TextDecoder().decode(data);
+            const text = new TextDecoder().decode(data);
 
-          return JSON.parse(text);
+            return JSON.parse(text);
+          },
         },
         asset: {
           fetch(id): Blob | Promise<Blob> {
