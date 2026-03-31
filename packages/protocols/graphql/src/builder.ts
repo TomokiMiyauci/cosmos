@@ -1,5 +1,4 @@
 import type {
-  AssetMapping,
   AssetNode,
   BooleanNode,
   Datalayer,
@@ -33,7 +32,6 @@ export interface SchemaConfig {
 export interface BuilderContext {
   manifest: Manifest;
   fetcher: Datalayer;
-  asset: AssetMapping;
 }
 
 export class SchemaBuilder {
@@ -50,7 +48,6 @@ export class SchemaBuilder {
             cur,
             ctx.fetcher,
             models,
-            ctx.asset,
           );
 
           const finalField = resolverOverride(field, cur.name);
@@ -95,7 +92,6 @@ function resolveScalarType(
   schema: Schema,
   fetcher: Datalayer,
   models: GraphQLObjectType[],
-  asset: AssetMapping,
 ): GraphQLFieldConfig<Node, unknown> {
   function resolveBase(): GraphQLFieldConfig<Node, unknown> {
     switch (schema.type) {
@@ -116,7 +112,7 @@ function resolveScalarType(
 
       case "map": {
         const fields = schema.fields.reduce((acc, field) => {
-          const config = resolveScalarType(field, fetcher, models, asset);
+          const config = resolveScalarType(field, fetcher, models);
           const finalConfig = resolverOverride(config, field.name);
 
           return {
@@ -170,9 +166,8 @@ function resolveScalarType(
           type: GraphQLURL,
           resolve: (node) => {
             const url = new URL((node as AssetNode).value);
-            const resolved = asset.resolve(url);
 
-            return resolved;
+            return url;
           },
         };
       }

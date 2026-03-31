@@ -1,6 +1,14 @@
-import type { AssetMapping, Datalayer, Manifest, Protocol } from "@cosmos/core";
+import type {
+  AssetMapping,
+  Datalayer,
+  Manifest,
+  Node,
+  Protocol,
+  ProtocolContext,
+} from "@cosmos/core";
 import type { Middleware, MiddlewareVariant } from "./type.ts";
 import { compose, normalizeMiddleware } from "./util.ts";
+import { walk } from "@cosmos/indexer";
 
 export interface DeliveryConfig {
   protocol: Protocol;
@@ -39,35 +47,27 @@ export class Delivery {
         [id, (await mapper(new URL(id), { request })).href] as [string, string]
       ),
     );
-    const assetMap = new Map<string, string>(assetEntries);
+    const assetMap = Object.fromEntries(assetEntries);
+    const asset = createAssetMapping(assetMap);
 
-    const asset = {
-      lookup(publicUrl: URL): URL | undefined {
-        for (const [internalId, publicId] of assetMap) {
-          if (publicUrl.href === publicId) {
-            return new URL(internalId);
-          }
-        }
-      },
-      resolve(internalUrl: URL): URL | undefined {
-        const value = assetMap.get(internalUrl.href);
+    const ctx: ProtocolContext = {
+      datalayer: config.datalayer,
+      manifest: config.manifest,
+      asset,
+    };
 
-        if (value) {
-          return new URL(value);
-        }
-      },
-    } satisfies AssetMapping;
+    const proxy = createDatalayerProxy(
+      config.datalayer,
+      [mappedUrlPlugin],
+      ctx,
+    );
 
     function handler(request: Request): Promise<Response> | Response {
-      return config.protocol.handle(request, {
-        datalayer: config.datalayer,
-        manifest: config.manifest,
-        asset,
-      });
+      return config.protocol.handle(request, { ...ctx, datalayer: proxy });
     }
 
     const componsed = compose(this.#middleware, handler, {
-      datalayer: this.config.datalayer,
+      datalayer: proxy,
       asset,
     });
 
@@ -91,4 +91,70 @@ async function hash(key: string): Promise<string> {
     "",
   );
   return hashHex;
+}
+
+function createAssetMapping(map: AssetMap): AssetMapping {
+  const asset = {
+    lookup(publicUrl: URL): URL | undefined {
+      for (const [internalId, publicId] of Object.entries(map)) {
+        if (publicUrl.href === publicId) {
+          return new URL(internalId);
+        }
+      }
+    },
+    resolve(internalUrl: URL): URL | undefined {
+      const value = map[internalUrl.href];
+
+      if (value) {
+        return new URL(value);
+      }
+    },
+  } satisfies AssetMapping;
+
+  return asset;
+}
+
+interface DataLayerPlugin {
+  name: string;
+  fetched: (node: Node, ctx: ProtocolContext) => Node;
+}
+
+const mappedUrlPlugin = {
+  name: "mappedUrl",
+  fetched: (node, ctx) => {
+    switch (node.type) {
+      case "asset": {
+        const url = new URL(node.value);
+        const resolved = ctx.asset.resolve(url);
+
+        if (!resolved) throw new Error();
+
+        return {
+          ...node,
+          value: resolved,
+        };
+      }
+    }
+
+    return node;
+  },
+} satisfies DataLayerPlugin;
+
+function createDatalayerProxy(
+  datalayer: Datalayer,
+  plugins: DataLayerPlugin[],
+  ctx: ProtocolContext,
+): Datalayer {
+  return {
+    ...datalayer,
+    node: {
+      ...datalayer.node,
+      async fetch(id: string): Promise<Node> {
+        const node = await datalayer.node.fetch(id);
+        return walk(node, (n) => {
+          return plugins.reduce((acc, plugin) => plugin.fetched(acc, ctx), n);
+        });
+      },
+    },
+  };
 }
