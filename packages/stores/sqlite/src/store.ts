@@ -113,4 +113,15 @@ DO UPDATE SET
       data: new Blob([new Uint8Array(data)], { type: asset_type ?? "" }),
     };
   }
+
+  async list(model: string): Promise<string[]> {
+    const rows = this.db.prepare(`
+      SELECT e.key 
+      FROM entries e
+      JOIN node_entries n ON e.id = n.entry_id
+      WHERE n.model = ?;
+    `).all(model) as { key: string }[];
+
+    return rows.map((row) => row.key);
+  }
 }

@@ -16,9 +16,9 @@ export class RelayPlugin implements SchemaPlugin {
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
     return ctx.entries.map((entry) => {
       const { connectionType } = connectionDefinitions({
-        nodeType: entry.type,
+        nodeType: entry,
       });
-      const name = `${entry.type.name}Collection`;
+      const name = `${entry.name}Collection`;
       const fetch = ctx.fetcher.node.fetch.bind(ctx.fetcher);
 
       return {
@@ -27,8 +27,9 @@ export class RelayPlugin implements SchemaPlugin {
           type: connectionType,
           args: connectionArgs,
           async resolve(_, args): Promise<Connection<Node>> {
-            const sources = entry.sources;
-            const promise = sources.map(fetch);
+            const model = entry.name;
+            const keys = await ctx.fetcher.node.list(model);
+            const promise = keys.map(fetch);
             const result = await Promise.all(promise);
             const collection = connectionFromArray(result, args);
 

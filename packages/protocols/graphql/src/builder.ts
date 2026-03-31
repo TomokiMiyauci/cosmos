@@ -20,7 +20,7 @@ import {
   GraphQLString,
   type ThunkObjMap,
 } from "graphql";
-import type { GraphEntry, Namer, SchemaPlugin } from "./type.ts";
+import type { Namer, SchemaPlugin } from "./type.ts";
 import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
 import { overrideName } from "./util.ts";
 import { StandardNamer } from "./namers/standard.ts";
@@ -49,7 +49,7 @@ export class SchemaBuilder {
           const field = resolveScalarType(
             cur,
             ctx.fetcher,
-            models.map(([model]) => model),
+            models,
             ctx.asset,
           );
 
@@ -61,26 +61,16 @@ export class SchemaBuilder {
           };
         }, {});
 
-      return [
-        new GraphQLObjectType({
-          name: definition.name,
-          fields,
-          description: definition.description,
-        }),
-        definition.members,
-      ] satisfies [GraphQLObjectType, string[]];
-    });
-
-    const entries: GraphEntry[] = models.map(([model, ids]) => {
-      return {
-        type: model,
-        sources: ids,
-      };
+      return new GraphQLObjectType({
+        name: definition.name,
+        fields,
+        description: definition.description,
+      });
     });
 
     const queryFields = this.config.plugins
       .map((registry) => {
-        return registry.provideQuery({ fetcher: ctx.fetcher, entries });
+        return registry.provideQuery({ fetcher: ctx.fetcher, entries: models });
       })
       .flat();
 

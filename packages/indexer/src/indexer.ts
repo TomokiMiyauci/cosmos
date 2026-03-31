@@ -92,7 +92,6 @@ export class Indexer {
         }),
       );
 
-      const members = jsons.map(({ key }) => key.toString());
       jsons.forEach(({ key, value, type }) => {
         const node = new Parser().parse(value, model, {
           config: this.config,
@@ -111,7 +110,6 @@ export class Indexer {
         name: model.name,
         description: model.description ?? "",
         schemas,
-        members,
       } satisfies Definition;
 
       return definition;
@@ -204,6 +202,9 @@ function createDatalayer(store: Store): Datalayer {
         if (result.type !== "node") throw new Error("not a node entry");
 
         return result.data;
+      },
+      async list(model): Promise<string[]> {
+        return await store.list(model);
       },
     },
     asset: {

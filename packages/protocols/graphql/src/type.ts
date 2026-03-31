@@ -3,12 +3,7 @@ import type { GraphQLFieldConfig, GraphQLObjectType } from "graphql";
 
 export interface QueryContext {
   fetcher: Datalayer;
-  entries: GraphEntry[];
-}
-
-export interface GraphEntry {
-  type: GraphQLObjectType;
-  sources: string[];
+  entries: GraphQLObjectType[];
 }
 
 export interface GraphQLQueryField {

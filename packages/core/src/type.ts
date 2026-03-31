@@ -7,7 +7,6 @@ export interface Definition {
   name: string;
   description: string;
   schemas: Schema[];
-  members: string[];
 }
 
 export interface Config {
@@ -121,6 +120,7 @@ export interface Datalayer {
 
 export interface NodeLayer {
   fetch(id: string): Node | Promise<Node>;
+  list(model: string): string[] | Promise<string[]>;
 }
 
 export interface AssetLayer {
@@ -278,4 +278,6 @@ export interface Store {
   save(entry: Entry): Promise<void>;
 
   load(id: string): Promise<Entry>;
+
+  list(model: string): Promise<string[]>;
 }
