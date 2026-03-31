@@ -12,54 +12,47 @@ CREATE TABLE IF NOT EXISTS entries (
 );
 
 CREATE TABLE IF NOT EXISTS node_entries (
-  entry_id INTEGER PRIMARY KEY REFERENCES entries(id) ON DELETE CASCADE,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  entry_id INTEGER UNIQUE REFERENCES entries(id) ON DELETE CASCADE,
   model TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS asset_entries (
-  entry_id INTEGER PRIMARY KEY REFERENCES entries(id) ON DELETE CASCADE,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  entry_id INTEGER UNIQUE REFERENCES entries(id) ON DELETE CASCADE,
   asset_type TEXT
 );
 `);
   }
 
   async save(entry: Entry): Promise<void> {
-    const assetType = entry.data.type;
-    const encodedData = entry.type === "node"
     const isNode = entry.type === "node";
     const encodedData = isNode
       ? new TextEncoder().encode(JSON.stringify(entry.data))
       : new Uint8Array(await entry.data.arrayBuffer());
 
-    const stme = this.db.prepare(
-      `INSERT INTO entries (key, type, data) VALUES (?, ?, CAST(? AS BLOB))
     this.db.exec("BEGIN TRANSACTION");
     try {
-      const stme = this.db.prepare(
+      const stmt = this.db.prepare(
         `INSERT INTO entries (key, type, data) VALUES (?, ?, CAST(? AS BLOB))
 ON CONFLICT(key)
 DO UPDATE SET
-  key = excluded.key,
   type = excluded.type,
-  data = excluded.data;`,
-    ).run(entry.id, entry.type, encodedData);
-      ).run(entry.id, entry.type, encodedData);
+  data = excluded.data
+RETURNING id;`,
+      ).get(entry.id, entry.type, encodedData);
+      const entryId = stmt?.id;
 
-    const entryId = stme.lastInsertRowid;
-    if (entry.type === "node") {
-      this.db.prepare(
-        `INSERT INTO node_entries (entry_id, model) VALUES (?, ?)
-      const entryId = stme.lastInsertRowid;
+      if (typeof entryId !== "number") {
+        throw new Error("something went wrong");
+      }
+
       if (isNode) {
         this.db.prepare(
           `INSERT INTO node_entries (entry_id, model) VALUES (?, ?)
 ON CONFLICT(entry_id)
 DO UPDATE SET
   model = excluded.model;`,
-      ).run(entryId, entry.model);
-    } else {
-      this.db.prepare(
-        `INSERT INTO asset_entries (entry_id, asset_type) VALUES (?, ?)
         ).run(entryId, entry.model);
       } else {
         this.db.prepare(
@@ -67,7 +60,6 @@ DO UPDATE SET
 ON CONFLICT(entry_id)
 DO UPDATE SET
   asset_type = excluded.asset_type;`,
-      ).run(entryId, assetType);
         ).run(entryId, (entry.data as Blob).type);
       }
       this.db.exec("COMMIT");
@@ -78,9 +70,6 @@ DO UPDATE SET
   }
 
   async load(id: string): Promise<Entry> {
-    const meta = this.db.prepare(
-      `SELECT id, type, data FROM entries WHERE key = ?;`,
-    ).get(id);
     const row = this.db.prepare(`
       WITH entry_record AS (
         SELECT id, type, data FROM entries WHERE key = ?
@@ -100,25 +89,14 @@ DO UPDATE SET
       asset_type: string | null;
     } | undefined;
 
-    if (!meta) throw new Error(`Entry not found: ${id}`);
     if (!row) throw new Error(`Entry not found: ${id}`);
     const { type, data, model, asset_type } = row;
-
-    const { id: entryId, type, data } = meta;
 
     if (type !== "node" && type !== "asset") {
       throw new Error(`Invalid entry type: ${type}`);
     }
-    if (!(data instanceof Uint8Array)) {
-      throw new Error(`Invalid data for entry ${id}`);
-    }
 
     if (type === "node") {
-      const row = this.db.prepare(
-        `SELECT model FROM node_entries WHERE entry_id = ?;`,
-      ).get(entryId);
-
-      if (!row || typeof row.model !== "string") {
       if (typeof model !== "string") {
         throw new Error(`Missing node metadata for ${id}`);
       }
@@ -126,16 +104,13 @@ DO UPDATE SET
       const text = new TextDecoder().decode(data);
       const node = JSON.parse(text);
 
-      return { id, type, data: node, model: row.model };
       return { id, type, data: node, model };
     }
 
-    const assetRow = this.db.prepare(
-      `SELECT asset_type FROM asset_entries WHERE entry_id = ?;`,
-    ).get(entryId);
-    const assetType = assetRow?.asset_type ?? "";
-
-    return { id, type, data: new Blob([data], { type: assetType }) };
-    return { id, type, data: new Blob([data], { type: asset_type ?? "" }) };
+    return {
+      id,
+      type,
+      data: new Blob([new Uint8Array(data)], { type: asset_type ?? "" }),
+    };
   }
 }
