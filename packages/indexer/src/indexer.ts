@@ -201,7 +201,7 @@ function createDatalayer(store: Store): Datalayer {
       async fetch(id): Promise<Node> {
         const result = await store.load(id);
 
-        if (result.type !== "node") throw new Error();
+        if (result.type !== "node") throw new Error("not a node entry");
 
         return result.data;
       },
@@ -210,7 +210,7 @@ function createDatalayer(store: Store): Datalayer {
       async fetch(id): Promise<Blob> {
         const entry = await store.load(id);
 
-        if (entry.type !== "asset") throw new Error();
+        if (entry.type !== "asset") throw new Error("not an asset entry");
 
         return entry.data;
       },
