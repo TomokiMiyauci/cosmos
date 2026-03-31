@@ -124,4 +124,14 @@ DO UPDATE SET
 
     return rows.map((row) => row.key);
   }
+
+  assetList(): Promise<string[]> {
+    const rows = this.db.prepare(`
+      SELECT key
+      FROM entries
+      WHERE type = 'asset';
+    `).all() as { key: string }[];
+
+    return Promise.resolve(rows.map((row) => row.key));
+  }
 }

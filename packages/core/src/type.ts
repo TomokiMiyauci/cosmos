@@ -125,6 +125,7 @@ export interface NodeLayer {
 
 export interface AssetLayer {
   fetch(id: string): Blob | Promise<Blob>;
+  list(): Promise<string[]>;
 }
 
 export interface AssetHeader {
@@ -280,4 +281,5 @@ export interface Store {
   load(id: string): Promise<Entry>;
 
   list(model: string): Promise<string[]>;
+  assetList(): Promise<string[]>;
 }

@@ -22,7 +22,6 @@ export class Indexer {
   async index(store: Store): Promise<
     {
       manifest: Manifest;
-      registry: AssetRegistry;
       datalayer: Datalayer;
     }
   > {
@@ -153,7 +152,6 @@ export class Indexer {
         version: "1",
         definitions,
       },
-      registry,
       datalayer,
     };
   }
@@ -214,6 +212,10 @@ function createDatalayer(store: Store): Datalayer {
         if (entry.type !== "asset") throw new Error("not an asset entry");
 
         return entry.data;
+      },
+
+      list(): Promise<string[]> {
+        return store.assetList();
       },
     },
   };
