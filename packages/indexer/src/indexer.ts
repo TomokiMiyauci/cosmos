@@ -202,7 +202,7 @@ function createDatalayer(store: Store): Datalayer {
         return result.data;
       },
       async list(model): Promise<string[]> {
-        return await store.list(model);
+        return await store.list({ type: "node", model });
       },
     },
     asset: {
@@ -215,7 +215,7 @@ function createDatalayer(store: Store): Datalayer {
       },
 
       list(): Promise<string[]> {
-        return store.assetList();
+        return store.list({ type: "asset" });
       },
     },
   };

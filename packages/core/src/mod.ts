@@ -15,6 +15,7 @@ export type {
   DatetimeSchema,
   Definition,
   Entry,
+  EntryFilter,
   Field,
   FieldCodec,
   FieldContext,

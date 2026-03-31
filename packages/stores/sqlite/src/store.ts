@@ -1,4 +1,4 @@
-import type { Entry, Store } from "@cosmos/core";
+import type { Entry, EntryFilter, Store } from "@cosmos/core";
 import { DatabaseSync } from "node:sqlite";
 
 export class SqliteStore implements Store {
@@ -114,24 +114,29 @@ DO UPDATE SET
     };
   }
 
-  async list(model: string): Promise<string[]> {
-    const rows = this.db.prepare(`
-      SELECT e.key 
-      FROM entries e
-      JOIN node_entries n ON e.id = n.entry_id
-      WHERE n.model = ?;
-    `).all(model) as { key: string }[];
+  async list(filter: EntryFilter): Promise<string[]> {
+    if (filter.type === "node") {
+      let sql =
+        `SELECT e.key FROM entries e JOIN node_entries n ON e.id = n.entry_id`;
+      const params: string[] = [];
 
-    return rows.map((row) => row.key);
-  }
+      if (filter.model) {
+        sql += ` WHERE n.model = ?`;
+        params.push(filter.model);
+      } else {
+        sql += ` WHERE e.type = 'node'`;
+      }
 
-  assetList(): Promise<string[]> {
+      const rows = this.db.prepare(sql).all(...params) as { key: string }[];
+      return rows.map((row) => row.key);
+    }
+
     const rows = this.db.prepare(`
       SELECT key
       FROM entries
       WHERE type = 'asset';
     `).all() as { key: string }[];
 
-    return Promise.resolve(rows.map((row) => row.key));
+    return rows.map((row) => row.key);
   }
 }

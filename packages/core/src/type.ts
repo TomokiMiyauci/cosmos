@@ -280,6 +280,18 @@ export interface Store {
 
   load(id: string): Promise<Entry>;
 
-  list(model: string): Promise<string[]>;
-  assetList(): Promise<string[]>;
+  list(filter: EntryFilter): Promise<string[]>;
+}
+
+export type EntryFilter =
+  | NodeEntryFilter
+  | AssetEntryFilter;
+
+export interface NodeEntryFilter {
+  type: "node";
+  model?: string;
+}
+
+export interface AssetEntryFilter {
+  type: "asset";
 }
