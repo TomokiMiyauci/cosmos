@@ -1,5 +1,6 @@
 export type {
   AssetDefinition,
+  AssetEntry,
   AssetField,
   AssetHeader,
   AssetLayer,
@@ -13,6 +14,7 @@ export type {
   DatetimeNode,
   DatetimeSchema,
   Definition,
+  Entry,
   Field,
   FieldCodec,
   FieldContext,

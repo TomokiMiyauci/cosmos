@@ -254,14 +254,20 @@ export interface MapNode {
 
 export interface BaseEntry<T> {
   id: string;
+  type: string;
   data: T;
 }
 
 export interface NodeEntry extends BaseEntry<Node> {
+  type: "node";
   model: string;
 }
 
-export interface AssetEntry extends BaseEntry<Blob> {}
+export interface AssetEntry extends BaseEntry<Blob> {
+  type: "asset";
+}
+
+export type Entry = NodeEntry | AssetEntry;
 
 export interface AssetMapping {
   resolve(id: URL): URL | undefined;
@@ -269,7 +275,7 @@ export interface AssetMapping {
 }
 
 export interface Store {
-  save(source: NodeEntry): Promise<void>;
+  save(entry: Entry): Promise<void>;
 
-  get(id: string): Promise<Node>;
+  load(id: string): Promise<Entry>;
 }

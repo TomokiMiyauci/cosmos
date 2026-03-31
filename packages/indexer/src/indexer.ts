@@ -1,4 +1,5 @@
 import {
+  type AssetEntry,
   type Config,
   type Datalayer,
   type Definition,
@@ -10,7 +11,6 @@ import {
   Parser,
   resolveFormatter,
   type Schema,
-  type Storage,
   type Store,
 } from "@cosmos/core";
 import { Visitor } from "./util.ts";
@@ -99,7 +99,12 @@ export class Indexer {
           url: key,
         });
 
-        entries.push({ id: key.toString(), data: node, model: type });
+        entries.push({
+          id: key.toString(),
+          data: node,
+          model: type,
+          type: "node",
+        });
       });
 
       const definition = {
@@ -124,9 +129,8 @@ export class Indexer {
 
     const result = entries.map((entry) => {
       return {
-        id: entry.id,
+        ...entry,
         data: visitor.visit(entry.data),
-        model: entry.model,
       };
     });
 
@@ -134,7 +138,17 @@ export class Indexer {
       await store.save(source);
     }
 
-    const datalayer = createDatalayer(store, storage);
+    for (const url of registry.keys()) {
+      const blob = await storage.read(url);
+      const entry = {
+        id: url.toString(),
+        data: blob,
+        type: "asset",
+      } satisfies AssetEntry;
+      await store.save(entry);
+    }
+
+    const datalayer = createDatalayer(store);
 
     return {
       manifest: {
@@ -181,16 +195,24 @@ function fieldToSchema(field: Field): Schema {
   };
 }
 
-function createDatalayer(store: Store, storage: Storage): Datalayer {
+function createDatalayer(store: Store): Datalayer {
   return {
     node: {
-      fetch(id): Promise<Node> {
-        return store.get(id);
+      async fetch(id): Promise<Node> {
+        const result = await store.load(id);
+
+        if (result.type !== "node") throw new Error();
+
+        return result.data;
       },
     },
     asset: {
-      fetch(id): Blob | Promise<Blob> {
-        return storage.read(new URL(id));
+      async fetch(id): Promise<Blob> {
+        const entry = await store.load(id);
+
+        if (entry.type !== "asset") throw new Error();
+
+        return entry.data;
       },
     },
   };
