@@ -3,11 +3,9 @@
   "image": "denoland/deno",
   "customizations": {
     "vscode": {
-      "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
-      },
       "extensions": [
-        "denoland.vscode-deno"
+        "denoland.vscode-deno",
+        "vivaxy.vscode-conventional-commits"
       ]
     }
   },
