@@ -1,0 +1,14 @@
+{
+  "name": "@cosmos/field-markdown",
+  "exports": {
+    ".": "./src/mod.ts"
+  },
+  "imports": {
+    "mdast": "npm:mdast@^3.0.0",
+    "remark-link-rewrite": "npm:remark-link-rewrite@^1.0.7",
+    "remark-parse": "npm:remark-parse@^11.0.0",
+    "remark-stringify": "npm:remark-stringify@^11.0.0",
+    "unified": "npm:unified@^11.0.5",
+    "unist-util-visit": "npm:unist-util-visit@^5.1.0"
+  }
+}
