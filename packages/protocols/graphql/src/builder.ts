@@ -41,13 +41,13 @@ export class SchemaBuilder {
   }
 
   build(ctx: BuilderContext): GraphQLSchema {
-    const models = ctx.manifest.definitions.map((definition) => {
+    const entries = ctx.manifest.definitions.map((definition) => {
       const fields: ThunkObjMap<GraphQLFieldConfig<unknown, unknown>> = () =>
         definition.schemas.reduce((acc, cur) => {
           const field = resolveScalarType(
             cur,
             ctx.fetcher,
-            models,
+            entries.map((entry) => entry.type),
           );
 
           const finalField = resolverOverride(field, cur.name);
@@ -58,16 +58,19 @@ export class SchemaBuilder {
           };
         }, {});
 
-      return new GraphQLObjectType({
-        name: definition.name,
-        fields,
-        description: definition.description,
-      });
+      return {
+        type: new GraphQLObjectType({
+          name: definition.name,
+          fields,
+          description: definition.description,
+        }),
+        definition,
+      };
     });
 
     const queryFields = this.config.plugins
       .map((registry) => {
-        return registry.provideQuery({ fetcher: ctx.fetcher, entries: models });
+        return registry.provideQuery({ fetcher: ctx.fetcher, entries });
       })
       .flat();
 
