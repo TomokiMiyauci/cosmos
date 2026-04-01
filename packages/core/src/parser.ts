@@ -7,32 +7,32 @@ interface CodecContext {
 }
 
 export class Parser {
-  parse(
+  async parse(
     content: Structure,
     model: Model,
     ctx: CodecContext,
-  ): Node {
+  ): Promise<Node> {
     if (typeof content === "string") throw new Error("syntax error");
 
-    const value = model.fields.reduce((acc, field) => {
-      const { name } = field;
+    const promise = model.fields.filter((field) => field.name in content).map(
+      async (field) => {
+        const { name } = field;
 
-      if (name in content) {
         const codec = ctx.config.fields[field.type];
-        const node = codec.parse(content[name], { url: ctx.url });
+        const node = await codec.parse(content[name], {
+          url: ctx.url,
+          baseUrl: ctx.url,
+          resolver: ctx.config.resolver,
+        });
 
-        return {
-          ...acc,
-          [name]: node,
-        };
-      }
-
-      return acc;
-    }, {});
+        return [name, node] as const;
+      },
+    );
+    const entries = await Promise.all(promise);
 
     return {
       type: "map",
-      value,
+      value: Object.fromEntries(entries),
     };
   }
 

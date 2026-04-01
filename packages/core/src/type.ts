@@ -16,6 +16,7 @@ export interface Config {
   storage: Storage;
   indexes: IndexManager[];
   assets?: AssetDefinition[];
+  resolver: Resolver;
 }
 
 export interface AssetDefinition {
@@ -27,13 +28,14 @@ export type FieldDefinition = {
 };
 
 export interface FieldCodec {
-  parse(structure: StructureValue, ctx: FieldContext): Node;
+  parse(structure: StructureValue, ctx: FieldContext): Node | Promise<Node>;
 
-  stringify(node: Node): StructureValue;
+  stringify(node: Node): StructureValue | Promise<StructureValue>;
 }
 
-export interface FieldContext {
+export interface FieldContext extends ResolverContext {
   url: URL;
+  resolver: Resolver;
 }
 
 export interface FormatterDefinition {
@@ -53,7 +55,8 @@ export type Field =
   | BooleanField
   | ReferenceField
   | DatetimeField
-  | AssetField;
+  | AssetField
+  | MarkdownField;
 
 export interface BaseField {
   name: string;
@@ -83,6 +86,10 @@ export interface DatetimeField extends BaseField {
 
 export interface AssetField extends BaseField {
   type: "asset";
+}
+
+export interface MarkdownField extends BaseField {
+  type: "markdown";
 }
 
 export type FormatDefinition = {
@@ -184,6 +191,10 @@ export interface StringSchema extends BaseSchema {
   type: "string";
 }
 
+export interface MarkdownSchema extends BaseSchema {
+  type: "markdown";
+}
+
 export interface BooleanSchema extends BaseSchema {
   type: "boolean";
 }
@@ -207,7 +218,8 @@ export type Schema =
   | BooleanSchema
   | MapSchema
   | DatetimeSchema
-  | AssetSchema;
+  | AssetSchema
+  | MarkdownSchema;
 
 export interface IdNode {
   type: IdSchema["type"];
@@ -234,12 +246,18 @@ export interface AssetNode {
   value: URL;
 }
 
+export interface MarkdownNode {
+  type: MarkdownSchema["type"];
+  value: string;
+}
+
 export type NodeValue =
   | IdNode
   | StringNode
   | BooleanNode
   | DatetimeNode
-  | AssetNode;
+  | AssetNode
+  | MarkdownNode;
 
 export type Node = NodeValue | MapNode;
 
@@ -289,4 +307,13 @@ export interface NodeEntryFilter {
 
 export interface AssetEntryFilter {
   type: "asset";
+}
+
+export interface Resolver {
+  resolve(specifier: string, ctx: ResolverContext): Promise<URL> | URL;
+  unresolve(url: URL, ctx: ResolverContext): Promise<string> | string;
+}
+
+export interface ResolverContext {
+  baseUrl: URL;
 }

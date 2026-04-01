@@ -39,6 +39,8 @@ export type {
   NodeLayer,
   Protocol,
   ProtocolContext,
+  Resolver,
+  ResolverContext,
   Schema,
   Storage,
   Store,
