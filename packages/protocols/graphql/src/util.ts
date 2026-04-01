@@ -18,5 +18,16 @@ export function overrideName(
 
       return [name, config] as const;
     },
+    [MapperKind.INPUT_OBJECT_TYPE]: (config) => {
+      const name = namer.type(config.name);
+
+      config.name = name;
+      return config;
+    },
+    [MapperKind.INPUT_OBJECT_FIELD]: (config, fieldName) => {
+      const name = namer.field(fieldName);
+
+      return [name, config] as const;
+    },
   });
 }
