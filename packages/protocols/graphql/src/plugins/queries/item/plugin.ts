@@ -11,7 +11,7 @@ export class ItemPlugin implements SchemaPlugin {
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
     const { fetcher, entries } = ctx;
 
-    return entries.map((schema) => {
+    return entries.map(({ type: schema }) => {
       return {
         name: schema.name,
         type: {

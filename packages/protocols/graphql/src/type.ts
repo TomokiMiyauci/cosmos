@@ -1,9 +1,14 @@
-import type { Datalayer } from "@cosmos/core";
+import type { Datalayer, Definition } from "@cosmos/core";
 import type { GraphQLFieldConfig, GraphQLObjectType } from "graphql";
 
 export interface QueryContext {
   fetcher: Datalayer;
-  entries: GraphQLObjectType[];
+  entries: GraphqlEntry[];
+}
+
+export interface GraphqlEntry {
+  type: GraphQLObjectType;
+  definition: Definition;
 }
 
 export interface GraphQLQueryField {
