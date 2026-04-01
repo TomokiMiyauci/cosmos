@@ -34,7 +34,6 @@ export type {
   MapNode,
   MapSchema,
   Model,
-  ModelDefinition,
   Node,
   NodeEntry,
   NodeLayer,

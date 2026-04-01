@@ -41,11 +41,6 @@ export interface FormatterDefinition {
   formatter: Formatter;
 }
 
-export interface ModelDefinition {
-  models: Model[];
-  base: URLPatternInit;
-}
-
 export interface Model {
   name: string;
   description?: string;
