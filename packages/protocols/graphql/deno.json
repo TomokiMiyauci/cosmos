@@ -12,6 +12,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./relay": "./src/plugins/queries/relay/mod.ts",
-    "./item": "./src/plugins/queries/item/mod.ts"
+    "./item": "./src/plugins/queries/item/mod.ts",
+    "./opencrud": "./src/plugins/opencrud/mod.ts"
   }
 }
