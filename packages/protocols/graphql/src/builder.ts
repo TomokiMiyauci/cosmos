@@ -9,7 +9,7 @@ import {
   GraphQLString,
   type ThunkObjMap,
 } from "graphql";
-import type { Namer, SchemaPlugin } from "./type.ts";
+import type { Namer, ResolverContext, SchemaPlugin } from "./type.ts";
 import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
 import { overrideName } from "./util.ts";
 import { StandardNamer } from "./namers/standard.ts";
@@ -32,21 +32,22 @@ export class SchemaBuilder {
 
   build(ctx: BuilderContext): GraphQLSchema {
     const entries = ctx.manifest.definitions.map((definition) => {
-      const fields: ThunkObjMap<GraphQLFieldConfig<unknown, unknown>> = () =>
-        definition.schemas.reduce((acc, cur) => {
-          const field = resolveScalarType(
-            cur,
-            ctx.fetcher,
-            entries.map((entry) => entry.type),
-          );
+      const fields: ThunkObjMap<GraphQLFieldConfig<unknown, ResolverContext>> =
+        () =>
+          definition.schemas.reduce((acc, cur) => {
+            const field = resolveScalarType(
+              cur,
+              ctx.fetcher,
+              entries.map((entry) => entry.type),
+            );
 
-          const finalField = resolverOverride(field, cur.name);
+            const finalField = resolverOverride(field, cur.name);
 
-          return {
-            ...acc,
-            [cur.name]: finalField,
-          };
-        }, {});
+            return {
+              ...acc,
+              [cur.name]: finalField,
+            };
+          }, {});
 
       return {
         type: new GraphQLObjectType({
@@ -65,7 +66,7 @@ export class SchemaBuilder {
       .flat();
 
     const fields = queryFields.reduce<
-      ThunkObjMap<GraphQLFieldConfig<unknown, unknown, unknown>>
+      ThunkObjMap<GraphQLFieldConfig<unknown, ResolverContext>>
     >((acc, field) => {
       return {
         ...acc,
@@ -131,48 +132,52 @@ function resolveType(
   }
 }
 
+function resolve(node: Node, _: unknown, ctx: ResolverContext): unknown {
+  const fetcher = ctx.fetcher;
+
+  switch (node.type) {
+    case "string": {
+      return node.value;
+    }
+    case "boolean": {
+      return node.value;
+    }
+    case "id": {
+      return fetcher.node.fetch(node.value);
+    }
+    case "map": {
+      return node.value;
+    }
+    case "datetime": {
+      return node.value;
+    }
+    case "asset": {
+      return node.value;
+    }
+    case "markdown": {
+      return node.value;
+    }
+  }
+}
+
 function resolveScalarType(
   schema: Schema,
   fetcher: Datalayer,
   models: GraphQLObjectType[],
-): GraphQLFieldConfig<Node, unknown> {
+): GraphQLFieldConfig<Node, ResolverContext> {
   const type = resolveType(schema, fetcher, models);
 
   return {
     type: schema.required ? new GraphQLNonNull(type) : type,
     description: schema.description || undefined,
-    resolve: (node) => {
-      switch (node.type) {
-        case "string": {
-          return node.value;
-        }
-        case "boolean": {
-          return node.value;
-        }
-        case "id": {
-          return fetcher.node.fetch(node.value);
-        }
-        case "map": {
-          return node.value;
-        }
-        case "datetime": {
-          return node.value;
-        }
-        case "asset": {
-          return node.value;
-        }
-        case "markdown": {
-          return node.value;
-        }
-      }
-    },
+    resolve,
   };
 }
 
 function resolverOverride(
-  config: GraphQLFieldConfig<Node, unknown, unknown>,
+  config: GraphQLFieldConfig<Node, ResolverContext>,
   name: string,
-): GraphQLFieldConfig<Node, unknown, unknown> {
+): GraphQLFieldConfig<Node, ResolverContext, unknown> {
   const { resolve, ...rest } = config;
 
   return {

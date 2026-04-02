@@ -1,7 +1,7 @@
 import type { Protocol, ProtocolContext } from "@cosmos/core";
 import { SchemaBuilder } from "./builder.ts";
 import { createSchema, createYoga } from "graphql-yoga";
-import type { SchemaPlugin } from "./type.ts";
+import type { ResolverContext, SchemaPlugin } from "./type.ts";
 
 export interface GraphqlConfig {
   plugins?: SchemaPlugin[];
@@ -15,9 +15,11 @@ export class GraphqlProtocol implements Protocol {
       manifest: ctx.manifest,
       fetcher: ctx.datalayer,
     });
+    const context = { fetcher: ctx.datalayer } satisfies ResolverContext;
 
-    const yoga = createYoga({
+    const yoga = createYoga<Record<PropertyKey, never>, ResolverContext>({
       schema: createSchema({ typeDefs: schema }),
+      context,
     });
 
     const result = yoga(request);
