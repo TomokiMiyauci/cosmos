@@ -4,6 +4,7 @@ import {
   type GraphQLFieldConfig,
   GraphQLNonNull,
   GraphQLObjectType,
+  type GraphQLOutputType,
   GraphQLSchema,
   GraphQLString,
   type ThunkObjMap,
@@ -80,20 +81,18 @@ export class SchemaBuilder {
   }
 }
 
-function resolveBase(
+function resolveType(
   schema: Schema,
   fetcher: Datalayer,
   models: GraphQLObjectType[],
-): GraphQLFieldConfig<Node, unknown> {
+): GraphQLOutputType {
   switch (schema.type) {
     case "id": {
       const model = models.find((model) => schema.to === model.name);
 
       if (!model) throw new Error("unreachable");
 
-      const field = { type: model } satisfies GraphQLFieldConfig<Node, unknown>;
-
-      return field;
+      return model;
     }
 
     case "map": {
@@ -111,27 +110,23 @@ function resolveBase(
         name: schema.name,
       });
 
-      const field = {
-        type,
-      } satisfies GraphQLFieldConfig<Node, unknown>;
-
-      return field;
+      return type;
     }
 
     case "boolean": {
-      return { type: GraphQLBoolean };
+      return GraphQLBoolean;
     }
 
     case "string":
     case "markdown": {
-      return { type: GraphQLString };
+      return GraphQLString;
     }
 
     case "datetime": {
-      return { type: GraphQLDateTime };
+      return GraphQLDateTime;
     }
     case "asset": {
-      return { type: GraphQLURL };
+      return GraphQLURL;
     }
   }
 }
@@ -141,10 +136,9 @@ function resolveScalarType(
   fetcher: Datalayer,
   models: GraphQLObjectType[],
 ): GraphQLFieldConfig<Node, unknown> {
-  const { type, ...rest } = resolveBase(schema, fetcher, models);
+  const type = resolveType(schema, fetcher, models);
 
   return {
-    ...rest,
     type: schema.required ? new GraphQLNonNull(type) : type,
     description: schema.description || undefined,
     resolve: (node) => {
