@@ -37,7 +37,6 @@ export class SchemaBuilder {
           definition.schemas.reduce((acc, cur) => {
             const field = resolveScalarType(
               cur,
-              ctx.fetcher,
               entries.map((entry) => entry.type),
             );
 
@@ -84,7 +83,6 @@ export class SchemaBuilder {
 
 function resolveType(
   schema: Schema,
-  fetcher: Datalayer,
   models: GraphQLObjectType[],
 ): GraphQLOutputType {
   switch (schema.type) {
@@ -94,24 +92,6 @@ function resolveType(
       if (!model) throw new Error("unreachable");
 
       return model;
-    }
-
-    case "map": {
-      const fields = schema.fields.reduce((acc, field) => {
-        const config = resolveScalarType(field, fetcher, models);
-        const finalConfig = resolverOverride(config, field.name);
-
-        return {
-          ...acc,
-          [field.name]: finalConfig,
-        };
-      }, {});
-      const type = new GraphQLObjectType({
-        fields,
-        name: schema.name,
-      });
-
-      return type;
     }
 
     case "boolean": {
@@ -162,10 +142,9 @@ function resolve(node: Node, _: unknown, ctx: ResolverContext): unknown {
 
 function resolveScalarType(
   schema: Schema,
-  fetcher: Datalayer,
   models: GraphQLObjectType[],
 ): GraphQLFieldConfig<Node, ResolverContext> {
-  const type = resolveType(schema, fetcher, models);
+  const type = resolveType(schema, models);
 
   return {
     type: schema.required ? new GraphQLNonNull(type) : type,
