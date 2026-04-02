@@ -17,6 +17,7 @@ export interface Config {
   indexes: IndexManager[];
   assets?: AssetDefinition[];
   resolver: Resolver;
+  models: Model[];
 }
 
 export interface AssetDefinition {
@@ -135,7 +136,7 @@ export interface AssetHeader {
 }
 
 export interface Resource {
-  model: Model;
+  model: string;
   indexer: IndexerDefinition;
 }
 

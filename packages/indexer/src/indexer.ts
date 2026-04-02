@@ -6,6 +6,7 @@ import {
   type Field,
   type IndexManager,
   type Manifest,
+  type Model,
   type Node,
   type NodeEntry,
   Parser,
@@ -25,7 +26,7 @@ export class Indexer {
       datalayer: Datalayer;
     }
   > {
-    const { formatters, resources, indexes, storage, assets = [] } =
+    const { formatters, resources, models, indexes, storage, assets = [] } =
       this.config;
     const registry = new AssetRegistry();
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
@@ -51,7 +52,7 @@ export class Indexer {
     }
     const entries: NodeEntry[] = [];
     const promise = resources.map(async (resource) => {
-      const { model } = resource;
+      const { model: modelName } = resource;
 
       const indexerType = resource.indexer.type;
 
@@ -59,6 +60,7 @@ export class Indexer {
       const iter = indexer.search(resource.indexer.options);
 
       const urls = await Array.fromAsync(iter);
+      const model = resolveModel(models, modelName);
 
       const contents = await Promise.all(urls.map(async (url) => {
         const content = await storage.read(url);
@@ -166,6 +168,17 @@ function resolveIndexer(
   if (!indexer) throw new Error();
 
   return indexer;
+}
+
+function resolveModel(
+  models: Model[],
+  name: string,
+): Model {
+  const model = models.find((model) => model.name === name);
+
+  if (!model) throw new Error();
+
+  return model;
 }
 
 function fieldToSchema(field: Field): Schema {
