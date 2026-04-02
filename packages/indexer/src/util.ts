@@ -39,11 +39,7 @@ export function walk(node: Node, on: (node: Node) => Node): Node {
       return { ...current, value: nextValue };
     }
 
-    case "datetime":
-    case "string":
-    case "boolean":
-    case "id":
-    case "asset":
+    default:
       return current;
   }
 }

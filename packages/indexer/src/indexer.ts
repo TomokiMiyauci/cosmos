@@ -91,8 +91,8 @@ export class Indexer {
         }),
       );
 
-      jsons.forEach(({ key, value, type }) => {
-        const node = new Parser().parse(value, model, {
+      for (const { key, value, type } of jsons) {
+        const node = await new Parser().parse(value, model, {
           config: this.config,
           url: key,
         });
@@ -103,7 +103,7 @@ export class Indexer {
           model: type,
           type: "node",
         });
-      });
+      }
 
       const definition = {
         name: model.name,

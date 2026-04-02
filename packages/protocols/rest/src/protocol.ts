@@ -92,6 +92,11 @@ function toJsonSchema(schema: Schema): OpenAPIV3_1.SchemaObject {
         type: "string",
       };
     }
+    case "markdown": {
+      return {
+        type: "string",
+      };
+    }
     case "id":
     case "map": {
       return {};

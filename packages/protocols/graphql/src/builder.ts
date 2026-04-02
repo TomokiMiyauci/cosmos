@@ -147,7 +147,8 @@ function resolveScalarType(
         };
       }
 
-      case "string": {
+      case "string":
+      case "markdown": {
         return {
           type: GraphQLString,
           resolve: (node) => {

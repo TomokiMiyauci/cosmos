@@ -96,6 +96,9 @@ export class OpenCrud implements SchemaPlugin {
             case "datetime": {
               return { type: schelar.datetime };
             }
+            case "markdown": {
+              return { type: schelar.string };
+            }
             case "map":
             case "id":
             case "asset": {
