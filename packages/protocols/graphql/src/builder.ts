@@ -1,15 +1,4 @@
-import type {
-  AssetNode,
-  BooleanNode,
-  Datalayer,
-  DatetimeNode,
-  IdNode,
-  Manifest,
-  MapNode,
-  Node,
-  Schema,
-  StringNode,
-} from "@cosmos/core";
+import type { Datalayer, Manifest, MapNode, Node, Schema } from "@cosmos/core";
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
@@ -91,98 +80,98 @@ export class SchemaBuilder {
   }
 }
 
+function resolveBase(
+  schema: Schema,
+  fetcher: Datalayer,
+  models: GraphQLObjectType[],
+): GraphQLFieldConfig<Node, unknown> {
+  switch (schema.type) {
+    case "id": {
+      const model = models.find((model) => schema.to === model.name);
+
+      if (!model) throw new Error("unreachable");
+
+      const field = { type: model } satisfies GraphQLFieldConfig<Node, unknown>;
+
+      return field;
+    }
+
+    case "map": {
+      const fields = schema.fields.reduce((acc, field) => {
+        const config = resolveScalarType(field, fetcher, models);
+        const finalConfig = resolverOverride(config, field.name);
+
+        return {
+          ...acc,
+          [field.name]: finalConfig,
+        };
+      }, {});
+      const type = new GraphQLObjectType({
+        fields,
+        name: schema.name,
+      });
+
+      const field = {
+        type,
+      } satisfies GraphQLFieldConfig<Node, unknown>;
+
+      return field;
+    }
+
+    case "boolean": {
+      return { type: GraphQLBoolean };
+    }
+
+    case "string":
+    case "markdown": {
+      return { type: GraphQLString };
+    }
+
+    case "datetime": {
+      return { type: GraphQLDateTime };
+    }
+    case "asset": {
+      return { type: GraphQLURL };
+    }
+  }
+}
+
 function resolveScalarType(
   schema: Schema,
   fetcher: Datalayer,
   models: GraphQLObjectType[],
 ): GraphQLFieldConfig<Node, unknown> {
-  function resolveBase(): GraphQLFieldConfig<Node, unknown> {
-    switch (schema.type) {
-      case "id": {
-        const model = models.find((model) => schema.to === model.name);
+  const { type, ...rest } = resolveBase(schema, fetcher, models);
 
-        if (!model) throw new Error("unreachable");
-
-        const field = {
-          type: model,
-          resolve: (source) => {
-            return fetcher.node.fetch((source as IdNode).value);
-          },
-        } satisfies GraphQLFieldConfig<Node, unknown>;
-
-        return field;
-      }
-
-      case "map": {
-        const fields = schema.fields.reduce((acc, field) => {
-          const config = resolveScalarType(field, fetcher, models);
-          const finalConfig = resolverOverride(config, field.name);
-
-          return {
-            ...acc,
-            [field.name]: finalConfig,
-          };
-        }, {});
-        const type = new GraphQLObjectType({
-          fields,
-          name: schema.name,
-        });
-
-        const field = {
-          type,
-          resolve: (node) => {
-            return (node as MapNode).value;
-          },
-        } satisfies GraphQLFieldConfig<Node, unknown>;
-
-        return field;
-      }
-
-      case "boolean": {
-        return {
-          type: GraphQLBoolean,
-          resolve: (node) => {
-            return (node as BooleanNode).value;
-          },
-        };
-      }
-
-      case "string":
-      case "markdown": {
-        return {
-          type: GraphQLString,
-          resolve: (node) => {
-            return (node as StringNode).value;
-          },
-        };
-      }
-
-      case "datetime": {
-        return {
-          type: GraphQLDateTime,
-          resolve: (node) => {
-            return (node as DatetimeNode).value;
-          },
-        };
-      }
-      case "asset": {
-        return {
-          type: GraphQLURL,
-          resolve: (node) => {
-            const url = new URL((node as AssetNode).value);
-
-            return url;
-          },
-        };
-      }
-    }
-  }
-
-  const { type, ...rest } = resolveBase();
   return {
     ...rest,
     type: schema.required ? new GraphQLNonNull(type) : type,
     description: schema.description || undefined,
+    resolve: (node) => {
+      switch (node.type) {
+        case "string": {
+          return node.value;
+        }
+        case "boolean": {
+          return node.value;
+        }
+        case "id": {
+          return fetcher.node.fetch(node.value);
+        }
+        case "map": {
+          return node.value;
+        }
+        case "datetime": {
+          return node.value;
+        }
+        case "asset": {
+          return node.value;
+        }
+        case "markdown": {
+          return node.value;
+        }
+      }
+    },
   };
 }
 
