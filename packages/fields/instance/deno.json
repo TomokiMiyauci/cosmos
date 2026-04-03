@@ -1,0 +1,7 @@
+{
+  "name": "@cosmos/field-instance",
+  "exports": "./src/mod.ts",
+  "imports": {
+    "@std/collections": "jsr:@std/collections@^1.1.6"
+  }
+}
