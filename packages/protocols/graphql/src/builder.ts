@@ -5,6 +5,7 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   type GraphQLOutputType,
+  type GraphQLResolveInfo,
   GraphQLSchema,
   GraphQLString,
   type ThunkObjMap,
@@ -40,20 +41,20 @@ export class SchemaBuilder {
               entries.map((entry) => entry.type),
             );
 
-            const finalField = resolverOverride(field, cur.name);
-
             return {
               ...acc,
-              [cur.name]: finalField,
+              [cur.name]: field,
             };
           }, {});
 
+      const objectType = new GraphQLObjectType({
+        name: definition.name,
+        fields,
+        description: definition.description,
+      });
+
       return {
-        type: new GraphQLObjectType({
-          name: definition.name,
-          fields,
-          description: definition.description,
-        }),
+        type: objectType,
         definition,
       };
     });
@@ -86,6 +87,21 @@ function resolveType(
   models: GraphQLObjectType[],
 ): GraphQLOutputType {
   switch (schema.type) {
+    case "string": {
+      return GraphQLString;
+    }
+    case "boolean": {
+      return GraphQLBoolean;
+    }
+    case "datetime": {
+      return GraphQLDateTime;
+    }
+    case "asset": {
+      return GraphQLURL;
+    }
+    case "markdown": {
+      return GraphQLString;
+    }
     case "id":
     case "map": {
       const model = models.find((model) => schema.to === model.name);
@@ -94,28 +110,38 @@ function resolveType(
 
       return model;
     }
-
-    case "boolean": {
-      return GraphQLBoolean;
-    }
-
-    case "string":
-    case "markdown": {
-      return GraphQLString;
-    }
-
-    case "datetime": {
-      return GraphQLDateTime;
-    }
-    case "asset": {
-      return GraphQLURL;
-    }
   }
 }
 
-function resolve(node: Node, _: unknown, ctx: ResolverContext): unknown {
-  const fetcher = ctx.fetcher;
+function resolveScalarType(
+  schema: Schema,
+  models: GraphQLObjectType[],
+): GraphQLFieldConfig<MapNode, ResolverContext> {
+  const type = resolveType(schema, models);
 
+  const objectType = {
+    type: schema.required ? new GraphQLNonNull(type) : type,
+    description: schema.description || undefined,
+    resolve,
+  } satisfies GraphQLFieldConfig<MapNode, ResolverContext>;
+
+  return objectType;
+}
+
+function resolve(
+  parent: MapNode,
+  _: unknown,
+  ctx: ResolverContext,
+  info: GraphQLResolveInfo,
+): unknown {
+  const node = parent.value[info.fieldName];
+
+  if (!node) return;
+
+  return resolveNode(node, ctx.fetcher);
+}
+
+function resolveNode(node: Node, fetcher: Datalayer): unknown {
   switch (node.type) {
     case "string": {
       return node.value;
@@ -127,7 +153,7 @@ function resolve(node: Node, _: unknown, ctx: ResolverContext): unknown {
       return fetcher.node.fetch(node.value);
     }
     case "map": {
-      return node.value;
+      return node;
     }
     case "datetime": {
       return node.value;
@@ -139,39 +165,4 @@ function resolve(node: Node, _: unknown, ctx: ResolverContext): unknown {
       return node.value;
     }
   }
-}
-
-function resolveScalarType(
-  schema: Schema,
-  models: GraphQLObjectType[],
-): GraphQLFieldConfig<Node, ResolverContext> {
-  const type = resolveType(schema, models);
-
-  return {
-    type: schema.required ? new GraphQLNonNull(type) : type,
-    description: schema.description || undefined,
-    resolve,
-  };
-}
-
-function resolverOverride(
-  config: GraphQLFieldConfig<Node, ResolverContext>,
-  name: string,
-): GraphQLFieldConfig<Node, ResolverContext, unknown> {
-  const { resolve, ...rest } = config;
-
-  return {
-    ...rest,
-    resolve(node, ...rest): unknown {
-      const value = (node as MapNode).value;
-      const item = value[name];
-
-      if (!item) return null;
-
-      if (resolve) {
-        return resolve(item, ...rest);
-      }
-      return item;
-    },
-  };
 }
