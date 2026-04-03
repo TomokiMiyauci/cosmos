@@ -48,5 +48,4 @@ export type {
   Structure,
   StructureValue,
 } from "./type.ts";
-export { Parser } from "./parser.ts";
 export { resolveFormatter } from "./url.ts";
