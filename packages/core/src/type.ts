@@ -60,7 +60,8 @@ export type Field =
   | DatetimeField
   | AssetField
   | MarkdownField
-  | InstanceField;
+  | InstanceField
+  | ListField;
 
 export interface BaseField {
   name: string;
@@ -98,6 +99,11 @@ export interface MarkdownField extends BaseField {
 
 export interface InstanceField extends BaseField {
   type: "map";
+  to: string;
+}
+
+export interface ListField extends BaseField {
+  type: "list";
   to: string;
 }
 
@@ -222,6 +228,11 @@ export interface AssetSchema extends BaseSchema {
   type: "asset";
 }
 
+export interface ListSchema extends BaseSchema {
+  type: "list";
+  to: string;
+}
+
 export type Schema =
   | IdSchema
   | StringSchema
@@ -229,7 +240,8 @@ export type Schema =
   | MapSchema
   | DatetimeSchema
   | AssetSchema
-  | MarkdownSchema;
+  | MarkdownSchema
+  | ListSchema;
 
 export interface IdNode {
   type: IdSchema["type"];
@@ -261,6 +273,11 @@ export interface MarkdownNode {
   value: string;
 }
 
+export interface ListNode {
+  type: ListSchema["type"];
+  value: Node[];
+}
+
 export type NodeValue =
   | IdNode
   | StringNode
@@ -269,7 +286,7 @@ export type NodeValue =
   | AssetNode
   | MarkdownNode;
 
-export type Node = NodeValue | MapNode;
+export type Node = NodeValue | MapNode | ListNode;
 
 export interface MapNode {
   type: MapSchema["type"];

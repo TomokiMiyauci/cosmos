@@ -3,6 +3,7 @@ import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
   type GraphQLFieldResolver,
+  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   type GraphQLOutputType,
@@ -110,6 +111,13 @@ function resolveType(
 
       return model;
     }
+    case "list": {
+      const model = models.find((model) => schema.to === model.name);
+
+      if (!model) throw new Error("unreachable");
+
+      return new GraphQLList(model);
+    }
   }
 }
 
@@ -161,6 +169,9 @@ function resolveNode(node: Node, fetcher: Datalayer): unknown {
       return node.value;
     }
     case "markdown": {
+      return node.value;
+    }
+    case "list": {
       return node.value;
     }
   }

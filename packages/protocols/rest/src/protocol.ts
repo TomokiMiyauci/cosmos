@@ -97,8 +97,7 @@ function toJsonSchema(schema: Schema): OpenAPIV3_1.SchemaObject {
         type: "string",
       };
     }
-    case "id":
-    case "map": {
+    default: {
       return {};
     }
   }

@@ -99,9 +99,7 @@ export class OpenCrud implements SchemaPlugin {
             case "markdown": {
               return { type: schelar.string };
             }
-            case "map":
-            case "id":
-            case "asset": {
+            default: {
               // deno-lint-ignore no-explicit-any
               return {} as any;
             }
