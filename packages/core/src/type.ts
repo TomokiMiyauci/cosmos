@@ -61,7 +61,8 @@ export type Field =
   | ReferenceField
   | DatetimeField
   | AssetField
-  | MarkdownField;
+  | MarkdownField
+  | InstanceField;
 
 export interface BaseField {
   name: string;
@@ -95,6 +96,11 @@ export interface AssetField extends BaseField {
 
 export interface MarkdownField extends BaseField {
   type: "markdown";
+}
+
+export interface InstanceField extends BaseField {
+  type: "map";
+  to: string;
 }
 
 export type FormatDefinition = {
@@ -210,7 +216,7 @@ export interface DatetimeSchema extends BaseSchema {
 
 export interface MapSchema extends BaseSchema {
   type: "map";
-  fields: Schema[];
+  to: string;
 }
 
 export interface AssetSchema extends BaseSchema {
@@ -321,4 +327,5 @@ export interface Resolver {
 
 export interface ResolverContext {
   baseUrl: URL;
+  config: Config;
 }

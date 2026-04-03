@@ -9,7 +9,6 @@ import {
   type Model,
   type Node,
   type NodeEntry,
-  Parser,
   resolveFormatter,
   type Schema,
   type Store,
@@ -26,6 +25,7 @@ export class Indexer {
       datalayer: Datalayer;
     }
   > {
+    const config = this.config;
     const {
       formatters,
       resources,
@@ -35,7 +35,7 @@ export class Indexer {
       resolver,
       assets = [],
       field: codec,
-    } = this.config;
+    } = config;
     const registry = new AssetRegistry();
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
       return {
@@ -113,6 +113,7 @@ export class Indexer {
                 url: key,
                 baseUrl: key,
                 resolver,
+                config,
               });
 
               return [name, node] as const;
@@ -216,6 +217,15 @@ function fieldToSchema(field: Field): Schema {
         name,
         required,
         type: "id",
+        description,
+        to: field.to,
+      };
+    }
+    case "map": {
+      return {
+        name,
+        required,
+        type: "map",
         description,
         to: field.to,
       };
