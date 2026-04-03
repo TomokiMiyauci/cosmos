@@ -110,7 +110,6 @@ export class Indexer {
               const { name } = field;
 
               const node = await codec.parse(value[name], field, {
-                url: key,
                 baseUrl: key,
                 resolver,
                 config,

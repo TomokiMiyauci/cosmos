@@ -39,7 +39,6 @@ export interface FieldCodec {
 }
 
 export interface FieldContext extends ResolverContext {
-  url: URL;
   resolver: Resolver;
 }
 
@@ -325,7 +324,10 @@ export interface Resolver {
   unresolve(url: URL, ctx: ResolverContext): Promise<string> | string;
 }
 
-export interface ResolverContext {
-  baseUrl: URL;
+interface BaseContext {
   config: Config;
+}
+
+export interface ResolverContext extends BaseContext {
+  baseUrl: URL;
 }

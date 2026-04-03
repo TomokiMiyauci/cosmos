@@ -12,7 +12,7 @@ export class AssetFieldCodec implements FieldCodec {
   parse(structure: StructureValue, _: Field, ctx: FieldContext): Node {
     if (typeof structure !== "string") throw new SyntaxError();
 
-    const url = resolveUrl(this.rootDir, ctx.url, structure);
+    const url = resolveUrl(this.rootDir, ctx.baseUrl, structure);
 
     return {
       type: "asset",
