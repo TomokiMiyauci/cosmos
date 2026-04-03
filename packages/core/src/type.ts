@@ -51,7 +51,6 @@ export interface Model {
   name: string;
   description?: string;
   fields: Field[];
-  format: FormatDefinition;
 }
 
 export type Field =
@@ -145,6 +144,7 @@ export interface AssetHeader {
 }
 
 export interface Resource {
+  format: FormatDefinition;
   model: string;
   indexer: IndexerDefinition;
 }

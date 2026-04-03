@@ -81,7 +81,7 @@ export class Indexer {
       }));
 
       const schemas = model.fields.map(fieldToSchema);
-      const formatter = resolveFormatter(model.format, formatterMap);
+      const formatter = resolveFormatter(resource.format, formatterMap);
       const decoder = new TextDecoder();
 
       const jsons = await Promise.all(
@@ -94,7 +94,7 @@ export class Indexer {
             key: url,
             value: formatter.parse(text, {
               config: this.config,
-              options: model.format,
+              options: resource.format,
             }),
             type,
           };
