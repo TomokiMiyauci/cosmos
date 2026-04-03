@@ -1,0 +1,4 @@
+{
+  "name": "@cosmos/field-list",
+  "exports": "./src/mod.ts"
+}

@@ -229,6 +229,15 @@ function fieldToSchema(field: Field): Schema {
         to: field.to,
       };
     }
+    case "list": {
+      return {
+        name,
+        required,
+        type: "list",
+        description,
+        to: field.to,
+      };
+    }
   }
 
   return {
