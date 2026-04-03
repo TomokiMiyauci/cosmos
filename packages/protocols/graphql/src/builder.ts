@@ -2,10 +2,10 @@ import type { Datalayer, Manifest, MapNode, Node, Schema } from "@cosmos/core";
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
+  type GraphQLFieldResolver,
   GraphQLNonNull,
   GraphQLObjectType,
   type GraphQLOutputType,
-  type GraphQLResolveInfo,
   GraphQLSchema,
   GraphQLString,
   type ThunkObjMap,
@@ -122,23 +122,22 @@ function resolveScalarType(
   const objectType = {
     type: schema.required ? new GraphQLNonNull(type) : type,
     description: schema.description || undefined,
-    resolve,
+    resolve: createResolve(schema.name),
   } satisfies GraphQLFieldConfig<MapNode, ResolverContext>;
 
   return objectType;
 }
 
-function resolve(
-  parent: MapNode,
-  _: unknown,
-  ctx: ResolverContext,
-  info: GraphQLResolveInfo,
-): unknown {
-  const node = parent.value[info.fieldName];
+function createResolve(
+  fieldName: string,
+): GraphQLFieldResolver<MapNode, ResolverContext> {
+  return (parent, _, ctx) => {
+    const node = parent.value[fieldName];
 
-  if (!node) return;
+    if (!node) return;
 
-  return resolveNode(node, ctx.fetcher);
+    return resolveNode(node, ctx.fetcher);
+  };
 }
 
 function resolveNode(node: Node, fetcher: Datalayer): unknown {
