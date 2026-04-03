@@ -86,7 +86,8 @@ function resolveType(
   models: GraphQLObjectType[],
 ): GraphQLOutputType {
   switch (schema.type) {
-    case "id": {
+    case "id":
+    case "map": {
       const model = models.find((model) => schema.to === model.name);
 
       if (!model) throw new Error("unreachable");

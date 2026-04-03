@@ -26,8 +26,16 @@ export class Indexer {
       datalayer: Datalayer;
     }
   > {
-    const { formatters, resources, models, indexes, storage, assets = [] } =
-      this.config;
+    const {
+      formatters,
+      resources,
+      models,
+      indexes,
+      storage,
+      resolver,
+      assets = [],
+      field: codec,
+    } = this.config;
     const registry = new AssetRegistry();
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
       return {
@@ -94,10 +102,28 @@ export class Indexer {
       );
 
       for (const { key, value, type } of jsons) {
-        const node = await new Parser().parse(value, model, {
-          config: this.config,
-          url: key,
-        });
+        if (typeof value === "string") throw new Error("syntax error");
+
+        const promise = model.fields.filter((field) => field.name in value)
+          .map(
+            async (field) => {
+              const { name } = field;
+
+              const node = await codec.parse(value[name], field, {
+                url: key,
+                baseUrl: key,
+                resolver,
+              });
+
+              return [name, node] as const;
+            },
+          );
+        const e = await Promise.all(promise);
+
+        const node = {
+          type: "map",
+          value: Object.fromEntries(e),
+        } as const;
 
         entries.push({
           id: key.toString(),

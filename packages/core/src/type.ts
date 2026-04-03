@@ -11,7 +11,7 @@ export interface Definition {
 
 export interface Config {
   formatters: FormatterDefinition[];
-  fields: FieldDefinition;
+  field: FieldCodec;
   resources: Resource[];
   storage: Storage;
   indexes: IndexManager[];
@@ -29,9 +29,13 @@ export type FieldDefinition = {
 };
 
 export interface FieldCodec {
-  parse(structure: StructureValue, ctx: FieldContext): Node | Promise<Node>;
+  parse(
+    structure: StructureValue,
+    field: Field,
+    ctx: FieldContext,
+  ): Node | Promise<Node>;
 
-  stringify(node: Node): StructureValue | Promise<StructureValue>;
+  stringify(node: Node, field: Field): StructureValue | Promise<StructureValue>;
 }
 
 export interface FieldContext extends ResolverContext {

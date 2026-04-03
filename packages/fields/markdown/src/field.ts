@@ -1,4 +1,5 @@
 import type {
+  Field,
   FieldCodec,
   FieldContext,
   Node,
@@ -10,7 +11,11 @@ import remarkStringify from "remark-stringify";
 import RemarkLinkRewrite from "remark-link-rewrite";
 
 export class MarkdownCodec implements FieldCodec {
-  async parse(structure: StructureValue, ctx: FieldContext): Promise<Node> {
+  async parse(
+    structure: StructureValue,
+    _: Field,
+    ctx: FieldContext,
+  ): Promise<Node> {
     if (typeof structure !== "string") throw new Error();
 
     const result = await unified()
