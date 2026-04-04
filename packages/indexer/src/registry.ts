@@ -1,11 +1,16 @@
 export class AssetRegistry {
   #map: Map<string, SerializedAssetInfo> = new Map();
 
-  add(url: URL, depentantBy: URL): void {
+  add(url: URL, depentantBy?: URL): void {
     if (this.#map.has(url.href)) {
-      this.#map.get(url.href)?.depentants.add(depentantBy.href);
+      if (depentantBy) {
+        this.#map.get(url.href)?.depentants.add(depentantBy.href);
+      }
     } else {
-      this.#map.set(url.href, { depentants: new Set([depentantBy.href]) });
+      const depentants = depentantBy
+        ? new Set([depentantBy.href])
+        : new Set<string>();
+      this.#map.set(url.href, { depentants });
     }
   }
 
