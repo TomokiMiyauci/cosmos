@@ -1,9 +1,22 @@
-import type { Datalayer, Field } from "@cosmos/core";
+import type { Field, NodeValue } from "@cosmos/core";
 import type { GraphQLFieldConfig, GraphQLOutputType } from "graphql";
 
 export interface ResolverContext {
-  fetcher: Datalayer;
+  fetcher: Fetcher;
 }
+
+export interface Fetcher {
+  fetch(id: string): Promise<Data> | Promise<Data>;
+  list(id: string): Promise<string[]> | string[];
+}
+
+export type Value = NodeValue["value"];
+export type MapValue = {
+  [k: string]: Data;
+};
+export type ListValue = Data[];
+
+export type Data = MapValue | Value | ListValue;
 
 export interface QueryContext extends ResolverContext {
   entries: GraphqlEntry[];

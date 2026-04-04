@@ -32,6 +32,7 @@ export type {
   Node,
   NodeEntry,
   NodeLayer,
+  NodeValue,
   Protocol,
   ProtocolContext,
   ReferenceNode,

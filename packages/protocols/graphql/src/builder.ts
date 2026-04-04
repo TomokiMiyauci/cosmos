@@ -1,4 +1,4 @@
-import type { Datalayer, Field, Manifest, Node } from "@cosmos/core";
+import type { Field, Manifest } from "@cosmos/core";
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
@@ -12,6 +12,8 @@ import {
   type ThunkObjMap,
 } from "graphql";
 import type {
+  Data,
+  Fetcher,
   GraphqlEntry,
   Namer,
   ResolverContext,
@@ -29,7 +31,7 @@ export interface SchemaConfig {
 
 export interface BuilderContext {
   manifest: Manifest;
-  fetcher: Datalayer;
+  fetcher: Fetcher;
 }
 
 export class SchemaBuilder {
@@ -106,7 +108,7 @@ function resolveType(
                 type: field.required ? new GraphQLNonNull(type) : type,
                 resolve: createResolve(key),
                 description: field.description,
-              } satisfies GraphQLFieldConfig<Node, ResolverContext>,
+              } satisfies GraphQLFieldConfig<Data, ResolverContext>,
             ] as const;
           },
         );
@@ -144,48 +146,57 @@ function resolveType(
 
 function createResolve(
   fieldName: string,
-): GraphQLFieldResolver<Node, ResolverContext> {
-  return (parent, _, ctx) => {
-    switch (parent.type) {
-      case "map": {
-        const node = parent.value[fieldName];
-
-        if (!node) return;
-
-        return resolveNode(node, ctx.fetcher);
+): GraphQLFieldResolver<Data, ResolverContext> {
+  return (parent) => {
+    if (typeof parent === "object") {
+      if (Array.isArray(parent)) {
+        return parent;
       }
-      default: {
-        return resolveNode(parent, ctx.fetcher);
+
+      if (parent instanceof Date) {
+        return parent;
       }
+
+      if (parent instanceof URL) {
+        return parent;
+      }
+
+      const node = parent[fieldName];
+
+      if (!node) return;
+
+      return node;
     }
+
+    return parent;
   };
 }
 
-function resolveNode(node: Node, fetcher: Datalayer): unknown {
-  switch (node.type) {
-    case "string": {
-      return node.value;
-    }
-    case "boolean": {
-      return node.value;
-    }
-    case "reference": {
-      return fetcher.node.fetch(node.value);
-    }
-    case "map": {
-      return node;
-    }
-    case "datetime": {
-      return node.value;
-    }
-    case "asset": {
-      return node.value;
-    }
-    case "markdown": {
-      return node.value;
-    }
-    case "list": {
-      return node.value;
-    }
-  }
-}
+// function resolveNode(node: Node, fetcher: Fetcher): unknown {
+//   switch (node.type) {
+//     case "string": {
+//       return node.value;
+//     }
+//     case "boolean": {
+//       return node.value;
+//     }
+//     case "reference": {
+//       return fetcher.fetch(node.value);
+//     }
+//     case "map": {
+//       return node;
+//     }
+//     case "datetime": {
+//       return node.value;
+//     }
+//     case "asset": {
+//       return node.value;
+//     }
+//     case "markdown": {
+//       return node.value;
+//     }
+//     case "list": {
+//       return node.value;
+//     }
+//   }
+// }
