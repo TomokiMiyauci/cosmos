@@ -12,7 +12,6 @@ export class InstanceField implements FieldCodec {
     field: Field,
     ctx: FieldContext,
   ): Promise<Node> {
-    console.log(structure);
     if (typeof structure === "string") throw new Error();
 
     if (field.type !== "map") throw new Error();
