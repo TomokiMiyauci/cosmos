@@ -5,7 +5,7 @@ export class ReferenceFieldCodec implements FieldCodec {
     if (typeof structure !== "string") throw new SyntaxError();
 
     return {
-      type: "id",
+      type: "reference",
       value: structure,
     };
   }

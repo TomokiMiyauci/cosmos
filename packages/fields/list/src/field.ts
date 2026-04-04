@@ -2,7 +2,6 @@ import type {
   Field,
   FieldCodec,
   FieldContext,
-  MapNode,
   Node,
   StructureValue,
 } from "@cosmos/core";
@@ -17,33 +16,15 @@ export class ListField implements FieldCodec {
 
     if (field.type !== "list") throw new Error();
 
-    const model = ctx.config.models.find((model) => model.name === field.to);
+    const model = ctx.config.models[field.model];
 
     if (!model) throw new Error();
 
     const values = Object.values(structure);
 
-    const promise = values.filter((value) => typeof value !== "string").map(
-      async (value) => {
-        const promise = model.fields.filter((field) => field.name in value).map(
-          async (field) => {
-            const child = value[field.name];
-
-            return [
-              field.name,
-              await ctx.config.field.parse(child, field, ctx),
-            ] as const;
-          },
-        );
-
-        const entries = await Promise.all(promise);
-
-        const map = Object.fromEntries(entries);
-
-        return {
-          type: "map",
-          value: map,
-        } satisfies MapNode;
+    const promise = values.map(
+      (value) => {
+        return ctx.config.field.parse(value, model, ctx);
       },
     );
 

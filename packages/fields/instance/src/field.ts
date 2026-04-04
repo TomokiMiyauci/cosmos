@@ -7,38 +7,18 @@ import type {
 } from "@cosmos/core";
 
 export class InstanceField implements FieldCodec {
-  async parse(
+  parse(
     structure: StructureValue,
     field: Field,
     ctx: FieldContext,
-  ): Promise<Node> {
-    if (typeof structure === "string") throw new Error();
+  ): Promise<Node> | Node {
+    if (field.type !== "instance") throw new Error();
 
-    if (field.type !== "map") throw new Error();
-
-    const model = ctx.config.models.find((model) => model.name === field.to);
+    const model = ctx.config.models[field.model];
 
     if (!model) throw new Error();
 
-    const promises = model.fields.filter((field) => field.name in structure)
-      .map(
-        async (field) => {
-          const key = field.name;
-          const value = structure[key];
-
-          return [
-            key,
-            await ctx.config.field.parse(value, field, ctx),
-          ] as const;
-        },
-      );
-    const entries = await Promise.all(promises);
-    const value = Object.fromEntries(entries);
-
-    return {
-      type: "map",
-      value,
-    };
+    return ctx.config.field.parse(structure, model, ctx);
   }
 
   stringify(node: Node): StructureValue | Promise<StructureValue> {

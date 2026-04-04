@@ -1,4 +1,4 @@
-import type { Datalayer, Manifest, MapNode, Node, Schema } from "@cosmos/core";
+import type { Datalayer, Field, Manifest, Node } from "@cosmos/core";
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
@@ -11,10 +11,16 @@ import {
   GraphQLString,
   type ThunkObjMap,
 } from "graphql";
-import type { Namer, ResolverContext, SchemaPlugin } from "./type.ts";
+import type {
+  GraphqlEntry,
+  Namer,
+  ResolverContext,
+  SchemaPlugin,
+} from "./type.ts";
 import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
 import { overrideName } from "./util.ts";
 import { StandardNamer } from "./namers/standard.ts";
+import { mapEntries } from "@std/collections";
 
 export interface SchemaConfig {
   plugins: SchemaPlugin[];
@@ -33,32 +39,23 @@ export class SchemaBuilder {
   }
 
   build(ctx: BuilderContext): GraphQLSchema {
-    const entries = ctx.manifest.definitions.map((definition) => {
-      const fields: ThunkObjMap<GraphQLFieldConfig<unknown, ResolverContext>> =
-        () =>
-          definition.schemas.reduce((acc, cur) => {
-            const field = resolveScalarType(
-              cur,
-              entries.map((entry) => entry.type),
-            );
+    const map: Record<string, GraphQLOutputType> = {};
+    const entries = Object.entries(ctx.manifest.models).map(
+      ([name, schema]) => {
+        const field = resolveType(
+          name,
+          schema,
+          map,
+        );
 
-            return {
-              ...acc,
-              [cur.name]: field,
-            };
-          }, {});
+        map[name] = field;
 
-      const objectType = new GraphQLObjectType({
-        name: definition.name,
-        fields,
-        description: definition.description,
-      });
-
-      return {
-        type: objectType,
-        definition,
-      };
-    });
+        return {
+          type: field,
+          definition: schema,
+        } satisfies GraphqlEntry;
+      },
+    );
 
     const queryFields = this.config.plugins
       .map((registry) => {
@@ -84,67 +81,83 @@ export class SchemaBuilder {
 }
 
 function resolveType(
-  schema: Schema,
-  models: GraphQLObjectType[],
+  name: string,
+  field: Field,
+  models: Record<string, GraphQLOutputType>,
 ): GraphQLOutputType {
-  switch (schema.type) {
-    case "string": {
+  switch (field.type) {
+    case "string":
+    case "markdown": {
       return GraphQLString;
     }
     case "boolean": {
       return GraphQLBoolean;
     }
+    case "map": {
+      const fields = () =>
+        mapEntries(
+          field.fields,
+          ([key, field]) => {
+            const type = resolveType(key, field, models);
+
+            return [
+              key,
+              {
+                type: field.required ? new GraphQLNonNull(type) : type,
+                resolve: createResolve(key),
+                description: field.description,
+              } satisfies GraphQLFieldConfig<Node, ResolverContext>,
+            ] as const;
+          },
+        );
+
+      return new GraphQLObjectType({
+        name,
+        fields,
+        description: field.description,
+      });
+    }
     case "datetime": {
       return GraphQLDateTime;
     }
-    case "asset": {
-      return GraphQLURL;
-    }
-    case "markdown": {
-      return GraphQLString;
-    }
-    case "id":
-    case "map": {
-      const model = models.find((model) => schema.to === model.name);
+    case "instance":
+    case "reference": {
+      const model = models[field.model];
 
       if (!model) throw new Error("unreachable");
 
       return model;
     }
+
     case "list": {
-      const model = models.find((model) => schema.to === model.name);
+      const model = models[field.model];
 
       if (!model) throw new Error("unreachable");
 
       return new GraphQLList(model);
     }
+    case "asset": {
+      return GraphQLURL;
+    }
   }
-}
-
-function resolveScalarType(
-  schema: Schema,
-  models: GraphQLObjectType[],
-): GraphQLFieldConfig<MapNode, ResolverContext> {
-  const type = resolveType(schema, models);
-
-  const objectType = {
-    type: schema.required ? new GraphQLNonNull(type) : type,
-    description: schema.description || undefined,
-    resolve: createResolve(schema.name),
-  } satisfies GraphQLFieldConfig<MapNode, ResolverContext>;
-
-  return objectType;
 }
 
 function createResolve(
   fieldName: string,
-): GraphQLFieldResolver<MapNode, ResolverContext> {
+): GraphQLFieldResolver<Node, ResolverContext> {
   return (parent, _, ctx) => {
-    const node = parent.value[fieldName];
+    switch (parent.type) {
+      case "map": {
+        const node = parent.value[fieldName];
 
-    if (!node) return;
+        if (!node) return;
 
-    return resolveNode(node, ctx.fetcher);
+        return resolveNode(node, ctx.fetcher);
+      }
+      default: {
+        return resolveNode(parent, ctx.fetcher);
+      }
+    }
   };
 }
 
@@ -156,7 +169,7 @@ function resolveNode(node: Node, fetcher: Datalayer): unknown {
     case "boolean": {
       return node.value;
     }
-    case "id": {
+    case "reference": {
       return fetcher.node.fetch(node.value);
     }
     case "map": {

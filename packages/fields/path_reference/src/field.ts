@@ -15,7 +15,7 @@ export class PathReferenceFieldCodec implements FieldCodec {
     const url = resolveUrl(this.rootDir, ctx.baseUrl, structure);
 
     return {
-      type: "id",
+      type: "reference",
       value: url.toString(),
     };
   }

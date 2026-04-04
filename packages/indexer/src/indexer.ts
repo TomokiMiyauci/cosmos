@@ -2,18 +2,13 @@ import {
   type AssetEntry,
   type Config,
   type Datalayer,
-  type Definition,
-  type Field,
   type IndexManager,
   type Manifest,
-  type Model,
   type Node,
   type NodeEntry,
   resolveFormatter,
-  type Schema,
   type Store,
 } from "@cosmos/core";
-import { Visitor } from "./util.ts";
 import { AssetRegistry } from "./registry.ts";
 
 export class Indexer {
@@ -68,7 +63,7 @@ export class Indexer {
       const iter = indexer.search(resource.indexer.options);
 
       const urls = await Array.fromAsync(iter);
-      const model = resolveModel(models, modelName);
+      const model = models[modelName];
 
       const contents = await Promise.all(urls.map(async (url) => {
         const content = await storage.read(url);
@@ -76,11 +71,11 @@ export class Indexer {
         return {
           url,
           content,
-          type: model.name,
+          type: modelName,
         };
       }));
 
-      const schemas = model.fields.map(fieldToSchema);
+      // const schemas = model.fields.map(fieldToSchema);
       const formatter = resolveFormatter(resource.format, formatterMap);
       const decoder = new TextDecoder();
 
@@ -102,28 +97,11 @@ export class Indexer {
       );
 
       for (const { key, value, type } of jsons) {
-        if (typeof value === "string") throw new Error("syntax error");
-
-        const promise = model.fields.filter((field) => field.name in value)
-          .map(
-            async (field) => {
-              const { name } = field;
-
-              const node = await codec.parse(value[name], field, {
-                baseUrl: key,
-                resolver,
-                config,
-              });
-
-              return [name, node] as const;
-            },
-          );
-        const e = await Promise.all(promise);
-
-        const node = {
-          type: "map",
-          value: Object.fromEntries(e),
-        } as const;
+        const node = await codec.parse(value, model, {
+          baseUrl: key,
+          resolver,
+          config,
+        });
 
         entries.push({
           id: key.toString(),
@@ -133,29 +111,23 @@ export class Indexer {
         });
       }
 
-      const definition = {
-        name: model.name,
-        description: model.description ?? "",
-        schemas,
-      } satisfies Definition;
-
-      return definition;
+      return model;
     });
 
-    const definitions = await Promise.all(promise);
+    await Promise.all(promise);
 
-    const visitor = new Visitor({
-      config: this.config,
+    // const visitor = new Visitor({
+    //   config: this.config,
 
-      transformers: [
-        // new ReferenceTransfomer(),
-      ],
-    }, entries);
+    //   transformers: [
+    //     // new ReferenceTransfomer(),
+    //   ],
+    // }, entries);
 
     const result = entries.map((entry) => {
       return {
         ...entry,
-        data: visitor.visit(entry.data),
+        data: entry.data,
       };
     });
 
@@ -178,7 +150,7 @@ export class Indexer {
     return {
       manifest: {
         version: "1",
-        definitions,
+        models,
       },
       datalayer,
     };
@@ -194,58 +166,6 @@ function resolveIndexer(
   if (!indexer) throw new Error();
 
   return indexer;
-}
-
-function resolveModel(
-  models: Model[],
-  name: string,
-): Model {
-  const model = models.find((model) => model.name === name);
-
-  if (!model) throw new Error();
-
-  return model;
-}
-
-function fieldToSchema(field: Field): Schema {
-  const { name, type, required = false, description = "" } = field;
-
-  switch (type) {
-    case "reference": {
-      return {
-        name,
-        required,
-        type: "id",
-        description,
-        to: field.to,
-      };
-    }
-    case "map": {
-      return {
-        name,
-        required,
-        type: "map",
-        description,
-        to: field.to,
-      };
-    }
-    case "list": {
-      return {
-        name,
-        required,
-        type: "list",
-        description,
-        to: field.to,
-      };
-    }
-  }
-
-  return {
-    name,
-    required,
-    type,
-    description,
-  };
 }
 
 function createDatalayer(store: Store): Datalayer {

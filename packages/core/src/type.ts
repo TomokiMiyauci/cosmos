@@ -1,12 +1,6 @@
 export interface Manifest {
   version: string;
-  definitions: Definition[];
-}
-
-export interface Definition {
-  name: string;
-  description: string;
-  schemas: Schema[];
+  models: Record<string, Model>;
 }
 
 export interface Config {
@@ -17,7 +11,7 @@ export interface Config {
   indexes: IndexManager[];
   assets?: AssetDefinition[];
   resolver: Resolver;
-  models: Model[];
+  models: Record<string, Model>;
 }
 
 export interface AssetDefinition {
@@ -47,30 +41,24 @@ export interface FormatterDefinition {
   formatter: Formatter;
 }
 
-export interface Model {
-  name: string;
-  description?: string;
-  fields: Field[];
-}
+export type Model = Field;
 
 export type Field =
   | StringField
   | BooleanField
-  | ReferenceField
-  | DatetimeField
-  | AssetField
-  | MarkdownField
   | InstanceField
-  | ListField;
+  | ReferenceField
+  | ListField
+  | AssetField
+  | MapField
+  | MarkdownField
+  | DatetimeField;
 
 export interface BaseField {
-  name: string;
   description?: string;
   required?: boolean;
   type: string;
 }
-
-export type FieldType = Field["type"];
 
 export interface StringField extends BaseField {
   type: "string";
@@ -80,32 +68,39 @@ export interface BooleanField extends BaseField {
   type: "boolean";
 }
 
-export interface ReferenceField extends BaseField {
-  type: "reference";
-  to: string;
-}
-
 export interface DatetimeField extends BaseField {
   type: "datetime";
-}
-
-export interface AssetField extends BaseField {
-  type: "asset";
 }
 
 export interface MarkdownField extends BaseField {
   type: "markdown";
 }
 
-export interface InstanceField extends BaseField {
+export interface MapField extends BaseField {
   type: "map";
-  to: string;
+  fields: Record<string, Field>;
+}
+
+export interface InstanceField extends BaseField {
+  type: "instance";
+  model: string;
+}
+
+export interface ReferenceField extends BaseField {
+  type: "reference";
+  model: string;
 }
 
 export interface ListField extends BaseField {
   type: "list";
-  to: string;
+  model: string;
 }
+
+export interface AssetField extends BaseField {
+  type: "asset";
+}
+
+export type FieldType = Field["type"];
 
 export type FormatDefinition = {
   [K in keyof FormatterRegistry]:
@@ -192,59 +187,58 @@ export interface Formatter<T = unknown> {
 }
 
 export interface BaseSchema {
-  name: string;
   type: string;
   required: boolean;
   description: string;
 }
 
-export interface IdSchema extends BaseSchema {
-  type: "id";
-  to: string;
-}
-
 export interface StringSchema extends BaseSchema {
-  type: "string";
-}
-
-export interface MarkdownSchema extends BaseSchema {
-  type: "markdown";
+  type: StringField["type"];
 }
 
 export interface BooleanSchema extends BaseSchema {
-  type: "boolean";
+  type: BooleanField["type"];
 }
 
 export interface DatetimeSchema extends BaseSchema {
-  type: "datetime";
+  type: DatetimeField["type"];
 }
 
-export interface MapSchema extends BaseSchema {
-  type: "map";
-  to: string;
+export interface MarkdownSchema extends BaseSchema {
+  type: MarkdownField["type"];
 }
 
 export interface AssetSchema extends BaseSchema {
-  type: "asset";
+  type: AssetField["type"];
+}
+
+export interface MapSchema extends BaseSchema {
+  type: MapField["type"];
+  model: string;
 }
 
 export interface ListSchema extends BaseSchema {
-  type: "list";
-  to: string;
+  type: ListField["type"];
+  model: string;
+}
+
+export interface ReferenceSchema extends BaseSchema {
+  type: ReferenceField["type"];
+  model: string;
 }
 
 export type Schema =
-  | IdSchema
   | StringSchema
   | BooleanSchema
-  | MapSchema
   | DatetimeSchema
-  | AssetSchema
   | MarkdownSchema
-  | ListSchema;
+  | AssetSchema
+  | MapSchema
+  | ListSchema
+  | ReferenceSchema;
 
-export interface IdNode {
-  type: IdSchema["type"];
+export interface ReferenceNode {
+  type: ReferenceSchema["type"];
   value: string;
 }
 
@@ -278,8 +272,13 @@ export interface ListNode {
   value: Node[];
 }
 
+export interface MapNode {
+  type: MapSchema["type"];
+  value: Record<string, Node>;
+}
+
 export type NodeValue =
-  | IdNode
+  | ReferenceNode
   | StringNode
   | BooleanNode
   | DatetimeNode
@@ -287,11 +286,6 @@ export type NodeValue =
   | MarkdownNode;
 
 export type Node = NodeValue | MapNode | ListNode;
-
-export interface MapNode {
-  type: MapSchema["type"];
-  value: Record<string, Node>;
-}
 
 export interface BaseEntry<T> {
   id: string;

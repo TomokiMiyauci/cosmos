@@ -1,5 +1,5 @@
-import type { Datalayer, Definition } from "@cosmos/core";
-import type { GraphQLFieldConfig, GraphQLObjectType } from "graphql";
+import type { Datalayer, Field } from "@cosmos/core";
+import type { GraphQLFieldConfig, GraphQLOutputType } from "graphql";
 
 export interface ResolverContext {
   fetcher: Datalayer;
@@ -10,8 +10,8 @@ export interface QueryContext extends ResolverContext {
 }
 
 export interface GraphqlEntry {
-  type: GraphQLObjectType;
-  definition: Definition;
+  type: GraphQLOutputType;
+  definition: Field;
 }
 
 export interface GraphQLQueryField {
