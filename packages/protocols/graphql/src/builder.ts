@@ -96,16 +96,19 @@ function resolveType(
       return GraphQLBoolean;
     }
     case "map": {
+      const required = new Set(field.required ?? []);
+
       const fields = () =>
         mapEntries(
           field.fields,
           ([key, field]) => {
+            const isRequired = required.has(key);
             const type = resolveType(key, field, models);
 
             return [
               key,
               {
-                type: field.required ? new GraphQLNonNull(type) : type,
+                type: isRequired ? new GraphQLNonNull(type) : type,
                 resolve: createResolve(key),
                 description: field.description,
               } satisfies GraphQLFieldConfig<Data, ResolverContext>,

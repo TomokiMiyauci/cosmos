@@ -56,7 +56,6 @@ export type Field =
 
 export interface BaseField {
   description?: string;
-  required?: boolean;
   type: string;
 }
 
@@ -79,6 +78,7 @@ export interface MarkdownField extends BaseField {
 export interface MapField extends BaseField {
   type: "map";
   fields: Record<string, Field>;
+  required?: string[];
 }
 
 export interface InstanceField extends BaseField {
