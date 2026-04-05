@@ -12,19 +12,16 @@ export class ListField implements FieldCodec {
     field: Field,
     ctx: FieldContext,
   ): Promise<Node> {
+    console.log(field, structure);
     if (typeof structure === "string") throw new Error();
 
     if (field.type !== "list") throw new Error();
-
-    const model = ctx.config.models[field.model];
-
-    if (!model) throw new Error();
 
     const values = Object.values(structure);
 
     const promise = values.map(
       (value) => {
-        return ctx.config.field.parse(value, model, ctx);
+        return ctx.config.field.parse(value, field.field, ctx);
       },
     );
 

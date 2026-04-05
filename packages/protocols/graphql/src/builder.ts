@@ -135,11 +135,9 @@ function resolveType(
     }
 
     case "list": {
-      const model = models[field.model];
+      const type = resolveType(name, field.field, models);
 
-      if (!model) throw new Error("unreachable");
-
-      return new GraphQLList(model);
+      return new GraphQLList(type);
     }
     case "asset": {
       return GraphQLURL;

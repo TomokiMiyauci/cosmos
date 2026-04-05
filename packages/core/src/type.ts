@@ -93,7 +93,7 @@ export interface ReferenceField extends BaseField {
 
 export interface ListField extends BaseField {
   type: "list";
-  model: string;
+  field: Field;
 }
 
 export interface AssetField extends BaseField {
