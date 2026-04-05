@@ -12,7 +12,6 @@ export class ListField implements FieldCodec {
     field: Field,
     ctx: FieldContext,
   ): Promise<Node> {
-    console.log(field, structure);
     if (typeof structure === "string") throw new Error();
 
     if (field.type !== "list") throw new Error();
