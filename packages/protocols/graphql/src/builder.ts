@@ -1,4 +1,15 @@
-import type { Field, Manifest } from "@cosmos/core";
+import type {
+  AssetField,
+  BooleanField,
+  DatetimeField,
+  Field,
+  InstanceField,
+  ListField,
+  Manifest,
+  MarkdownField,
+  ReferenceField,
+  StringField,
+} from "@cosmos/core";
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
@@ -23,6 +34,7 @@ import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
 import { overrideName } from "./util.ts";
 import { StandardNamer } from "./namers/standard.ts";
 import { mapEntries } from "@std/collections";
+import { GraphQLScalarType } from "graphql";
 
 export interface SchemaConfig {
   plugins: SchemaPlugin[];
@@ -90,11 +102,50 @@ function resolveType(
   switch (field.type) {
     case "string":
     case "markdown": {
-      return GraphQLString;
+      return new GraphQLScalarType({
+        ...GraphQLString,
+        name,
+        description: field.description,
+      });
     }
     case "boolean": {
-      return GraphQLBoolean;
+      return new GraphQLScalarType({
+        ...GraphQLBoolean,
+        name,
+        description: field.description,
+      });
     }
+    case "datetime": {
+      return new GraphQLScalarType({
+        ...GraphQLDateTime,
+        name,
+        description: field.description,
+      });
+    }
+    case "asset": {
+      return new GraphQLScalarType({
+        ...GraphQLURL,
+        name,
+        description: field.description,
+      });
+    }
+
+    // TODO: implement as scalar
+    case "instance":
+    case "reference": {
+      const model = models[field.model];
+
+      if (!model) throw new Error("unreachable");
+
+      return model;
+    }
+
+    case "list": {
+      const type = resolveType(name, field.field, models);
+
+      return new GraphQLList(type);
+    }
+
     case "map": {
       const required = new Set(field.required ?? []);
 
@@ -103,7 +154,9 @@ function resolveType(
           field.fields,
           ([key, field]) => {
             const isRequired = required.has(key);
-            const type = resolveType(key, field, models);
+            const type = field.type === "map"
+              ? resolveType(name + key, field, models)
+              : resolveScalar(field, models);
 
             return [
               key,
@@ -122,8 +175,31 @@ function resolveType(
         description: field.description,
       });
     }
-    case "datetime": {
-      return GraphQLDateTime;
+  }
+}
+
+type ScalarField =
+  | StringField
+  | BooleanField
+  | InstanceField
+  | InstanceField
+  | AssetField
+  | DatetimeField
+  | ReferenceField
+  | ListField
+  | MarkdownField;
+
+function resolveScalar(
+  field: ScalarField,
+  models: Record<string, GraphQLOutputType>,
+): GraphQLOutputType {
+  switch (field.type) {
+    case "string":
+    case "markdown": {
+      return GraphQLString;
+    }
+    case "boolean": {
+      return GraphQLBoolean;
     }
     case "instance":
     case "reference": {
@@ -133,14 +209,16 @@ function resolveType(
 
       return model;
     }
-
-    case "list": {
-      const type = resolveType(name, field.field, models);
-
-      return new GraphQLList(type);
-    }
     case "asset": {
       return GraphQLURL;
+    }
+    case "datetime": {
+      return GraphQLDateTime;
+    }
+    case "list": {
+      const type = resolveType("item", field.field, models);
+
+      return new GraphQLList(type);
     }
   }
 }
