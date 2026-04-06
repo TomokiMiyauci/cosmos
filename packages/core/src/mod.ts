@@ -9,7 +9,6 @@ export type {
   BooleanField,
   BooleanNode,
   Config,
-  UnionField,
   Datalayer,
   DatetimeField,
   DatetimeNode,
@@ -30,6 +29,7 @@ export type {
   IndexManager,
   InstanceField,
   ListField,
+  ListNode,
   Manifest,
   MapNode,
   MarkdownField,
@@ -38,6 +38,7 @@ export type {
   NodeEntry,
   NodeLayer,
   NodeValue,
+  NumberField,
   Protocol,
   ProtocolContext,
   ReferenceField,
@@ -51,5 +52,6 @@ export type {
   StringNode,
   Structure,
   StructureValue,
+  UnionField,
 } from "./type.ts";
 export { resolveFormatter } from "./url.ts";

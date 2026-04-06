@@ -45,6 +45,7 @@ export type Model = Field;
 
 export type Field =
   | StringField
+  | NumberField
   | BooleanField
   | InstanceField
   | ReferenceField
@@ -62,6 +63,10 @@ export interface BaseField {
 
 export interface StringField extends BaseField {
   type: "string";
+}
+
+export interface NumberField extends BaseField {
+  type: "number";
 }
 
 export interface BooleanField extends BaseField {
@@ -202,6 +207,10 @@ export interface StringSchema extends BaseSchema {
   type: StringField["type"];
 }
 
+export interface NumberSchema extends BaseSchema {
+  type: NumberField["type"];
+}
+
 export interface BooleanSchema extends BaseSchema {
   type: BooleanField["type"];
 }
@@ -258,6 +267,11 @@ export interface StringNode {
   value: string;
 }
 
+export interface NumberNode {
+  type: NumberSchema["type"];
+  value: number;
+}
+
 export interface BooleanNode {
   type: BooleanSchema["type"];
   value: boolean;
@@ -291,6 +305,7 @@ export interface MapNode {
 export type NodeValue =
   | ReferenceNode
   | StringNode
+  | NumberNode
   | BooleanNode
   | DatetimeNode
   | AssetNode

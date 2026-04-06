@@ -7,6 +7,7 @@ import type {
   ListField,
   Manifest,
   MarkdownField,
+  NumberField,
   ReferenceField,
   StringField,
 } from "@cosmos/core";
@@ -14,6 +15,7 @@ import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
   type GraphQLFieldResolver,
+  GraphQLFloat,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
@@ -104,6 +106,13 @@ function resolveType(
     case "markdown": {
       return new GraphQLScalarType({
         ...GraphQLString,
+        name,
+        description: field.description,
+      });
+    }
+    case "number": {
+      return new GraphQLScalarType({
+        ...GraphQLFloat,
         name,
         description: field.description,
       });
@@ -202,6 +211,7 @@ function isData(value: unknown): value is Data {
 
 type ScalarField =
   | StringField
+  | NumberField
   | BooleanField
   | InstanceField
   | InstanceField
@@ -219,6 +229,9 @@ function resolveScalar(
     case "string":
     case "markdown": {
       return GraphQLString;
+    }
+    case "number": {
+      return GraphQLFloat;
     }
     case "boolean": {
       return GraphQLBoolean;
