@@ -154,7 +154,7 @@ function resolveType(
           field.fields,
           ([key, field]) => {
             const isRequired = required.has(key);
-            const type = field.type === "map"
+            const type = (field.type === "map" || field.type === "union")
               ? resolveType(name + key, field, models)
               : resolveScalar(field, models);
 
@@ -175,7 +175,29 @@ function resolveType(
         description: field.description,
       });
     }
+    case "union": {
+      return new GraphQLScalarType({
+        name,
+        serialize(value): unknown {
+          if (isData(value)) {
+            const child = field.fields.find((field) => isInherit(field, value));
+
+            if (!child) throw new SyntaxError();
+
+            return value;
+          }
+        },
+      });
+    }
   }
+}
+
+function isInherit(field: Field, value: Data): boolean {
+  return true;
+}
+
+function isData(value: unknown): value is Data {
+  return true;
 }
 
 type ScalarField =

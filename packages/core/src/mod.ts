@@ -9,6 +9,7 @@ export type {
   BooleanField,
   BooleanNode,
   Config,
+  UnionField,
   Datalayer,
   DatetimeField,
   DatetimeNode,

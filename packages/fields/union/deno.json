@@ -1,0 +1,4 @@
+{
+  "name": "@cosmos/field-union",
+  "exports": "./src/mod.ts"
+}
