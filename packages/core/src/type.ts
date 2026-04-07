@@ -52,7 +52,6 @@ export type Field =
   | ListField
   | AssetField
   | MapField
-  | MarkdownField
   | DatetimeField
   | UnionField;
 
@@ -75,10 +74,6 @@ export interface BooleanField extends BaseField {
 
 export interface DatetimeField extends BaseField {
   type: "datetime";
-}
-
-export interface MarkdownField extends BaseField {
-  type: "markdown";
 }
 
 export interface MapField extends BaseField {
@@ -219,10 +214,6 @@ export interface DatetimeSchema extends BaseSchema {
   type: DatetimeField["type"];
 }
 
-export interface MarkdownSchema extends BaseSchema {
-  type: MarkdownField["type"];
-}
-
 export interface AssetSchema extends BaseSchema {
   type: AssetField["type"];
 }
@@ -251,7 +242,6 @@ export type Schema =
   | StringSchema
   | BooleanSchema
   | DatetimeSchema
-  | MarkdownSchema
   | AssetSchema
   | MapSchema
   | ListSchema
@@ -287,11 +277,6 @@ export interface AssetNode {
   value: URL;
 }
 
-export interface MarkdownNode {
-  type: MarkdownSchema["type"];
-  value: string;
-}
-
 export interface ListNode {
   type: ListSchema["type"];
   value: Node[];
@@ -308,8 +293,7 @@ export type NodeValue =
   | NumberNode
   | BooleanNode
   | DatetimeNode
-  | AssetNode
-  | MarkdownNode;
+  | AssetNode;
 
 export type Node = NodeValue | MapNode | ListNode;
 
