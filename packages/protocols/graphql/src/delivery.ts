@@ -45,14 +45,15 @@ function toData(node: Node): Data {
     case "boolean":
     case "reference":
     case "datetime":
-    case "asset":
-    case "markdown": {
+    case "number":
+    case "asset": {
       return node.value;
     }
 
     case "map": {
       return mapValues(node.value, toData);
     }
+
     case "list": {
       return node.value.map(toData);
     }

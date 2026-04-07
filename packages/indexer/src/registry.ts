@@ -14,6 +14,10 @@ export class AssetRegistry {
     }
   }
 
+  has(url: URL): boolean {
+    return this.#map.has(url.href);
+  }
+
   remove(url: URL): void {
     this.#map.delete(url.href);
   }

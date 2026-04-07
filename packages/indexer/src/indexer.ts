@@ -101,6 +101,11 @@ export class Indexer {
           baseUrl: key,
           resolver,
           config,
+          asset: {
+            has(url): boolean {
+              return registry.has(url);
+            },
+          },
         });
 
         entries.push({
@@ -130,6 +135,8 @@ export class Indexer {
         data: entry.data,
       };
     });
+
+    console.log(result);
 
     for (const source of result) {
       await store.save(source);
