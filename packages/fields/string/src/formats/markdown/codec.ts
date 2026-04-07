@@ -1,0 +1,51 @@
+import type {
+  AssetNode,
+  Field,
+  FieldCodec,
+  FieldContext,
+  Node,
+  StringNode,
+  StructureValue,
+} from "@cosmos/core";
+import { MarkdownParser } from "./parser.ts";
+import { fromMarkdown } from "mdast-util-from-markdown";
+
+export class MarkdownCodec implements FieldCodec {
+  #parser = new MarkdownParser();
+
+  async parse(
+    structure: StructureValue,
+    _: Field,
+    ctx: FieldContext,
+  ): Promise<Node> {
+    if (typeof structure !== "string") throw new Error();
+    console.log(22, structure);
+
+    async function resolver(
+      specifier: string,
+    ): Promise<AssetNode | StringNode> {
+      const url = await ctx.resolver.resolve(specifier, ctx);
+
+      if (ctx.asset.has(url)) {
+        return {
+          type: "asset",
+          value: url,
+        };
+      }
+
+      return {
+        type: "string",
+        value: url.toString(),
+      };
+    }
+
+    const root = fromMarkdown(structure);
+    const node = await this.#parser.parse(root, { resolve: resolver });
+
+    return node;
+  }
+
+  stringify(node: Node): StructureValue {
+    throw new Error();
+  }
+}

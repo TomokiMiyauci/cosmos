@@ -34,6 +34,7 @@ export interface FieldCodec {
 
 export interface FieldContext extends ResolverContext {
   resolver: Resolver;
+  asset: AssetRegistry;
 }
 
 export interface FormatterDefinition {
@@ -62,6 +63,7 @@ export interface BaseField {
 
 export interface StringField extends BaseField {
   type: "string";
+  format?: string;
 }
 
 export interface NumberField extends BaseField {
@@ -351,4 +353,8 @@ interface BaseContext {
 
 export interface ResolverContext extends BaseContext {
   baseUrl: URL;
+}
+
+export interface AssetRegistry {
+  has(url: URL): boolean;
 }

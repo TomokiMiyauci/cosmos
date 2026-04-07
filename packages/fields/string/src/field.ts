@@ -1,7 +1,32 @@
-import type { FieldCodec, Node, StructureValue } from "@cosmos/core";
+import type {
+  Field,
+  FieldCodec,
+  FieldContext,
+  Node,
+  StructureValue,
+} from "@cosmos/core";
+
+export interface FormatCodec {
+  [k: string]: FieldCodec;
+}
 
 export class StringFieldCodec implements FieldCodec {
-  parse(structure: StructureValue): Node {
+  constructor(private formatCodec?: FormatCodec) {}
+  parse(
+    structure: StructureValue,
+    field: Field,
+    ctx: FieldContext,
+  ): Promise<Node> | Node {
+    if (field.type !== "string") throw new Error();
+
+    const formatCodec = field.format
+      ? this.formatCodec?.[field.format]
+      : undefined;
+
+    if (formatCodec) {
+      return formatCodec.parse(structure, field, ctx);
+    }
+
     if (typeof structure !== "string") throw new SyntaxError();
 
     return {
