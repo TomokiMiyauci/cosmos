@@ -3,6 +3,7 @@ import { SchemaBuilder } from "./builder.ts";
 import { createSchema, createYoga } from "graphql-yoga";
 import type { Data, Fetcher, ResolverContext, SchemaPlugin } from "./type.ts";
 import { mapValues } from "@std/collections/map-values";
+import { toRoot, toString } from "@cosmos/field-string/markdown";
 
 export interface GraphqlConfig {
   plugins?: SchemaPlugin[];
@@ -56,6 +57,12 @@ function toData(node: Node): Data {
 
     case "list": {
       return node.value.map(toData);
+    }
+
+    case "markdown": {
+      const root = toRoot(node.value);
+
+      return toString(root);
     }
   }
 }

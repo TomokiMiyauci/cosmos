@@ -32,6 +32,8 @@ export type {
   ListNode,
   Manifest,
   MapNode,
+  MarkdownField,
+  MarkdownNode,
   Model,
   Node,
   NodeEntry,
@@ -55,3 +57,4 @@ export type {
   UnionField,
 } from "./type.ts";
 export { resolveFormatter } from "./url.ts";
+export * from "./markdown.ts";

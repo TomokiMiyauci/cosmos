@@ -41,7 +41,10 @@ export class MarkdownCodec implements FieldCodec {
     const root = fromMarkdown(structure);
     const node = await this.#parser.parse(root, { resolve: resolver });
 
-    return node;
+    return {
+      type: "markdown",
+      value: node,
+    };
   }
 
   stringify(node: Node): StructureValue {

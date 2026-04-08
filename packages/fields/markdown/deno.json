@@ -1,0 +1,8 @@
+{
+  "name": "@cosmos/field-markdown",
+  "exports": "./src/mod.ts",
+  "imports": {
+    "mdast": "npm:mdast@^3.0.0",
+    "mdast-util-from-markdown": "npm:mdast-util-from-markdown@^2.0.3"
+  }
+}
