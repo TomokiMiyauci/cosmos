@@ -47,6 +47,7 @@ export type {
   ReferenceNode,
   Resolver,
   ResolverContext,
+  Resource,
   Schema,
   Storage,
   Store,

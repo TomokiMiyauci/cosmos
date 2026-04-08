@@ -7,6 +7,7 @@ import {
   type Node,
   type NodeEntry,
   resolveFormatter,
+  type Resource,
   type Store,
 } from "@cosmos/core";
 import { AssetRegistry } from "./registry.ts";
@@ -32,6 +33,7 @@ export class Indexer {
       field: codec,
     } = config;
     const registry = new AssetRegistry();
+    const nodeRegistry = new UrlSet();
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
       return {
         ...acc,
@@ -53,68 +55,68 @@ export class Indexer {
     for (const url of assetUrls) {
       registry.add(url);
     }
-    const entries: NodeEntry[] = [];
-    const promise = resources.map(async (resource) => {
-      const { model: modelName } = resource;
+    const nodeEntries: NodeEntry[] = [];
 
+    const entryPromises = resources.map(async (resource) => {
       const indexerType = resource.indexer.type;
 
       const indexer = resolveIndexer(indexes, indexerType);
       const iter = indexer.search(resource.indexer.options);
 
       const urls = await Array.fromAsync(iter);
-      const model = models[modelName];
 
-      const contents = await Promise.all(urls.map(async (url) => {
-        const content = await storage.read(url);
-
+      return urls.map((url) => {
         return {
           url,
-          content,
-          type: modelName,
-        };
-      }));
+          resource,
+        } satisfies Entry;
+      });
+    });
+
+    const entries = (await Promise.all(entryPromises)).flat();
+
+    entries.forEach(({ url }) => {
+      nodeRegistry.add(url);
+    });
+
+    const promise = entries.map(async ({ url, resource }) => {
+      const { model: modelName } = resource;
+      const model = models[modelName];
+      const content = await storage.read(url);
 
       // const schemas = model.fields.map(fieldToSchema);
       const formatter = resolveFormatter(resource.format, formatterMap);
       const decoder = new TextDecoder();
 
-      const jsons = await Promise.all(
-        contents.map(async ({ content, url, type }) => {
-          const buffer = await content.arrayBuffer();
+      const buffer = await content.arrayBuffer();
+      const text = decoder.decode(buffer);
+      const structure = formatter.parse(text, {
+        config,
+        options: resource.format,
+      });
 
-          const text = decoder.decode(buffer);
-
-          return {
-            key: url,
-            value: formatter.parse(text, {
-              config: this.config,
-              options: resource.format,
-            }),
-            type,
-          };
-        }),
-      );
-
-      for (const { key, value, type } of jsons) {
-        const node = await codec.parse(value, model, {
-          baseUrl: key,
-          resolver,
-          config,
-          asset: {
-            has(url): boolean {
-              return registry.has(url);
-            },
+      const node = await codec.parse(structure, model, {
+        baseUrl: url,
+        resolver,
+        config,
+        asset: {
+          has(url): boolean {
+            return registry.has(url);
           },
-        });
+        },
+        node: {
+          has(url): boolean {
+            return nodeRegistry.has(url);
+          },
+        },
+      });
 
-        entries.push({
-          id: key.toString(),
-          data: node,
-          model: type,
-          type: "node",
-        });
-      }
+      nodeEntries.push({
+        id: url.toString(),
+        data: node,
+        model: modelName,
+        type: "node",
+      });
 
       return model;
     });
@@ -129,7 +131,7 @@ export class Indexer {
     //   ],
     // }, entries);
 
-    const result = entries.map((entry) => {
+    const result = nodeEntries.map((entry) => {
       return {
         ...entry,
         data: entry.data,
@@ -203,4 +205,35 @@ function createDatalayer(store: Store): Datalayer {
       },
     },
   };
+}
+
+interface Entry {
+  url: URL;
+  resource: Resource;
+}
+
+class UrlSet {
+  #set = new Set<string>();
+
+  add(value: URL): this {
+    this.#set.add(value.toString());
+
+    return this;
+  }
+
+  clear(): void {
+    this.#set.clear();
+  }
+
+  delete(value: URL): boolean {
+    return this.#set.delete(value.toString());
+  }
+
+  has(value: URL): boolean {
+    return this.#set.has(value.toString());
+  }
+
+  get size(): number {
+    return this.#set.size;
+  }
 }
