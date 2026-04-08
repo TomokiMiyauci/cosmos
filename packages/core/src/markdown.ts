@@ -4,6 +4,7 @@ import type {
   MapNode,
   Node,
   NumberNode,
+  ReferenceNode,
   StringNode,
 } from "@cosmos/core";
 
@@ -80,6 +81,6 @@ export interface LinkMapNode extends MapNode {
       value: "link";
     };
     children: PhrasingContentListNode;
-    url: StringNode | AssetNode;
+    url: StringNode | AssetNode | ReferenceNode;
   };
 }

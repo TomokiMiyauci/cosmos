@@ -4,6 +4,7 @@ import type {
   FieldCodec,
   FieldContext,
   Node,
+  ReferenceNode,
   StringNode,
   StructureValue,
 } from "@cosmos/core";
@@ -22,13 +23,20 @@ export class MarkdownCodec implements FieldCodec {
 
     async function resolver(
       specifier: string,
-    ): Promise<AssetNode | StringNode> {
+    ): Promise<AssetNode | StringNode | ReferenceNode> {
       const url = await ctx.resolver.resolve(specifier, ctx);
 
       if (ctx.asset.has(url)) {
         return {
           type: "asset",
           value: url,
+        };
+      }
+
+      if (ctx.node.has(url)) {
+        return {
+          type: "reference",
+          value: url.toString(),
         };
       }
 

@@ -6,6 +6,7 @@ import type {
   ParapraphMapNode,
   PharasingContentMapNode,
   PhrasingContentListNode,
+  ReferenceNode,
   RootNodeListNode,
   RootNodeMapNode,
   StringNode,
@@ -16,7 +17,11 @@ import type {
 interface Resolver {
   resolve(
     specifier: string,
-  ): StringNode | AssetNode | Promise<StringNode | AssetNode>;
+  ):
+    | StringNode
+    | AssetNode
+    | ReferenceNode
+    | Promise<StringNode | AssetNode | ReferenceNode>;
 }
 
 export class MarkdownParser {

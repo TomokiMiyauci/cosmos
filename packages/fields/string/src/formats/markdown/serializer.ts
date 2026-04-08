@@ -1,14 +1,15 @@
-import type { Node, StringNode } from "@cosmos/core";
 import type {
   HeadingMapNode,
   LinkMapNode,
+  Node,
   ParapraphMapNode,
   PhrasingContentListNode,
   RootNodeListNode,
   RootNodeMapNode,
+  StringNode,
   StrongMapNode,
   TextMapNode,
-} from "./type.ts";
+} from "@cosmos/core";
 import type { PhrasingContent, Root, RootContent } from "mdast";
 import { toMarkdown } from "mdast-util-to-markdown";
 
