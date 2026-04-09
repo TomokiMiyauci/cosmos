@@ -1,4 +1,4 @@
-import type { Field, Node } from "@cosmos/core";
+import type { Node, Schema } from "@cosmos/core";
 import type { GraphQLFieldConfig, GraphQLOutputType } from "graphql";
 
 export interface ResolverContext {
@@ -16,7 +16,7 @@ export interface QueryContext extends ResolverContext {
 
 export interface GraphqlEntry {
   type: GraphQLOutputType;
-  definition: Field;
+  definition: Schema;
 }
 
 export interface GraphQLQueryField {

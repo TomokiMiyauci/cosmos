@@ -1,4 +1,4 @@
-import type { Field, Manifest, MapField, MapNode, Node } from "@cosmos/core";
+import type { Manifest, MapNode, MapSchema, Node, Schema } from "@cosmos/core";
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
@@ -53,7 +53,7 @@ export class SchemaBuilder {
 
   build(ctx: BuilderContext): GraphQLSchema {
     const map: Record<string, GraphQLOutputType> = {};
-    const entries = Object.entries(ctx.manifest.models).map(
+    const entries = Object.entries(ctx.manifest.schemas).map(
       ([name, schema]) => {
         const field = createDefinition(
           name,
@@ -199,7 +199,7 @@ function createList<T>(
 
 function createDefinition(
   name: string,
-  schema: Field,
+  schema: Schema,
   map: Map,
 ): GraphqlDefinition<Node, Data, ResolverContext> {
   switch (schema.type) {
@@ -223,7 +223,7 @@ function createDefinition(
       return createReference(map[schema.model]);
     }
     case "list": {
-      const child = createDefinition(name, schema.field, map);
+      const child = createDefinition(name, schema.item, map);
 
       return createList(child);
     }
@@ -249,14 +249,14 @@ function createInstance(
 
 function createMap(
   name: string,
-  schema: MapField,
+  schema: MapSchema,
   map: Map,
 ): GraphqlDefinition<Node, Data, ResolverContext> {
   const type = new GraphQLObjectType({
     name,
     fields: () => {
       const required = new Set(schema.required);
-      const base = mapEntries(schema.fields, ([key, schema]) => {
+      const base = mapEntries(schema.props, ([key, schema]) => {
         const { type, resolve } = createDefinition(key, schema, map);
 
         const field = {

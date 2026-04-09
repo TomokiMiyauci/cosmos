@@ -6,6 +6,8 @@ export type {
   AssetLayer,
   AssetMapping,
   AssetNode,
+  BaseField,
+  BaseSchema,
   BooleanField,
   BooleanNode,
   Config,

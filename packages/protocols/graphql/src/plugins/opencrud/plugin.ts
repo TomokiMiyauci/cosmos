@@ -1,4 +1,4 @@
-import type { Field, MapField, Node } from "@cosmos/core";
+import type { MapSchema, Node, Schema } from "@cosmos/core";
 import type {
   GraphqlEntry,
   GraphQLQueryField,
@@ -19,7 +19,7 @@ import {
 
 interface MapGraphqlEntry extends GraphqlEntry {
   type: GraphQLObjectType;
-  definition: MapField;
+  definition: MapSchema;
 }
 
 function isMapGraphqlEntry(entry: GraphqlEntry): entry is MapGraphqlEntry {
@@ -96,9 +96,9 @@ export class OpenCrud implements SchemaPlugin {
         const name = model.name;
         const pluralName = `${model.name}s`;
 
-        const fieldEntries = Object.entries(definition.fields).map(
+        const fieldEntries = Object.entries(definition.props).map(
           ([name, schema]) => {
-            function resolveScalar(schema: Field): GraphQLInputFieldConfig {
+            function resolveScalar(schema: Schema): GraphQLInputFieldConfig {
               switch (schema.type) {
                 case "string": {
                   return { type: schelar.string };

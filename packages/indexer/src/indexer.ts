@@ -1,16 +1,20 @@
 import {
   type AssetEntry,
+  type BaseSchema,
   type Config,
   type Datalayer,
+  type Field,
   type IndexManager,
   type Manifest,
   type Node,
   type NodeEntry,
   resolveFormatter,
   type Resource,
+  type Schema,
   type Store,
 } from "@cosmos/core";
 import { AssetRegistry } from "./registry.ts";
+import { mapValues } from "@std/collections";
 
 export class Indexer {
   constructor(private config: Config) {}
@@ -153,11 +157,12 @@ export class Indexer {
     }
 
     const datalayer = createDatalayer(store);
+    const schemas = mapValues(models, fieldToSchema);
 
     return {
       manifest: {
         version: "1",
-        models,
+        schemas,
       },
       datalayer,
     };
@@ -233,5 +238,73 @@ class UrlSet {
 
   get size(): number {
     return this.#set.size;
+  }
+}
+
+function fieldToSchema(field: Field): Schema {
+  const base = {
+    description: field.description ?? "",
+  } satisfies Omit<BaseSchema, "type">;
+
+  switch (field.type) {
+    case "string": {
+      return {
+        ...base,
+        type: "string",
+      };
+    }
+    case "number": {
+      return {
+        ...base,
+        type: "number",
+      };
+    }
+    case "boolean": {
+      return {
+        ...base,
+        type: "boolean",
+      };
+    }
+    case "map": {
+      return {
+        ...base,
+        type: "map",
+        props: mapValues(field.fields, fieldToSchema),
+        required: field.required ?? [],
+      };
+    }
+    case "asset": {
+      return {
+        ...base,
+        type: "asset",
+      };
+    }
+    case "datetime": {
+      return {
+        ...base,
+        type: "datetime",
+      };
+    }
+    case "instance": {
+      return {
+        ...base,
+        type: "instance",
+        model: field.model,
+      };
+    }
+    case "reference": {
+      return {
+        ...base,
+        type: "reference",
+        model: field.model,
+      };
+    }
+    case "list": {
+      return {
+        ...base,
+        type: "list",
+        item: fieldToSchema(field.field),
+      };
+    }
   }
 }

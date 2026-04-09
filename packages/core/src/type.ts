@@ -2,7 +2,7 @@ import type { RootNodeListNode } from "./markdown.ts";
 
 export interface Manifest {
   version: string;
-  models: Record<string, Model>;
+  schemas: Record<string, Schema>;
 }
 
 export interface Config {
@@ -204,64 +204,59 @@ export interface Formatter<T = unknown> {
 
 export interface BaseSchema {
   type: string;
-  required: boolean;
   description: string;
 }
 
 export interface StringSchema extends BaseSchema {
-  type: StringField["type"];
+  type: "string";
 }
 
 export interface NumberSchema extends BaseSchema {
-  type: NumberField["type"];
+  type: "number";
 }
 
 export interface BooleanSchema extends BaseSchema {
-  type: BooleanField["type"];
+  type: "boolean";
 }
 
 export interface DatetimeSchema extends BaseSchema {
-  type: DatetimeField["type"];
+  type: "datetime";
 }
 
 export interface AssetSchema extends BaseSchema {
-  type: AssetField["type"];
+  type: "asset";
 }
 
 export interface MapSchema extends BaseSchema {
-  type: MapField["type"];
-  fields: Record<string, Schema>;
+  type: "map";
+  props: Record<string, Schema>;
+  required: string[];
 }
 
 export interface ListSchema extends BaseSchema {
-  type: ListField["type"];
-  field: Field;
+  type: "list";
+  item: Schema;
 }
 
 export interface ReferenceSchema extends BaseSchema {
-  type: ReferenceField["type"];
+  type: "reference";
   model: string;
 }
 
-interface InstanceSchema extends BaseSchema {
+export interface InstanceSchema extends BaseSchema {
   type: "instance";
   model: string;
 }
 
-export interface UnionSchema extends BaseSchema {
-  type: "union";
-  schemas: Schema[];
-}
-
 export type Schema =
   | StringSchema
+  | NumberSchema
   | BooleanSchema
   | DatetimeSchema
   | AssetSchema
   | MapSchema
   | ListSchema
   | ReferenceSchema
-  | NumberSchema
   | InstanceSchema;
 
 export interface ReferenceNode {
