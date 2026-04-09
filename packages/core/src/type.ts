@@ -56,9 +56,9 @@ export type Field =
   | ListField
   | AssetField
   | MapField
-  | DatetimeField
-  | UnionField
-  | MarkdownField;
+  | DatetimeField;
+// | UnionField
+// | MarkdownField;
 
 export interface BaseField {
   description?: string;
@@ -230,16 +230,21 @@ export interface AssetSchema extends BaseSchema {
 
 export interface MapSchema extends BaseSchema {
   type: MapField["type"];
-  model: string;
+  fields: Record<string, Schema>;
 }
 
 export interface ListSchema extends BaseSchema {
   type: ListField["type"];
-  model: string;
+  field: Field;
 }
 
 export interface ReferenceSchema extends BaseSchema {
   type: ReferenceField["type"];
+  model: string;
+}
+
+interface InstanceSchema extends BaseSchema {
+  type: "instance";
   model: string;
 }
 
@@ -255,7 +260,9 @@ export type Schema =
   | AssetSchema
   | MapSchema
   | ListSchema
-  | ReferenceSchema;
+  | ReferenceSchema
+  | NumberSchema
+  | InstanceSchema;
 
 export interface ReferenceNode {
   type: ReferenceSchema["type"];
