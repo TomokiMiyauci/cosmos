@@ -5,6 +5,7 @@ import {
   type GraphQLFieldResolver,
   GraphQLFloat,
   GraphQLList,
+  GraphQLNonNull,
   GraphQLObjectType,
   type GraphQLOutputType,
   type GraphQLScalarType,
@@ -251,35 +252,47 @@ function createMap(
   schema: MapField,
   map: Map,
 ): GraphqlDefinition<Node, Data, ResolverContext> {
+  const type = new GraphQLObjectType({
+    name,
+    fields: () => {
+      const required = new Set(schema.required);
+      const base = mapEntries(schema.fields, ([key, schema]) => {
+        const { type, resolve } = createDefinition(key, schema, map);
+
+        const field = {
+          type: required.has(key) ? new GraphQLNonNull(type) : type,
+          resolve,
+          description: schema.description,
+        } satisfies GraphQLFieldConfig<Node, ResolverContext>;
+
+        return [key, field] as const;
+      });
+
+      const fields = mapEntries(base, ([key, def]) =>
+        [
+          key,
+          {
+            ...def,
+            resolve(node, args, context, info): Data | null {
+              if (isMapNode(node)) {
+                const child = node.value[key];
+
+                if (!child) return null;
+
+                return def.resolve(child, args, context, info);
+              }
+              throw new Error();
+            },
+          } satisfies GraphqlDefinition<Node, Data | null, ResolverContext>,
+        ] as const);
+
+      return fields;
+    },
+    description: schema.description,
+  });
+
   return {
-    type: new GraphQLObjectType({
-      name,
-      fields: () => {
-        const base = mapEntries(schema.fields, ([key, schema]) => {
-          return [key, createDefinition(key, schema, map)] as const;
-        });
-
-        const fields = mapEntries(base, ([key, def]) =>
-          [
-            key,
-            {
-              type: def.type,
-              resolve(node, args, context, info): Data | null {
-                if (isMapNode(node)) {
-                  const child = node.value[key];
-
-                  if (!child) return null;
-
-                  return def.resolve(child, args, context, info);
-                }
-                throw new Error();
-              },
-            } satisfies GraphqlDefinition<Node, Data | null, ResolverContext>,
-          ] as const);
-
-        return fields;
-      },
-    }),
+    type,
     resolve(node): MapNode {
       if (isMapNode(node)) {
         return node;
