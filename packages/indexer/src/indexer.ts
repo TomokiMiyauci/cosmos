@@ -138,8 +138,6 @@ export class Indexer {
       };
     });
 
-    console.log(result);
-
     for (const source of result) {
       await store.save(source);
     }

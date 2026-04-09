@@ -1,6 +1,6 @@
 import type { PhrasingContent, Root, RootContent } from "mdast";
-import type { AssetNode, StringNode } from "@cosmos/core";
 import type {
+  AssetNode,
   HeadingMapNode,
   LinkMapNode,
   ParapraphMapNode,
@@ -8,9 +8,10 @@ import type {
   PhrasingContentListNode,
   RootNodeListNode,
   RootNodeMapNode,
+  StringNode,
   StrongMapNode,
   TextMapNode,
-} from "./type.ts";
+} from "@cosmos/core";
 
 interface Resolver {
   resolve(
