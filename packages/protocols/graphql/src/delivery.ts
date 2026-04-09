@@ -1,9 +1,7 @@
 import type { Node, Protocol, ProtocolContext } from "@cosmos/core";
 import { SchemaBuilder } from "./builder.ts";
 import { createSchema, createYoga } from "graphql-yoga";
-import type { Data, Fetcher, ResolverContext, SchemaPlugin } from "./type.ts";
-import { mapValues } from "@std/collections/map-values";
-import { toRoot, toString } from "@cosmos/field-string/markdown";
+import type { Fetcher, ResolverContext, SchemaPlugin } from "./type.ts";
 
 export interface GraphqlConfig {
   plugins?: SchemaPlugin[];
@@ -13,12 +11,10 @@ export class GraphqlProtocol implements Protocol {
   constructor(private config: GraphqlConfig) {}
   handle(request: Request, ctx: ProtocolContext): Promise<Response> {
     const fetcher = {
-      async fetch(id): Promise<Data> {
+      async fetch(id): Promise<Node> {
         const node = await ctx.datalayer.node.fetch(id);
 
-        const data = toData(node);
-
-        return data;
+        return node;
       },
       list: ctx.datalayer.node.list.bind(ctx.datalayer.node),
     } satisfies Fetcher;
@@ -37,32 +33,5 @@ export class GraphqlProtocol implements Protocol {
     const result = yoga(request);
 
     return Promise.resolve(result);
-  }
-}
-
-function toData(node: Node): Data {
-  switch (node.type) {
-    case "string":
-    case "boolean":
-    case "reference":
-    case "datetime":
-    case "number":
-    case "asset": {
-      return node.value;
-    }
-
-    case "map": {
-      return mapValues(node.value, toData);
-    }
-
-    case "list": {
-      return node.value.map(toData);
-    }
-
-    case "markdown": {
-      const root = toRoot(node.value);
-
-      return toString(root);
-    }
   }
 }
