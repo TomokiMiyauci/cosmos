@@ -84,7 +84,7 @@ export class OpenCrud implements SchemaPlugin {
   name = "opencrud";
 
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
-    const { fetcher: datalayer, entries } = ctx;
+    const { entries } = ctx;
     const schelar = {
       string: new GraphQLInputObjectType(stringWhereInput),
       boolean: new GraphQLInputObjectType(booleanWhereInput),
@@ -156,10 +156,10 @@ export class OpenCrud implements SchemaPlugin {
                 type: fieldWheareInput,
               },
             },
-            resolve: async (_source: unknown, args: OpenCrudArgs) => {
-              const ids = await datalayer.list(model.name);
+            resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
+              const ids = await ctx.fetcher.list(model.name);
               const nodes = await Promise.all(
-                ids.map((id) => datalayer.fetch(id)),
+                ids.map((id) => ctx.fetcher.fetch(id)),
               );
 
               const filter = createFilterFromArgs(args);

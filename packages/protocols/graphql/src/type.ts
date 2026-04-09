@@ -10,7 +10,7 @@ export interface Fetcher {
   list(id: string): Promise<string[]> | string[];
 }
 
-export interface QueryContext extends ResolverContext {
+export interface QueryContext {
   entries: GraphqlEntry[];
 }
 
@@ -21,7 +21,7 @@ export interface GraphqlEntry {
 
 export interface GraphQLQueryField {
   name: string;
-  type: GraphQLFieldConfig<unknown, unknown>;
+  type: GraphQLFieldConfig<unknown, ResolverContext>;
 }
 
 export interface SchemaPlugin {

@@ -72,7 +72,7 @@ export class SchemaBuilder {
 
     const queryFields = this.config.plugins
       .map((registry) => {
-        return registry.provideQuery({ fetcher: ctx.fetcher, entries });
+        return registry.provideQuery({ entries });
       })
       .flat();
 

@@ -22,17 +22,20 @@ export class RelayPlugin implements SchemaPlugin {
           nodeType: entry,
         });
         const name = `${entry.name}Collection`;
-        const fetch = ctx.fetcher.fetch.bind(ctx.fetcher);
 
         return {
           name,
           type: {
             type: connectionType,
             args: connectionArgs,
-            async resolve(_, args): Promise<Connection<Node>> {
+            async resolve(
+              _,
+              args,
+              ctx,
+            ): Promise<Connection<Node>> {
               const model = entry.name;
               const keys = await ctx.fetcher.list(model);
-              const promise = keys.map(fetch);
+              const promise = keys.map((key) => ctx.fetcher.fetch(key));
               const result = await Promise.all(promise);
               const collection = connectionFromArray(result, args);
 
