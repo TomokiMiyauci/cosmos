@@ -5,13 +5,13 @@ import {
   connectionFromArray,
 } from "graphql-relay";
 import type {
-  Data,
   GraphqlEntry,
   GraphQLQueryField,
   QueryContext,
   SchemaPlugin,
 } from "../../../type.ts";
 import { type GraphQLObjectType, isObjectType } from "graphql";
+import type { Node } from "@cosmos/core";
 
 export class RelayPlugin implements SchemaPlugin {
   name = "relay";
@@ -29,7 +29,7 @@ export class RelayPlugin implements SchemaPlugin {
           type: {
             type: connectionType,
             args: connectionArgs,
-            async resolve(_, args): Promise<Connection<Data>> {
+            async resolve(_, args): Promise<Connection<Node>> {
               const model = entry.name;
               const keys = await ctx.fetcher.list(model);
               const promise = keys.map(fetch);

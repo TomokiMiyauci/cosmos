@@ -1,18 +1,30 @@
-import type { Node, Schema } from "@cosmos/core";
+import type { Field, MapField, Node } from "@cosmos/core";
 import type {
+  GraphqlEntry,
   GraphQLQueryField,
   QueryContext,
   SchemaPlugin,
 } from "../../type.ts";
 import {
+  GraphQLBoolean,
   type GraphQLInputFieldConfig,
   GraphQLInputObjectType,
   type GraphQLInputObjectTypeConfig,
   GraphQLList,
   GraphQLNonNull,
+  type GraphQLObjectType,
   GraphQLString,
+  isObjectType,
 } from "graphql";
-import { GraphQLBoolean } from "graphql";
+
+interface MapGraphqlEntry extends GraphqlEntry {
+  type: GraphQLObjectType;
+  definition: MapField;
+}
+
+function isMapGraphqlEntry(entry: GraphqlEntry): entry is MapGraphqlEntry {
+  return isObjectType(entry.type) && entry.definition.type === "map";
+}
 
 export interface OpenCrudArgs {
   where?: WhereInput;
@@ -79,81 +91,87 @@ export class OpenCrud implements SchemaPlugin {
       datetime: new GraphQLInputObjectType(datetimeWhereInput),
     };
 
-    return entries.map(({ type: model, definition }) => {
-      const name = model.name;
-      const pluralName = `${model.name}s`;
+    return entries.filter(isMapGraphqlEntry).map(
+      ({ type: model, definition }) => {
+        const name = model.name;
+        const pluralName = `${model.name}s`;
 
-      const fieldEntries = definition.schemas.map((schema) => {
-        function resolveScalar(schema: Schema): GraphQLInputFieldConfig {
-          switch (schema.type) {
-            case "string": {
-              return { type: schelar.string };
+        const fieldEntries = Object.entries(definition.fields).map(
+          ([name, schema]) => {
+            function resolveScalar(schema: Field): GraphQLInputFieldConfig {
+              switch (schema.type) {
+                case "string": {
+                  return { type: schelar.string };
+                }
+
+                case "boolean": {
+                  return { type: schelar.boolean };
+                }
+                case "datetime": {
+                  return { type: schelar.datetime };
+                }
+                // case "markdown": {
+                //   return { type: schelar.string };
+                // }
+                default: {
+                  // deno-lint-ignore no-explicit-any
+                  return {} as any;
+                }
+              }
             }
 
-            case "boolean": {
-              return { type: schelar.boolean };
-            }
-            case "datetime": {
-              return { type: schelar.datetime };
-            }
-            case "markdown": {
-              return { type: schelar.string };
-            }
-            default: {
-              // deno-lint-ignore no-explicit-any
-              return {} as any;
-            }
-          }
-        }
+            const config = resolveScalar(schema);
 
-        const config = resolveScalar(schema);
+            return [name, config] as const;
+          },
+        );
 
-        return [schema.name, config] as const;
-      });
+        const fields = Object.fromEntries(fieldEntries);
 
-      const fields = Object.fromEntries(fieldEntries);
+        const fieldWheareInput: GraphQLInputObjectType =
+          new GraphQLInputObjectType({
+            name: `${name}WhereInput`,
+            fields: () => ({
+              AND: {
+                type: new GraphQLList(new GraphQLNonNull(fieldWheareInput)),
+              },
+              OR: {
+                type: new GraphQLList(new GraphQLNonNull(fieldWheareInput)),
+              },
+              NOT: {
+                type: new GraphQLList(new GraphQLNonNull(fieldWheareInput)),
+              },
+              ...fields,
+            }),
+          });
 
-      const fieldWheareInput: GraphQLInputObjectType =
-        new GraphQLInputObjectType({
-          name: `${name}WhereInput`,
-          fields: () => ({
-            AND: {
-              type: new GraphQLList(new GraphQLNonNull(fieldWheareInput)),
+        return {
+          name: pluralName,
+          type: {
+            type: new GraphQLNonNull(
+              new GraphQLList(new GraphQLNonNull(model)),
+            ),
+            args: {
+              where: {
+                type: fieldWheareInput,
+              },
             },
-            OR: {
-              type: new GraphQLList(new GraphQLNonNull(fieldWheareInput)),
-            },
-            NOT: {
-              type: new GraphQLList(new GraphQLNonNull(fieldWheareInput)),
-            },
-            ...fields,
-          }),
-        });
+            resolve: async (_source: unknown, args: OpenCrudArgs) => {
+              const ids = await datalayer.list(model.name);
+              const nodes = await Promise.all(
+                ids.map((id) => datalayer.fetch(id)),
+              );
 
-      return {
-        name: pluralName,
-        type: {
-          type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(model))),
-          args: {
-            where: {
-              type: fieldWheareInput,
+              const filter = createFilterFromArgs(args);
+
+              const filterd = nodes.filter(filter);
+
+              return filterd;
             },
           },
-          resolve: async (_source: unknown, args: OpenCrudArgs) => {
-            const ids = await datalayer.node.list(model.name);
-            const nodes = await Promise.all(
-              ids.map((id) => datalayer.node.fetch(id)),
-            );
-
-            const filter = createFilterFromArgs(args);
-
-            const filterd = nodes.filter(filter);
-
-            return filterd;
-          },
-        },
-      } satisfies GraphQLQueryField;
-    });
+        } satisfies GraphQLQueryField;
+      },
+    );
   }
 }
 
@@ -199,7 +217,6 @@ function evaluateWhere(node: Node, where?: WhereInput): boolean {
 
         return entries.every((entry) => compareBoolean(node.value, entry));
       }
-      case "id":
       case "datetime":
       case "asset":
       case "map": {
