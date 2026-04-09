@@ -1,5 +1,5 @@
 import { type Document, OpenAPIBackend, type Request } from "openapi-backend";
-import type { Protocol, ProtocolContext, Schema } from "@cosmos/core";
+import type { Field, MapField, Protocol, ProtocolContext } from "@cosmos/core";
 import type { OpenAPIV3_1 } from "openapi-types";
 import { renderUi } from "./util.ts";
 import plural from "pluralize";
@@ -11,10 +11,12 @@ export class RestProtocol implements Protocol {
     ctx: ProtocolContext,
   ): Promise<Response> {
     const url = new URL(request.url);
-    const objectSchemas = ctx.manifest.definitions.map((def) => {
-      const schemas = def.schemas.map((schema) =>
-        [schema.name, toJsonSchema(schema)] as const
-      );
+    const objectSchemas = Object.entries(ctx.manifest.models).filter((
+      [_, field],
+    ) => field.type === "map").map(([name, field]) => {
+      const schemas = Object.entries((field as MapField).fields).map((
+        [name, schema],
+      ) => [name, toJsonSchema(schema)] as const);
 
       const properties = Object.fromEntries(schemas);
 
@@ -23,7 +25,7 @@ export class RestProtocol implements Protocol {
         properties,
       } satisfies OpenAPIV3_1.SchemaObject;
 
-      return [def.name, schema] as [string, OpenAPIV3_1.SchemaObject];
+      return [name, schema] as [string, OpenAPIV3_1.SchemaObject];
     });
 
     const paths = toPaths(objectSchemas);
@@ -69,7 +71,7 @@ function toReq(request: globalThis.Request): Request {
   };
 }
 
-function toJsonSchema(schema: Schema): OpenAPIV3_1.SchemaObject {
+function toJsonSchema(schema: Field): OpenAPIV3_1.SchemaObject {
   switch (schema.type) {
     case "string": {
       return {
@@ -88,11 +90,6 @@ function toJsonSchema(schema: Schema): OpenAPIV3_1.SchemaObject {
       };
     }
     case "asset": {
-      return {
-        type: "string",
-      };
-    }
-    case "markdown": {
       return {
         type: "string",
       };

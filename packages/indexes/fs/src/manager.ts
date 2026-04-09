@@ -7,7 +7,7 @@ export class FsIndexer implements IndexManager {
 
   type = "fs";
   async *search(options: unknown): AsyncIterable<URL> {
-    const pattern = join(this.rootDir, options.pattern);
+    const pattern = join(this.rootDir, (options as any).pattern);
     const iterator = expandGlob(pattern);
 
     for await (const entry of iterator) {
