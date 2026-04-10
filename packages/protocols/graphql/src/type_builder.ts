@@ -11,6 +11,7 @@ import type {
 } from "@cosmos/core";
 import type {
   BuilderContext,
+  Fetcher,
   GraphqlEntry,
   ResolverContext,
   TypeBuilder,
@@ -18,13 +19,13 @@ import type {
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
-  type GraphQLFieldResolver,
   GraphQLFloat,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   type GraphQLScalarType,
   GraphQLString,
+  isObjectType,
 } from "graphql";
 import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
 import {
@@ -39,21 +40,30 @@ import {
 } from "./is.ts";
 import { mapEntries } from "@std/collections";
 
+interface RuntimeContext {
+  fetcher: Fetcher;
+  map: Map;
+}
+
 export class BasicTypeBuilder implements TypeBuilder {
   build(ctx: BuilderContext): GraphqlEntry[] {
     const map: Map = {};
+    const context = {
+      map,
+      fetcher: ctx.datalayer.node,
+    } satisfies RuntimeContext;
     const entries = Object.entries(ctx.manifest.schemas).map(
       ([name, schema]) => {
-        const field = createDefinition(
+        const type = createRoot(
           name,
           schema,
-          map,
+          context,
         );
 
-        map[name] = field.type;
+        map[name] = type;
 
         return {
-          type: field.type,
+          type,
           definition: schema,
         } satisfies GraphqlEntry;
       },
@@ -66,7 +76,11 @@ export class BasicTypeBuilder implements TypeBuilder {
 interface GraphqlScalarConfig<In, Out, Ctx>
   extends GraphQLFieldConfig<In, Ctx> {
   type: GraphQLScalarType<Out>;
-  resolve: GraphQLFieldResolver<In, Ctx, unknown, Out>;
+  resolve: GraphqlResolve<In, Out>;
+}
+
+interface GraphqlResolve<In, Out> {
+  (value: In): Out;
 }
 
 type GraphqlType =
@@ -77,7 +91,7 @@ type GraphqlType =
 interface GraphqlDefinition<In, Out, Ctx>
   extends Pick<GraphQLFieldConfig<In, Ctx>, "type" | "resolve"> {
   type: GraphqlType;
-  resolve: GraphQLFieldResolver<In, Ctx, unknown, Out>;
+  resolve: GraphqlResolve<In, Out>;
 }
 
 const string = {
@@ -119,12 +133,13 @@ type Map = Record<string, GraphqlType>;
 
 function createReference(
   type: GraphqlType,
+  ctx: ResolverContext,
 ): GraphqlDefinition<Node, Node | Promise<Node>, ResolverContext> {
   return {
     type,
-    resolve(node: Node, _, context: ResolverContext): Promise<Node> | Node {
+    resolve(node: Node): Promise<Node> | Node {
       if (isReferenceNode(node)) {
-        return context.fetcher.fetch(node.value);
+        return ctx.fetcher.fetch(node.value);
       }
       throw new Error();
     },
@@ -146,9 +161,9 @@ function createList<T, U>(
 ): GraphqlDefinition<Node, T[], U> {
   const definition = {
     type: new GraphQLList(def.type),
-    resolve(node: Node, args, context, info): T[] {
+    resolve(node: Node): T[] {
       if (isListNode(node)) {
-        return node.value.map((node) => def.resolve(node, args, context, info));
+        return node.value.map((node) => def.resolve(node));
       }
       throw new Error();
     },
@@ -160,7 +175,7 @@ function createList<T, U>(
 function createDefinition(
   name: string,
   schema: Schema,
-  map: Map,
+  ctx: RuntimeContext,
 ): GraphqlDefinition<Node, Data, ResolverContext> {
   switch (schema.type) {
     case "string": {
@@ -221,18 +236,18 @@ function createDefinition(
     }
 
     case "reference": {
-      return createReference(map[schema.model]);
+      return createReference(ctx.map[schema.model], ctx);
     }
     case "list": {
-      const child = createDefinition(name, schema.item, map);
+      const child = createDefinition(name, schema.item, ctx);
 
       return createList(child);
     }
     case "map": {
-      return createMap(name, schema, map);
+      return createMap(name, schema, ctx);
     }
     case "instance": {
-      return createInstance(map[schema.model]);
+      return createInstance(ctx.map[schema.model]);
     }
   }
 }
@@ -251,7 +266,7 @@ function createInstance(
 function createMap(
   name: string,
   schema: MapSchema,
-  map: Map,
+  ctx: RuntimeContext,
 ): GraphqlDefinition<Node, Data, ResolverContext> {
   const type = new GraphQLObjectType({
     name,
@@ -261,18 +276,18 @@ function createMap(
         const { type, resolve } = createDefinition(
           scope(name, key),
           schema,
-          map,
+          ctx,
         );
 
         const def = {
           type,
-          resolve(node, args, context, info): Data | null {
+          resolve(node): Data | null {
             if (isMapNode(node)) {
               const child = node.value[key];
 
               if (!child) return null;
 
-              return resolve(child, args, context, info);
+              return resolve(child);
             }
             throw new Error();
           },
@@ -306,4 +321,27 @@ function createMap(
 
 function scope(...scopes: string[]): string {
   return scopes.join("_");
+}
+
+function createRoot(
+  name: string,
+  schema: Schema,
+  ctx: RuntimeContext,
+): GraphqlType {
+  const def = createDefinition(name, schema, ctx);
+
+  if (isObjectType(def.type)) {
+    return def.type;
+  }
+
+  return new GraphQLObjectType<Node>({
+    name,
+    fields: {
+      value: {
+        type: def.type,
+        resolve: def.resolve,
+      },
+    },
+    description: schema.description,
+  });
 }

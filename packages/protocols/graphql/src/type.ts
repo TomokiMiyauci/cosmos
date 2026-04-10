@@ -1,4 +1,4 @@
-import type { Manifest, Node, Schema } from "@cosmos/core";
+import type { Datalayer, Manifest, Node, Schema } from "@cosmos/core";
 import type { GraphQLFieldConfig, GraphQLOutputType } from "graphql";
 
 export interface ResolverContext {
@@ -40,5 +40,5 @@ export interface TypeBuilder {
 
 export interface BuilderContext {
   manifest: Manifest;
-  fetcher: Fetcher;
+  datalayer: Datalayer;
 }
