@@ -1,4 +1,15 @@
-import type { Manifest, MapNode, MapSchema, Node, Schema } from "@cosmos/core";
+import type {
+  AssetNode,
+  BooleanNode,
+  DatetimeNode,
+  Manifest,
+  MapNode,
+  MapSchema,
+  Node,
+  NumberNode,
+  Schema,
+  StringNode,
+} from "@cosmos/core";
 import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
@@ -108,52 +119,37 @@ interface GraphqlDefinition<In, Out, Ctx>
 const string = {
   type: GraphQLString,
   resolve(node): string {
-    if (isStringNode(node)) {
-      return node.value;
-    }
-    throw new Error();
+    return node.value;
   },
-} satisfies GraphqlScalarConfig<Node, string, unknown>;
+} satisfies GraphqlScalarConfig<StringNode, string, unknown>;
 
 const boolean = {
   type: GraphQLBoolean,
   resolve(node): boolean {
-    if (isBooleanNode(node)) {
-      return node.value;
-    }
-    throw new Error();
+    return node.value;
   },
-} satisfies GraphqlScalarConfig<Node, boolean, unknown>;
+} satisfies GraphqlScalarConfig<BooleanNode, boolean, unknown>;
 
 const number = {
   type: GraphQLFloat,
   resolve(node): number {
-    if (isNumberNode(node)) {
-      return node.value;
-    }
-    throw new Error();
+    return node.value;
   },
-} satisfies GraphqlScalarConfig<Node, number, unknown>;
+} satisfies GraphqlScalarConfig<NumberNode, number, unknown>;
 
 const datetime = {
   type: GraphQLDateTime,
   resolve(node): Date {
-    if (isDatetimeNode(node)) {
-      return node.value;
-    }
-    throw new Error();
+    return node.value;
   },
-} satisfies GraphqlScalarConfig<Node, Date, unknown>;
+} satisfies GraphqlScalarConfig<DatetimeNode, Date, unknown>;
 
 const asset = {
   type: GraphQLURL as GraphQLScalarType<URL>,
   resolve(node): URL {
-    if (isAssetNode(node)) {
-      return node.value;
-    }
-    throw new Error();
+    return node.value;
   },
-} satisfies GraphqlScalarConfig<Node, URL, unknown>;
+} satisfies GraphqlScalarConfig<AssetNode, URL, unknown>;
 
 type Map = Record<string, GraphQLOutputType>;
 
@@ -204,19 +200,60 @@ function createDefinition(
 ): GraphqlDefinition<Node, Data, ResolverContext> {
   switch (schema.type) {
     case "string": {
-      return string;
+      return {
+        type: string.type,
+        resolve(node): string {
+          if (isStringNode(node)) {
+            return string.resolve(node);
+          }
+
+          throw new Error();
+        },
+      };
     }
     case "number": {
-      return number;
+      return {
+        type: number.type,
+        resolve(node): number {
+          if (isNumberNode(node)) {
+            return number.resolve(node);
+          }
+          throw new Error();
+        },
+      };
     }
     case "boolean": {
-      return boolean;
+      return {
+        type: boolean.type,
+        resolve(node): boolean {
+          if (isBooleanNode(node)) {
+            return boolean.resolve(node);
+          }
+          throw new Error();
+        },
+      };
     }
     case "asset": {
-      return asset;
+      return {
+        type: asset.type,
+        resolve(node): URL {
+          if (isAssetNode(node)) {
+            return asset.resolve(node);
+          }
+          throw new Error();
+        },
+      };
     }
     case "datetime": {
-      return datetime;
+      return {
+        type: datetime.type,
+        resolve(node): Date {
+          if (isDatetimeNode(node)) {
+            return datetime.resolve(node);
+          }
+          throw new Error();
+        },
+      };
     }
 
     case "reference": {
@@ -256,35 +293,31 @@ function createMap(
     name,
     fields: () => {
       const required = new Set(schema.required);
-      const base = mapEntries(schema.props, ([key, schema]) => {
+      const fields = mapEntries(schema.props, ([key, schema]) => {
         const { type, resolve } = createDefinition(key, schema, map);
 
+        const def = {
+          type,
+          resolve(node, args, context, info): Data | null {
+            if (isMapNode(node)) {
+              const child = node.value[key];
+
+              if (!child) return null;
+
+              return resolve(child, args, context, info);
+            }
+            throw new Error();
+          },
+        } satisfies GraphqlDefinition<Node, Data | null, ResolverContext>;
+
         const field = {
-          type: required.has(key) ? new GraphQLNonNull(type) : type,
-          resolve,
+          ...def,
+          type: required.has(key) ? new GraphQLNonNull(def.type) : def.type,
           description: schema.description,
         } satisfies GraphQLFieldConfig<Node, ResolverContext>;
 
         return [key, field] as const;
       });
-
-      const fields = mapEntries(base, ([key, def]) =>
-        [
-          key,
-          {
-            ...def,
-            resolve(node, args, context, info): Data | null {
-              if (isMapNode(node)) {
-                const child = node.value[key];
-
-                if (!child) return null;
-
-                return def.resolve(child, args, context, info);
-              }
-              throw new Error();
-            },
-          } satisfies GraphqlDefinition<Node, Data | null, ResolverContext>,
-        ] as const);
 
       return fields;
     },
