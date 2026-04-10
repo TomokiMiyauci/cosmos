@@ -23,7 +23,6 @@ import {
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
-  type GraphQLOutputType,
   type GraphQLScalarType,
   GraphQLString,
 } from "graphql";
@@ -42,7 +41,7 @@ import { mapEntries } from "@std/collections";
 
 export class BasicTypeBuilder implements TypeBuilder {
   build(ctx: BuilderContext): GraphqlEntry[] {
-    const map: Record<string, GraphQLOutputType> = {};
+    const map: Map = {};
     const entries = Object.entries(ctx.manifest.schemas).map(
       ([name, schema]) => {
         const field = createDefinition(
@@ -70,9 +69,14 @@ interface GraphqlScalarConfig<In, Out, Ctx>
   resolve: GraphQLFieldResolver<In, Ctx, unknown, Out>;
 }
 
+type GraphqlType =
+  | GraphQLScalarType
+  | GraphQLObjectType
+  | GraphQLList<GraphqlType>;
+
 interface GraphqlDefinition<In, Out, Ctx>
   extends Pick<GraphQLFieldConfig<In, Ctx>, "type" | "resolve"> {
-  type: GraphQLScalarType<Out> | GraphQLOutputType;
+  type: GraphqlType;
   resolve: GraphQLFieldResolver<In, Ctx, unknown, Out>;
 }
 
@@ -111,10 +115,10 @@ const asset = {
   },
 } satisfies GraphqlScalarConfig<AssetNode, URL, unknown>;
 
-type Map = Record<string, GraphQLOutputType>;
+type Map = Record<string, GraphqlType>;
 
 function createReference(
-  type: GraphQLOutputType,
+  type: GraphqlType,
 ): GraphqlDefinition<Node, Node | Promise<Node>, ResolverContext> {
   return {
     type,
@@ -234,7 +238,7 @@ function createDefinition(
 }
 
 function createInstance(
-  type: GraphQLOutputType,
+  type: GraphqlType,
 ): GraphqlDefinition<Node, Node, ResolverContext> {
   return {
     type,
