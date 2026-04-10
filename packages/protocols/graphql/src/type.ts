@@ -1,4 +1,4 @@
-import type { Node, Schema } from "@cosmos/core";
+import type { Manifest, Node, Schema } from "@cosmos/core";
 import type { GraphQLFieldConfig, GraphQLOutputType } from "graphql";
 
 export interface ResolverContext {
@@ -32,4 +32,13 @@ export interface SchemaPlugin {
 export interface Namer {
   field(name: string): string;
   type(name: string): string;
+}
+
+export interface TypeBuilder {
+  build(ctx: BuilderContext): GraphqlEntry[];
+}
+
+export interface BuilderContext {
+  manifest: Manifest;
+  fetcher: Fetcher;
 }
