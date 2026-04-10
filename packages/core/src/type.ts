@@ -3,6 +3,7 @@ import type { RootNodeListNode } from "./markdown.ts";
 export interface Manifest {
   version: string;
   schemas: Record<string, Schema>;
+  resources: string[];
 }
 
 export interface Config {

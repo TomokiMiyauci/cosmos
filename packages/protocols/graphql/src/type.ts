@@ -1,5 +1,5 @@
 import type { Datalayer, Manifest, Node, Schema } from "@cosmos/core";
-import type { GraphQLFieldConfig, GraphQLOutputType } from "graphql";
+import type { GraphQLFieldConfig, GraphQLNamedOutputType } from "graphql";
 
 export interface ResolverContext {
   fetcher: Fetcher;
@@ -12,11 +12,12 @@ export interface Fetcher {
 
 export interface QueryContext {
   entries: GraphqlEntry[];
+  types: GraphqlEntry[];
 }
 
 export interface GraphqlEntry {
-  type: GraphQLOutputType;
-  definition: Schema;
+  type: GraphQLNamedOutputType;
+  schema: Schema;
 }
 
 export interface GraphQLQueryField {

@@ -5,18 +5,16 @@ import {
   connectionFromArray,
 } from "graphql-relay";
 import type {
-  GraphqlEntry,
   GraphQLQueryField,
   QueryContext,
   SchemaPlugin,
 } from "../../../type.ts";
-import { type GraphQLObjectType, isObjectType } from "graphql";
 import type { Node } from "@cosmos/core";
 
 export class RelayPlugin implements SchemaPlugin {
   name = "relay";
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
-    return ctx.entries.filter(isGraphObjectEntry).map(
+    return ctx.entries.map(
       ({ type: entry }) => {
         const { connectionType } = connectionDefinitions({
           nodeType: entry,
@@ -46,14 +44,4 @@ export class RelayPlugin implements SchemaPlugin {
       },
     );
   }
-}
-
-interface GraphObjectEntry extends GraphqlEntry {
-  type: GraphQLObjectType;
-}
-
-function isGraphObjectEntry(
-  graphEntry: GraphqlEntry,
-): graphEntry is GraphObjectEntry {
-  return isObjectType(graphEntry.type);
 }

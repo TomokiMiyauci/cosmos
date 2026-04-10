@@ -21,6 +21,7 @@ import {
   type GraphQLFieldConfig,
   GraphQLFloat,
   GraphQLList,
+  type GraphQLNamedOutputType,
   GraphQLNonNull,
   GraphQLObjectType,
   type GraphQLScalarType,
@@ -39,6 +40,7 @@ import {
   isStringNode,
 } from "./is.ts";
 import { mapEntries } from "@std/collections";
+import {} from "graphql";
 
 interface RuntimeContext {
   fetcher: Fetcher;
@@ -64,8 +66,8 @@ export class BasicTypeBuilder implements TypeBuilder {
 
         return {
           type,
-          definition: schema,
-        } satisfies GraphqlEntry;
+          schema,
+        };
       },
     );
 
@@ -84,8 +86,7 @@ interface GraphqlResolve<In, Out> {
 }
 
 type GraphqlType =
-  | GraphQLScalarType
-  | GraphQLObjectType
+  | GraphQLNamedOutputType
   | GraphQLList<GraphqlType>;
 
 interface GraphqlDefinition<In, Out, Ctx>
@@ -129,10 +130,10 @@ const asset = {
   },
 } satisfies GraphqlScalarConfig<AssetNode, URL, unknown>;
 
-type Map = Record<string, GraphqlType>;
+type Map = Record<string, GraphQLNamedOutputType>;
 
 function createReference(
-  type: GraphqlType,
+  type: GraphQLNamedOutputType,
   ctx: ResolverContext,
 ): GraphqlDefinition<Node, Node | Promise<Node>, ResolverContext> {
   return {
@@ -253,7 +254,7 @@ function createDefinition(
 }
 
 function createInstance(
-  type: GraphqlType,
+  type: GraphQLNamedOutputType,
 ): GraphqlDefinition<Node, Node, ResolverContext> {
   return {
     type,
@@ -327,7 +328,7 @@ function createRoot(
   name: string,
   schema: Schema,
   ctx: RuntimeContext,
-): GraphqlType {
+): GraphQLNamedOutputType {
   const def = createDefinition(name, schema, ctx);
 
   if (isObjectType(def.type)) {

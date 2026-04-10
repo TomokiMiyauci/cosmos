@@ -19,11 +19,11 @@ import {
 
 interface MapGraphqlEntry extends GraphqlEntry {
   type: GraphQLObjectType;
-  definition: MapSchema;
+  schema: MapSchema;
 }
 
 function isMapGraphqlEntry(entry: GraphqlEntry): entry is MapGraphqlEntry {
-  return isObjectType(entry.type) && entry.definition.type === "map";
+  return isObjectType(entry.type) && entry.schema.type === "map";
 }
 
 export interface OpenCrudArgs {
@@ -92,11 +92,11 @@ export class OpenCrud implements SchemaPlugin {
     };
 
     return entries.filter(isMapGraphqlEntry).map(
-      ({ type: model, definition }) => {
+      ({ type: model, schema }) => {
         const name = model.name;
         const pluralName = `${model.name}s`;
 
-        const fieldEntries = Object.entries(definition.props).map(
+        const fieldEntries = Object.entries(schema.props).map(
           ([name, schema]) => {
             function resolveScalar(schema: Schema): GraphQLInputFieldConfig {
               switch (schema.type) {

@@ -1,4 +1,3 @@
-import type { Manifest } from "@cosmos/core";
 import {
   type GraphQLFieldConfig,
   GraphQLObjectType,
@@ -6,7 +5,7 @@ import {
   type ThunkObjMap,
 } from "graphql";
 import type {
-  Fetcher,
+  BuilderContext,
   Namer,
   ResolverContext,
   SchemaPlugin,
@@ -22,11 +21,6 @@ export interface SchemaConfig {
   namer?: Namer;
 }
 
-export interface BuilderContext {
-  manifest: Manifest;
-  fetcher: Fetcher;
-}
-
 export class SchemaBuilder {
   #namer: Namer;
   #builder: TypeBuilder;
@@ -37,10 +31,13 @@ export class SchemaBuilder {
   }
 
   build(ctx: BuilderContext): GraphQLSchema {
-    const entries = this.#builder.build(ctx);
+    const types = this.#builder.build(ctx);
+    const name = new Set(ctx.manifest.resources);
+    const entries = types.filter(({ type }) => name.has(type.name));
+
     const queryFields = this.config.plugins
       .map((registry) => {
-        return registry.provideQuery({ entries });
+        return registry.provideQuery({ types, entries });
       })
       .flat();
 
