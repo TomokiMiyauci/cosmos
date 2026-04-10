@@ -294,7 +294,11 @@ function createMap(
     fields: () => {
       const required = new Set(schema.required);
       const fields = mapEntries(schema.props, ([key, schema]) => {
-        const { type, resolve } = createDefinition(key, schema, map);
+        const { type, resolve } = createDefinition(
+          scope(name, key),
+          schema,
+          map,
+        );
 
         const def = {
           type,
@@ -334,4 +338,8 @@ function createMap(
       throw new Error();
     },
   };
+}
+
+function scope(...scopes: string[]): string {
+  return scopes.join("_");
 }
