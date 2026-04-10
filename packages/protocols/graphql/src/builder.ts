@@ -177,9 +177,9 @@ type Data =
   | Promise<Node>
   | Node;
 
-function createList<T>(
-  def: GraphqlDefinition<Node, T, ResolverContext>,
-): GraphqlDefinition<Node, T[], ResolverContext> {
+function createList<T, U>(
+  def: GraphqlDefinition<Node, T, U>,
+): GraphqlDefinition<Node, T[], U> {
   const definition = {
     type: new GraphQLList(def.type),
     resolve(node: Node, args, context, info): T[] {
@@ -188,7 +188,7 @@ function createList<T>(
       }
       throw new Error();
     },
-  } satisfies GraphqlDefinition<Node, T[], ResolverContext>;
+  } satisfies GraphqlDefinition<Node, T[], U>;
 
   return definition;
 }
