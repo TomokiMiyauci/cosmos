@@ -1,5 +1,3 @@
-import type { RootNodeListNode } from "./markdown.ts";
-
 export interface Manifest {
   version: string;
   schemas: Record<string, Schema>;
@@ -57,9 +55,9 @@ export type Field =
   | ListField
   | AssetField
   | MapField
-  | DatetimeField;
+  | DatetimeField
+  | MarkdownField;
 // | UnionField
-// | MarkdownField;
 
 export interface BaseField {
   description?: string;
@@ -300,19 +298,13 @@ export interface MapNode {
   value: Record<string, Node>;
 }
 
-export interface MarkdownNode {
-  type: MarkdownField["type"];
-  value: RootNodeListNode;
-}
-
 export type NodeValue =
   | ReferenceNode
   | StringNode
   | NumberNode
   | BooleanNode
   | DatetimeNode
-  | AssetNode
-  | MarkdownNode;
+  | AssetNode;
 
 export type Node = NodeValue | MapNode | ListNode;
 

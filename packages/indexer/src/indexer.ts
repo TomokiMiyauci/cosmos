@@ -249,7 +249,8 @@ function fieldToSchema(field: Field): Schema {
   } satisfies Omit<BaseSchema, "type">;
 
   switch (field.type) {
-    case "string": {
+    case "string":
+    case "markdown": {
       return {
         ...base,
         type: "string",

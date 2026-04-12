@@ -37,7 +37,6 @@ export type {
   MapNode,
   MapSchema,
   MarkdownField,
-  MarkdownNode,
   Model,
   Node,
   NodeEntry,
@@ -62,4 +61,3 @@ export type {
   UnionField,
 } from "./type.ts";
 export { resolveFormatter } from "./url.ts";
-export * from "./markdown.ts";

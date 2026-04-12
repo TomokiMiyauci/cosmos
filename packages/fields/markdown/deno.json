@@ -3,6 +3,7 @@
   "exports": "./src/mod.ts",
   "imports": {
     "mdast": "npm:mdast@^3.0.0",
-    "mdast-util-from-markdown": "npm:mdast-util-from-markdown@^2.0.3"
+    "mdast-util-from-markdown": "npm:mdast-util-from-markdown@^2.0.3",
+    "mdast-util-to-markdown": "npm:mdast-util-to-markdown@^2.1.2"
   }
 }
