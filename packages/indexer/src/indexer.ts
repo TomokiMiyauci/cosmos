@@ -182,7 +182,7 @@ function resolveIndexer(
   return indexer;
 }
 
-function createDatalayer(store: Store): Datalayer {
+export function createDatalayer(store: Store): Datalayer {
   return {
     node: {
       async fetch(id): Promise<Node> {
