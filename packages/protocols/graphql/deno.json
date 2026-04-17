@@ -11,8 +11,7 @@
   },
   "exports": {
     ".": "./src/mod.ts",
-    "./relay": "./src/plugins/queries/relay/mod.ts",
-    "./item": "./src/plugins/queries/item/mod.ts",
+    "./relay": "./src/plugins/relay/mod.ts",
     "./opencrud": "./src/plugins/opencrud/mod.ts"
   },
   "tasks": {

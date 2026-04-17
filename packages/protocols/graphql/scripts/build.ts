@@ -5,7 +5,7 @@ await emptyDir("./npm");
 await build({
   entryPoints: ["./src/mod.ts", {
     name: "./relay",
-    path: "./src/plugins/queries/relay/mod.ts",
+    path: "./src/plugins/relay/mod.ts",
   }],
   outDir: "./npm",
   shims: {},
