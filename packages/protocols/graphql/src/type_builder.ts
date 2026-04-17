@@ -237,7 +237,7 @@ function createDefinition(
     }
 
     case "reference": {
-      return createReference(ctx.map[schema.model], ctx);
+      return createReference(ctx.map[schema.model]!, ctx);
     }
     case "list": {
       const child = createDefinition(name, schema.item, ctx);
@@ -248,7 +248,7 @@ function createDefinition(
       return createMap(name, schema, ctx);
     }
     case "instance": {
-      return createInstance(ctx.map[schema.model]);
+      return createInstance(ctx.map[schema.model]!);
     }
   }
 }

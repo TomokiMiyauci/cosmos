@@ -86,6 +86,9 @@ export class Indexer {
     const promise = entries.map(async ({ url, resource }) => {
       const { model: modelName } = resource;
       const model = models[modelName];
+      if (!model) {
+        throw new Error(`model is not defined. ${modelName}`);
+      }
       const content = await storage.read(url);
 
       // const schemas = model.fields.map(fieldToSchema);
