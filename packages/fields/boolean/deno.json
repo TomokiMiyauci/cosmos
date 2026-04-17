@@ -2,5 +2,9 @@
   "name": "@cosmos/field-boolean",
   "exports": {
     ".": "./src/mod.ts"
+  },
+  "tasks": {
+    "build": "deno run -A ./scripts/build.ts",
+    "publish": "npm publish ./npm"
   }
 }

@@ -5,5 +5,9 @@
   },
   "imports": {
     "@std/yaml": "jsr:@std/yaml@^1.0.12"
+  },
+  "tasks": {
+    "build": "deno run -A ./scripts/build.ts",
+    "publish": "npm publish ./npm"
   }
 }

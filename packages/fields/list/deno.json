@@ -1,4 +1,8 @@
 {
   "name": "@cosmos/field-list",
-  "exports": "./src/mod.ts"
+  "exports": "./src/mod.ts",
+  "tasks": {
+    "build": "deno run -A ./scripts/build.ts",
+    "publish": "npm publish ./npm"
+  }
 }

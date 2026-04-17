@@ -2,5 +2,9 @@
   "name": "@cosmos/core",
   "exports": {
     ".": "./src/mod.ts"
+  },
+  "tasks": {
+    "build": "deno run -A ./scripts/build.ts",
+    "prepublish": "npm publish ./npm"
   }
 }

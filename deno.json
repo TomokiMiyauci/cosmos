@@ -23,5 +23,8 @@
         "single-var-declarator"
       ]
     }
+  },
+  "imports": {
+    "@deno/dnt": "jsr:@deno/dnt@^0.42.3"
   }
 }
