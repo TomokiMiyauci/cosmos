@@ -15,12 +15,22 @@ export class MapField implements FieldCodec {
     if (typeof structure === "string") throw new SyntaxError();
     if (field.type !== "map") throw new Error();
 
+    const required = new Set(field.required);
+
+    for (const key of required.values()) {
+      if (!Reflect.has(structure, key)) {
+        throw new Error(`${key} is required`);
+      }
+    }
+
     const promises = Object.entries(field.fields).filter(([key]) =>
       key in structure
     ).map(async ([key, value]) => {
       return [
         key,
-        await ctx.config.field.parse(structure[key], value, ctx),
+        // Ensure by before prosess
+        // deno-lint-ignore no-non-null-assertion
+        await ctx.config.field.parse(structure[key]!, value, ctx),
       ];
     });
 
