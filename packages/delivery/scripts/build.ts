@@ -3,7 +3,10 @@ import { build, emptyDir } from "@deno/dnt";
 await emptyDir("./npm");
 
 await build({
-  entryPoints: ["./src/mod.ts"],
+  entryPoints: ["./src/mod.ts", {
+    name: "./asset",
+    path: "./src/middleware/asset.ts",
+  }],
   outDir: "./npm",
   shims: {},
   package: {
