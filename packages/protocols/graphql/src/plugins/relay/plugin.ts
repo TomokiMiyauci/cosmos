@@ -8,7 +8,7 @@ import type {
   GraphQLQueryField,
   QueryContext,
   SchemaPlugin,
-} from "../../../type.ts";
+} from "../../type.ts";
 import type { Node } from "@cosmos/core";
 
 export class RelayPlugin implements SchemaPlugin {
