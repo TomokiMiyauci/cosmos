@@ -59,5 +59,6 @@ export type {
   Structure,
   StructureValue,
   UnionField,
+  UnionSchema,
 } from "./type.ts";
 export { resolveFormatter } from "./url.ts";

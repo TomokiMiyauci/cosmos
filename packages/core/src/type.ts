@@ -56,8 +56,8 @@ export type Field =
   | AssetField
   | MapField
   | DatetimeField
-  | MarkdownField;
-// | UnionField
+  | MarkdownField
+  | UnionField;
 
 export interface BaseField {
   description?: string;
@@ -108,7 +108,7 @@ export interface AssetField extends BaseField {
 
 export interface UnionField extends BaseField {
   type: "union";
-  fields: Field[];
+  fields: Record<string, Field>;
 }
 
 export interface MarkdownField extends BaseField {
@@ -247,6 +247,11 @@ export interface InstanceSchema extends BaseSchema {
   model: string;
 }
 
+export interface UnionSchema extends BaseSchema {
+  type: "union";
+  props: Record<string, Schema>;
+}
+
 export type Schema =
   | StringSchema
   | NumberSchema
@@ -256,7 +261,8 @@ export type Schema =
   | MapSchema
   | ListSchema
   | ReferenceSchema
-  | InstanceSchema;
+  | InstanceSchema
+  | UnionSchema;
 
 export interface ReferenceNode {
   type: ReferenceSchema["type"];
@@ -298,13 +304,20 @@ export interface MapNode {
   value: Record<string, Node>;
 }
 
+export interface UnionNode {
+  type: UnionSchema["type"];
+  key: string;
+  value: Node;
+}
+
 export type NodeValue =
   | ReferenceNode
   | StringNode
   | NumberNode
   | BooleanNode
   | DatetimeNode
-  | AssetNode;
+  | AssetNode
+  | UnionNode;
 
 export type Node = NodeValue | MapNode | ListNode;
 

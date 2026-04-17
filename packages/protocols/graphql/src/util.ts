@@ -29,5 +29,24 @@ export function overrideName(
 
       return [name, config] as const;
     },
+    [MapperKind.UNION_TYPE]: (type) => {
+      const original = type.resolveType?.bind(type);
+
+      if (original) {
+        type.resolveType = async (...args) => {
+          const result = await original(...args);
+
+          if (typeof result === "string") {
+            const name = namer.type(result);
+
+            return name;
+          }
+
+          return result;
+        };
+      }
+
+      return type;
+    },
   });
 }

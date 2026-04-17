@@ -8,6 +8,7 @@ import type {
   NumberNode,
   Schema,
   StringNode,
+  UnionSchema,
 } from "@cosmos/core";
 import type {
   BuilderContext,
@@ -26,6 +27,7 @@ import {
   GraphQLObjectType,
   type GraphQLScalarType,
   GraphQLString,
+  GraphQLUnionType,
   isObjectType,
 } from "graphql";
 import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
@@ -250,7 +252,54 @@ function createDefinition(
     case "instance": {
       return createInstance(ctx.map[schema.model]!);
     }
+    case "union": {
+      return createUnion(name, schema, ctx);
+    }
   }
+}
+
+function createUnion(
+  name: string,
+  schema: UnionSchema,
+  ctx: RuntimeContext,
+): GraphqlDefinition<Node, Node, ResolverContext> {
+  const map = mapEntries(
+    schema.props,
+    ([key, schema]) => [key, createRoot(scope(name, key), schema, ctx)],
+  );
+  const types = Object.values(map);
+  const weakMap = new WeakMap<object, string>();
+
+  return {
+    type: new GraphQLUnionType({
+      name,
+      types,
+      resolveType(value: unknown): string | undefined {
+        if (value && typeof value === "object") {
+          const key = weakMap.get(value);
+
+          if (typeof key === "string") {
+            const keyed = map[key];
+
+            if (keyed) {
+              return keyed.name;
+            }
+          }
+        }
+      },
+      description: schema.description,
+    }),
+    resolve(node): Node {
+      if (node.type === "union") {
+        const value = node.value;
+        weakMap.set(value, node.key);
+
+        return value;
+      }
+
+      throw new Error();
+    },
+  };
 }
 
 function createInstance(
@@ -328,7 +377,7 @@ function createRoot(
   name: string,
   schema: Schema,
   ctx: RuntimeContext,
-): GraphQLNamedOutputType {
+): GraphQLObjectType {
   const def = createDefinition(name, schema, ctx);
 
   if (isObjectType(def.type)) {

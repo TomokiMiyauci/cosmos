@@ -91,7 +91,6 @@ export class Indexer {
       }
       const content = await storage.read(url);
 
-      // const schemas = model.fields.map(fieldToSchema);
       const formatter = resolveFormatter(resource.format, formatterMap);
       const decoder = new TextDecoder();
 
@@ -310,6 +309,13 @@ function fieldToSchema(field: Field): Schema {
         ...base,
         type: "list",
         item: fieldToSchema(field.field),
+      };
+    }
+    case "union": {
+      return {
+        ...base,
+        type: "union",
+        props: mapValues(field.fields, fieldToSchema),
       };
     }
   }

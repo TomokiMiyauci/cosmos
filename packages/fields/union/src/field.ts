@@ -3,29 +3,48 @@ import type {
   FieldCodec,
   FieldContext,
   Node,
+  Structure,
   StructureValue,
 } from "@cosmos/core";
 
 export class UnionField implements FieldCodec {
-  parse(
+  async parse(
     structure: StructureValue,
     field: Field,
     ctx: FieldContext,
-  ): Promise<Node> | Node {
+  ): Promise<Node> {
     if (field.type !== "union") throw new Error();
+    if (typeof structure === "string") throw new SyntaxError();
 
-    for (const childField of field.fields) {
-      try {
-        return ctx.config.field.parse(structure, childField, ctx);
-      } catch {
-        // noop
-      }
-    }
+    const validateResult = validateUnionValue(structure);
 
-    throw new SyntaxError();
+    if (!validateResult) throw new SyntaxError();
+
+    const { key, value } = structure;
+
+    const childField = field.fields[key];
+
+    if (!childField) throw new Error();
+
+    const node = await ctx.config.field.parse(value, childField, ctx);
+
+    return {
+      type: "union",
+      key,
+      value: node,
+    };
   }
 
   stringify(node: Node): StructureValue | Promise<StructureValue> {
     throw new Error();
   }
+}
+
+interface UnionValue extends Structure {
+  key: string;
+  value: StructureValue;
+}
+
+function validateUnionValue(structure: Structure): structure is UnionValue {
+  return "key" in structure && typeof structure.key === "string";
 }
