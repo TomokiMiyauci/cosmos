@@ -1,5 +1,14 @@
 {
-  "workspace": ["packages/*", "packages/*/*"],
+  "workspace": [
+    "packages/*",
+    "packages/fields/*",
+    "packages/indexes/*",
+    "packages/protocols/*",
+    "packages/resolvers/*",
+    "packages/stores/*",
+    "packages/storages/*",
+    "packages/formatters/*"
+  ],
   "lint": {
     "rules": {
       "include": [
