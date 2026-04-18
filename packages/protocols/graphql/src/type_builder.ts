@@ -29,6 +29,7 @@ import {
   GraphQLString,
   GraphQLUnionType,
   isObjectType,
+  isUnionType,
 } from "graphql";
 import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
 import {
@@ -42,7 +43,6 @@ import {
   isStringNode,
 } from "./is.ts";
 import { mapEntries } from "@std/collections";
-import {} from "graphql";
 
 interface RuntimeContext {
   fetcher: Fetcher;
@@ -377,15 +377,17 @@ function createRoot(
   name: string,
   schema: Schema,
   ctx: RuntimeContext,
-): GraphQLObjectType {
+): GraphQLObjectType<Node> {
   const def = createDefinition(name, schema, ctx);
 
   if (isObjectType(def.type)) {
     return def.type;
   }
 
+  const scopedName = isUnionType(def.type) ? scope(name, "value") : name;
+
   return new GraphQLObjectType<Node>({
-    name,
+    name: scopedName,
     fields: {
       value: {
         type: def.type,
