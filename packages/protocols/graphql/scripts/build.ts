@@ -6,6 +6,9 @@ await build({
   entryPoints: ["./src/mod.ts", {
     name: "./relay",
     path: "./src/plugins/relay/mod.ts",
+  }, {
+    name: "./opencrud",
+    path: "./src/plugins/opencrud/mod.ts",
   }],
   outDir: "./npm",
   shims: {},
