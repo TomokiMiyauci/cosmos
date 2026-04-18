@@ -252,6 +252,10 @@ export interface UnionSchema extends BaseSchema {
   props: Record<string, Schema>;
 }
 
+export interface MarkdownSchema extends BaseSchema {
+  type: "markdown";
+}
+
 export type Schema =
   | StringSchema
   | NumberSchema
@@ -262,7 +266,8 @@ export type Schema =
   | ListSchema
   | ReferenceSchema
   | InstanceSchema
-  | UnionSchema;
+  | UnionSchema
+  | MarkdownSchema;
 
 export interface ReferenceNode {
   type: ReferenceSchema["type"];
@@ -310,6 +315,11 @@ export interface UnionNode {
   value: Node;
 }
 
+export interface MarkdonwNode {
+  type: MarkdownSchema["type"];
+  value: RootNodeListNode;
+}
+
 export type NodeValue =
   | ReferenceNode
   | StringNode
@@ -317,7 +327,8 @@ export type NodeValue =
   | BooleanNode
   | DatetimeNode
   | AssetNode
-  | UnionNode;
+  | UnionNode
+  | MarkdonwNode;
 
 export type Node = NodeValue | MapNode | ListNode;
 
@@ -383,4 +394,81 @@ export interface AssetRegistry {
 
 export interface NodeRegistry {
   has(url: URL): boolean;
+}
+
+export interface TextMapNode extends MapNode {
+  value: TextNodeValue;
+}
+
+export interface StrongMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "strong";
+    };
+    children: PhrasingContentListNode;
+  };
+}
+
+export interface PhrasingContentListNode extends ListNode {
+  type: "list";
+  value: PharasingContentMapNode[];
+}
+
+export interface HeadingMapNode extends MapNode {
+  value: HeadingNodeValue;
+}
+
+export interface HeadingNodeValue extends Record<string, Node> {
+  type: {
+    type: "string";
+    value: "heading";
+  };
+  depth: NumberNode;
+  children: PhrasingContentListNode;
+}
+
+export type PharasingContentMapNode = StrongMapNode | TextMapNode | LinkMapNode;
+
+export type RootNodeMapNode =
+  | PharasingContentMapNode
+  | HeadingMapNode
+  | ParapraphMapNode;
+
+export type RootNodeValue = RootNodeMapNode["value"];
+
+export interface RootNodeListNode extends ListNode {
+  value: RootNodeMapNode[];
+}
+
+export interface TextNodeValue extends LiteralNodeValue {
+  type: {
+    type: "string";
+    value: "text";
+  };
+}
+
+export interface ParapraphMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "paragraph";
+    };
+    children: PhrasingContentListNode;
+  };
+}
+
+export interface LiteralNodeValue extends Record<string, Node> {
+  value: StringNode;
+}
+
+export interface LinkMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "link";
+    };
+    children: PhrasingContentListNode;
+    url: StringNode | AssetNode | ReferenceNode;
+  };
 }

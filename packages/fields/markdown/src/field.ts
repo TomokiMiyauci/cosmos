@@ -3,6 +3,7 @@ import type {
   Field,
   FieldCodec,
   FieldContext,
+  MarkdonwNode,
   Node,
   ReferenceNode,
   StringNode,
@@ -10,7 +11,6 @@ import type {
 } from "@cosmos/core";
 import { MarkdownParser } from "./parser.ts";
 import { fromMarkdown } from "mdast-util-from-markdown";
-import { toRoot, toString } from "./serializer.ts";
 
 export class MarkdownCodec implements FieldCodec {
   #parser = new MarkdownParser();
@@ -49,11 +49,10 @@ export class MarkdownCodec implements FieldCodec {
 
     const root = fromMarkdown(structure);
     const node = await this.#parser.parse(root, { resolve: resolver });
-    const rootNode = toRoot(node);
     const value = {
-      type: "string",
-      value: toString(rootNode),
-    } satisfies StringNode;
+      type: "markdown",
+      value: node,
+    } satisfies MarkdonwNode;
 
     return value;
   }

@@ -4,6 +4,7 @@ import type {
   DatetimeNode,
   MapNode,
   MapSchema,
+  MarkdonwNode,
   Node,
   NumberNode,
   Schema,
@@ -43,6 +44,7 @@ import {
   isStringNode,
 } from "./is.ts";
 import { mapEntries } from "@std/collections";
+import { toRoot, toString } from "@cosmos/field-markdown";
 
 interface RuntimeContext {
   fetcher: Fetcher;
@@ -131,6 +133,16 @@ const asset = {
     return node.value;
   },
 } satisfies GraphqlScalarConfig<AssetNode, URL, unknown>;
+
+const markdown = {
+  type: GraphQLString,
+  resolve(node): string {
+    const root = toRoot(node.value);
+    const str = toString(root);
+
+    return str;
+  },
+} satisfies GraphqlScalarConfig<MarkdonwNode, string, unknown>;
 
 type Map = Record<string, GraphQLNamedOutputType>;
 
@@ -254,6 +266,18 @@ function createDefinition(
     }
     case "union": {
       return createUnion(name, schema, ctx);
+    }
+    case "markdown": {
+      return {
+        type: markdown.type,
+        resolve(node): string {
+          if (node.type === "markdown") {
+            return markdown.resolve(node);
+          }
+
+          throw new Error();
+        },
+      };
     }
   }
 }

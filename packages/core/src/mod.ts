@@ -36,7 +36,9 @@ export type {
   MapField,
   MapNode,
   MapSchema,
+  MarkdonwNode,
   MarkdownField,
+  MarkdownSchema,
   Model,
   Node,
   NodeEntry,
@@ -60,5 +62,20 @@ export type {
   StructureValue,
   UnionField,
   UnionSchema,
+} from "./type.ts";
+export type {
+  HeadingMapNode,
+  HeadingNodeValue,
+  LinkMapNode,
+  LiteralNodeValue,
+  ParapraphMapNode,
+  PharasingContentMapNode,
+  PhrasingContentListNode,
+  RootNodeListNode,
+  RootNodeMapNode,
+  RootNodeValue,
+  StrongMapNode,
+  TextMapNode,
+  TextNodeValue,
 } from "./type.ts";
 export { resolveFormatter } from "./url.ts";
