@@ -24,11 +24,11 @@ export function overrideName(
       config.name = name;
       return config;
     },
-    [MapperKind.INPUT_OBJECT_FIELD]: (config, fieldName) => {
-      const name = namer.field(fieldName);
+    // [MapperKind.INPUT_OBJECT_FIELD]: (config, fieldName) => {
+    //   const name = namer.field(fieldName);
 
-      return [name, config] as const;
-    },
+    //   return [name, config] as const;
+    // },
     [MapperKind.UNION_TYPE]: (type) => {
       const original = type.resolveType?.bind(type);
 
