@@ -19,7 +19,7 @@ export class RelayPlugin implements SchemaPlugin {
         const { connectionType } = connectionDefinitions({
           nodeType: entry,
         });
-        const name = `${entry.name}Collection`;
+        const name = `${entry.name}Connection`;
 
         return {
           name,
