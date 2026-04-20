@@ -80,12 +80,74 @@ const datetimeWhereInput = {
   },
 } satisfies GraphQLInputObjectTypeConfig;
 
+function createWhereInput(
+  name: string,
+  schema: MapSchema,
+  scalar: WheareScalar,
+): GraphQLInputObjectType {
+  const fieldEntries = Object.entries(schema.props).map(
+    ([name, schema]) => {
+      function resolveScalar(schema: Schema): GraphQLInputFieldConfig {
+        switch (schema.type) {
+          case "string": {
+            return { type: scalar.string };
+          }
+
+          case "boolean": {
+            return { type: scalar.boolean };
+          }
+          case "datetime": {
+            return { type: scalar.datetime };
+          }
+          // case "markdown": {
+          //   return { type: schelar.string };
+          // }
+          default: {
+            // deno-lint-ignore no-explicit-any
+            return {} as any;
+          }
+        }
+      }
+
+      const config = resolveScalar(schema);
+
+      return [name, config] as const;
+    },
+  );
+
+  const fields = Object.fromEntries(fieldEntries);
+
+  const input: GraphQLInputObjectType = new GraphQLInputObjectType({
+    name: `${name}WhereInput`,
+    fields: () => ({
+      AND: {
+        type: new GraphQLList(new GraphQLNonNull(input)),
+      },
+      OR: {
+        type: new GraphQLList(new GraphQLNonNull(input)),
+      },
+      NOT: {
+        type: new GraphQLList(new GraphQLNonNull(input)),
+      },
+      ...fields,
+    }),
+  });
+
+  return input;
+}
+
+interface WheareScalar {
+  string: GraphQLInputObjectType;
+  boolean: GraphQLInputObjectType;
+  datetime: GraphQLInputObjectType;
+}
+
 export class OpenCrud implements SchemaPlugin {
   name = "opencrud";
 
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
     const { entries } = ctx;
-    const schelar = {
+    const scalar = {
       string: new GraphQLInputObjectType(stringWhereInput),
       boolean: new GraphQLInputObjectType(booleanWhereInput),
       datetime: new GraphQLInputObjectType(datetimeWhereInput),
@@ -95,55 +157,7 @@ export class OpenCrud implements SchemaPlugin {
       ({ type: model, schema }) => {
         const name = model.name;
         const pluralName = `${model.name}s`;
-
-        const fieldEntries = Object.entries(schema.props).map(
-          ([name, schema]) => {
-            function resolveScalar(schema: Schema): GraphQLInputFieldConfig {
-              switch (schema.type) {
-                case "string": {
-                  return { type: schelar.string };
-                }
-
-                case "boolean": {
-                  return { type: schelar.boolean };
-                }
-                case "datetime": {
-                  return { type: schelar.datetime };
-                }
-                // case "markdown": {
-                //   return { type: schelar.string };
-                // }
-                default: {
-                  // deno-lint-ignore no-explicit-any
-                  return {} as any;
-                }
-              }
-            }
-
-            const config = resolveScalar(schema);
-
-            return [name, config] as const;
-          },
-        );
-
-        const fields = Object.fromEntries(fieldEntries);
-
-        const fieldWheareInput: GraphQLInputObjectType =
-          new GraphQLInputObjectType({
-            name: `${name}WhereInput`,
-            fields: () => ({
-              AND: {
-                type: new GraphQLList(new GraphQLNonNull(fieldWheareInput)),
-              },
-              OR: {
-                type: new GraphQLList(new GraphQLNonNull(fieldWheareInput)),
-              },
-              NOT: {
-                type: new GraphQLList(new GraphQLNonNull(fieldWheareInput)),
-              },
-              ...fields,
-            }),
-          });
+        const whereInput = createWhereInput(name, schema, scalar);
 
         return {
           name: pluralName,
@@ -153,7 +167,7 @@ export class OpenCrud implements SchemaPlugin {
             ),
             args: {
               where: {
-                type: fieldWheareInput,
+                type: whereInput,
               },
             },
             resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
