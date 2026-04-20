@@ -7,7 +7,7 @@ await build({
   outDir: "./npm",
   shims: {},
   package: {
-    name: "@TomokiMiyauci/field-path-reference",
+    name: "@TomokiMiyauci/codec-path-reference",
     version: Deno.args[0],
     publishConfig: {
       "@TomokiMiyauci:registry": "https://npm.pkg.github.com",

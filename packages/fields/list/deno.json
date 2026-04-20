@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/field-list",
+  "name": "@cosmos/codec-list",
   "exports": "./src/mod.ts",
   "tasks": {
     "build": "deno run -A ./scripts/build.ts",

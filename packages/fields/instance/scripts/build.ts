@@ -7,7 +7,7 @@ await build({
   outDir: "./npm",
   shims: {},
   package: {
-    name: "@TomokiMiyauci/field-instance",
+    name: "@TomokiMiyauci/codec-instance",
     version: Deno.args[0],
     publishConfig: {
       "@TomokiMiyauci:registry": "https://npm.pkg.github.com",

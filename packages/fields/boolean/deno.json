@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/field-boolean",
+  "name": "@cosmos/codec-boolean",
   "exports": {
     ".": "./src/mod.ts"
   },

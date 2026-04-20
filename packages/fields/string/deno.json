@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/field-string",
+  "name": "@cosmos/codec-string",
   "exports": {
     ".": "./src/mod.ts"
   },

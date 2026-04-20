@@ -44,7 +44,7 @@ import {
   isStringNode,
 } from "./is.ts";
 import { mapEntries } from "@std/collections";
-import { toRoot, toString } from "@cosmos/field-markdown";
+import { toRoot, toString } from "@cosmos/codec-markdown";
 
 interface RuntimeContext {
   fetcher: Fetcher;

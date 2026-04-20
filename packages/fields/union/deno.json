@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/field-union",
+  "name": "@cosmos/codec-union",
   "exports": "./src/mod.ts",
   "tasks": {
     "build": "deno run -A ./scripts/build.ts",

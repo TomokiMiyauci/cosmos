@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/field-asset",
+  "name": "@cosmos/codec-asset",
   "exports": {
     ".": "./src/mod.ts"
   },

@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/field-datetime",
+  "name": "@cosmos/codec-datetime",
   "exports": {
     ".": "./src/mod.ts"
   },

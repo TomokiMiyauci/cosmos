@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/field-map",
+  "name": "@cosmos/codec-map",
   "exports": "./src/mod.ts",
   "imports": {
     "@std/collections": "jsr:@std/collections@^1.1.6"
