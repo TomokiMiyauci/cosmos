@@ -1,4 +1,10 @@
-import type { MapSchema, Node, Schema } from "@cosmos/core";
+import type {
+  DatetimeNode,
+  MapSchema,
+  Node,
+  Schema,
+  StringNode,
+} from "@cosmos/core";
 import type {
   GraphqlEntry,
   GraphQLQueryField,
@@ -7,6 +13,7 @@ import type {
 } from "../../type.ts";
 import {
   GraphQLBoolean,
+  GraphQLEnumType,
   type GraphQLInputFieldConfig,
   GraphQLInputObjectType,
   type GraphQLInputObjectTypeConfig,
@@ -16,6 +23,7 @@ import {
   GraphQLString,
   isObjectType,
 } from "graphql";
+import { ascend, descend } from "@std/data-structures/comparators";
 
 interface MapGraphqlEntry extends GraphqlEntry {
   type: GraphQLObjectType;
@@ -28,6 +36,7 @@ function isMapGraphqlEntry(entry: GraphqlEntry): entry is MapGraphqlEntry {
 
 export interface OpenCrudArgs {
   where?: WhereInput;
+  orderBy?: OrderByInput;
 }
 
 export interface WhereInput {
@@ -36,6 +45,10 @@ export interface WhereInput {
   NOT?: WhereInput[];
 
   [field: string]: FieldFilter | any;
+}
+
+export interface OrderByInput {
+  [fiedl: string]: "ASC" | "DESC";
 }
 
 const stringWhereInput = {
@@ -83,21 +96,21 @@ const datetimeWhereInput = {
 function createWhereInput(
   name: string,
   schema: MapSchema,
-  scalar: WheareScalar,
+  ctx: Context,
 ): GraphQLInputObjectType {
   const fieldEntries = Object.entries(schema.props).map(
     ([name, schema]) => {
       function resolveScalar(schema: Schema): GraphQLInputFieldConfig {
         switch (schema.type) {
           case "string": {
-            return { type: scalar.string };
+            return { type: ctx.map.where.string };
           }
 
           case "boolean": {
-            return { type: scalar.boolean };
+            return { type: ctx.map.where.boolean };
           }
           case "datetime": {
-            return { type: scalar.datetime };
+            return { type: ctx.map.where.datetime };
           }
           // case "markdown": {
           //   return { type: schelar.string };
@@ -136,10 +149,55 @@ function createWhereInput(
   return input;
 }
 
-interface WheareScalar {
+interface Scalar {
   string: GraphQLInputObjectType;
   boolean: GraphQLInputObjectType;
   datetime: GraphQLInputObjectType;
+}
+
+interface Context {
+  map: ScalarMap;
+}
+
+interface ScalarMap {
+  where: Scalar;
+  orderBy: GraphQLEnumType;
+}
+
+function createOrderByInput(
+  name: string,
+  schema: MapSchema,
+  ctx: Context,
+): GraphQLInputObjectType {
+  const fieldEntries = Object.entries(schema.props).map(
+    ([name, schema]) => {
+      function resolveScalar(schema: Schema): GraphQLInputFieldConfig {
+        switch (schema.type) {
+          case "string": {
+            return { type: ctx.map.orderBy };
+          }
+          case "datetime": {
+            return { type: ctx.map.orderBy };
+          }
+          default: {
+            // deno-lint-ignore no-explicit-any
+            return {} as any;
+          }
+        }
+      }
+
+      const config = resolveScalar(schema);
+
+      return [name, config] as const;
+    },
+  );
+
+  const fields = Object.fromEntries(fieldEntries);
+
+  return new GraphQLInputObjectType({
+    name: `${name}OrderByInput`,
+    fields: () => fields,
+  });
 }
 
 export class OpenCrud implements SchemaPlugin {
@@ -148,39 +206,56 @@ export class OpenCrud implements SchemaPlugin {
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
     const { entries } = ctx;
     const scalar = {
-      string: new GraphQLInputObjectType(stringWhereInput),
-      boolean: new GraphQLInputObjectType(booleanWhereInput),
-      datetime: new GraphQLInputObjectType(datetimeWhereInput),
-    };
+      map: {
+        where: {
+          string: new GraphQLInputObjectType(stringWhereInput),
+          boolean: new GraphQLInputObjectType(booleanWhereInput),
+          datetime: new GraphQLInputObjectType(datetimeWhereInput),
+        },
+        orderBy: new GraphQLEnumType({
+          name: "SortOrder",
+          values: {
+            ASC: {},
+            DESC: {},
+          },
+        }),
+      },
+    } satisfies Context;
 
     return entries.filter(isMapGraphqlEntry).map(
-      ({ type: model, schema }) => {
-        const name = model.name;
-        const pluralName = `${model.name}s`;
+      ({ type, schema }) => {
+        const name = type.name;
+        const pluralName = `${type.name}s`;
         const whereInput = createWhereInput(name, schema, scalar);
+        const orderByInput = createOrderByInput(name, schema, scalar);
 
         return {
           name: pluralName,
           type: {
             type: new GraphQLNonNull(
-              new GraphQLList(new GraphQLNonNull(model)),
+              new GraphQLList(new GraphQLNonNull(type)),
             ),
             args: {
               where: {
                 type: whereInput,
               },
+              orderBy: {
+                type: orderByInput,
+              },
             },
             resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
-              const ids = await ctx.fetcher.list(model.name);
+              console.log(args);
+              const ids = await ctx.fetcher.list(name);
               const nodes = await Promise.all(
                 ids.map((id) => ctx.fetcher.fetch(id)),
               );
 
               const filter = createFilterFromArgs(args);
+              const compare = createCompareFromArts(args);
 
-              const filterd = nodes.filter(filter);
+              const result = nodes.filter(filter).toSorted(compare);
 
-              return filterd;
+              return result;
             },
           },
         } satisfies GraphQLQueryField;
@@ -193,6 +268,74 @@ function createFilterFromArgs(args: OpenCrudArgs): (node: Node) => boolean {
   return (node) => {
     return evaluateWhere(node, args.where);
   };
+}
+
+function createCompareFromArts(
+  args: OpenCrudArgs,
+): (left: Node, right: Node) => number {
+  return (left, right) => {
+    return evaluateOrderBy(left, right, args.orderBy);
+  };
+}
+
+function evaluateOrderBy(
+  left: Node,
+  right: Node,
+  orderBy: OrderByInput | undefined,
+): number {
+  if (!orderBy) return 0;
+  if (left.type !== "map" || right.type !== "map") return 0;
+
+  const kv = Object.entries(orderBy)[0];
+
+  if (!kv) return 0;
+
+  const [key, value] = kv;
+  const leftValue = left.value[key];
+  const rightValue = right.value[key];
+
+  if (!leftValue || !rightValue) return 0;
+
+  if (leftValue.type !== rightValue.type) throw new Error();
+
+  switch (leftValue.type) {
+    case "string": {
+      const left = leftValue.value;
+      const right = (rightValue as StringNode).value;
+
+      switch (value) {
+        case "ASC":
+          return ascend(left, right);
+        case "DESC":
+          return descend(left, right);
+      }
+      break;
+    }
+    case "datetime": {
+      const left = leftValue.value;
+      const right = (rightValue as DatetimeNode).value;
+
+      switch (value) {
+        case "ASC": {
+          return ascend(left, right);
+        }
+        case "DESC": {
+          return descend(left, right);
+        }
+      }
+      break;
+    }
+    case "number":
+    case "boolean":
+    case "asset":
+    case "map":
+    case "list":
+    case "reference":
+    case "union":
+    case "markdown": {
+      return 0;
+    }
+  }
 }
 
 function evaluateWhere(node: Node, where?: WhereInput): boolean {

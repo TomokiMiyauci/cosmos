@@ -3,6 +3,7 @@
   "imports": {
     "@graphql-tools/utils": "npm:@graphql-tools/utils@^11.0.0",
     "@std/collections": "jsr:@std/collections@^1.1.6",
+    "@std/data-structures": "jsr:@std/data-structures@^1.0.10",
     "@std/text": "jsr:@std/text@^1.0.17",
     "graphql": "npm:graphql@^16.13.0",
     "graphql-relay": "npm:graphql-relay@^0.10.2",
