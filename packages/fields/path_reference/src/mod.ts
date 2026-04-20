@@ -1,1 +1,1 @@
-export { PathReferenceFieldCodec } from "./field.ts";
+export { PathReferenceCodec } from "./field.ts";

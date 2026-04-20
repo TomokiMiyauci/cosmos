@@ -1,16 +1,16 @@
 import type {
+  Codec,
+  CodecContext,
   Field,
-  FieldCodec,
-  FieldContext,
   Node,
   StructureValue,
 } from "@cosmos/core";
 
-export class ListField implements FieldCodec {
+export class ListField implements Codec {
   async parse(
     structure: StructureValue,
     field: Field,
-    ctx: FieldContext,
+    ctx: CodecContext,
   ): Promise<Node> {
     if (typeof structure === "string") throw new Error();
 

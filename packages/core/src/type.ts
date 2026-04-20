@@ -6,7 +6,7 @@ export interface Manifest {
 
 export interface Config {
   formatters: FormatterDefinition[];
-  field: FieldCodec;
+  field: Codec;
   resources: Resource[];
   storage: Storage;
   indexes: IndexManager[];
@@ -19,21 +19,17 @@ export interface AssetDefinition {
   indexer: IndexerDefinition;
 }
 
-export type FieldDefinition = {
-  [k in FieldType]: FieldCodec;
-};
-
-export interface FieldCodec {
+export interface Codec {
   parse(
     structure: StructureValue,
     field: Field,
-    ctx: FieldContext,
+    ctx: CodecContext,
   ): Node | Promise<Node>;
 
   stringify(node: Node, field: Field): StructureValue | Promise<StructureValue>;
 }
 
-export interface FieldContext extends ResolverContext {
+export interface CodecContext extends ResolverContext {
   resolver: Resolver;
   asset: AssetRegistry;
   node: NodeRegistry;

@@ -1,1 +1,1 @@
-export { NumberFieldCodec } from "./field.ts";
+export { NumberCodec } from "./field.ts";

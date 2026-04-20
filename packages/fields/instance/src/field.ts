@@ -1,16 +1,16 @@
 import type {
+  Codec,
+  CodecContext,
   Field,
-  FieldCodec,
-  FieldContext,
   Node,
   StructureValue,
 } from "@cosmos/core";
 
-export class InstanceField implements FieldCodec {
+export class InstanceField implements Codec {
   parse(
     structure: StructureValue,
     field: Field,
-    ctx: FieldContext,
+    ctx: CodecContext,
   ): Promise<Node> | Node {
     if (field.type !== "instance") throw new Error();
 

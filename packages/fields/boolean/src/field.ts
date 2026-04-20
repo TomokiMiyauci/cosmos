@@ -1,6 +1,6 @@
-import type { FieldCodec, Node, StructureValue } from "@cosmos/core";
+import type { Codec, Node, StructureValue } from "@cosmos/core";
 
-export class BooleanFieldCodec implements FieldCodec {
+export class BooleanCodec implements Codec {
   parse(structure: StructureValue): Node {
     if (typeof structure !== "string") throw new SyntaxError();
     if (structure === "true" || structure === "false") throw new SyntaxError();

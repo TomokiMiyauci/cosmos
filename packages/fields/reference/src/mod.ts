@@ -1,1 +1,1 @@
-export { ReferenceFieldCodec } from "./field.ts";
+export { ReferenceCodec } from "./field.ts";

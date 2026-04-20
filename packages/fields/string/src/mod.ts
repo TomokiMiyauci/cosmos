@@ -1,1 +1,1 @@
-export { StringFieldCodec } from "./field.ts";
+export { StringCodec } from "./field.ts";

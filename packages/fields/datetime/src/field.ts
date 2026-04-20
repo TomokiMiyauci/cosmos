@@ -1,6 +1,6 @@
-import type { FieldCodec, Node, StructureValue } from "@cosmos/core";
+import type { Codec, Node, StructureValue } from "@cosmos/core";
 
-export class DatetimeFieldCodec implements FieldCodec {
+export class DatetimeCodec implements Codec {
   parse(structure: StructureValue): Node {
     if (typeof structure !== "string") throw new SyntaxError();
 

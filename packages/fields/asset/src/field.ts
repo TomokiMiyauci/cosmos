@@ -1,15 +1,15 @@
 import type {
+  Codec,
+  CodecContext,
   Field,
-  FieldCodec,
-  FieldContext,
   Node,
   StructureValue,
 } from "@cosmos/core";
 import { isAbsolute, join, toFileUrl } from "@std/path";
 
-export class AssetFieldCodec implements FieldCodec {
+export class AssetCodec implements Codec {
   constructor(private rootDir: string) {}
-  parse(structure: StructureValue, _: Field, ctx: FieldContext): Node {
+  parse(structure: StructureValue, _: Field, ctx: CodecContext): Node {
     if (typeof structure !== "string") throw new SyntaxError();
 
     const url = resolveUrl(this.rootDir, ctx.baseUrl, structure);

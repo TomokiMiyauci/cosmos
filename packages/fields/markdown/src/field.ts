@@ -1,8 +1,8 @@
 import type {
   AssetNode,
+  Codec,
+  CodecContext,
   Field,
-  FieldCodec,
-  FieldContext,
   MarkdonwNode,
   Node,
   ReferenceNode,
@@ -12,13 +12,13 @@ import type {
 import { MarkdownParser } from "./parser.ts";
 import { fromMarkdown } from "mdast-util-from-markdown";
 
-export class MarkdownCodec implements FieldCodec {
+export class MarkdownCodec implements Codec {
   #parser = new MarkdownParser();
 
   async parse(
     structure: StructureValue,
     _: Field,
-    ctx: FieldContext,
+    ctx: CodecContext,
   ): Promise<Node> {
     if (typeof structure !== "string") throw new Error();
 

@@ -1,1 +1,1 @@
-export { BooleanFieldCodec } from "./field.ts";
+export { BooleanCodec } from "./field.ts";

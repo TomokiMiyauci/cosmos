@@ -1,1 +1,1 @@
-export { AssetFieldCodec } from "./field.ts";
+export { AssetCodec } from "./field.ts";

@@ -1,1 +1,1 @@
-export { DatetimeFieldCodec } from "./field.ts";
+export { DatetimeCodec } from "./field.ts";
