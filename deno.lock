@@ -3,8 +3,10 @@
   "specifiers": {
     "jsr:@david/code-block-writer@^13.0.3": "13.0.3",
     "jsr:@deno/dnt@~0.42.3": "0.42.3",
+    "jsr:@std/assert@^1.0.17": "1.0.19",
     "jsr:@std/bytes@^1.0.6": "1.0.6",
     "jsr:@std/collections@^1.1.6": "1.1.6",
+    "jsr:@std/data-structures@^1.0.10": "1.0.10",
     "jsr:@std/fmt@1": "1.0.9",
     "jsr:@std/fs@1": "1.0.23",
     "jsr:@std/fs@^1.0.23": "1.0.23",
@@ -48,11 +50,23 @@
         "jsr:@ts-morph/bootstrap"
       ]
     },
+    "@std/assert@1.0.19": {
+      "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
     "@std/bytes@1.0.6": {
       "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
     },
     "@std/collections@1.1.6": {
       "integrity": "b458160ce65ea5ad35da05d0a5cbee4b583677c8b443a10d7beb0c4ac63f2baa"
+    },
+    "@std/data-structures@1.0.10": {
+      "integrity": "f574f86b0e07c69b9edc555fcc814b57d29258bad39fd5a34ba8a80ecf033cfe",
+      "dependencies": [
+        "jsr:@std/assert"
+      ]
     },
     "@std/fmt@1.0.9": {
       "integrity": "2487343e8899fb2be5d0e3d35013e54477ada198854e52dd05ed0422eddcabe0"
@@ -902,36 +916,36 @@
       "jsr:@deno/dnt@~0.42.3"
     ],
     "members": {
-      "packages/delivery": {
-        "dependencies": [
-          "jsr:@std/collections@^1.1.6"
-        ]
-      },
-      "packages/fields/asset": {
+      "packages/codecs/asset": {
         "dependencies": [
           "jsr:@std/path@^1.1.4"
         ]
       },
-      "packages/fields/instance": {
+      "packages/codecs/instance": {
         "dependencies": [
           "jsr:@std/collections@^1.1.6"
         ]
       },
-      "packages/fields/map": {
+      "packages/codecs/map": {
         "dependencies": [
           "jsr:@std/collections@^1.1.6"
         ]
       },
-      "packages/fields/markdown": {
+      "packages/codecs/markdown": {
         "dependencies": [
           "npm:mdast-util-from-markdown@^2.0.3",
           "npm:mdast-util-to-markdown@^2.1.2",
           "npm:mdast@3"
         ]
       },
-      "packages/fields/path_reference": {
+      "packages/codecs/path_reference": {
         "dependencies": [
           "jsr:@std/path@^1.1.4"
+        ]
+      },
+      "packages/delivery": {
+        "dependencies": [
+          "jsr:@std/collections@^1.1.6"
         ]
       },
       "packages/formatters/frontmatter": {
@@ -959,6 +973,7 @@
       "packages/protocols/graphql": {
         "dependencies": [
           "jsr:@std/collections@^1.1.6",
+          "jsr:@std/data-structures@^1.0.10",
           "jsr:@std/text@^1.0.17",
           "npm:@graphql-tools/utils@11",
           "npm:graphql-relay@~0.10.2",
