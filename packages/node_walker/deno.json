@@ -1,0 +1,4 @@
+{
+  "name": "@cosmos/node-walker",
+  "exports": "./src/mod.ts"
+}
