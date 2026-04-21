@@ -22,6 +22,7 @@ import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
   GraphQLFloat,
+  GraphQLID,
   GraphQLList,
   type GraphQLNamedOutputType,
   GraphQLNonNull,
@@ -251,7 +252,11 @@ function createDefinition(
     }
 
     case "reference": {
-      return createReference(ctx.map[schema.model]!, ctx);
+      const outputType = ctx.map[schema.model];
+
+      if (!outputType) throw new Error();
+
+      return createReference(outputType, ctx);
     }
     case "list": {
       const child = createDefinition(name, schema.item, ctx);
@@ -262,7 +267,11 @@ function createDefinition(
       return createMap(name, schema, ctx);
     }
     case "instance": {
-      return createInstance(ctx.map[schema.model]!);
+      const outputType = ctx.map[schema.model];
+
+      if (!outputType) throw new Error();
+
+      return createInstance(outputType);
     }
     case "union": {
       return createUnion(name, schema, ctx);
