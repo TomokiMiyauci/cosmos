@@ -8,7 +8,7 @@ import type {
 } from "@cosmos/core";
 import type { Middleware, MiddlewareVariant } from "./type.ts";
 import { compose, normalizeMiddleware } from "./util.ts";
-import { walk } from "@cosmos/indexer";
+import { walk } from "@cosmos/node-walker";
 
 export interface DeliveryConfig {
   protocol: Protocol;
@@ -153,7 +153,7 @@ function createDatalayerProxy(
         const node = await datalayer.node.fetch(id);
         return walk(node, (n) => {
           return plugins.reduce((acc, plugin) => plugin.fetched(acc, ctx), n);
-        });
+        }) ?? node;
       },
     },
   };

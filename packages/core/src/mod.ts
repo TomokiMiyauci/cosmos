@@ -60,6 +60,7 @@ export type {
   Structure,
   StructureValue,
   UnionField,
+  UnionNode,
   UnionSchema,
 } from "./type.ts";
 export type {
