@@ -69,6 +69,7 @@ const stringWhereInput = {
     in: { type: new GraphQLList(GraphQLString) },
     not_in: { type: new GraphQLList(GraphQLString) },
   },
+  isOneOf: true,
 } satisfies GraphQLInputObjectTypeConfig;
 
 const booleanWhereInput = {
@@ -77,6 +78,7 @@ const booleanWhereInput = {
     eq: { type: GraphQLBoolean },
     not: { type: GraphQLBoolean },
   },
+  isOneOf: true,
 } satisfies GraphQLInputObjectTypeConfig;
 
 const datetimeWhereInput = {
@@ -91,6 +93,7 @@ const datetimeWhereInput = {
     gt: { type: GraphQLString },
     gte: { type: GraphQLString },
   },
+  isOneOf: true,
 } satisfies GraphQLInputObjectTypeConfig;
 
 function createWhereInput(
@@ -144,6 +147,7 @@ function createWhereInput(
       },
       ...fields,
     }),
+    isOneOf: true,
   });
 
   return input;
