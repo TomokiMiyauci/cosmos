@@ -34,7 +34,9 @@
     }
   },
   "imports": {
-    "@deno/dnt": "jsr:@deno/dnt@^0.42.3"
+    "@deno/dnt": "jsr:@deno/dnt@^0.42.3",
+    "@std/expect": "jsr:@std/expect@^1.0.19",
+    "@std/testing": "jsr:@std/testing@^1.0.18"
   },
   "compilerOptions": {
     "noUncheckedIndexedAccess": true

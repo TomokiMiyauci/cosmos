@@ -20,9 +20,10 @@ import type {
 } from "./type.ts";
 import {
   GraphQLBoolean,
+  type GraphQLEnumType,
   type GraphQLFieldConfig,
   GraphQLFloat,
-  GraphQLID,
+  type GraphQLInterfaceType,
   GraphQLList,
   type GraphQLNamedOutputType,
   GraphQLNonNull,
@@ -90,13 +91,17 @@ interface GraphqlResolve<In, Out> {
   (value: In): Out;
 }
 
-type GraphqlType =
-  | GraphQLNamedOutputType
-  | GraphQLList<GraphqlType>;
+type GraphqlType<T = unknown> =
+  | GraphQLScalarType
+  | GraphQLObjectType<T>
+  | GraphQLInterfaceType
+  | GraphQLUnionType
+  | GraphQLEnumType
+  | GraphQLList<GraphqlType<unknown>>;
 
 interface GraphqlDefinition<In, Out, Ctx>
   extends Pick<GraphQLFieldConfig<In, Ctx>, "type" | "resolve"> {
-  type: GraphqlType;
+  type: GraphqlType<Out>;
   resolve: GraphqlResolve<In, Out>;
 }
 
@@ -145,7 +150,7 @@ const markdown = {
   },
 } satisfies GraphqlScalarConfig<MarkdonwNode, string, unknown>;
 
-type Map = Record<string, GraphQLNamedOutputType>;
+type Map = Record<string, GraphQLObjectType<Node>>;
 
 function createReference(
   type: GraphQLNamedOutputType,
@@ -169,21 +174,21 @@ type Data =
   | URL
   | number
   | Data[]
-  | Promise<Node>
-  | Node;
+  | Node
+  | null;
 
-function createList<T, U>(
-  def: GraphqlDefinition<Node, T, U>,
-): GraphqlDefinition<Node, T[], U> {
+function createList<U>(
+  def: GraphqlDefinition<Node, any, U>,
+): GraphqlDefinition<Node, unknown[], U> {
   const definition = {
     type: new GraphQLList(def.type),
-    resolve(node: Node): T[] {
+    resolve(node): unknown[] {
       if (isListNode(node)) {
         return node.value.map((node) => def.resolve(node));
       }
       throw new Error();
     },
-  } satisfies GraphqlDefinition<Node, T[], U>;
+  } satisfies GraphqlDefinition<Node, unknown[], U>;
 
   return definition;
 }
@@ -192,7 +197,7 @@ function createDefinition(
   name: string,
   schema: Schema,
   ctx: RuntimeContext,
-): GraphqlDefinition<Node, Data, ResolverContext> {
+): GraphqlDefinition<Node, any, ResolverContext> {
   switch (schema.type) {
     case "string": {
       return {
@@ -350,7 +355,7 @@ function createMap(
   name: string,
   schema: MapSchema,
   ctx: RuntimeContext,
-): GraphqlDefinition<Node, Data, ResolverContext> {
+): GraphqlDefinition<Node, Node, ResolverContext> {
   const type = new GraphQLObjectType({
     name,
     fields: () => {
@@ -364,7 +369,7 @@ function createMap(
 
         const def = {
           type,
-          resolve(node): Data | null {
+          resolve(node): Data {
             if (isMapNode(node)) {
               const child = node.value[key];
 
@@ -374,7 +379,7 @@ function createMap(
             }
             throw new Error();
           },
-        } satisfies GraphqlDefinition<Node, Data | null, ResolverContext>;
+        } satisfies GraphqlDefinition<Node, Data, ResolverContext>;
 
         const field = {
           ...def,
@@ -406,7 +411,7 @@ function scope(...scopes: string[]): string {
   return scopes.join("_");
 }
 
-function createRoot(
+export function createRoot(
   name: string,
   schema: Schema,
   ctx: RuntimeContext,

@@ -1,0 +1,103 @@
+{
+  "cases": [
+    {
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "props": {}
+        }
+      },
+      "output": "type post"
+    },
+    {
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "props": {
+            "title": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "output": "type post { title: String }"
+    },
+    {
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "props": {
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": ["title"]
+        }
+      },
+      "output": "type post { title: String! }"
+    },
+    {
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "description": "This is post",
+          "props": {
+            "title": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "output": "\"\"\"This is post\"\"\"\ntype post { title: String }"
+    },
+    {
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "props": {
+            "title": {
+              "type": "string",
+              "description": "This is title"
+            }
+          }
+        }
+      },
+      "output": "type post { \"\"\"This is title\"\"\"\ntitle: String }"
+    },
+    {
+      "description": "with various fields",
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "props": {
+            "title": {
+              "type": "string"
+            },
+            "body": {
+              "type": "markdown"
+            },
+            "created_at": {
+              "type": "datetime"
+            },
+            "no": {
+              "type": "number"
+            },
+            "tags": {
+              "type": "list",
+              "item": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "output": "type post { title: String\nbody: String\ncreated_at: DateTime\nno: Float\ntags: [String]}"
+    }
+  ]
+}
