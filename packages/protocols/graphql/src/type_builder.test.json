@@ -98,6 +98,58 @@
         }
       },
       "output": "type post { title: String\nbody: String\ncreated_at: DateTime\nno: Float\ntags: [String]}"
+    },
+    {
+      "description": "with nested map",
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "props": {
+            "nested": {
+              "type": "map",
+              "props": {
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "output": "type post { nested: post_nested }"
+    },
+    {
+      "description": "with self recursive",
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "props": {
+            "post": {
+              "type": "instance",
+              "model": "post"
+            }
+          }
+        }
+      },
+      "output": "type post { post: post }"
+    },
+    {
+      "description": "with self recursive reference",
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "props": {
+            "post": {
+              "type": "reference",
+              "model": "post"
+            }
+          }
+        }
+      },
+      "output": "type post { post: post }"
     }
   ]
 }
