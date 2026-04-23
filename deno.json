@@ -7,7 +7,8 @@
     "packages/resolvers/*",
     "packages/stores/*",
     "packages/storages/*",
-    "packages/formatters/*"
+    "packages/formatters/*",
+    "packages/node/*"
   ],
   "lint": {
     "rules": {
