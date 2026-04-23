@@ -13,7 +13,7 @@ import type {
 } from "./type.ts";
 import { overrideName } from "./util.ts";
 import { StandardNamer } from "./namers/standard.ts";
-import { BasicTypeBuilder } from "./type_builder.ts";
+import { BasicTypeBuilder } from "./builder/type_builder.ts";
 
 export interface SchemaConfig {
   plugins: SchemaPlugin[];
