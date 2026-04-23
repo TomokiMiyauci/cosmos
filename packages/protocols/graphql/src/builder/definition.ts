@@ -189,7 +189,11 @@ export function createNodeDefinition(
   name: string,
   schema: Schema,
   ctx: RuntimeContext,
-): GraphqlDefinition<Node, any> {
+):
+  | GraphqlScalarDefinition<Node, number | boolean | Date | string | URL>
+  | GraphqlListDefinition<Node, Resource[]>
+  | GrpahqlObjectTypeDefinition<Node, Resource>
+  | GraphqlUnionDefinition<Node, Node> {
   switch (schema.type) {
     case "number":
       return numberNode;
@@ -229,7 +233,7 @@ export function createNodeDefinition(
 export function createReference(
   schema: ReferenceSchema,
   ctx: RuntimeContext,
-): GraphqlDefinition<Node, Resource> {
+): GrpahqlObjectTypeDefinition<Node, Resource> {
   const reference = ctx.map[schema.model];
 
   if (!reference) throw new Error();
