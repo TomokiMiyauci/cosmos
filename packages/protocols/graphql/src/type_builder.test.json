@@ -150,6 +150,49 @@
         }
       },
       "output": "type post { post: post }"
+    },
+    {
+      "description": "with nested union",
+      "input": {
+        "name": "post",
+        "schema": {
+          "type": "map",
+          "props": {
+            "post": {
+              "type": "union",
+              "props": {
+                "a": { "type": "string" },
+                "b": { "type": "number" }
+              }
+            }
+          }
+        }
+      },
+      "output": "type post { post: post_post }"
+    },
+    {
+      "description": "top-level string",
+      "input": {
+        "name": "custom",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "output": "type custom { value: String }"
+    },
+    {
+      "description": "top-level union",
+      "input": {
+        "name": "custom",
+        "schema": {
+          "type": "union",
+          "props": {
+            "a": { "type": "string" },
+            "b": { "type": "number" }
+          }
+        }
+      },
+      "output": "type custom_value { value: custom }"
     }
   ]
 }
