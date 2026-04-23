@@ -7,9 +7,9 @@ import {
 import type {
   GraphQLQueryField,
   QueryContext,
+  Resource,
   SchemaPlugin,
 } from "../../type.ts";
-import type { Node } from "@cosmos/core";
 
 export class RelayPlugin implements SchemaPlugin {
   name = "relay";
@@ -30,10 +30,17 @@ export class RelayPlugin implements SchemaPlugin {
               _,
               args,
               ctx,
-            ): Promise<Connection<Node>> {
+            ): Promise<Connection<Resource>> {
               const model = entry.name;
               const keys = await ctx.fetcher.list(model);
-              const promise = keys.map((key) => ctx.fetcher.fetch(key));
+              const promise = keys.map(async (key) => {
+                const node = await ctx.fetcher.fetch(key);
+                const resource = {
+                  id: key,
+                  node,
+                } satisfies Resource;
+                return resource;
+              });
               const result = await Promise.all(promise);
               const collection = connectionFromArray(result, args);
 

@@ -248,16 +248,20 @@ export class OpenCrud implements SchemaPlugin {
               },
             },
             resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
-              console.log(args);
               const ids = await ctx.fetcher.list(name);
-              const nodes = await Promise.all(
-                ids.map((id) => ctx.fetcher.fetch(id)),
+              const resources = await Promise.all(
+                ids.map(async (id) => {
+                  return { id, node: await ctx.fetcher.fetch(id) };
+                }),
               );
 
               const filter = createFilterFromArgs(args);
               const compare = createCompareFromArts(args);
 
-              const result = nodes.filter(filter).toSorted(compare);
+              const result = resources.filter(({ node }) => filter(node))
+                .toSorted(({ node: left }, { node: right }) =>
+                  compare(left, right)
+                );
 
               return result;
             },
