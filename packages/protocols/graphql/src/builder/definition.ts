@@ -129,7 +129,7 @@ export const stringNode = {
   resolve(node): string {
     assertStringNode(node);
 
-    return node.value;
+    return string.resolve(node);
   },
 } satisfies GraphqlScalarDefinition<Node, string>;
 
@@ -138,7 +138,7 @@ export const numberNode = {
   resolve(node): number {
     assertNumberNode(node);
 
-    return node.value;
+    return number.resolve(node);
   },
 } satisfies GraphqlScalarDefinition<Node, number>;
 
