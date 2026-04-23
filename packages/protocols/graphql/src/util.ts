@@ -48,5 +48,10 @@ export function overrideName(
 
       return type;
     },
+    [MapperKind.INTERFACE_TYPE]: (type) => {
+      type.name = namer.type(type.name);
+
+      return type;
+    },
   });
 }
