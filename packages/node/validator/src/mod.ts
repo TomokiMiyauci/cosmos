@@ -10,3 +10,13 @@ export {
   assertStringNode,
   assertUnionNode,
 } from "./assert.ts";
+export {
+  isAssetNode,
+  isBooleanNode,
+  isDatetimeNode,
+  isListNode,
+  isMapNode,
+  isNumberNode,
+  isReferenceNode,
+  isStringNode,
+} from "./validator.ts";
