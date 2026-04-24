@@ -4,7 +4,7 @@ import type {
   DatetimeNode,
   ListNode,
   MapNode,
-  MarkdonwNode,
+  MarkdownNode,
   Node,
   NumberNode,
   ReferenceNode,
@@ -28,7 +28,7 @@ export function assertListNode(node: Node): asserts node is ListNode {
   if (node.type !== "list") throw new Error();
 }
 
-export function assertMarkdownNode(node: Node): asserts node is MarkdonwNode {
+export function assertMarkdownNode(node: Node): asserts node is MarkdownNode {
   if (node.type !== "markdown") throw new Error();
 }
 

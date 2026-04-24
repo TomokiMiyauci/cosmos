@@ -3,7 +3,7 @@ import type {
   Codec,
   CodecContext,
   Field,
-  MarkdonwNode,
+  MarkdownNode,
   Node,
   ReferenceNode,
   StringNode,
@@ -52,7 +52,7 @@ export class MarkdownCodec implements Codec {
     const value = {
       type: "markdown",
       value: node,
-    } satisfies MarkdonwNode;
+    } satisfies MarkdownNode;
 
     return value;
   }

@@ -311,7 +311,7 @@ export interface UnionNode {
   value: Node;
 }
 
-export interface MarkdonwNode {
+export interface MarkdownNode {
   type: MarkdownSchema["type"];
   value: RootNodeListNode;
 }
@@ -324,7 +324,7 @@ export type NodeValue =
   | DatetimeNode
   | AssetNode
   | UnionNode
-  | MarkdonwNode;
+  | MarkdownNode;
 
 export type Node = NodeValue | MapNode | ListNode;
 

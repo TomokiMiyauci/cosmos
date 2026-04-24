@@ -18,7 +18,7 @@ import type {
   InstanceSchema,
   ListSchema,
   MapSchema,
-  MarkdonwNode,
+  MarkdownNode,
   Node,
   NumberNode,
   ReferenceSchema,
@@ -115,7 +115,7 @@ const markdown = {
 
     return str;
   },
-} satisfies GraphqlScalarDefinition<MarkdonwNode, string>;
+} satisfies GraphqlScalarDefinition<MarkdownNode, string>;
 
 export const number = {
   type: GraphQLFloat,

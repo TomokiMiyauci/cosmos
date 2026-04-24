@@ -4,7 +4,7 @@ import type {
   DatetimeNode,
   ListNode,
   MapNode,
-  MarkdonwNode,
+  MarkdownNode,
   Node,
   NumberNode,
   ReferenceNode,
@@ -88,7 +88,7 @@ export interface Visitor {
   datetime?: NodeCallback<DatetimeNode>;
   asset?: NodeCallback<AssetNode>;
   union?: NodeCallback<UnionNode>;
-  markdown?: NodeCallback<MarkdonwNode>;
+  markdown?: NodeCallback<MarkdownNode>;
 }
 
 export function composeVisitor(visitors: Iterable<Visitor>): Visitor {
