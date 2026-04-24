@@ -8,6 +8,7 @@ import type {
   Node,
   NumberNode,
   ReferenceNode,
+  RootNodeMapNode,
   StringNode,
   UnionNode,
 } from "@cosmos/core";
@@ -45,6 +46,19 @@ export function walk(node: Node, callback: NodeCallback): Node | null {
       return {
         ...current,
         value,
+      };
+    }
+
+    case "markdown": {
+      const value = current.value.value.map((node) => walk(node, callback))
+        .filter((node) => !!node) as RootNodeMapNode[];
+
+      return {
+        ...current,
+        value: {
+          type: "list",
+          value,
+        },
       };
     }
 
