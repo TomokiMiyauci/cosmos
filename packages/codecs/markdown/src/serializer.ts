@@ -74,9 +74,13 @@ function toRootContent(node: RootNodeMapNode): RootContent {
   if (isHeadingNode(node)) {
     const children = toPhrasingContents(node.value.children);
 
+    if (!isDepth(node.value.depth.value)) {
+      throw new Error();
+    }
+
     return {
       type: "heading",
-      depth: node.value.depth.value as any,
+      depth: node.value.depth.value,
       children,
     };
   }
@@ -469,4 +473,12 @@ function isLinkReferenceNode(
   node: RootNodeMapNode,
 ): node is LinkReferenceMapNode {
   return node.value.type.value === "linkReference";
+}
+
+type Depth = 1 | 2 | 3 | 4 | 5 | 6;
+
+const depths = new Set([1, 2, 3, 4, 5, 6]);
+
+function isDepth(value: number): value is Depth {
+  return depths.has(value);
 }
