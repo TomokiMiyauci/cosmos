@@ -26,7 +26,11 @@ export interface Codec {
     ctx: CodecContext,
   ): Node | Promise<Node>;
 
-  stringify(node: Node, field: Field): Structure | Promise<Structure>;
+  stringify(
+    node: Node,
+    field: Field,
+    ctx: CodecContext,
+  ): Structure | Promise<Structure>;
 }
 
 export interface CodecContext extends ResolverContext {

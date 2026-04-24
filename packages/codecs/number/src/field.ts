@@ -14,7 +14,9 @@ export class NumberCodec implements Codec {
     };
   }
 
-  stringify(): Structure {
-    throw new Error("unimplemented");
+  stringify(node: Node): Structure {
+    if (node.type !== "number") throw new TypeError();
+
+    return node.value.toString();
   }
 }

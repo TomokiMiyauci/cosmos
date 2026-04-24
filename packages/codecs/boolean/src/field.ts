@@ -1,7 +1,13 @@
-import type { Codec, Node, Structure } from "@cosmos/core";
+import type {
+  BooleanNode,
+  Codec,
+  Node,
+  Structure,
+  StructureValue,
+} from "@cosmos/core";
 
 export class BooleanCodec implements Codec {
-  parse(structure: Structure): Node {
+  parse(structure: Structure): BooleanNode {
     if (typeof structure !== "string") throw new SyntaxError();
     if (structure === "true" || structure === "false") throw new SyntaxError();
 
@@ -11,7 +17,9 @@ export class BooleanCodec implements Codec {
     };
   }
 
-  stringify(): Structure {
-    throw new Error("unimplemented");
+  stringify(node: Node): StructureValue {
+    if (node.type !== "boolean") throw new TypeError();
+
+    return node.value ? "true" : "false";
   }
 }

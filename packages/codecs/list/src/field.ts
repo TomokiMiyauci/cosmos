@@ -1,11 +1,19 @@
-import type { Codec, CodecContext, Field, Node, Structure } from "@cosmos/core";
+import type {
+  Codec,
+  CodecContext,
+  Field,
+  ListNode,
+  Node,
+  Structure,
+  StructureObject,
+} from "@cosmos/core";
 
 export class ListField implements Codec {
   async parse(
     structure: Structure,
     field: Field,
     ctx: CodecContext,
-  ): Promise<Node> {
+  ): Promise<ListNode> {
     if (typeof structure === "string") throw new Error();
 
     if (field.type !== "list") throw new Error();
@@ -26,7 +34,26 @@ export class ListField implements Codec {
     };
   }
 
-  stringify(_: Node): Structure | Promise<Structure> {
-    throw new Error();
+  async stringify(
+    node: Node,
+    field: Field,
+    ctx: CodecContext,
+  ): Promise<StructureObject> {
+    if (node.type !== "list") throw new Error();
+    if (field.type !== "list") throw new Error();
+
+    const structure: StructureObject = {};
+
+    for (const [key, child] of node.value.entries()) {
+      const childValue = await ctx.config.field.stringify(
+        child,
+        field.field,
+        ctx,
+      );
+
+      structure[key.toString()] = childValue;
+    }
+
+    return structure;
   }
 }
