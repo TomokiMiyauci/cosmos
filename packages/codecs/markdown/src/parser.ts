@@ -30,7 +30,7 @@ import type {
   ListContentMapNode,
   ListItemMapNode,
   ListMapNode,
-  ParapraphMapNode,
+  ParagraphMapNode,
   PharasingContentMapNode,
   PhrasingContentListNode,
   ReferenceNode,
@@ -176,7 +176,7 @@ async function parseRootNode(
           },
           children: await toPhrasingList(node.children, ctx),
         },
-      } satisfies ParapraphMapNode;
+      } satisfies ParagraphMapNode;
     }
 
     case "blockquote": {

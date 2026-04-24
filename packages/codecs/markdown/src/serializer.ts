@@ -20,7 +20,7 @@ import type {
   ListItemMapNode,
   ListMapNode,
   Node,
-  ParapraphMapNode,
+  ParagraphMapNode,
   PharasingContentMapNode,
   PhrasingContentListNode,
   RootNodeListNode,
@@ -345,7 +345,7 @@ function isStrongNode(value: RootNodeMapNode): value is StrongMapNode {
   return value.value.type.value === "strong";
 }
 
-function isParagraphNode(value: RootNodeMapNode): value is ParapraphMapNode {
+function isParagraphNode(value: RootNodeMapNode): value is ParagraphMapNode {
   return value.value.type.value === "paragraph";
 }
 

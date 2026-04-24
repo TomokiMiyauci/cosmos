@@ -89,7 +89,7 @@ export type {
   ListItemMapNode,
   ListMapNode,
   LiteralNodeValue,
-  ParapraphMapNode,
+  ParagraphMapNode,
   PharasingContentMapNode,
   PhrasingContentListNode,
   RootNodeListNode,

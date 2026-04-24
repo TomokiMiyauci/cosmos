@@ -441,7 +441,7 @@ export type PharasingContentMapNode =
 export type RootNodeMapNode =
   | PharasingContentMapNode
   | HeadingMapNode
-  | ParapraphMapNode
+  | ParagraphMapNode
   | BlockquoteMapNode
   | CodeMapNode
   | DefinitionMapNode
@@ -460,7 +460,7 @@ export type BlockContentMapNode =
   | HeadingMapNode
   | HtmlMapNode
   | ListMapNode
-  | ParapraphMapNode
+  | ParagraphMapNode
   | TableMapNode
   | ThematicBreakMapNode;
 
@@ -486,7 +486,7 @@ export interface TextNodeValue extends LiteralNodeValue {
   };
 }
 
-export interface ParapraphMapNode extends MapNode {
+export interface ParagraphMapNode extends MapNode {
   value: {
     type: {
       type: "string";
