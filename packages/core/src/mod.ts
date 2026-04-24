@@ -61,6 +61,7 @@ export type {
   StringField,
   StringNode,
   Structure,
+  StructureObject,
   StructureValue,
   UnionField,
   UnionNode,

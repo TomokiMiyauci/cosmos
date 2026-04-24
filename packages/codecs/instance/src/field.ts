@@ -1,14 +1,8 @@
-import type {
-  Codec,
-  CodecContext,
-  Field,
-  Node,
-  StructureValue,
-} from "@cosmos/core";
+import type { Codec, CodecContext, Field, Node, Structure } from "@cosmos/core";
 
 export class InstanceField implements Codec {
   parse(
-    structure: StructureValue,
+    structure: Structure,
     field: Field,
     ctx: CodecContext,
   ): Promise<Node> | Node {
@@ -21,7 +15,7 @@ export class InstanceField implements Codec {
     return ctx.config.field.parse(structure, model, ctx);
   }
 
-  stringify(node: Node): StructureValue | Promise<StructureValue> {
+  stringify(node: Node): Structure | Promise<Structure> {
     throw new Error();
   }
 }

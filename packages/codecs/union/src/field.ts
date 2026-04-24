@@ -4,12 +4,12 @@ import type {
   Field,
   Node,
   Structure,
-  StructureValue,
+  StructureObject,
 } from "@cosmos/core";
 
 export class UnionField implements Codec {
   async parse(
-    structure: StructureValue,
+    structure: Structure,
     field: Field,
     ctx: CodecContext,
   ): Promise<Node> {
@@ -35,16 +35,18 @@ export class UnionField implements Codec {
     };
   }
 
-  stringify(node: Node): StructureValue | Promise<StructureValue> {
+  stringify(node: Node): Structure | Promise<Structure> {
     throw new Error();
   }
 }
 
-interface UnionValue extends Structure {
+interface UnionValue extends StructureObject {
   key: string;
-  value: StructureValue;
+  value: Structure;
 }
 
-function validateUnionValue(structure: Structure): structure is UnionValue {
+function validateUnionValue(
+  structure: StructureObject,
+): structure is UnionValue {
   return "key" in structure && typeof structure.key === "string";
 }

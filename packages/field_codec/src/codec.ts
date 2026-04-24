@@ -1,10 +1,4 @@
-import type {
-  Codec,
-  CodecContext,
-  Field,
-  Node,
-  StructureValue,
-} from "@cosmos/core";
+import type { Codec, CodecContext, Field, Node, Structure } from "@cosmos/core";
 
 export interface CodecMap {
   string: Codec;
@@ -23,7 +17,7 @@ export interface CodecMap {
 export class FieldCodec implements Codec {
   constructor(private map: CodecMap) {}
   parse(
-    structure: StructureValue,
+    structure: Structure,
     field: Field,
     ctx: CodecContext,
   ): Node | Promise<Node> {
@@ -66,7 +60,7 @@ export class FieldCodec implements Codec {
   stringify(
     node: Node,
     field: Field,
-  ): StructureValue | Promise<StructureValue> {
+  ): Structure | Promise<Structure> {
     switch (field.type) {
       case "string": {
         return this.map.string.stringify(node, field);

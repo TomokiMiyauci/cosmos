@@ -1,7 +1,7 @@
-import type { Codec, Node, StructureValue } from "@cosmos/core";
+import type { Codec, Node, Structure } from "@cosmos/core";
 
 export class ReferenceCodec implements Codec {
-  parse(structure: StructureValue): Node {
+  parse(structure: Structure): Node {
     if (typeof structure !== "string") throw new SyntaxError();
 
     return {
@@ -10,7 +10,7 @@ export class ReferenceCodec implements Codec {
     };
   }
 
-  stringify(): StructureValue {
+  stringify(): Structure {
     throw new Error("unimplemented");
   }
 }

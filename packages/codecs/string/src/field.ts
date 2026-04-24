@@ -1,10 +1,4 @@
-import type {
-  Codec,
-  CodecContext,
-  Field,
-  Node,
-  StructureValue,
-} from "@cosmos/core";
+import type { Codec, CodecContext, Field, Node, Structure } from "@cosmos/core";
 
 export interface FormatCodec {
   [k: string]: Codec;
@@ -13,7 +7,7 @@ export interface FormatCodec {
 export class StringCodec implements Codec {
   constructor(private formatCodec?: FormatCodec) {}
   parse(
-    structure: StructureValue,
+    structure: Structure,
     field: Field,
     ctx: CodecContext,
   ): Promise<Node> | Node {
@@ -35,7 +29,7 @@ export class StringCodec implements Codec {
     };
   }
 
-  stringify(node: Node): StructureValue {
+  stringify(node: Node): Structure {
     if (node.type !== "string") throw new Error();
 
     return node.value;

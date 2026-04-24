@@ -1,14 +1,8 @@
-import type {
-  Codec,
-  CodecContext,
-  Field,
-  Node,
-  StructureValue,
-} from "@cosmos/core";
+import type { Codec, CodecContext, Field, Node, Structure } from "@cosmos/core";
 
 export class MapField implements Codec {
   async parse(
-    structure: StructureValue,
+    structure: Structure,
     field: Field,
     ctx: CodecContext,
   ): Promise<Node> {
@@ -43,7 +37,7 @@ export class MapField implements Codec {
     };
   }
 
-  stringify(node: Node): StructureValue | Promise<StructureValue> {
+  stringify(_: Node): Structure | Promise<Structure> {
     throw new Error();
   }
 }

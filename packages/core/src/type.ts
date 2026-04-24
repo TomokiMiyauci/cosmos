@@ -21,12 +21,12 @@ export interface AssetDefinition {
 
 export interface Codec {
   parse(
-    structure: StructureValue,
+    structure: Structure,
     field: Field,
     ctx: CodecContext,
   ): Node | Promise<Node>;
 
-  stringify(node: Node, field: Field): StructureValue | Promise<StructureValue>;
+  stringify(node: Node, field: Field): Structure | Promise<Structure>;
 }
 
 export interface CodecContext extends ResolverContext {
@@ -180,11 +180,13 @@ export interface IndexManager extends Indexer {
   type: string;
 }
 
-export type StructureValue = string | Structure;
+export type StructureValue = string;
 
-export interface Structure {
-  [k: string]: StructureValue;
+export interface StructureObject {
+  [k: string]: StructureObject | StructureValue;
 }
+
+export type Structure = StructureValue | StructureObject;
 
 export interface FormatterContext<T = unknown> {
   config: Config;
@@ -353,9 +355,9 @@ export interface AssetMapping {
 export interface Store {
   save(entry: Entry): Promise<void>;
 
-  load(id: string): Promise<Entry>;
+  load(id: string): Promise<Entry> | Entry;
 
-  list(filter: EntryFilter): Promise<string[]>;
+  list(filter: EntryFilter): Promise<string[]> | string[];
 }
 
 export type EntryFilter =

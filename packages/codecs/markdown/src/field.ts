@@ -7,7 +7,7 @@ import type {
   Node,
   ReferenceNode,
   StringNode,
-  StructureValue,
+  Structure,
 } from "@cosmos/core";
 import { MarkdownParser } from "./parser.ts";
 import { fromMarkdown } from "mdast-util-from-markdown";
@@ -16,7 +16,7 @@ export class MarkdownCodec implements Codec {
   #parser = new MarkdownParser();
 
   async parse(
-    structure: StructureValue,
+    structure: Structure,
     _: Field,
     ctx: CodecContext,
   ): Promise<Node> {
@@ -57,7 +57,7 @@ export class MarkdownCodec implements Codec {
     return value;
   }
 
-  stringify(node: Node): StructureValue {
+  stringify(node: Node): Structure {
     throw new Error();
   }
 }
