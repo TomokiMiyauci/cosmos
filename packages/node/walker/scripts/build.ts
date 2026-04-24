@@ -3,14 +3,11 @@ import { build, emptyDir } from "@deno/dnt";
 await emptyDir("./npm");
 
 await build({
-  entryPoints: ["./src/mod.ts", {
-    name: "./asset",
-    path: "./src/middleware/asset.ts",
-  }],
+  entryPoints: ["./src/mod.ts"],
   outDir: "./npm",
   shims: {},
   package: {
-    name: "@TomokiMiyauci/delivery",
+    name: "@TomokiMiyauci/node-walker",
     version: Deno.args[0],
     publishConfig: {
       "@TomokiMiyauci:registry": "https://npm.pkg.github.com",
@@ -21,12 +18,8 @@ await build({
     },
   },
   mappings: {
-    "../core/src/mod.ts": {
+    "../../core/src/mod.ts": {
       name: "@TomokiMiyauci/cosmos",
-      version: Deno.args[0],
-    },
-    "../node/walker/src/mod.ts": {
-      name: "@TomokiMiyauci/node-walker",
       version: Deno.args[0],
     },
   },
