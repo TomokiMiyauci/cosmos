@@ -34,13 +34,22 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
       config: ctx.config,
       options: ctx.options.body,
     });
-
-    const result = {
-      ...parsedHeader,
-      ...parsedBody,
+    const parsed = {
+      header: typeof parsedHeader === "string"
+        ? { "": parsedHeader }
+        : parsedHeader,
+      body: typeof parsedBody === "string" ? { "": parsedBody } : parsedBody,
     };
 
-    return result;
+    const data = { ...parsed.header, ...parsed.body };
+
+    if (ctx.options.remap) {
+      const renamed = rename(data, ctx.options.remap);
+
+      return renamed;
+    }
+
+    return data;
   }
 
   serialize(): string {
@@ -48,8 +57,21 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
   }
 }
 
+function rename<T>(
+  value: Record<string, T>,
+  map: Record<string, string>,
+): Record<string, T> {
+  return Object.keys(value).reduce<Record<string, T>>((acc, key) => {
+    const newKey = map[key] || key;
+
+    acc[newKey] = value[key]!;
+    return acc;
+  }, {});
+}
+
 export interface FrontmatterOptions {
   header: FormatDefinition;
   body: FormatDefinition;
   delimiter?: string;
+  remap?: Record<string, string>;
 }
