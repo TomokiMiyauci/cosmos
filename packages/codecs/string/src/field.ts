@@ -1,4 +1,5 @@
 import type { Codec, CodecContext, Field, Node, Structure } from "@cosmos/core";
+import { createStringNode } from "@cosmos/node-builder";
 
 export interface FormatCodec {
   [k: string]: Codec;
@@ -23,10 +24,9 @@ export class StringCodec implements Codec {
 
     if (typeof structure !== "string") throw new SyntaxError();
 
-    return {
-      type: "string",
-      value: structure,
-    };
+    const node = createStringNode(structure);
+
+    return node;
   }
 
   stringify(node: Node): Structure {
