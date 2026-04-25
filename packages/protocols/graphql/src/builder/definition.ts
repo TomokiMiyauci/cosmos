@@ -396,6 +396,7 @@ export function createObject(
     case "asset":
       return createScalarObject(name, assetNode, ctx);
     case "markdown":
+      return createScalarObject(name, markdownNode, ctx);
     case "number":
       return createScalarObject(name, numberNode, ctx);
     case "map":
