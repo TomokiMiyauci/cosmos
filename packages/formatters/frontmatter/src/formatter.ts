@@ -4,6 +4,7 @@ import {
   type FormatterContext,
   resolveFormatter,
   type Structure,
+  type StructureObject,
 } from "@cosmos/core";
 import { Frontmatter } from "./parser.ts";
 
@@ -34,20 +35,19 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
       config: ctx.config,
       options: ctx.options.body,
     });
-    const parsed = {
-      header: typeof parsedHeader === "string"
-        ? { "": parsedHeader }
-        : parsedHeader,
-      body: typeof parsedBody === "string" ? { "": parsedBody } : parsedBody,
-    };
 
-    const data = { ...parsed.header, ...parsed.body };
+    const remappedHeader = remap(
+      parsedHeader,
+      ctx.options.headerKey,
+      "headerKey is required",
+    );
+    const remappedBody = remap(
+      parsedBody,
+      ctx.options.bodyKey,
+      "bodyKey is required",
+    );
 
-    if (ctx.options.remap) {
-      const renamed = rename(data, ctx.options.remap);
-
-      return renamed;
-    }
+    const data = { ...remappedHeader, ...remappedBody };
 
     return data;
   }
@@ -57,21 +57,28 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
   }
 }
 
-function rename<T>(
-  value: Record<string, T>,
-  map: Record<string, string>,
-): Record<string, T> {
-  return Object.keys(value).reduce<Record<string, T>>((acc, key) => {
-    const newKey = map[key] || key;
+function remap(
+  structure: Structure,
+  key: string | undefined,
+  msg?: string,
+): StructureObject {
+  if (typeof structure === "string") {
+    if (typeof key === "undefined") {
+      throw new Error(msg ?? "key is required");
+    }
 
-    acc[newKey] = value[key]!;
-    return acc;
-  }, {});
+    return {
+      [key]: structure,
+    };
+  }
+
+  return structure;
 }
 
 export interface FrontmatterOptions {
   header: FormatDefinition;
   body: FormatDefinition;
   delimiter?: string;
-  remap?: Record<string, string>;
+  headerKey?: string;
+  bodyKey?: string;
 }
