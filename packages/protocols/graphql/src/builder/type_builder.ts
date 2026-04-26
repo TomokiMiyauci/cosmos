@@ -1,20 +1,13 @@
-import type { BuilderContext, GraphqlEntry, TypeBuilder } from "../type.ts";
-import { GraphQLID, GraphQLInterfaceType } from "graphql";
+import type { BuilderContext, Resource, TypeBuilder } from "../type.ts";
 import { createObject, type RuntimeContext } from "./definition.ts";
+import type { GraphQLObjectType } from "graphql";
 
 export class BasicTypeBuilder implements TypeBuilder {
-  build(ctx: BuilderContext): GraphqlEntry[] {
+  build(ctx: BuilderContext): GraphQLObjectType<Resource>[] {
     const map: RuntimeContext["map"] = {};
-    const node = new GraphQLInterfaceType({
-      name: "node",
-      fields: {
-        id: { type: GraphQLID },
-      },
-    });
     const context = {
       map,
       fetcher: ctx.datalayer.node,
-      base: { node },
     } satisfies RuntimeContext;
     const entries = Object.entries(ctx.manifest.schemas).map(
       ([name, schema]) => {
@@ -33,6 +26,6 @@ export class BasicTypeBuilder implements TypeBuilder {
       },
     );
 
-    return entries;
+    return entries.map(({ type }) => type);
   }
 }

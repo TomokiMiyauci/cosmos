@@ -16,8 +16,7 @@ export interface Fetcher {
 }
 
 export interface QueryContext {
-  entries: GraphqlEntry[];
-  types: GraphqlEntry[];
+  entries: GraphQLObjectType<Resource>[];
 }
 
 export interface GraphqlEntry {
@@ -41,7 +40,7 @@ export interface Namer {
 }
 
 export interface TypeBuilder {
-  build(ctx: BuilderContext): GraphqlEntry[];
+  build(ctx: BuilderContext): GraphQLObjectType<Resource>[];
 }
 
 export interface BuilderContext {

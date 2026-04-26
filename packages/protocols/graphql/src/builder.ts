@@ -31,13 +31,11 @@ export class SchemaBuilder {
   }
 
   build(ctx: BuilderContext): GraphQLSchema {
-    const types = this.#builder.build(ctx);
-    const name = new Set(ctx.manifest.resources);
-    const entries = types.filter(({ type }) => name.has(type.name));
+    const entries = this.#builder.build(ctx);
 
     const queryFields = this.config.plugins
       .map((registry) => {
-        return registry.provideQuery({ types, entries });
+        return registry.provideQuery({ entries });
       })
       .flat();
 

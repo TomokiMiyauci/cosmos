@@ -15,7 +15,7 @@ export class RelayPlugin implements SchemaPlugin {
   name = "relay";
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
     return ctx.entries.map(
-      ({ type: entry }) => {
+      (entry) => {
         const { connectionType } = connectionDefinitions({
           nodeType: entry,
         });
