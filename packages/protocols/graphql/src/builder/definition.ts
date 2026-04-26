@@ -2,8 +2,6 @@ import {
   GraphQLBoolean,
   type GraphQLFieldConfig,
   GraphQLFloat,
-  GraphQLID,
-  type GraphQLInterfaceType,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
@@ -178,13 +176,6 @@ export const assetNode = {
   },
 } satisfies GraphqlScalarDefinition<Node, URL>;
 
-export const id = {
-  type: GraphQLID,
-  resolve(resource): string {
-    return resource.id;
-  },
-} satisfies GraphqlScalarDefinition<Resource, string>;
-
 export function createNodeDefinition(
   name: string,
   schema: Schema,
@@ -353,13 +344,10 @@ function createInstance(
 export function createScalarObject(
   name: string,
   config: GraphqlScalarDefinition<Node, Data>,
-  ctx: RuntimeContext,
 ): GraphQLObjectType<Resource> {
   return new GraphQLObjectType({
     name,
-    interfaces: [ctx.base.node],
     fields: {
-      id,
       value: {
         type: config.type,
         resolve(resource): Data | Promise<Data> {
@@ -388,17 +376,17 @@ export function createObject(
 ): GraphQLObjectType<Resource> {
   switch (schema.type) {
     case "string":
-      return createScalarObject(name, stringNode, ctx);
+      return createScalarObject(name, stringNode);
     case "boolean":
-      return createScalarObject(name, booleanNode, ctx);
+      return createScalarObject(name, booleanNode);
     case "datetime":
-      return createScalarObject(name, datetimeNode, ctx);
+      return createScalarObject(name, datetimeNode);
     case "asset":
-      return createScalarObject(name, assetNode, ctx);
+      return createScalarObject(name, assetNode);
     case "markdown":
-      return createScalarObject(name, markdownNode, ctx);
+      return createScalarObject(name, markdownNode);
     case "number":
-      return createScalarObject(name, numberNode, ctx);
+      return createScalarObject(name, numberNode);
     case "map":
       return createMapObject(name, schema, ctx);
     case "list":
@@ -423,9 +411,7 @@ export function createObject(
 
       return new GraphQLObjectType({
         name: scope(name, "value"),
-        interfaces: [ctx.base.node],
         fields: {
-          id,
           value: {
             type,
             resolve(resource): Node | Promise<Node> {
@@ -448,7 +434,6 @@ function createMapObject(
   const required = new Set(schema.required);
   return new GraphQLObjectType<Resource>({
     name,
-    interfaces: [ctx.base.node],
     fields: () => {
       const fields = mapValues(schema.props, (schema, key) => {
         const { type, resolve } = createNodeDefinition(
@@ -483,10 +468,7 @@ function createMapObject(
         } satisfies GraphQLFieldConfig<Resource, unknown>;
       });
 
-      return {
-        ...fields,
-        id,
-      };
+      return fields;
     },
     description: schema.description,
   });
@@ -519,9 +501,6 @@ function createListObject(
 export interface RuntimeContext {
   fetcher: Fetcher;
   map: Map;
-  base: {
-    node: GraphQLInterfaceType;
-  };
 }
 
 export type Map = Record<string, GraphQLObjectType<Resource>>;
