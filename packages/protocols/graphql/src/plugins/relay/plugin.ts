@@ -6,12 +6,12 @@ import {
 } from "graphql-relay";
 import type {
   GraphQLQueryField,
+  Plugin,
   QueryContext,
   Resource,
-  SchemaPlugin,
 } from "../../type.ts";
 
-export class RelayPlugin implements SchemaPlugin {
+export class RelayPlugin implements Plugin {
   name = "relay";
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
     return ctx.entries.map(

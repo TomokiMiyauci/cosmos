@@ -1,4 +1,9 @@
-import type { GraphQLSchema } from "graphql";
+import {
+  type GraphQLNamedOutputType,
+  type GraphQLNamedType,
+  type GraphQLSchema,
+  isOutputType,
+} from "graphql";
 import type { Namer } from "./type.ts";
 import { MapperKind, mapSchema } from "@graphql-tools/utils";
 
@@ -54,4 +59,10 @@ export function overrideName(
       return type;
     },
   });
+}
+
+export function isNamedOutputType(
+  type: GraphQLNamedType,
+): type is GraphQLNamedOutputType {
+  return isOutputType(type);
 }

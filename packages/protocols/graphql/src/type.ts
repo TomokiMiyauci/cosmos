@@ -1,5 +1,13 @@
-import type { Datalayer, Manifest, Node, Schema } from "@cosmos/core";
-import type { GraphQLFieldConfig, GraphQLObjectType } from "graphql";
+import type { Datalayer, Manifest, Node } from "@cosmos/core";
+import type {
+  GraphQLEnumType,
+  GraphQLFieldConfig,
+  GraphQLInterfaceType,
+  GraphQLObjectType,
+  GraphQLObjectTypeConfig,
+  GraphQLScalarType,
+  GraphQLUnionType,
+} from "graphql";
 
 export interface ResolverContext {
   fetcher: Fetcher;
@@ -16,22 +24,12 @@ export interface Fetcher {
 }
 
 export interface QueryContext {
-  entries: GraphQLObjectType<Resource>[];
-}
-
-export interface GraphqlEntry {
-  type: GraphQLObjectType<Resource>;
-  schema: Schema;
+  entries: GraphqlNamedOutputType[];
 }
 
 export interface GraphQLQueryField {
   name: string;
   type: GraphQLFieldConfig<unknown, ResolverContext>;
-}
-
-export interface SchemaPlugin {
-  name: string;
-  provideQuery(ctx: QueryContext): GraphQLQueryField[];
 }
 
 export interface Namer {
@@ -47,3 +45,17 @@ export interface BuilderContext {
   manifest: Manifest;
   datalayer: Datalayer;
 }
+
+export interface Plugin {
+  transform?(
+    config: GraphQLObjectTypeConfig<Resource, unknown>,
+  ): GraphQLObjectTypeConfig<Resource, unknown>;
+  provideQuery?(ctx: QueryContext): GraphQLQueryField[];
+}
+
+export type GraphqlNamedOutputType =
+  | GraphQLScalarType
+  | GraphQLObjectType<Resource>
+  | GraphQLInterfaceType
+  | GraphQLUnionType
+  | GraphQLEnumType;

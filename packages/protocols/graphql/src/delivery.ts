@@ -1,10 +1,10 @@
 import type { Node, Protocol, ProtocolContext } from "@cosmos/core";
 import { createSchema, createYoga } from "graphql-yoga";
 import type { GraphQLSchema } from "graphql";
-import type { Fetcher, ResolverContext, SchemaPlugin } from "./type.ts";
+import type { Fetcher, Plugin, ResolverContext } from "./type.ts";
 
 export interface GraphqlConfig {
-  plugins?: SchemaPlugin[];
+  plugins?: Plugin[];
 }
 
 export class GraphqlProtocol implements Protocol {

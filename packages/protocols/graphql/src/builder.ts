@@ -1,22 +1,27 @@
 import {
   type GraphQLFieldConfig,
   GraphQLObjectType,
+  type GraphQLObjectTypeConfig,
   GraphQLSchema,
   type ThunkObjMap,
 } from "graphql";
 import type {
   BuilderContext,
+  GraphqlNamedOutputType,
   Namer,
+  Plugin,
   ResolverContext,
-  SchemaPlugin,
+  Resource,
   TypeBuilder,
 } from "./type.ts";
-import { overrideName } from "./util.ts";
+import { isNamedOutputType, overrideName } from "./util.ts";
 import { StandardNamer } from "./namers/standard.ts";
 import { BasicTypeBuilder } from "./builder/type_builder.ts";
+import { rewireTypes } from "@graphql-tools/utils";
+import { mapValues } from "@std/collections/map-values";
 
 export interface SchemaConfig {
-  plugins: SchemaPlugin[];
+  plugins: Plugin[];
   builder?: TypeBuilder;
   namer?: Namer;
 }
@@ -33,10 +38,18 @@ export class SchemaBuilder {
   build(ctx: BuilderContext): GraphQLSchema {
     const entries = this.#builder.build(ctx);
 
-    const queryFields = this.config.plugins
-      .map((registry) => {
-        return registry.provideQuery({ entries });
-      })
+    const transformers = this.config.plugins.map((plugin) =>
+      plugin.transform?.bind(plugin)
+    ).filter((v) => !!v);
+    const prividers = this.config.plugins.map((plugin) =>
+      plugin.provideQuery?.bind(plugin)
+    ).filter((v) => !!v);
+
+    const transformed = applyTransform(entries, transformers);
+
+    const queryFields = prividers.map((provider) =>
+      provider({ entries: transformed })
+    )
       .flat();
 
     const fields = queryFields.reduce<
@@ -54,4 +67,36 @@ export class SchemaBuilder {
 
     return finalSchema;
   }
+}
+
+function applyTransform(
+  entreis: GraphQLObjectType<Resource>[],
+  transformers: ((
+    config: GraphQLObjectTypeConfig<Resource, unknown>,
+  ) => GraphQLObjectTypeConfig<Resource, unknown>)[],
+): GraphqlNamedOutputType[] {
+  const record = entreis.reduce(
+    (acc, entry) => {
+      acc[entry.name] = entry;
+
+      return acc;
+    },
+    {} as Record<string, GraphQLObjectType<Resource>>,
+  );
+
+  const map = mapValues(record, (type) => {
+    const config = type.toConfig();
+
+    const transformed = transformers.reduce<
+      GraphQLObjectTypeConfig<Resource, unknown>
+    >((acc, transformer) => {
+      return transformer(acc);
+    }, config);
+
+    return new GraphQLObjectType(transformed);
+  });
+
+  const { typeMap } = rewireTypes(map, []);
+
+  return Object.values(typeMap).filter(isNamedOutputType);
 }
