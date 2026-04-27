@@ -1,6 +1,12 @@
 import type { DatetimeNode, Node, Resource, StringNode } from "@cosmos/core";
-import type { GraphQLQueryField, Plugin, QueryContext } from "../../type.ts";
+import type {
+  GraphqlNamedOutputType,
+  GraphQLQueryField,
+  Plugin,
+  QueryContext,
+} from "../../type.ts";
 import {
+  type GraphQLArgumentConfig,
   GraphQLBoolean,
   GraphQLEnumType,
   type GraphQLField,
@@ -9,12 +15,12 @@ import {
   type GraphQLInputObjectTypeConfig,
   GraphQLList,
   GraphQLNonNull,
-  type GraphQLObjectType,
   GraphQLString,
   isScalarType,
   isSpecifiedScalarType,
 } from "graphql";
 import { ascend, descend } from "@std/data-structures/comparators";
+import { isObjectType } from "graphql";
 
 export interface OpenCrudArgs {
   where?: WhereInput;
@@ -80,61 +86,63 @@ const datetimeWhereInput = {
 
 function createWhereInput(
   name: string,
-  type: GraphQLObjectType,
+  type: GraphqlNamedOutputType,
   ctx: Context,
-): GraphQLInputObjectType {
-  const fieldEntries = Object.entries(type.getFields()).map(
-    ([name, schema]) => {
-      function resolveScalar(
-        field: GraphQLField<Resource, unknown>,
-      ): GraphQLInputFieldConfig {
-        if (isScalarType(field.type)) {
-          if (isSpecifiedScalarType(field.type)) {
-            switch (field.type) {
-              case GraphQLString: {
-                return {
-                  type: ctx.map.where.string,
-                };
-              }
+): GraphQLInputObjectType | undefined {
+  if (isObjectType(type)) {
+    const fieldEntries = Object.entries(type.getFields()).map(
+      ([name, schema]) => {
+        function resolveScalar(
+          field: GraphQLField<Resource, unknown>,
+        ): GraphQLInputFieldConfig {
+          if (isScalarType(field.type)) {
+            if (isSpecifiedScalarType(field.type)) {
+              switch (field.type) {
+                case GraphQLString: {
+                  return {
+                    type: ctx.map.where.string,
+                  };
+                }
 
-              case GraphQLBoolean: {
-                return {
-                  type: ctx.map.where.boolean,
-                };
+                case GraphQLBoolean: {
+                  return {
+                    type: ctx.map.where.boolean,
+                  };
+                }
               }
             }
           }
+
+          return {} as any;
         }
 
-        return {} as any;
-      }
+        const config = resolveScalar(schema);
 
-      const config = resolveScalar(schema);
-
-      return [name, config] as const;
-    },
-  );
-
-  const fields = Object.fromEntries(fieldEntries);
-
-  const input: GraphQLInputObjectType = new GraphQLInputObjectType({
-    name: `${name}WhereInput`,
-    fields: () => ({
-      AND: {
-        type: new GraphQLList(new GraphQLNonNull(input)),
+        return [name, config] as const;
       },
-      OR: {
-        type: new GraphQLList(new GraphQLNonNull(input)),
-      },
-      NOT: {
-        type: new GraphQLList(new GraphQLNonNull(input)),
-      },
-      ...fields,
-    }),
-    isOneOf: true,
-  });
+    );
 
-  return input;
+    const fields = Object.fromEntries(fieldEntries);
+
+    const input: GraphQLInputObjectType = new GraphQLInputObjectType({
+      name: `${name}WhereInput`,
+      fields: () => ({
+        AND: {
+          type: new GraphQLList(new GraphQLNonNull(input)),
+        },
+        OR: {
+          type: new GraphQLList(new GraphQLNonNull(input)),
+        },
+        NOT: {
+          type: new GraphQLList(new GraphQLNonNull(input)),
+        },
+        ...fields,
+      }),
+      isOneOf: true,
+    });
+
+    return input;
+  }
 }
 
 interface Scalar {
@@ -154,41 +162,43 @@ interface ScalarMap {
 
 function createOrderByInput(
   name: string,
-  type: GraphQLObjectType,
+  type: GraphqlNamedOutputType,
   ctx: Context,
-): GraphQLInputObjectType {
-  const fieldEntries = Object.entries(type.getFields()).map(
-    ([name, schema]) => {
-      function resolveScalar(
-        field: GraphQLField<Resource, unknown>,
-      ): GraphQLInputFieldConfig {
-        if (isScalarType(field.type)) {
-          if (isSpecifiedScalarType(field.type)) {
-            switch (field.type) {
-              case GraphQLString: {
-                return {
-                  type: ctx.map.orderBy,
-                };
+): GraphQLInputObjectType | undefined {
+  if (isObjectType(type)) {
+    const fieldEntries = Object.entries(type.getFields()).map(
+      ([name, schema]) => {
+        function resolveScalar(
+          field: GraphQLField<Resource, unknown>,
+        ): GraphQLInputFieldConfig {
+          if (isScalarType(field.type)) {
+            if (isSpecifiedScalarType(field.type)) {
+              switch (field.type) {
+                case GraphQLString: {
+                  return {
+                    type: ctx.map.orderBy,
+                  };
+                }
               }
             }
           }
+
+          return {} as any;
         }
 
-        return {} as any;
-      }
+        const config = resolveScalar(schema);
 
-      const config = resolveScalar(schema);
+        return [name, config] as const;
+      },
+    );
 
-      return [name, config] as const;
-    },
-  );
+    const fields = Object.fromEntries(fieldEntries);
 
-  const fields = Object.fromEntries(fieldEntries);
-
-  return new GraphQLInputObjectType({
-    name: `${name}OrderByInput`,
-    fields: () => fields,
-  });
+    return new GraphQLInputObjectType({
+      name: `${name}OrderByInput`,
+      fields: () => fields,
+    });
+  }
 }
 
 export class OpenCrud implements Plugin {
@@ -218,7 +228,21 @@ export class OpenCrud implements Plugin {
         const name = type.name;
         const pluralName = `${type.name}s`;
         const whereInput = createWhereInput(name, type, scalar);
+        const whereArgs: Record<string, GraphQLArgumentConfig> = whereInput
+          ? {
+            where: {
+              type: whereInput,
+            },
+          }
+          : {};
         const orderByInput = createOrderByInput(name, type, scalar);
+        const orderByArgs: Record<string, GraphQLArgumentConfig> = orderByInput
+          ? {
+            orderBy: {
+              type: orderByInput,
+            },
+          }
+          : {};
 
         return {
           name: pluralName,
@@ -227,12 +251,8 @@ export class OpenCrud implements Plugin {
               new GraphQLList(new GraphQLNonNull(type)),
             ),
             args: {
-              where: {
-                type: whereInput,
-              },
-              orderBy: {
-                type: orderByInput,
-              },
+              ...whereArgs,
+              ...orderByArgs,
             },
             resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
               const ids = await ctx.fetcher.list(name);
