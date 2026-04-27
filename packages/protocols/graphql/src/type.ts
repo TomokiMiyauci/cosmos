@@ -32,11 +32,6 @@ export interface GraphQLQueryField {
   type: GraphQLFieldConfig<unknown, ResolverContext>;
 }
 
-export interface Namer {
-  field(name: string): string;
-  type(name: string): string;
-}
-
 export interface TypeBuilder {
   build(ctx: BuilderContext): GraphqlNamedOutputType[];
 }
@@ -51,6 +46,10 @@ export interface Plugin {
     config: GraphQLObjectTypeConfig<Resource, unknown>,
   ): GraphQLObjectTypeConfig<Resource, unknown>;
   provideQuery?(ctx: QueryContext): GraphQLQueryField[];
+  objectType?(type: GraphQLObjectType): GraphQLObjectType;
+  objectField?(
+    field: GraphQLFieldConfig<unknown, unknown>,
+  ): GraphQLFieldConfig<unknown, unknown>;
 }
 
 export type GraphqlNamedOutputType =

@@ -9,31 +9,26 @@ import {
 import type {
   BuilderContext,
   GraphqlNamedOutputType,
-  Namer,
   Plugin,
   ResolverContext,
   Resource,
   TypeBuilder,
 } from "./type.ts";
-import { isNamedOutputType, overrideName } from "./util.ts";
-import { StandardNamer } from "./namers/standard.ts";
+import { isNamedOutputType, toMapper } from "./util.ts";
 import { CoreTypeBuilder } from "./builder/type_builder.ts";
-import { rewireTypes } from "@graphql-tools/utils";
+import { mapSchema, rewireTypes } from "@graphql-tools/utils";
 import { mapValues } from "@std/collections/map-values";
 
 export interface SchemaConfig {
   plugins: Plugin[];
   builder?: TypeBuilder;
-  namer?: Namer;
 }
 
 export class SchemaBuilder {
-  #namer: Namer;
   #builder: TypeBuilder;
 
   constructor(private config: SchemaConfig) {
     this.#builder = config.builder ?? new CoreTypeBuilder();
-    this.#namer = config.namer ?? new StandardNamer();
   }
 
   build(ctx: BuilderContext): GraphQLSchema {
@@ -64,7 +59,11 @@ export class SchemaBuilder {
 
     const query = new GraphQLObjectType({ name: "Query", fields });
     const schema = new GraphQLSchema({ query });
-    const finalSchema = overrideName(this.#namer, schema);
+    const mappers = this.config.plugins.map(toMapper);
+    const finalSchema = mappers.reduce(
+      (schema, mapper) => mapSchema(schema, mapper),
+      schema,
+    );
 
     return finalSchema;
   }

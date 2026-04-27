@@ -1,68 +1,39 @@
 import {
+  type GraphQLFieldConfig,
   type GraphQLNamedOutputType,
   type GraphQLNamedType,
-  type GraphQLSchema,
   isOutputType,
 } from "graphql";
-import type { Namer } from "./type.ts";
-import { MapperKind, mapSchema } from "@graphql-tools/utils";
-
-export function overrideName(
-  namer: Namer,
-  schema: GraphQLSchema,
-): GraphQLSchema {
-  return mapSchema(schema, {
-    [MapperKind.OBJECT_TYPE]: (config) => {
-      const name = namer.type(config.name);
-
-      config.name = name;
-      return config;
-    },
-    [MapperKind.OBJECT_FIELD]: (config, fieldName) => {
-      const name = namer.field(fieldName);
-
-      return [name, config] as const;
-    },
-    [MapperKind.INPUT_OBJECT_TYPE]: (config) => {
-      const name = namer.type(config.name);
-
-      config.name = name;
-      return config;
-    },
-    // [MapperKind.INPUT_OBJECT_FIELD]: (config, fieldName) => {
-    //   const name = namer.field(fieldName);
-
-    //   return [name, config] as const;
-    // },
-    [MapperKind.UNION_TYPE]: (type) => {
-      const original = type.resolveType?.bind(type);
-
-      if (original) {
-        type.resolveType = async (...args) => {
-          const result = await original(...args);
-
-          if (typeof result === "string") {
-            const name = namer.type(result);
-
-            return name;
-          }
-
-          return result;
-        };
-      }
-
-      return type;
-    },
-    [MapperKind.INTERFACE_TYPE]: (type) => {
-      type.name = namer.type(type.name);
-
-      return type;
-    },
-  });
-}
+import type { Plugin } from "./type.ts";
+import {
+  type FieldMapper,
+  MapperKind,
+  type SchemaMapper,
+} from "@graphql-tools/utils";
 
 export function isNamedOutputType(
   type: GraphQLNamedType,
 ): type is GraphQLNamedOutputType {
   return isOutputType(type);
+}
+
+export function toMapper(plugin: Plugin): SchemaMapper {
+  const objectField = plugin.objectField
+    ? toFieldMapper(plugin.objectField.bind(plugin))
+    : undefined;
+
+  return {
+    [MapperKind.OBJECT_TYPE]: plugin.objectType?.bind(plugin),
+    [MapperKind.OBJECT_FIELD]: objectField,
+  };
+}
+
+function toFieldMapper(
+  fn: (
+    field: GraphQLFieldConfig<unknown, unknown>,
+  ) => GraphQLFieldConfig<unknown, unknown>,
+): FieldMapper {
+  return (fieldConfig) => {
+    return fn(fieldConfig);
+  };
 }

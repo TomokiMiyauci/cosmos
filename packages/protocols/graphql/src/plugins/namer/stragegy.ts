@@ -1,7 +1,7 @@
-import type { Namer } from "../type.ts";
+import type { Strategy } from "./type.ts";
 import { toCamelCase, toPascalCase } from "@std/text";
 
-export class StandardNamer implements Namer {
+export class Standard implements Strategy {
   field(name: string): string {
     return toCamelCase(name);
   }
