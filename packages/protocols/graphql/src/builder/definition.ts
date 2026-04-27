@@ -442,35 +442,29 @@ function createMapObject(
           ctx,
         );
 
-        const mapped = {
-          type,
-          resolve(node: Node): Data | Promise<Data> | null {
-            assertMapNode(node);
+        function mappedResolve(node: Node): Data | Promise<Data> | null {
+          assertMapNode(node);
 
-            const child = node.value[key];
+          const child = node.value[key];
 
-            if (!child) return null;
+          if (!child) return null;
 
-            return resolve(child);
-          },
-        };
+          return resolve(child);
+        }
 
         return {
-          type: required.has(key)
-            ? new GraphQLNonNull(mapped.type)
-            : mapped.type,
+          type: required.has(key) ? new GraphQLNonNull(type) : type,
           resolve(resource: Resource): Data | Promise<Data> | null {
             const node = resolveResource(resource);
 
-            return mapped.resolve(node);
+            return mappedResolve(node);
           },
-          description: schema.description,
         } satisfies GraphQLFieldConfig<Resource, unknown>;
       });
 
       return fields;
     },
-    description: schema.description,
+    extensions: { schema },
   });
 }
 
