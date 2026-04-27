@@ -21,6 +21,7 @@ import {
 } from "graphql";
 import { ascend, descend } from "@std/data-structures/comparators";
 import { isObjectType } from "graphql";
+import { GraphQLDateTime } from "graphql-scalars";
 
 export interface OpenCrudArgs {
   where?: WhereInput;
@@ -111,6 +112,14 @@ function createWhereInput(
                 }
               }
             }
+
+            switch (field.type.name) {
+              case GraphQLDateTime.name: {
+                return {
+                  type: ctx.map.where.datetime,
+                };
+              }
+            }
           }
 
           return {} as any;
@@ -179,6 +188,14 @@ function createOrderByInput(
                     type: ctx.map.orderBy,
                   };
                 }
+              }
+            }
+
+            switch (field.type.name) {
+              case GraphQLDateTime.name: {
+                return {
+                  type: ctx.map.orderBy,
+                };
               }
             }
           }
