@@ -1,5 +1,5 @@
 import type { Entry, EntryFilter, Store } from "@cosmos/core";
-import { DatabaseSync } from "node:sqlite";
+import type { DatabaseSync } from "node:sqlite";
 
 export class SqliteStore implements Store {
   constructor(private db: DatabaseSync) {
@@ -69,7 +69,7 @@ DO UPDATE SET
     }
   }
 
-  async load(id: string): Promise<Entry> {
+  load(id: string): Entry {
     const row = this.db.prepare(`
       WITH entry_record AS (
         SELECT id, type, data FROM entries WHERE key = ?
@@ -114,7 +114,7 @@ DO UPDATE SET
     };
   }
 
-  async list(filter: EntryFilter): Promise<string[]> {
+  list(filter: EntryFilter): string[] {
     if (filter.type === "node") {
       let sql =
         `SELECT e.key FROM entries e JOIN node_entries n ON e.id = n.entry_id`;

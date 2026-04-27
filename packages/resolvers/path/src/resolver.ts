@@ -16,7 +16,7 @@ export class PathResolver implements Resolver {
     return toFileUrl(absolutePath);
   }
 
-  unresolve(url: URL, ctx: ResolverContext): Promise<string> | string {
+  unresolve(_: URL, __: ResolverContext): Promise<string> | string {
     throw new Error();
   }
 }
