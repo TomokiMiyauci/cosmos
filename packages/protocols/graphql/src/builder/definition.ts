@@ -391,9 +391,7 @@ export function createScalarObject(
         },
       },
     },
-    extensions: {
-      schema,
-    },
+    description: schema.description,
   });
 }
 
@@ -454,9 +452,7 @@ export function createObject(
             },
           },
         },
-        extensions: {
-          schema,
-        },
+        description: schema.description,
       });
     }
   }
@@ -495,15 +491,13 @@ function createMapObject(
 
             return mappedResolve(node);
           },
-          extensions: {
-            schema,
-          },
+          description: schema.description,
         } satisfies GraphQLFieldConfig<Resource, unknown>;
       });
 
       return fields;
     },
-    extensions: { schema },
+    description: schema.description,
   });
 }
 
@@ -528,9 +522,7 @@ function createListObject(
         },
       },
     },
-    extensions: {
-      schema,
-    },
+    description: schema.description,
   });
 }
 
