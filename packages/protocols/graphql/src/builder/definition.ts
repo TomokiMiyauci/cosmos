@@ -11,17 +11,23 @@ import {
 } from "graphql";
 import type {
   AssetNode,
+  AssetSchema,
   BooleanNode,
+  BooleanSchema,
   DatetimeNode,
+  DatetimeSchema,
   InstanceSchema,
   ListSchema,
   MapSchema,
   MarkdownNode,
+  MarkdownSchema,
   Node,
   NumberNode,
+  NumberSchema,
   ReferenceSchema,
   Schema,
   StringNode,
+  StringSchema,
   UnionSchema,
 } from "@cosmos/core";
 import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
@@ -341,20 +347,52 @@ function createInstance(
   } satisfies GraphqlDefinition<Node, Resource>;
 }
 
+type ScalarSchema =
+  | StringSchema
+  | NumberSchema
+  | DatetimeSchema
+  | BooleanSchema
+  | AssetSchema
+  | MarkdownSchema;
+
+function resolveScalarDefinition(
+  schema: ScalarSchema,
+): GraphqlScalarDefinition<Node, Data> {
+  switch (schema.type) {
+    case "string":
+      return stringNode;
+    case "number":
+      return numberNode;
+    case "boolean":
+      return booleanNode;
+    case "datetime":
+      return datetimeNode;
+    case "asset":
+      return assetNode;
+    case "markdown":
+      return markdownNode;
+  }
+}
+
 export function createScalarObject(
   name: string,
-  config: GraphqlScalarDefinition<Node, Data>,
+  schema: ScalarSchema,
 ): GraphQLObjectType<Resource> {
+  const def = resolveScalarDefinition(schema);
+
   return new GraphQLObjectType({
     name,
     fields: {
       value: {
-        type: config.type,
+        type: def.type,
         resolve(resource): Data | Promise<Data> {
           const node = resolveResource(resource);
-          return config.resolve(node);
+          return def.resolve(node);
         },
       },
+    },
+    extensions: {
+      schema,
     },
   });
 }
@@ -376,17 +414,12 @@ export function createObject(
 ): GraphQLObjectType<Resource> {
   switch (schema.type) {
     case "string":
-      return createScalarObject(name, stringNode);
     case "boolean":
-      return createScalarObject(name, booleanNode);
     case "datetime":
-      return createScalarObject(name, datetimeNode);
     case "asset":
-      return createScalarObject(name, assetNode);
     case "markdown":
-      return createScalarObject(name, markdownNode);
     case "number":
-      return createScalarObject(name, numberNode);
+      return createScalarObject(name, schema);
     case "map":
       return createMapObject(name, schema, ctx);
     case "list":
@@ -420,6 +453,9 @@ export function createObject(
               return resolve(node);
             },
           },
+        },
+        extensions: {
+          schema,
         },
       });
     }
@@ -459,6 +495,9 @@ function createMapObject(
 
             return mappedResolve(node);
           },
+          extensions: {
+            schema,
+          },
         } satisfies GraphQLFieldConfig<Resource, unknown>;
       });
 
@@ -488,6 +527,9 @@ function createListObject(
           return node.value;
         },
       },
+    },
+    extensions: {
+      schema,
     },
   });
 }
