@@ -2,7 +2,7 @@ import type { BuilderContext, Resource, TypeBuilder } from "../type.ts";
 import { createObject, type RuntimeContext } from "./definition.ts";
 import type { GraphQLObjectType } from "graphql";
 
-export class BasicTypeBuilder implements TypeBuilder {
+export class CoreTypeBuilder implements TypeBuilder {
   build(ctx: BuilderContext): GraphQLObjectType<Resource>[] {
     const map: RuntimeContext["map"] = {};
     const context = {
@@ -19,13 +19,10 @@ export class BasicTypeBuilder implements TypeBuilder {
 
         map[name] = type;
 
-        return {
-          type,
-          schema,
-        };
+        return type;
       },
     );
 
-    return entries.map(({ type }) => type);
+    return entries;
   }
 }

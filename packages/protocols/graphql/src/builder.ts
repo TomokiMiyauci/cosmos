@@ -3,6 +3,7 @@ import {
   GraphQLObjectType,
   type GraphQLObjectTypeConfig,
   GraphQLSchema,
+  isObjectType,
   type ThunkObjMap,
 } from "graphql";
 import type {
@@ -16,7 +17,7 @@ import type {
 } from "./type.ts";
 import { isNamedOutputType, overrideName } from "./util.ts";
 import { StandardNamer } from "./namers/standard.ts";
-import { BasicTypeBuilder } from "./builder/type_builder.ts";
+import { CoreTypeBuilder } from "./builder/type_builder.ts";
 import { rewireTypes } from "@graphql-tools/utils";
 import { mapValues } from "@std/collections/map-values";
 
@@ -31,7 +32,7 @@ export class SchemaBuilder {
   #builder: TypeBuilder;
 
   constructor(private config: SchemaConfig) {
-    this.#builder = config.builder ?? new BasicTypeBuilder();
+    this.#builder = config.builder ?? new CoreTypeBuilder();
     this.#namer = config.namer ?? new StandardNamer();
   }
 
@@ -70,30 +71,34 @@ export class SchemaBuilder {
 }
 
 function applyTransform(
-  entreis: GraphQLObjectType<Resource>[],
+  entreis: GraphqlNamedOutputType[],
   transformers: ((
     config: GraphQLObjectTypeConfig<Resource, unknown>,
   ) => GraphQLObjectTypeConfig<Resource, unknown>)[],
 ): GraphqlNamedOutputType[] {
-  const record = entreis.reduce(
+  const record = entreis.reduce<Record<string, GraphqlNamedOutputType>>(
     (acc, entry) => {
       acc[entry.name] = entry;
 
       return acc;
     },
-    {} as Record<string, GraphQLObjectType<Resource>>,
+    {},
   );
 
   const map = mapValues(record, (type) => {
-    const config = type.toConfig();
+    if (isObjectType(type)) {
+      const config = type.toConfig();
 
-    const transformed = transformers.reduce<
-      GraphQLObjectTypeConfig<Resource, unknown>
-    >((acc, transformer) => {
-      return transformer(acc);
-    }, config);
+      const transformed = transformers.reduce<
+        GraphQLObjectTypeConfig<Resource, unknown>
+      >((acc, transformer) => {
+        return transformer(acc);
+      }, config);
 
-    return new GraphQLObjectType(transformed);
+      return new GraphQLObjectType(transformed);
+    }
+
+    return type;
   });
 
   const { typeMap } = rewireTypes(map, []);

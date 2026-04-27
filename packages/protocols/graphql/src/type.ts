@@ -38,7 +38,7 @@ export interface Namer {
 }
 
 export interface TypeBuilder {
-  build(ctx: BuilderContext): GraphQLObjectType<Resource>[];
+  build(ctx: BuilderContext): GraphqlNamedOutputType[];
 }
 
 export interface BuilderContext {
