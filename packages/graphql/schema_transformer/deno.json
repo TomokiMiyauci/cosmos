@@ -2,9 +2,11 @@
   "name": "@miyauci/graphql-transformer",
   "exports": {
     ".": "./src/mod.ts",
-    "./namer": "./src/plugins/namer/mod.ts"
+    "./namer": "./src/plugins/namer/mod.ts",
+    "./executable-directive": "./src/plugins/executable_directive/mod.ts"
   },
   "imports": {
+    "@graphql-tools/schema": "npm:@graphql-tools/schema@^10.0.33",
     "@graphql-tools/utils": "npm:@graphql-tools/utils@^11.1.0",
     "@std/collections": "jsr:@std/collections@^1.1.7",
     "@std/text": "jsr:@std/text@^1.0.18",
