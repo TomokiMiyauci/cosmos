@@ -14,9 +14,9 @@ import type {
   Resource,
   TypeBuilder,
 } from "./type.ts";
-import { isNamedOutputType, toMapper } from "./util.ts";
+import { isNamedOutputType } from "./util.ts";
 import { CoreTypeBuilder } from "./builder/type_builder.ts";
-import { mapSchema, rewireTypes } from "@graphql-tools/utils";
+import { rewireTypes } from "@graphql-tools/utils";
 import { mapValues } from "@std/collections/map-values";
 
 export interface SchemaConfig {
@@ -59,13 +59,8 @@ export class SchemaBuilder {
 
     const query = new GraphQLObjectType({ name: "Query", fields });
     const schema = new GraphQLSchema({ query });
-    const mappers = this.config.plugins.map(toMapper);
-    const finalSchema = mappers.reduce(
-      (schema, mapper) => mapSchema(schema, mapper),
-      schema,
-    );
 
-    return finalSchema;
+    return schema;
   }
 }
 

@@ -6,7 +6,7 @@ import {
 import type { Plugin } from "../../type.ts";
 import type { Strategy } from "./type.ts";
 import { Standard } from "./stragegy.ts";
-import { mapKeys } from "@std/collections";
+import { mapKeys } from "@std/collections/map-keys";
 
 export class NamerPlugin implements Plugin {
   constructor(private strategy: Strategy = new Standard()) {}

@@ -2,7 +2,6 @@ import type { Datalayer, Manifest, Node } from "@cosmos/core";
 import type {
   GraphQLEnumType,
   GraphQLFieldConfig,
-  GraphQLInputObjectType,
   GraphQLInterfaceType,
   GraphQLObjectType,
   GraphQLObjectTypeConfig,
@@ -47,9 +46,6 @@ export interface Plugin {
     config: GraphQLObjectTypeConfig<Resource, unknown>,
   ): GraphQLObjectTypeConfig<Resource, unknown>;
   provideQuery?(ctx: QueryContext): GraphQLQueryField[];
-  objectType?(type: GraphQLObjectType): GraphQLObjectType;
-  inputObjectType?(type: GraphQLInputObjectType): GraphQLInputObjectType;
-  interfaceType?(type: GraphQLInterfaceType): GraphQLInterfaceType;
 }
 
 export type GraphqlNamedOutputType =
