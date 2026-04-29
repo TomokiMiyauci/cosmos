@@ -18,6 +18,7 @@ import type {
   DatetimeSchema,
   InstanceSchema,
   ListSchema,
+  MapNode,
   MapSchema,
   MarkdownNode,
   MarkdownSchema,
@@ -47,31 +48,31 @@ import type { Fetcher, Resource } from "../type.ts";
 import { toRoot, toString } from "@cosmos/codec-markdown";
 import { mapValues } from "@std/collections";
 
-export interface GraphqlScalarDefinition<In, Out, Ctx = unknown>
-  extends GraphQLFieldConfig<In, Ctx> {
+export interface GraphqlScalarDefinition<In, Out, Ctx = unknown> {
   type: GraphQLScalarType<Out>;
   resolve: GraphqlResolve<In, Out>;
 }
 
-export interface GrpahqlObjectTypeDefinition<T, U, Ctx = unknown>
-  extends GraphQLFieldConfig<T, Ctx> {
+export interface GrpahqlObjectTypeDefinition<T, U, Ctx = unknown> {
   type: GraphQLObjectType<U>;
   resolve: GraphqlResolve<T, U>;
 }
 
-export interface GraphqlListDefinition<T, U, Ctx = unknown>
-  extends GraphQLFieldConfig<T, Ctx> {
-  type: GraphQLList<GraphQLScalarType<Item<U>> | GraphQLObjectType<Item<U>>>;
-  resolve: GraphqlResolve<T, U>;
+type GraphqlItem<U> =
+  | GraphQLScalarType<U>
+  | GraphQLObjectType<U>
+  | GraphQLUnionType
+  | GraphQLList<GraphqlItem<U>>;
+
+export interface GraphqlListDefinition<T, U, Ctx = unknown> {
+  type: GraphQLList<GraphqlItem<U>>;
+  resolve: GraphqlResolve<T, U[]>;
 }
 
-export interface GraphqlUnionDefinition<T, U, Ctx = unknown>
-  extends GraphQLFieldConfig<T, Ctx> {
+export interface GraphqlUnionDefinition<T, U, Ctx = unknown> {
   type: GraphQLUnionType;
   resolve: GraphqlResolve<T, U>;
 }
-
-type Item<T> = T extends (infer U)[] ? U : never;
 
 export type GraphqlDefinition<T, U = T, Ctx = unknown> =
   | GraphqlScalarDefinition<T, U, Ctx>
@@ -83,14 +84,14 @@ export interface GraphqlResolve<In, Out> {
   (value: In): Out | Promise<Out>;
 }
 
-const string = {
+export const string = {
   type: GraphQLString,
   resolve(node): string {
     return node.value;
   },
 } satisfies GraphqlScalarDefinition<StringNode, string>;
 
-const boolean = {
+export const boolean = {
   type: GraphQLBoolean,
   resolve(node): boolean {
     return node.value;
@@ -187,10 +188,9 @@ export function createNodeDefinition(
   schema: Schema,
   ctx: RuntimeContext,
 ):
-  | GraphqlScalarDefinition<Node, number | boolean | Date | string | URL>
-  | GraphqlListDefinition<Node, Resource[]>
-  | GrpahqlObjectTypeDefinition<Node, Resource>
-  | GraphqlUnionDefinition<Node, Node> {
+  | GraphqlDefinition<Node, Data>
+  | GraphqlDefinition<Node, MapNode>
+  | GraphqlDefinition<Node, Resource> {
   switch (schema.type) {
     case "number":
       return numberNode;
@@ -255,39 +255,68 @@ function createMap(
   name: string,
   schema: MapSchema,
   ctx: RuntimeContext,
-): GrpahqlObjectTypeDefinition<Node, Resource> {
-  const objectType = createObject(name, schema, ctx);
+): GrpahqlObjectTypeDefinition<Node, MapNode> {
+  const required = new Set(schema.required);
+  const type = new GraphQLObjectType<MapNode>({
+    name,
+    fields: () => {
+      const fields = mapValues(schema.props, (schema, key) => {
+        const { type, resolve } = createNodeDefinition(
+          scope(name, key),
+          schema,
+          ctx,
+        );
+
+        function mappedResolve(node: Node): Data | Promise<Data> | null {
+          assertMapNode(node);
+          const child = node.value[key];
+
+          if (!child) return null;
+
+          return resolve(child);
+        }
+
+        return {
+          type: required.has(key) ? new GraphQLNonNull(type) : type,
+          resolve: mappedResolve,
+          description: schema.description,
+        } satisfies GraphQLFieldConfig<MapNode, unknown>;
+      });
+
+      return fields;
+    },
+    description: schema.description,
+  });
 
   return {
-    type: objectType,
-    resolve(node): Resource {
+    type,
+    resolve(node): MapNode {
       assertMapNode(node);
 
-      return { id: "", node };
+      return node;
     },
-  } satisfies GraphqlDefinition<Node, Resource>;
+  } satisfies GraphqlDefinition<Node, MapNode>;
 }
 
 function createList(
   name: string,
   schema: ListSchema,
   ctx: RuntimeContext,
-): GraphqlListDefinition<Node, Resource[]> {
-  const of = createObject(name, schema.item, ctx);
+): GraphqlListDefinition<Node, Data> {
+  const { type, resolve } = createNodeDefinition(name, schema.item, ctx);
 
   return {
-    type: new GraphQLList(of),
-    resolve(node): Resource[] {
+    // TODO: remove any
+    type: new GraphQLList(type as any),
+    async resolve(node): Promise<Data[]> {
       assertListNode(node);
 
-      return node.value.map((node) => {
-        return {
-          id: "",
-          node,
-        };
-      });
+      const promises = node.value.map(async (child) => await resolve(child));
+      const result = await Promise.all(promises);
+
+      return result;
     },
-  } satisfies GraphqlDefinition<Node, Resource[]>;
+  } satisfies GraphqlListDefinition<Node, Data>;
 }
 
 function createUnion(
@@ -400,10 +429,10 @@ export type Data =
   | number
   | boolean
   | Node
-  | Resource
   | Date
   | URL
-  | Resource[];
+  | Resource
+  | Data[];
 
 export function createObject(
   name: string,
@@ -463,41 +492,40 @@ function createMapObject(
   schema: MapSchema,
   ctx: RuntimeContext,
 ): GraphQLObjectType<Resource> {
-  const required = new Set(schema.required);
+  const { type, resolve } = createMap(name, schema, ctx);
+
   return new GraphQLObjectType<Resource>({
-    name,
+    name: type.name,
+    description: type.description,
+    interfaces: type.getInterfaces(),
     fields: () => {
-      const fields = mapValues(schema.props, (schema, key) => {
-        const { type, resolve } = createNodeDefinition(
-          scope(name, key),
-          schema,
-          ctx,
-        );
+      const config = type.toConfig();
 
-        function mappedResolve(node: Node): Data | Promise<Data> | null {
-          assertMapNode(node);
+      const fields = mapValues(
+        config.fields,
+        (field: GraphQLFieldConfig<MapNode, unknown>) => {
+          return {
+            ...field,
+            async resolve(resource: Resource, ...args): Promise<unknown> {
+              const node = resolveResource(resource);
+              const mapNode = await resolve(node);
 
-          const child = node.value[key];
+              return field.resolve?.(mapNode, ...args);
+            },
+            async subscribe(resource: Resource, ...args): Promise<unknown> {
+              const node = resolveResource(resource);
+              const mapNode = await resolve(node);
 
-          if (!child) return null;
-
-          return resolve(child);
-        }
-
-        return {
-          type: required.has(key) ? new GraphQLNonNull(type) : type,
-          resolve(resource: Resource): Data | Promise<Data> | null {
-            const node = resolveResource(resource);
-
-            return mappedResolve(node);
-          },
-          description: schema.description,
-        } satisfies GraphQLFieldConfig<Resource, unknown>;
-      });
+              return field.resolve?.(mapNode, ...args);
+            },
+          } satisfies GraphQLFieldConfig<Resource, unknown>;
+        },
+      );
 
       return fields;
     },
-    description: schema.description,
+    astNode: type.astNode,
+    extensionASTNodes: type.extensionASTNodes,
   });
 }
 
