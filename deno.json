@@ -9,7 +9,8 @@
     "packages/storages/*",
     "packages/formatters/*",
     "packages/node/*",
-    "packages/graphql/*"
+    "packages/graphql/*",
+    "examples/*"
   ],
   "lint": {
     "rules": {

@@ -28,6 +28,7 @@
     "jsr:@std/yaml@^1.0.12": "1.1.0",
     "jsr:@ts-morph/bootstrap@0.27": "0.27.0",
     "jsr:@ts-morph/common@0.27": "0.27.0",
+    "npm:@graphql-tools/schema@^10.0.33": "10.0.33_graphql@16.13.2",
     "npm:@graphql-tools/utils@11": "11.1.0_graphql@16.13.2",
     "npm:@graphql-tools/utils@^11.1.0": "11.1.0_graphql@16.13.2",
     "npm:@types/pluralize@^0.0.33": "0.0.33",
@@ -242,8 +243,8 @@
         "tslib"
       ]
     },
-    "@graphql-tools/schema@10.0.32_graphql@16.13.2": {
-      "integrity": "sha512-kJ1Qn20MPnlaEVH37639E6rzQ1tEtr6XTUhNdR4EKydl+FijtLhWX2WLZbGnvrYuG8XUcMxsZU9mRRYYNvK02w==",
+    "@graphql-tools/schema@10.0.33_graphql@16.13.2": {
+      "integrity": "sha512-O6P3RIftO0jafnSsFAqpjurUuUxJ43s/AdPVLQsBkI6y4Ic/tKm4C1Qm1KKQsCDTOxXPJClh/v3g7k7yLKCFBQ==",
       "dependencies": [
         "@graphql-tools/merge",
         "@graphql-tools/utils@11.1.0_graphql@16.13.2",
@@ -983,6 +984,12 @@
       "jsr:@std/testing@^1.0.18"
     ],
     "members": {
+      "examples/blog": {
+        "dependencies": [
+          "jsr:@std/path@^1.1.4",
+          "npm:graphql@^16.13.2"
+        ]
+      },
       "packages/codecs/asset": {
         "dependencies": [
           "jsr:@std/path@^1.1.4"
@@ -1034,6 +1041,7 @@
         "dependencies": [
           "jsr:@std/collections@^1.1.7",
           "jsr:@std/text@^1.0.18",
+          "npm:@graphql-tools/schema@^10.0.33",
           "npm:@graphql-tools/utils@^11.1.0",
           "npm:graphql@^16.13.2"
         ]
