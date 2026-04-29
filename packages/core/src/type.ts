@@ -152,7 +152,7 @@ export interface NodeLayer {
 
 export interface AssetLayer {
   fetch(id: string): Blob | Promise<Blob>;
-  list(): Promise<string[]>;
+  list(): Promise<string[]> | string[];
 }
 
 export interface AssetHeader {

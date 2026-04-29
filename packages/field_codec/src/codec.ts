@@ -60,40 +60,41 @@ export class FieldCodec implements Codec {
   stringify(
     node: Node,
     field: Field,
+    ctx: CodecContext,
   ): Structure | Promise<Structure> {
     switch (field.type) {
       case "string": {
-        return this.map.string.stringify(node, field);
+        return this.map.string.stringify(node, field, ctx);
       }
       case "number": {
-        return this.map.number.stringify(node, field);
+        return this.map.number.stringify(node, field, ctx);
       }
       case "boolean": {
-        return this.map.boolean.stringify(node, field);
+        return this.map.boolean.stringify(node, field, ctx);
       }
       case "instance": {
-        return this.map.instance.stringify(node, field);
+        return this.map.instance.stringify(node, field, ctx);
       }
       case "reference": {
-        return this.map.reference.stringify(node, field);
+        return this.map.reference.stringify(node, field, ctx);
       }
       case "list": {
-        return this.map.list.stringify(node, field);
+        return this.map.list.stringify(node, field, ctx);
       }
       case "asset": {
-        return this.map.asset.stringify(node, field);
+        return this.map.asset.stringify(node, field, ctx);
       }
       case "map": {
-        return this.map.map.stringify(node, field);
+        return this.map.map.stringify(node, field, ctx);
       }
       case "datetime": {
-        return this.map.datetime.stringify(node, field);
+        return this.map.datetime.stringify(node, field, ctx);
       }
       case "markdown": {
-        return this.map.markdown.stringify(node, field);
+        return this.map.markdown.stringify(node, field, ctx);
       }
       case "union": {
-        return this.map.union.stringify(node, field);
+        return this.map.union.stringify(node, field, ctx);
       }
     }
   }

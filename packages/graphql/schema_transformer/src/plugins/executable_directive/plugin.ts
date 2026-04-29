@@ -105,19 +105,3 @@ function toMapper(directive: ExecutableDirective): SchemaMapper {
 
   return mapper;
 }
-
-function mergeMapper(...mappers: SchemaMapper[]): SchemaMapper {
-  // TODO: implement
-
-  const mapper = mappers.reduce<SchemaMapper>((acc, mapper) => {
-    Object.entries(mapper).forEach(([key, value]) => {
-      if (Reflect.has(acc, key)) {
-        const fn = acc[key];
-      }
-    });
-
-    return acc;
-  }, {});
-
-  return mapper;
-}

@@ -1,4 +1,5 @@
 import type {
+  AlignType,
   BlockContent,
   DefinitionContent,
   ListContent,
@@ -294,7 +295,10 @@ async function parseRootNode(
             type: "string",
             value: "table",
           },
-          align: { type: "list", value: node.align ?? [] },
+          align: {
+            type: "list",
+            value: (node.align ?? []).map(toAlign).filter((v) => !!v),
+          },
           children: {
             type: "list",
             value: await Promise.all(
@@ -496,4 +500,15 @@ async function toPhrasing(
       } satisfies StrongMapNode;
     }
   }
+}
+
+function toAlign(
+  value: AlignType,
+): TableMapNode["value"]["align"]["value"][number] | undefined {
+  if (value === null) return;
+
+  return {
+    type: "string",
+    value,
+  };
 }

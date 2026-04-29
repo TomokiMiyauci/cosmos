@@ -207,7 +207,7 @@ export function createDatalayer(store: Store): Datalayer {
         return entry.data;
       },
 
-      list(): Promise<string[]> {
+      list(): Promise<string[]> | string[] {
         return store.list({ type: "asset" });
       },
     },
