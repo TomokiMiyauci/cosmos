@@ -11,5 +11,9 @@
     "@std/collections": "jsr:@std/collections@^1.1.7",
     "@std/text": "jsr:@std/text@^1.0.18",
     "graphql": "npm:graphql@^16.13.2"
+  },
+  "tasks": {
+    "build": "deno run -A ./scripts/build.ts",
+    "publish": "npm publish ./npm"
   }
 }

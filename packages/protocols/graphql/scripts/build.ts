@@ -1,15 +1,30 @@
-import { build, emptyDir } from "@deno/dnt";
+import { build, emptyDir, type EntryPoint } from "@deno/dnt";
+import denoJson from "../deno.json" with { type: "json" };
+
+interface DenoJson {
+  exports: string | Record<string, string>;
+}
+
+function toEntryPoints(json: DenoJson): EntryPoint[] {
+  if (typeof json.exports === "string") {
+    return [{
+      name: ".",
+      path: json.exports,
+    }];
+  }
+
+  return Object.entries(json.exports).map(([key, value]) => {
+    return {
+      name: key,
+      path: value,
+    } satisfies EntryPoint;
+  });
+}
 
 await emptyDir("./npm");
 
 await build({
-  entryPoints: ["./src/mod.ts", {
-    name: "./relay",
-    path: "./src/plugins/relay/mod.ts",
-  }, {
-    name: "./opencrud",
-    path: "./src/plugins/opencrud/mod.ts",
-  }],
+  entryPoints: toEntryPoints(denoJson),
   outDir: "./npm",
   shims: {},
   package: {
