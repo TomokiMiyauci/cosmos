@@ -6,6 +6,7 @@ import type {
   QueryContext,
 } from "../../type.ts";
 import {
+  getNullableType,
   type GraphQLArgumentConfig,
   GraphQLBoolean,
   GraphQLEnumType,
@@ -16,12 +17,13 @@ import {
   GraphQLList,
   GraphQLNonNull,
   GraphQLString,
+  isObjectType,
   isScalarType,
   isSpecifiedScalarType,
 } from "graphql";
 import { ascend, descend } from "@std/data-structures/comparators";
-import { isObjectType } from "graphql";
 import { GraphQLDateTime } from "graphql-scalars";
+import { isNonNullType } from "graphql";
 
 export interface OpenCrudArgs {
   where?: WhereInput;
@@ -96,9 +98,14 @@ function createWhereInput(
         function resolveScalar(
           field: GraphQLField<Resource, unknown>,
         ): GraphQLInputFieldConfig {
-          if (isScalarType(field.type)) {
-            if (isSpecifiedScalarType(field.type)) {
-              switch (field.type) {
+          let type = field.type;
+          if (isNonNullType(type)) {
+            type = getNullableType(type);
+          }
+
+          if (isScalarType(type)) {
+            if (isSpecifiedScalarType(type)) {
+              switch (type) {
                 case GraphQLString: {
                   return {
                     type: ctx.map.where.string,
@@ -113,7 +120,7 @@ function createWhereInput(
               }
             }
 
-            switch (field.type.name) {
+            switch (type.name) {
               case GraphQLDateTime.name: {
                 return {
                   type: ctx.map.where.datetime,
@@ -180,9 +187,14 @@ function createOrderByInput(
         function resolveScalar(
           field: GraphQLField<Resource, unknown>,
         ): GraphQLInputFieldConfig {
-          if (isScalarType(field.type)) {
-            if (isSpecifiedScalarType(field.type)) {
-              switch (field.type) {
+          let type = field.type;
+
+          if (isNonNullType(type)) {
+            type = getNullableType(type);
+          }
+          if (isScalarType(type)) {
+            if (isSpecifiedScalarType(type)) {
+              switch (type) {
                 case GraphQLString: {
                   return {
                     type: ctx.map.orderBy,
@@ -191,7 +203,7 @@ function createOrderByInput(
               }
             }
 
-            switch (field.type.name) {
+            switch (type.name) {
               case GraphQLDateTime.name: {
                 return {
                   type: ctx.map.orderBy,
@@ -253,6 +265,7 @@ export class OpenCrud implements Plugin {
           }
           : {};
         const orderByInput = createOrderByInput(name, type, scalar);
+        console.log(name, orderByInput?.getFields());
         const orderByArgs: Record<string, GraphQLArgumentConfig> = orderByInput
           ? {
             orderBy: {
