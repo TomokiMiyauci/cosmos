@@ -12,7 +12,7 @@ import { createDatalayer } from "@cosmos/indexer";
 import { DatabaseSync } from "node:sqlite";
 import { Indexer } from "@cosmos/indexer";
 import { SqliteStore } from "@cosmos/store-sqlite";
-import { DirectiveLocation } from "graphql";
+import { assertValidSchema, DirectiveLocation } from "graphql";
 import config from "./config.ts";
 
 const db = new DatabaseSync(":memory:");
@@ -45,6 +45,8 @@ const transformer = new SchemaTransformer({
   ],
 });
 const finalSchema = transformer.transform(schema);
+
+assertValidSchema(finalSchema);
 
 const delivery = new Delivery({
   protocol: new GraphqlProtocol(finalSchema),
