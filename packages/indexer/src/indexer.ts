@@ -60,21 +60,21 @@ export class Indexer {
     }
     const nodeEntries: NodeEntry[] = [];
 
-    const entryPromises = resources.map(async (resource) => {
-      const indexerType = resource.name;
+    const entryPromises = Object.entries(resources).map(
+      async ([name, resource]) => {
+        const indexer = resolveIndexer(sources, name);
+        const iter = indexer.search();
 
-      const indexer = resolveIndexer(sources, indexerType);
-      const iter = indexer.search();
+        const urls = await Array.fromAsync(iter);
 
-      const urls = await Array.fromAsync(iter);
-
-      return urls.map((url) => {
-        return {
-          url,
-          resource,
-        } satisfies Entry;
-      });
-    });
+        return urls.map((url) => {
+          return {
+            url,
+            resource,
+          } satisfies Entry;
+        });
+      },
+    );
 
     const entries = (await Promise.all(entryPromises)).flat();
 
@@ -163,7 +163,9 @@ export class Indexer {
       manifest: {
         version: "1",
         schemas,
-        resources: new Set(resources.map((resource) => resource.model)).values()
+        resources: new Set(
+          Object.values(resources).map((resource) => resource.model),
+        ).values()
           .toArray(),
       },
       datalayer,

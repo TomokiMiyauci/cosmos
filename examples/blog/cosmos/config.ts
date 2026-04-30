@@ -50,8 +50,8 @@ export default {
   assets: [
     "asset",
   ],
-  resources: [
-    {
+  resources: {
+    posts: {
       format: {
         type: "frontmatter",
         header: {
@@ -63,14 +63,13 @@ export default {
         bodyKey: "body",
       },
       model: "post",
-      name: "posts",
     },
-    {
+    authors: {
       format: { type: "json" },
       model: "author",
-      name: "authors",
     },
-  ],
+  },
+
   sources: {
     posts: new FsIndexer(rootDir, {
       pattern: "/contents/posts/**/*.md",

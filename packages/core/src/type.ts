@@ -7,7 +7,7 @@ export interface Manifest {
 export interface Config {
   formatters: FormatterDefinition[];
   field: CodecMap;
-  resources: Resource[];
+  resources: Record<string, Resource>;
   sources: Record<string, Source>;
   storage: Storage;
   assets?: string[];
@@ -172,7 +172,6 @@ export interface AssetHeader {
 export interface Resource {
   format: FormatDefinition;
   model: string;
-  name: string;
 }
 
 export interface IndexerDefinition {
