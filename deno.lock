@@ -1080,11 +1080,6 @@
           "npm:swagger-ui-dist@^5.32.1"
         ]
       },
-      "packages/resolvers/path": {
-        "dependencies": [
-          "jsr:@std/path@^1.1.4"
-        ]
-      },
       "packages/storages/fs": {
         "dependencies": [
           "jsr:@std/fs@^1.0.23",

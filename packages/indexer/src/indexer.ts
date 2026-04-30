@@ -4,7 +4,6 @@ import {
   type Config,
   type Datalayer,
   type Field,
-  type IndexManager,
   type Manifest,
   type Node,
   type NodeEntry,
@@ -12,6 +11,7 @@ import {
   resolveFormatter,
   type Resource,
   type Schema,
+  type Source,
   type Store,
 } from "@cosmos/core";
 import { AssetRegistry } from "./registry.ts";
@@ -31,8 +31,8 @@ export class Indexer {
       formatters,
       resources,
       models,
-      indexes,
       storage,
+      sources,
       assets = [],
     } = config;
     const registry = new AssetRegistry();
@@ -45,8 +45,8 @@ export class Indexer {
     }, {});
 
     const assetPromise = assets.map(async (asset) => {
-      const inderxer = resolveIndexer(indexes, asset.indexer.type);
-      const iter = inderxer.search(asset.indexer.options);
+      const inderxer = resolveIndexer(sources, asset);
+      const iter = inderxer.search();
 
       const urls = await Array.fromAsync(iter);
 
@@ -61,10 +61,10 @@ export class Indexer {
     const nodeEntries: NodeEntry[] = [];
 
     const entryPromises = resources.map(async (resource) => {
-      const indexerType = resource.indexer.type;
+      const indexerType = resource.name;
 
-      const indexer = resolveIndexer(indexes, indexerType);
-      const iter = indexer.search(resource.indexer.options);
+      const indexer = resolveIndexer(sources, indexerType);
+      const iter = indexer.search();
 
       const urls = await Array.fromAsync(iter);
 
@@ -172,14 +172,14 @@ export class Indexer {
 }
 
 function resolveIndexer(
-  indexers: IndexManager[],
+  indexers: Record<string, Source>,
   type: string,
-): IndexManager {
-  const indexer = indexers.find((indexer) => indexer.type === type);
+): Source {
+  const source = indexers[type];
 
-  if (!indexer) throw new Error();
+  if (!source) throw new Error();
 
-  return indexer;
+  return source;
 }
 
 export function createDatalayer(store: Store): Datalayer {

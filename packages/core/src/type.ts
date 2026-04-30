@@ -8,15 +8,13 @@ export interface Config {
   formatters: FormatterDefinition[];
   field: CodecMap;
   resources: Resource[];
+  sources: Record<string, Source>;
   storage: Storage;
-  indexes: IndexManager[];
-  assets?: AssetDefinition[];
+  assets?: string[];
   models: Record<string, Model>;
 }
 
-export interface AssetDefinition {
-  indexer: IndexerDefinition;
-}
+export type Source = Indexer;
 
 export interface CodecMap {
   string: Codec<StringNode>;
@@ -174,7 +172,7 @@ export interface AssetHeader {
 export interface Resource {
   format: FormatDefinition;
   model: string;
-  indexer: IndexerDefinition;
+  name: string;
 }
 
 export interface IndexerDefinition {
@@ -188,12 +186,8 @@ export interface Storage {
   delete(url: URL): void | Promise<void>;
 }
 
-export interface Indexer<T = unknown> {
-  search(options: T): AsyncIterable<URL>;
-}
-
-export interface IndexManager extends Indexer {
-  type: string;
+export interface Indexer {
+  search(): AsyncIterable<URL>;
 }
 
 export type StructureValue = string;

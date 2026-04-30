@@ -1,13 +1,11 @@
 import { join, toFileUrl } from "@std/path";
 import { expandGlob } from "@std/fs";
-import type { IndexManager } from "@cosmos/core";
 
-export class FsIndexer implements IndexManager {
-  constructor(private rootDir: string) {}
+export class FsIndexer {
+  constructor(private rootDir: string, private options: { pattern: string }) {}
 
-  type = "fs";
-  async *search(options: unknown): AsyncIterable<URL> {
-    const pattern = join(this.rootDir, (options as any).pattern);
+  async *search(): AsyncIterable<URL> {
+    const pattern = join(this.rootDir, this.options.pattern);
     const iterator = expandGlob(pattern);
 
     for await (const entry of iterator) {

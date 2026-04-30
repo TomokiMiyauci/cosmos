@@ -1,5 +1,4 @@
 export type {
-  AssetDefinition,
   AssetEntry,
   AssetField,
   AssetHeader,
@@ -30,7 +29,6 @@ export type {
   FormatterRegistry,
   Indexer,
   IndexerDefinition,
-  IndexManager,
   InstanceField,
   InstanceSchema,
   ListField,
@@ -59,6 +57,7 @@ export type {
   ResolverContext,
   Resource,
   Schema,
+  Source,
   Storage,
   Store,
   StringField,
