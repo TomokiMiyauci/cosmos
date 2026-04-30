@@ -14,7 +14,9 @@ import type {
 export class RelayPlugin implements Plugin {
   name = "relay";
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
-    return Object.values(ctx.resources).map((resource) => {
+    return Object.values(ctx.resources).filter((resource) =>
+      resource.type === "collection"
+    ).map((resource) => {
       const entry = ctx.entries[resource.model];
 
       if (!entry) throw new Error();

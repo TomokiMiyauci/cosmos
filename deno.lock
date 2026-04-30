@@ -1060,7 +1060,7 @@
       },
       "packages/protocols/graphql": {
         "dependencies": [
-          "jsr:@std/collections@^1.1.6",
+          "jsr:@std/collections@^1.1.7",
           "jsr:@std/data-structures@^1.0.10",
           "npm:@graphql-tools/utils@11",
           "npm:graphql-relay@~0.10.2",

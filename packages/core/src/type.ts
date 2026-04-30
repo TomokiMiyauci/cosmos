@@ -172,7 +172,10 @@ export interface AssetHeader {
 export interface Resource {
   format: FormatDefinition;
   model: string;
+  type: ResourceType;
 }
+
+export type ResourceType = "single" | "collection";
 
 export interface IndexerDefinition {
   type: string;

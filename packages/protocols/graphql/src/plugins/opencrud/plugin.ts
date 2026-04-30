@@ -1,5 +1,6 @@
 import type { DatetimeNode, Node, Resource, StringNode } from "@cosmos/core";
 import type {
+  Entry,
   GraphqlNamedOutputType,
   GraphQLQueryField,
   Plugin,
@@ -22,6 +23,7 @@ import {
   isSpecifiedScalarType,
 } from "graphql";
 import { ascend, descend } from "@std/data-structures/comparators";
+import { partition } from "@std/collections";
 import { GraphQLDateTime } from "graphql-scalars";
 import { isNonNullType } from "graphql";
 
@@ -252,7 +254,14 @@ export class OpenCrud implements Plugin {
       },
     } satisfies Context;
 
-    const fields = Object.entries(resources).map(([key, resource]) => {
+    const resourceEntreis = Object.entries(resources);
+
+    const [singletonEntries, collectionEntreis] = partition(
+      resourceEntreis,
+      ([, resource]) => resource.type === "single",
+    );
+
+    const fields = collectionEntreis.map(([key, resource]) => {
       const type = entries[resource.model];
 
       if (!type) throw new Error();
@@ -307,7 +316,33 @@ export class OpenCrud implements Plugin {
       } satisfies GraphQLQueryField;
     });
 
-    return fields;
+    const singleFields = singletonEntries.map(([key, resource]) => {
+      const type = ctx.entries[resource.model];
+
+      if (!type) throw new Error();
+
+      return {
+        name: key,
+        type: {
+          type,
+          async resolve(_, __, ctx): Promise<Entry | null> {
+            const lists = await ctx.fetcher.list(type.name);
+            const first = lists[0];
+
+            if (typeof first !== "string") return null;
+
+            const node = await ctx.fetcher.fetch(first);
+
+            return {
+              id: first,
+              node,
+            } satisfies Entry;
+          },
+        },
+      } satisfies GraphQLQueryField;
+    });
+
+    return [...fields, ...singleFields];
   }
 }
 
