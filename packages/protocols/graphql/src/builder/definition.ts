@@ -44,7 +44,7 @@ import {
   assertStringNode,
   assertUnionNode,
 } from "@cosmos/node-validator";
-import type { Fetcher, Resource } from "../type.ts";
+import type { Entry, Fetcher } from "../type.ts";
 import { toRoot, toString } from "@cosmos/codec-markdown";
 import { mapValues } from "@std/collections";
 
@@ -190,7 +190,7 @@ export function createNodeDefinition(
 ):
   | GraphqlDefinition<Node, Data>
   | GraphqlDefinition<Node, MapNode>
-  | GraphqlDefinition<Node, Resource> {
+  | GraphqlDefinition<Node, Entry> {
   switch (schema.type) {
     case "number":
       return numberNode;
@@ -230,14 +230,14 @@ export function createNodeDefinition(
 export function createReference(
   schema: ReferenceSchema,
   ctx: RuntimeContext,
-): GrpahqlObjectTypeDefinition<Node, Resource> {
+): GrpahqlObjectTypeDefinition<Node, Entry> {
   const reference = ctx.map[schema.model];
 
   if (!reference) throw new Error();
 
   return {
     type: reference,
-    async resolve(parent): Promise<Resource> {
+    async resolve(parent): Promise<Entry> {
       assertReferenceNode(parent);
 
       const id = parent.value.toString();
@@ -246,9 +246,9 @@ export function createReference(
       return {
         id,
         node,
-      } satisfies Resource;
+      } satisfies Entry;
     },
-  } satisfies GraphqlDefinition<Node, Resource>;
+  } satisfies GraphqlDefinition<Node, Entry>;
 }
 
 function createMap(
@@ -363,17 +363,17 @@ function createUnion(
 function createInstance(
   schema: InstanceSchema,
   ctx: RuntimeContext,
-): GrpahqlObjectTypeDefinition<Node, Resource> {
+): GrpahqlObjectTypeDefinition<Node, Entry> {
   const reference = ctx.map[schema.model];
 
   if (!reference) throw new Error();
 
   return {
     type: reference,
-    resolve(node): Resource {
+    resolve(node): Entry {
       return { id: "", node };
     },
-  } satisfies GraphqlDefinition<Node, Resource>;
+  } satisfies GraphqlDefinition<Node, Entry>;
 }
 
 type ScalarSchema =
@@ -406,7 +406,7 @@ function resolveScalarDefinition(
 export function createScalarObject(
   name: string,
   schema: ScalarSchema,
-): GraphQLObjectType<Resource> {
+): GraphQLObjectType<Entry> {
   const def = resolveScalarDefinition(schema);
 
   return new GraphQLObjectType({
@@ -415,7 +415,7 @@ export function createScalarObject(
       value: {
         type: def.type,
         resolve(resource): Data | Promise<Data> {
-          const node = resolveResource(resource);
+          const node = resolveEntry(resource);
           return def.resolve(node);
         },
       },
@@ -431,14 +431,14 @@ export type Data =
   | Node
   | Date
   | URL
-  | Resource
+  | Entry
   | Data[];
 
 export function createObject(
   name: string,
   schema: Schema,
   ctx: RuntimeContext,
-): GraphQLObjectType<Resource> {
+): GraphQLObjectType<Entry> {
   switch (schema.type) {
     case "string":
     case "boolean":
@@ -475,7 +475,7 @@ export function createObject(
           value: {
             type,
             resolve(resource): Node | Promise<Node> {
-              const node = resolveResource(resource);
+              const node = resolveEntry(resource);
 
               return resolve(node);
             },
@@ -491,10 +491,10 @@ function createMapObject(
   name: string,
   schema: MapSchema,
   ctx: RuntimeContext,
-): GraphQLObjectType<Resource> {
+): GraphQLObjectType<Entry> {
   const { type, resolve } = createMap(name, schema, ctx);
 
-  return new GraphQLObjectType<Resource>({
+  return new GraphQLObjectType<Entry>({
     name: type.name,
     description: type.description,
     interfaces: type.getInterfaces(),
@@ -506,19 +506,19 @@ function createMapObject(
         (field: GraphQLFieldConfig<MapNode, unknown>) => {
           return {
             ...field,
-            async resolve(resource: Resource, ...args): Promise<unknown> {
-              const node = resolveResource(resource);
+            async resolve(resource: Entry, ...args): Promise<unknown> {
+              const node = resolveEntry(resource);
               const mapNode = await resolve(node);
 
               return field.resolve?.(mapNode, ...args);
             },
-            async subscribe(resource: Resource, ...args): Promise<unknown> {
-              const node = resolveResource(resource);
+            async subscribe(resource: Entry, ...args): Promise<unknown> {
+              const node = resolveEntry(resource);
               const mapNode = await resolve(node);
 
               return field.resolve?.(mapNode, ...args);
             },
-          } satisfies GraphQLFieldConfig<Resource, unknown>;
+          } satisfies GraphQLFieldConfig<Entry, unknown>;
         },
       );
 
@@ -533,16 +533,16 @@ function createListObject(
   name: string,
   schema: ListSchema,
   ctx: RuntimeContext,
-): GraphQLObjectType<Resource> {
+): GraphQLObjectType<Entry> {
   const of = createObject(name, schema.item, ctx);
 
-  return new GraphQLObjectType<Resource>({
+  return new GraphQLObjectType<Entry>({
     name,
     fields: {
       value: {
         type: new GraphQLList(of),
         resolve(resource): Node[] {
-          const node = resolveResource(resource);
+          const node = resolveEntry(resource);
 
           assertListNode(node);
 
@@ -559,12 +559,12 @@ export interface RuntimeContext {
   map: Map;
 }
 
-export type Map = Record<string, GraphQLObjectType<Resource>>;
+export type Map = Record<string, GraphQLObjectType<Entry>>;
 
 function scope(...scopes: string[]): string {
   return scopes.join("_");
 }
 
-function resolveResource(resource: Resource): Node {
+function resolveEntry(resource: Entry): Node {
   return resource.node;
 }

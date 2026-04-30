@@ -163,10 +163,7 @@ export class Indexer {
       manifest: {
         version: "1",
         schemas,
-        resources: new Set(
-          Object.values(resources).map((resource) => resource.model),
-        ).values()
-          .toArray(),
+        resources,
       },
       datalayer,
     };

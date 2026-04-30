@@ -5,50 +5,52 @@ import {
   connectionFromArray,
 } from "graphql-relay";
 import type {
+  Entry,
   GraphQLQueryField,
   Plugin,
   QueryContext,
-  Resource,
 } from "../../type.ts";
 
 export class RelayPlugin implements Plugin {
   name = "relay";
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
-    return ctx.entries.map(
-      (entry) => {
-        const { connectionType } = connectionDefinitions({
-          nodeType: entry,
-        });
-        const name = `${entry.name}Connection`;
+    return Object.values(ctx.resources).map((resource) => {
+      const entry = ctx.entries[resource.model];
 
-        return {
-          name,
-          type: {
-            type: connectionType,
-            args: connectionArgs,
-            async resolve(
-              _,
-              args,
-              ctx,
-            ): Promise<Connection<Resource>> {
-              const model = entry.name;
-              const keys = await ctx.fetcher.list(model);
-              const promise = keys.map(async (key) => {
-                const node = await ctx.fetcher.fetch(key);
-                const resource = {
-                  id: key,
-                  node,
-                } satisfies Resource;
-                return resource;
-              });
-              const result = await Promise.all(promise);
-              const collection = connectionFromArray(result, args);
+      if (!entry) throw new Error();
 
-              return collection;
-            },
+      const { connectionType } = connectionDefinitions({
+        nodeType: entry,
+      });
+      const name = `${entry.name}Connection`;
+
+      return {
+        name,
+        type: {
+          type: connectionType,
+          args: connectionArgs,
+          async resolve(
+            _,
+            args,
+            ctx,
+          ): Promise<Connection<Entry>> {
+            const model = entry.name;
+            const keys = await ctx.fetcher.list(model);
+            const promise = keys.map(async (key) => {
+              const node = await ctx.fetcher.fetch(key);
+              const resource = {
+                id: key,
+                node,
+              } satisfies Entry;
+              return resource;
+            });
+            const result = await Promise.all(promise);
+            const collection = connectionFromArray(result, args);
+
+            return collection;
           },
-        };
-      },
-    );
+        },
+      };
+    });
   }
 }

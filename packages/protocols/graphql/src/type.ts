@@ -1,4 +1,4 @@
-import type { Datalayer, Manifest, Node } from "@cosmos/core";
+import type { Datalayer, Manifest, Node, Resource } from "@cosmos/core";
 import type {
   GraphQLEnumType,
   GraphQLFieldConfig,
@@ -13,7 +13,7 @@ export interface ResolverContext {
   fetcher: Fetcher;
 }
 
-export interface Resource {
+export interface Entry {
   id: string;
   node: Node;
 }
@@ -25,6 +25,7 @@ export interface Fetcher {
 
 export interface QueryContext {
   entries: Record<string, GraphqlNamedOutputType>;
+  resources: Record<string, Resource>;
 }
 
 export interface GraphQLQueryField {
@@ -43,14 +44,14 @@ export interface BuilderContext {
 
 export interface Plugin {
   transform?(
-    config: GraphQLObjectTypeConfig<Resource, unknown>,
-  ): GraphQLObjectTypeConfig<Resource, unknown>;
+    config: GraphQLObjectTypeConfig<Entry, unknown>,
+  ): GraphQLObjectTypeConfig<Entry, unknown>;
   provideQuery?(ctx: QueryContext): GraphQLQueryField[];
 }
 
 export type GraphqlNamedOutputType =
   | GraphQLScalarType
-  | GraphQLObjectType<Resource>
+  | GraphQLObjectType<Entry>
   | GraphQLInterfaceType
   | GraphQLUnionType
   | GraphQLEnumType;

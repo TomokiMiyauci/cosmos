@@ -1,7 +1,7 @@
 export interface Manifest {
   version: string;
   schemas: Record<string, Schema>;
-  resources: string[];
+  resources: Record<string, Resource>;
 }
 
 export interface Config {

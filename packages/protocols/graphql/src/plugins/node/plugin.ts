@@ -5,14 +5,14 @@ import {
   GraphQLInterfaceType,
   type GraphQLObjectTypeConfig,
 } from "graphql";
-import type { Resource } from "../../type.ts";
+import type { Entry } from "../../type.ts";
 
 export const id = {
   type: GraphQLID,
   resolve(resource): string {
     return resource.id;
   },
-} satisfies GraphQLFieldConfig<Resource, unknown>;
+} satisfies GraphQLFieldConfig<Entry, unknown>;
 
 export class NodePlugin implements Plugin {
   #node: GraphQLInterfaceType;
@@ -24,8 +24,8 @@ export class NodePlugin implements Plugin {
   }
 
   transform(
-    config: GraphQLObjectTypeConfig<Resource, unknown>,
-  ): GraphQLObjectTypeConfig<Resource, unknown> {
+    config: GraphQLObjectTypeConfig<Entry, unknown>,
+  ): GraphQLObjectTypeConfig<Entry, unknown> {
     const fields = typeof config.fields === "function"
       ? config.fields()
       : config.fields;

@@ -8,10 +8,10 @@ import {
 } from "graphql";
 import type {
   BuilderContext,
+  Entry,
   GraphqlNamedOutputType,
   Plugin,
   ResolverContext,
-  Resource,
   TypeBuilder,
 } from "./type.ts";
 import { isNamedOutputType } from "./util.ts";
@@ -44,7 +44,7 @@ export class SchemaBuilder {
     const transformed = applyTransform(entries, transformers);
 
     const queryFields = prividers.map((provider) =>
-      provider({ entries: transformed })
+      provider({ entries: transformed, resources: ctx.manifest.resources })
     )
       .flat();
 
@@ -67,9 +67,9 @@ export class SchemaBuilder {
 function applyTransform(
   entreis: GraphqlNamedOutputType[],
   transformers: ((
-    config: GraphQLObjectTypeConfig<Resource, unknown>,
-  ) => GraphQLObjectTypeConfig<Resource, unknown>)[],
-): GraphqlNamedOutputType[] {
+    config: GraphQLObjectTypeConfig<Entry, unknown>,
+  ) => GraphQLObjectTypeConfig<Entry, unknown>)[],
+): Record<string, GraphqlNamedOutputType> {
   const record = entreis.reduce<Record<string, GraphqlNamedOutputType>>(
     (acc, entry) => {
       acc[entry.name] = entry;
@@ -84,7 +84,7 @@ function applyTransform(
       const config = type.toConfig();
 
       const transformed = transformers.reduce<
-        GraphQLObjectTypeConfig<Resource, unknown>
+        GraphQLObjectTypeConfig<Entry, unknown>
       >((acc, transformer) => {
         return transformer(acc);
       }, config);
@@ -97,5 +97,9 @@ function applyTransform(
 
   const { typeMap } = rewireTypes(map, []);
 
-  return Object.values(typeMap).filter(isNamedOutputType);
+  const entries = Object.values(typeMap).filter(isNamedOutputType).map((type) =>
+    [type.name, type] as const
+  );
+
+  return Object.fromEntries(entries);
 }

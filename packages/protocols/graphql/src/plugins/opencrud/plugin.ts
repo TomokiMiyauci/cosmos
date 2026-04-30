@@ -234,7 +234,7 @@ export class OpenCrud implements Plugin {
   name = "opencrud";
 
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
-    const { entries } = ctx;
+    const { entries, resources } = ctx;
     const scalar = {
       map: {
         where: {
@@ -252,60 +252,62 @@ export class OpenCrud implements Plugin {
       },
     } satisfies Context;
 
-    return entries.map(
-      (type) => {
-        const name = type.name;
-        const pluralName = `${type.name}s`;
-        const whereInput = createWhereInput(name, type, scalar);
-        const whereArgs: Record<string, GraphQLArgumentConfig> = whereInput
-          ? {
-            where: {
-              type: whereInput,
-            },
-          }
-          : {};
-        const orderByInput = createOrderByInput(name, type, scalar);
-        console.log(name, orderByInput?.getFields());
-        const orderByArgs: Record<string, GraphQLArgumentConfig> = orderByInput
-          ? {
-            orderBy: {
-              type: orderByInput,
-            },
-          }
-          : {};
+    const fields = Object.entries(resources).map(([key, resource]) => {
+      const type = entries[resource.model];
 
-        return {
-          name: pluralName,
-          type: {
-            type: new GraphQLNonNull(
-              new GraphQLList(new GraphQLNonNull(type)),
-            ),
-            args: {
-              ...whereArgs,
-              ...orderByArgs,
-            },
-            resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
-              const ids = await ctx.fetcher.list(name);
-              const resources = await Promise.all(
-                ids.map(async (id) => {
-                  return { id, node: await ctx.fetcher.fetch(id) };
-                }),
+      if (!type) throw new Error();
+
+      const name = type.name;
+      const whereInput = createWhereInput(name, type, scalar);
+      const whereArgs: Record<string, GraphQLArgumentConfig> = whereInput
+        ? {
+          where: {
+            type: whereInput,
+          },
+        }
+        : {};
+      const orderByInput = createOrderByInput(name, type, scalar);
+      const orderByArgs: Record<string, GraphQLArgumentConfig> = orderByInput
+        ? {
+          orderBy: {
+            type: orderByInput,
+          },
+        }
+        : {};
+
+      return {
+        name: key,
+        type: {
+          type: new GraphQLNonNull(
+            new GraphQLList(new GraphQLNonNull(type)),
+          ),
+          args: {
+            ...whereArgs,
+            ...orderByArgs,
+          },
+          resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
+            const ids = await ctx.fetcher.list(name);
+            const resources = await Promise.all(
+              ids.map(async (id) => {
+                return { id, node: await ctx.fetcher.fetch(id) };
+              }),
+            );
+
+            const filter = createFilterFromArgs(args);
+            const compare = createCompareFromArts(args);
+
+            const result = resources.filter(({ node }) => filter(node))
+              .toSorted(({ node: left }, { node: right }) =>
+                compare(left, right)
               );
 
-              const filter = createFilterFromArgs(args);
-              const compare = createCompareFromArts(args);
-
-              const result = resources.filter(({ node }) => filter(node))
-                .toSorted(({ node: left }, { node: right }) =>
-                  compare(left, right)
-                );
-
-              return result;
-            },
+            return result;
           },
-        } satisfies GraphQLQueryField;
-      },
-    );
+        },
+      } satisfies GraphQLQueryField;
+    });
+
+    return fields;
   }
 }
 

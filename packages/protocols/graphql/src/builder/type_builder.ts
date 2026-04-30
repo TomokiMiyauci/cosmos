@@ -1,9 +1,9 @@
-import type { BuilderContext, Resource, TypeBuilder } from "../type.ts";
+import type { BuilderContext, Entry, TypeBuilder } from "../type.ts";
 import { createObject, type RuntimeContext } from "./definition.ts";
 import type { GraphQLObjectType } from "graphql";
 
 export class CoreTypeBuilder implements TypeBuilder {
-  build(ctx: BuilderContext): GraphQLObjectType<Resource>[] {
+  build(ctx: BuilderContext): GraphQLObjectType<Entry>[] {
     const map: RuntimeContext["map"] = {};
     const context = {
       map,
