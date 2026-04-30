@@ -47,13 +47,8 @@ export default {
     datetime: new DatetimeCodec(),
     union: new UnionField(),
   },
-  indexes: [
-    new FsIndexer(rootDir),
-  ],
   assets: [
-    {
-      indexer: { type: "fs", options: { pattern: "/contents/**/*.png" } },
-    },
+    "asset",
   ],
   resources: [
     {
@@ -68,24 +63,23 @@ export default {
         bodyKey: "body",
       },
       model: "post",
-      indexer: {
-        type: "fs",
-        options: {
-          pattern: "/contents/posts/**/*.md",
-        },
-      },
+      name: "posts",
     },
     {
-      format: {
-        type: "json",
-      },
+      format: { type: "json" },
       model: "author",
-      indexer: {
-        type: "fs",
-        options: {
-          pattern: "/contents/authors/**/*.json",
-        },
-      },
+      name: "authors",
     },
   ],
+  sources: {
+    posts: new FsIndexer(rootDir, {
+      pattern: "/contents/posts/**/*.md",
+    }),
+    authors: new FsIndexer(rootDir, {
+      pattern: "/contents/authors/**/*.json",
+    }),
+    asset: new FsIndexer(rootDir, {
+      pattern: "/contents/**/*.png",
+    }),
+  },
 } satisfies Config;
