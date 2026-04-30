@@ -56,7 +56,6 @@ export type {
   ReferenceField,
   ReferenceNode,
   ReferenceSchema,
-  Resolver,
   ResolverContext,
   Resource,
   Schema,
@@ -113,3 +112,4 @@ export type {
   YamlMapNode,
 } from "./type.ts";
 export { resolveFormatter } from "./url.ts";
+export { parseField, stringifyField } from "./util.ts";

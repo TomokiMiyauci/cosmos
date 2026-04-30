@@ -240,7 +240,7 @@ export function createReference(
     async resolve(parent): Promise<Resource> {
       assertReferenceNode(parent);
 
-      const id = parent.value;
+      const id = parent.value.toString();
       const node = await ctx.fetcher.fetch(id);
 
       return {

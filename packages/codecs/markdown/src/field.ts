@@ -25,26 +25,25 @@ export class MarkdownCodec implements Codec {
     async function resolver(
       specifier: string,
     ): Promise<AssetNode | StringNode | ReferenceNode> {
-      const url = await ctx.resolver.resolve(specifier, ctx);
+      const assetNode = await ctx.config.field.asset.parse(specifier, _, ctx);
 
-      if (ctx.asset.has(url)) {
-        return {
-          type: "asset",
-          value: url,
-        };
+      if (ctx.asset.has(assetNode.value)) {
+        return assetNode;
       }
 
-      if (ctx.node.has(url)) {
-        return {
-          type: "reference",
-          value: url.toString(),
-        };
+      const referenceNode = await ctx.config.field.reference.parse(
+        specifier,
+        _,
+        ctx,
+      );
+
+      if (ctx.node.has(referenceNode.value)) {
+        return referenceNode;
       }
 
-      return {
-        type: "string",
-        value: url.toString(),
-      };
+      const stringNode = await ctx.config.field.string.parse(specifier, _, ctx);
+
+      return stringNode;
     }
 
     const root = fromMarkdown(structure);

@@ -1,11 +1,13 @@
-import type {
-  Codec,
-  CodecContext,
-  Field,
-  ListNode,
-  Node,
-  Structure,
-  StructureObject,
+import {
+  type Codec,
+  type CodecContext,
+  type Field,
+  type ListNode,
+  type Node,
+  parseField,
+  stringifyField,
+  type Structure,
+  type StructureObject,
 } from "@cosmos/core";
 
 export class ListField implements Codec {
@@ -22,7 +24,7 @@ export class ListField implements Codec {
 
     const promise = values.map(
       (value) => {
-        return ctx.config.field.parse(value, field.field, ctx);
+        return parseField(value, field.field, ctx);
       },
     );
 
@@ -45,7 +47,7 @@ export class ListField implements Codec {
     const structure: StructureObject = {};
 
     for (const [key, child] of node.value.entries()) {
-      const childValue = await ctx.config.field.stringify(
+      const childValue = await stringifyField(
         child,
         field.field,
         ctx,

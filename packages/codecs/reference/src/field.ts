@@ -6,7 +6,7 @@ export class ReferenceCodec implements Codec {
 
     return {
       type: "reference",
-      value: structure,
+      value: new URL(structure),
     };
   }
 

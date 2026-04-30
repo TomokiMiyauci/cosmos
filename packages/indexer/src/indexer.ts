@@ -8,6 +8,7 @@ import {
   type Manifest,
   type Node,
   type NodeEntry,
+  parseField,
   resolveFormatter,
   type Resource,
   type Schema,
@@ -32,9 +33,7 @@ export class Indexer {
       models,
       indexes,
       storage,
-      resolver,
       assets = [],
-      field: codec,
     } = config;
     const registry = new AssetRegistry();
     const nodeRegistry = new UrlSet();
@@ -101,9 +100,8 @@ export class Indexer {
         options: resource.format,
       });
 
-      const node = await codec.parse(structure, model, {
+      const node = await parseField(structure, model, {
         baseUrl: url,
-        resolver,
         config,
         asset: {
           has(url): boolean {

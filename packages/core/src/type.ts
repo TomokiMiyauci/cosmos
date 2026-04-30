@@ -6,12 +6,11 @@ export interface Manifest {
 
 export interface Config {
   formatters: FormatterDefinition[];
-  field: Codec;
+  field: CodecMap;
   resources: Resource[];
   storage: Storage;
   indexes: IndexManager[];
   assets?: AssetDefinition[];
-  resolver: Resolver;
   models: Record<string, Model>;
 }
 
@@ -19,22 +18,35 @@ export interface AssetDefinition {
   indexer: IndexerDefinition;
 }
 
-export interface Codec {
+export interface CodecMap {
+  string: Codec<StringNode>;
+  asset: Codec<AssetNode>;
+  map: Codec;
+  boolean: Codec;
+  number: Codec;
+  instance: Codec;
+  list: Codec;
+  markdown: Codec;
+  reference: Codec<ReferenceNode>;
+  datetime: Codec;
+  union: Codec;
+}
+
+export interface Codec<T extends Node = Node> {
   parse(
     structure: Structure,
     field: Field,
     ctx: CodecContext,
-  ): Node | Promise<Node>;
+  ): T | Promise<T>;
 
   stringify(
-    node: Node,
+    node: T,
     field: Field,
     ctx: CodecContext,
   ): Structure | Promise<Structure>;
 }
 
 export interface CodecContext extends ResolverContext {
-  resolver: Resolver;
   asset: AssetRegistry;
   node: NodeRegistry;
 }
@@ -273,7 +285,7 @@ export type Schema =
 
 export interface ReferenceNode {
   type: ReferenceSchema["type"];
-  value: string;
+  value: URL;
 }
 
 export interface StringNode {
@@ -375,11 +387,6 @@ export interface NodeEntryFilter {
 
 export interface AssetEntryFilter {
   type: "asset";
-}
-
-export interface Resolver {
-  resolve(specifier: string, ctx: ResolverContext): Promise<URL> | URL;
-  unresolve(url: URL, ctx: ResolverContext): Promise<string> | string;
 }
 
 interface BaseContext {
