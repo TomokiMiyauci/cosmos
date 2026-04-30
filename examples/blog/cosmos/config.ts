@@ -17,9 +17,7 @@ import { MarkdownCodec } from "@cosmos/codec-markdown";
 import { PathReferenceCodec } from "@cosmos/codec-path-reference";
 import { DatetimeCodec } from "@cosmos/codec-datetime";
 import { UnionField } from "@cosmos/codec-union";
-import { FieldCodec } from "@cosmos/field-codec";
 import { FsIndexer } from "@cosmos/index-fs";
-import { PathResolver } from "@cosmos/resolver-path";
 import { resolve } from "@std/path";
 
 const rootDir = resolve(import.meta.dirname!, "..");
@@ -36,7 +34,7 @@ export default {
     new YamlFormatterDefinition(),
     new TextFormatterDefinition(),
   ],
-  field: new FieldCodec({
+  field: {
     string: new StringCodec(),
     asset: new AssetCodec(rootDir),
     map: new MapField(),
@@ -48,7 +46,7 @@ export default {
     reference: new PathReferenceCodec(rootDir),
     datetime: new DatetimeCodec(),
     union: new UnionField(),
-  }),
+  },
   indexes: [
     new FsIndexer(rootDir),
   ],
@@ -90,5 +88,4 @@ export default {
       },
     },
   ],
-  resolver: new PathResolver(rootDir),
 } satisfies Config;
