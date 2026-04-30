@@ -1,9 +1,9 @@
-import type { FormatterDefinition } from "@cosmos/core";
+import type { Formatter, FormatterDefinition } from "@cosmos/core";
 import { YamlFormatter } from "../src/formatter.ts";
 
 export class YamlFormatterDefinition implements FormatterDefinition {
-  type = "yaml";
-  formatter = new YamlFormatter();
+  type: string = "yaml";
+  formatter: Formatter = new YamlFormatter();
 }
 
 // deno-lint-ignore no-implicit-declare-namespace-export

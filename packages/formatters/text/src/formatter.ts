@@ -1,24 +1,15 @@
-import type { Formatter, FormatterContext, Structure } from "@cosmos/core";
+import type { Formatter, Structure } from "@cosmos/core";
 
-export class TextFormatter implements Formatter<TextOptions> {
+export class TextFormatter implements Formatter {
   parse(
     content: string,
-    ctx: FormatterContext<TextOptions>,
   ): Structure {
-    return {
-      [ctx.options.field]: content,
-    };
+    return content;
   }
 
-  serialize(content: Structure, ctx: FormatterContext<TextOptions>): string {
-    const body = content[ctx.options.field];
+  serialize(content: Structure): string {
+    if (typeof content !== "string") throw new Error();
 
-    if (typeof body !== "string") throw new Error();
-
-    return body;
+    return content;
   }
-}
-
-export interface TextOptions {
-  field: string;
 }

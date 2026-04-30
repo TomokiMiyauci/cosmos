@@ -1,0 +1,27 @@
+import type {
+  BooleanNode,
+  Codec,
+  Node,
+  Structure,
+  StructureValue,
+} from "@cosmos/core";
+import { createBooleanNode } from "@cosmos/node-builder";
+
+export class BooleanCodec implements Codec {
+  parse(structure: Structure): BooleanNode {
+    if (typeof structure !== "string") throw new SyntaxError();
+    if (structure !== "true" && structure !== "false") {
+      throw new SyntaxError("Invalid boolean value");
+    }
+
+    const node = createBooleanNode(structure === "true" ? true : false);
+
+    return node;
+  }
+
+  stringify(node: Node): StructureValue {
+    if (node.type !== "boolean") throw new TypeError();
+
+    return node.value ? "true" : "false";
+  }
+}

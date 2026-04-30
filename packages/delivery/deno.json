@@ -1,0 +1,14 @@
+{
+  "name": "@cosmos/delivery",
+  "exports": {
+    ".": "./src/mod.ts",
+    "./asset": "./src/middleware/asset.ts"
+  },
+  "imports": {
+    "@std/collections": "jsr:@std/collections@^1.1.6"
+  },
+  "tasks": {
+    "build": "deno run -A ./scripts/build.ts",
+    "publish": "npm publish ./npm"
+  }
+}

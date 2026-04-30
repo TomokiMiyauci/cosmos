@@ -1,0 +1,15 @@
+{
+  "name": "@cosmos/protocol-rest",
+  "exports": {
+    ".": "./src/mod.ts"
+  },
+  "imports": {
+    "@std/path": "jsr:@std/path@^1.1.4",
+    "@types/pluralize": "npm:@types/pluralize@^0.0.33",
+    "@types/swagger-ui-dist": "npm:@types/swagger-ui-dist@^3.30.6",
+    "openapi-backend": "npm:openapi-backend@^5.16.1",
+    "openapi-types": "npm:openapi-types@^12.1.3",
+    "pluralize": "npm:pluralize@^8.0.0",
+    "swagger-ui-dist": "npm:swagger-ui-dist@^5.32.1"
+  }
+}

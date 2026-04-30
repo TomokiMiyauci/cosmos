@@ -1,14 +1,20 @@
 {
   "name": "Deno",
-  "dockerFile": "Dockerfile",
+  "image": "denoland/deno",
   "customizations": {
     "vscode": {
-      "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
-      },
       "extensions": [
-        "denoland.vscode-deno"
+        "denoland.vscode-deno",
+        "vivaxy.vscode-conventional-commits"
       ]
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
     }
   }
 }

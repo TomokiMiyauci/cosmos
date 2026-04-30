@@ -1,6 +1,0 @@
-{
-  "name": "@cosmos/field-string",
-  "exports": {
-    ".": "./src/mod.ts"
-  }
-}

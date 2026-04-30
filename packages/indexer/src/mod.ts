@@ -1,1 +1,2 @@
-export { Indexer } from "./indexer.ts";
+export { createDatalayer, Indexer } from "./indexer.ts";
+export { AssetRegistry } from "./registry.ts";

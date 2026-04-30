@@ -4,6 +4,7 @@ import {
   type FormatterContext,
   resolveFormatter,
   type Structure,
+  type StructureObject,
 } from "@cosmos/core";
 import { Frontmatter } from "./parser.ts";
 
@@ -35,12 +36,20 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
       options: ctx.options.body,
     });
 
-    const result = {
-      ...parsedHeader,
-      ...parsedBody,
-    };
+    const remappedHeader = remap(
+      parsedHeader,
+      ctx.options.headerKey,
+      "headerKey is required",
+    );
+    const remappedBody = remap(
+      parsedBody,
+      ctx.options.bodyKey,
+      "bodyKey is required",
+    );
 
-    return result;
+    const data = { ...remappedHeader, ...remappedBody };
+
+    return data;
   }
 
   serialize(): string {
@@ -48,8 +57,28 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
   }
 }
 
+function remap(
+  structure: Structure,
+  key: string | undefined,
+  msg?: string,
+): StructureObject {
+  if (typeof structure === "string") {
+    if (typeof key === "undefined") {
+      throw new Error(msg ?? "key is required");
+    }
+
+    return {
+      [key]: structure,
+    };
+  }
+
+  return structure;
+}
+
 export interface FrontmatterOptions {
   header: FormatDefinition;
   body: FormatDefinition;
   delimiter?: string;
+  headerKey?: string;
+  bodyKey?: string;
 }

@@ -1,30 +1,52 @@
 export interface Manifest {
   version: string;
-  definitions: Definition[];
-}
-
-export interface Definition {
-  name: string;
-  schemas: Schema[];
-  members: string[];
+  schemas: Record<string, Schema>;
+  resources: Record<string, Resource>;
 }
 
 export interface Config {
-  source: Storage;
-  locator: Locator;
-  model: ModelDefinition;
   formatters: FormatterDefinition[];
-  fields: FieldDefinition;
+  field: CodecMap;
+  resources: Record<string, Resource>;
+  sources: Record<string, Source>;
+  storage: Storage;
+  assets?: string[];
+  models: Record<string, Model>;
 }
 
-export type FieldDefinition = {
-  [k in FieldType]: FieldCodec;
-};
+export type Source = Indexer;
 
-export interface FieldCodec {
-  parse(structure: StructureValue): Node;
+export interface CodecMap {
+  string: Codec<StringNode>;
+  asset: Codec<AssetNode>;
+  map: Codec;
+  boolean: Codec;
+  number: Codec;
+  instance: Codec;
+  list: Codec;
+  markdown: Codec;
+  reference: Codec<ReferenceNode>;
+  datetime: Codec;
+  union: Codec;
+}
 
-  strinigify(node: Node): StructureValue;
+export interface Codec<T extends Node = Node> {
+  parse(
+    structure: Structure,
+    field: Field,
+    ctx: CodecContext,
+  ): T | Promise<T>;
+
+  stringify(
+    node: T,
+    field: Field,
+    ctx: CodecContext,
+  ): Structure | Promise<Structure>;
+}
+
+export interface CodecContext extends ResolverContext {
+  asset: AssetRegistry;
+  node: NodeRegistry;
 }
 
 export interface FormatterDefinition {
@@ -32,46 +54,78 @@ export interface FormatterDefinition {
   formatter: Formatter;
 }
 
-export interface ModelDefinition {
-  models: Model[];
-  base: URLPatternInit;
-}
+export type Model = Field;
 
-export interface Model {
-  name: string;
-  fields: Field[];
-  pattern: URLPatternInit;
-  format: FormatDefinition;
-}
-
-export type Field = StringField | BooleanField | ReferenceField;
+export type Field =
+  | StringField
+  | NumberField
+  | BooleanField
+  | InstanceField
+  | ReferenceField
+  | ListField
+  | AssetField
+  | MapField
+  | DatetimeField
+  | MarkdownField
+  | UnionField;
 
 export interface BaseField {
-  name: string;
   description?: string;
-  required?: boolean;
   type: string;
 }
 
-type FieldType = Field["type"];
-
 export interface StringField extends BaseField {
   type: "string";
+  format?: string;
+}
+
+export interface NumberField extends BaseField {
+  type: "number";
 }
 
 export interface BooleanField extends BaseField {
   type: "boolean";
 }
 
-export interface ReferenceField extends BaseField {
-  type: "reference";
-  to: string;
+export interface DatetimeField extends BaseField {
+  type: "datetime";
 }
 
 export interface MapField extends BaseField {
   type: "map";
-  fields: Field[];
+  fields: Record<string, Field>;
+  required?: string[];
 }
+
+export interface InstanceField extends BaseField {
+  type: "instance";
+  model: string;
+}
+
+export interface ReferenceField extends BaseField {
+  type: "reference";
+  model: string;
+}
+
+export interface ListField extends BaseField {
+  type: "list";
+  field: Field;
+}
+
+export interface AssetField extends BaseField {
+  type: "asset";
+}
+
+export interface UnionField extends BaseField {
+  type: "union";
+  fields: Record<string, Field>;
+}
+
+export interface MarkdownField extends BaseField {
+  type: "markdown";
+}
+
+export type FieldType = Field["type"];
 
 export type FormatDefinition = {
   [K in keyof FormatterRegistry]:
@@ -86,33 +140,65 @@ export interface FormatterDefinitionBase<T> {
 // deno-lint-ignore no-empty-interface
 export interface FormatterRegistry {}
 
-export interface Delivery {
-  handle(request: Request, ctx: DeliveryContext): Promise<Response> | Response;
+export interface Protocol {
+  handle(request: Request, ctx: ProtocolContext): Promise<Response> | Response;
 }
 
-export interface DeliveryContext {
+export interface ProtocolContext {
   manifest: Manifest;
-  fetcher: Fetcher;
+  datalayer: Datalayer;
+  asset: AssetMapping;
 }
 
-export interface Fetcher {
+export interface Datalayer {
+  node: NodeLayer;
+  asset: AssetLayer;
+}
+
+export interface NodeLayer {
   fetch(id: string): Node | Promise<Node>;
+  list(model: string): string[] | Promise<string[]>;
 }
 
-export interface Locator {
-  locate(location: URLPattern): Promise<URL[]> | URL[];
+export interface AssetLayer {
+  fetch(id: string): Blob | Promise<Blob>;
+  list(): Promise<string[]> | string[];
+}
+
+export interface AssetHeader {
+  mimeType: string;
+}
+
+export interface Resource {
+  format: FormatDefinition;
+  model: string;
+  type: ResourceType;
+}
+
+export type ResourceType = "single" | "collection";
+
+export interface IndexerDefinition {
+  type: string;
+  options: unknown;
 }
 
 export interface Storage {
-  read(url: URL): Uint8Array | Promise<Uint8Array>;
-  write(url: URL, conetnt: Uint8Array): void | Promise<void>;
+  read(url: URL): Blob | Promise<Blob>;
+  write(url: URL, content: Blob): void | Promise<void>;
+  delete(url: URL): void | Promise<void>;
 }
 
-export type StructureValue = string | Structure;
-
-export interface Structure {
-  [k: string]: StructureValue;
+export interface Indexer {
+  search(): AsyncIterable<URL>;
 }
+
+export type StructureValue = string;
+
+export interface StructureObject {
+  [k: string]: StructureObject | StructureValue;
+}
+
+export type Structure = StructureValue | StructureObject;
 
 export interface FormatterContext<T = unknown> {
   config: Config;
@@ -126,35 +212,76 @@ export interface Formatter<T = unknown> {
 }
 
 export interface BaseSchema {
-  name: string;
   type: string;
-  required: boolean;
   description: string;
-}
-
-export interface IdSchema extends BaseSchema {
-  type: "id";
-  to: string;
 }
 
 export interface StringSchema extends BaseSchema {
   type: "string";
 }
 
+export interface NumberSchema extends BaseSchema {
+  type: "number";
+}
+
 export interface BooleanSchema extends BaseSchema {
   type: "boolean";
 }
 
-export interface MapSchema extends BaseSchema {
-  type: "map";
-  fields: Schema[];
+export interface DatetimeSchema extends BaseSchema {
+  type: "datetime";
 }
 
-export type Schema = IdSchema | StringSchema | BooleanSchema | MapSchema;
+export interface AssetSchema extends BaseSchema {
+  type: "asset";
+}
 
-export interface IdNode {
-  type: IdSchema["type"];
-  value: string;
+export interface MapSchema extends BaseSchema {
+  type: "map";
+  props: Record<string, Schema>;
+  required: string[];
+}
+
+export interface ListSchema extends BaseSchema {
+  type: "list";
+  item: Schema;
+}
+
+export interface ReferenceSchema extends BaseSchema {
+  type: "reference";
+  model: string;
+}
+
+export interface InstanceSchema extends BaseSchema {
+  type: "instance";
+  model: string;
+}
+
+export interface UnionSchema extends BaseSchema {
+  type: "union";
+  props: Record<string, Schema>;
+}
+
+export interface MarkdownSchema extends BaseSchema {
+  type: "markdown";
+}
+
+export type Schema =
+  | StringSchema
+  | NumberSchema
+  | BooleanSchema
+  | DatetimeSchema
+  | AssetSchema
+  | MapSchema
+  | ListSchema
+  | ReferenceSchema
+  | InstanceSchema
+  | UnionSchema
+  | MarkdownSchema;
+
+export interface ReferenceNode {
+  type: ReferenceSchema["type"];
+  value: URL;
 }
 
 export interface StringNode {
@@ -162,19 +289,464 @@ export interface StringNode {
   value: string;
 }
 
+export interface NumberNode {
+  type: NumberSchema["type"];
+  value: number;
+}
+
 export interface BooleanNode {
   type: BooleanSchema["type"];
   value: boolean;
 }
 
-export type Node = IdNode | StringNode | BooleanNode | MapNode;
+export interface DatetimeNode {
+  type: DatetimeSchema["type"];
+  value: Date;
+}
+
+export interface AssetNode {
+  type: AssetSchema["type"];
+  value: URL;
+}
+
+export interface ListNode {
+  type: ListSchema["type"];
+  value: Node[];
+}
 
 export interface MapNode {
   type: MapSchema["type"];
   value: Record<string, Node>;
 }
 
-export interface Resource {
+export interface UnionNode {
+  type: UnionSchema["type"];
+  key: string;
+  value: Node;
+}
+
+export interface MarkdownNode {
+  type: MarkdownSchema["type"];
+  value: RootNodeListNode;
+}
+
+export type NodeValue =
+  | ReferenceNode
+  | StringNode
+  | NumberNode
+  | BooleanNode
+  | DatetimeNode
+  | AssetNode
+  | UnionNode
+  | MarkdownNode;
+
+export type Node = NodeValue | MapNode | ListNode;
+
+export interface BaseEntry<T> {
   id: string;
-  node: Node;
+  type: string;
+  data: T;
+}
+
+export interface NodeEntry extends BaseEntry<Node> {
+  type: "node";
+  model: string;
+}
+
+export interface AssetEntry extends BaseEntry<Blob> {
+  type: "asset";
+}
+
+export type Entry = NodeEntry | AssetEntry;
+
+export interface AssetMapping {
+  resolve(id: URL): URL | undefined;
+  lookup(publicUrl: URL): URL | undefined;
+}
+
+export interface Store {
+  save(entry: Entry): Promise<void>;
+
+  load(id: string): Promise<Entry> | Entry;
+
+  list(filter: EntryFilter): Promise<string[]> | string[];
+}
+
+export type EntryFilter =
+  | NodeEntryFilter
+  | AssetEntryFilter;
+
+export interface NodeEntryFilter {
+  type: "node";
+  model?: string;
+}
+
+export interface AssetEntryFilter {
+  type: "asset";
+}
+
+interface BaseContext {
+  config: Config;
+}
+
+export interface ResolverContext extends BaseContext {
+  baseUrl: URL;
+}
+
+export interface AssetRegistry {
+  has(url: URL): boolean;
+}
+
+export interface NodeRegistry {
+  has(url: URL): boolean;
+}
+
+export interface TextMapNode extends MapNode {
+  value: TextNodeValue;
+}
+
+export interface StrongMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "strong";
+    };
+    children: PhrasingContentListNode;
+  };
+}
+
+export interface PhrasingContentListNode extends ListNode {
+  type: "list";
+  value: PharasingContentMapNode[];
+}
+
+export interface HeadingMapNode extends MapNode {
+  value: HeadingNodeValue;
+}
+
+export interface HeadingNodeValue extends Record<string, Node> {
+  type: {
+    type: "string";
+    value: "heading";
+  };
+  depth: NumberNode;
+  children: PhrasingContentListNode;
+}
+
+export type PharasingContentMapNode =
+  | StrongMapNode
+  | TextMapNode
+  | LinkMapNode
+  | ImageMapNode
+  | BreakMapNode
+  | DeleteMapNode
+  | EmphasisMapNode
+  | HtmlMapNode
+  | ImageReferenceMapNode
+  | InlineCodeMapNode
+  | LinkReferenceMapNode
+  | FootnoteReferenceMapNode;
+
+export type RootNodeMapNode =
+  | PharasingContentMapNode
+  | HeadingMapNode
+  | ParagraphMapNode
+  | BlockquoteMapNode
+  | CodeMapNode
+  | DefinitionMapNode
+  | FootnoteDefinitionMapNode
+  | ListMapNode
+  | ListItemMapNode
+  | TableMapNode
+  | TableCellMapNode
+  | TableRowMapNode
+  | YamlMapNode
+  | ThematicBreakMapNode;
+
+export type BlockContentMapNode =
+  | BlockquoteMapNode
+  | CodeMapNode
+  | HeadingMapNode
+  | HtmlMapNode
+  | ListMapNode
+  | ParagraphMapNode
+  | TableMapNode
+  | ThematicBreakMapNode;
+
+export type ListContentMapNode = ListItemMapNode;
+
+export type TableContentMapNode = TableRowMapNode;
+export type RowContentMapNode = TableCellMapNode;
+
+export type DefinitionContentMapNode =
+  | DefinitionMapNode
+  | FootnoteDefinitionMapNode;
+
+export type RootNodeValue = RootNodeMapNode["value"];
+
+export interface RootNodeListNode extends ListNode {
+  value: RootNodeMapNode[];
+}
+
+export interface TextNodeValue extends LiteralNodeValue {
+  type: {
+    type: "string";
+    value: "text";
+  };
+}
+
+export interface ParagraphMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "paragraph";
+    };
+    children: PhrasingContentListNode;
+  };
+}
+
+export interface BlockquoteMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "blockquote";
+    };
+    children: {
+      type: "list";
+      value: (BlockContentMapNode | DefinitionContentMapNode)[];
+    };
+  };
+}
+
+export interface CodeMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "code";
+    };
+    lang: StringNode;
+    meta: StringNode;
+    value: StringNode;
+  };
+}
+
+export interface DefinitionMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "definition";
+    };
+    identifier: StringNode;
+    label: StringNode;
+    title: StringNode;
+    url: StringNode | AssetNode | ReferenceNode;
+  };
+}
+
+export interface FootnoteDefinitionMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "footnoteDefinition";
+    };
+    identifier: StringNode;
+    label: StringNode;
+    children: {
+      type: "list";
+      value: (BlockContentMapNode | DefinitionContentMapNode)[];
+    };
+  };
+}
+
+export interface FootnoteReferenceMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "footnoteReference";
+    };
+    identifier: StringNode;
+    label: StringNode;
+  };
+}
+
+export interface ListMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "list";
+    };
+    children: {
+      type: "list";
+      value: ListContentMapNode[];
+    };
+    ordered: BooleanNode;
+    spread: BooleanNode;
+    start: NumberNode;
+  };
+}
+
+export interface ListItemMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "listItem";
+    };
+    checked: BooleanNode;
+    children: {
+      type: "list";
+      value: (BlockContentMapNode | DefinitionContentMapNode)[];
+    };
+    spread: BooleanNode;
+  };
+}
+
+export interface TableMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "table";
+    };
+    align: {
+      type: "list";
+      value: {
+        type: "string";
+        value: "center" | "left" | "right";
+      }[];
+    };
+    children: {
+      type: "list";
+      value: TableContentMapNode[];
+    };
+  };
+}
+
+export interface TableCellMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "tableCell";
+    };
+    children: PhrasingContentListNode;
+  };
+}
+
+export interface TableRowMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "tableRow";
+    };
+    children: {
+      type: "list";
+      value: RowContentMapNode[];
+    };
+  };
+}
+
+export interface ThematicBreakMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "thematicBreak";
+    };
+  };
+}
+
+export interface YamlMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "yaml";
+    };
+    value: StringNode;
+  };
+}
+
+export interface LiteralNodeValue extends Record<string, Node> {
+  value: StringNode;
+}
+
+export interface LinkMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "link";
+    };
+    children: PhrasingContentListNode;
+    url: StringNode | AssetNode | ReferenceNode;
+  };
+}
+
+export interface ImageMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "image";
+    };
+    url: StringNode | AssetNode | ReferenceNode;
+    alt: StringNode;
+    title: StringNode;
+  };
+}
+
+export interface BreakMapNode extends MapNode {
+  value: {
+    type: { type: "string"; value: "break" };
+  };
+}
+
+export interface DeleteMapNode extends MapNode {
+  value: {
+    type: { type: "string"; value: "delete" };
+    children: PhrasingContentListNode;
+  };
+}
+
+export interface EmphasisMapNode extends MapNode {
+  value: {
+    type: { type: "string"; value: "emphasis" };
+    children: PhrasingContentListNode;
+  };
+}
+
+export interface HtmlMapNode extends MapNode {
+  value: {
+    type: { type: "string"; value: "html" };
+    value: StringNode;
+  };
+}
+
+export interface ImageReferenceMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "imageReference";
+    };
+    identifier: StringNode;
+    alt: StringNode;
+    label: StringNode;
+    referenceType: { type: "string"; value: ReferenceType };
+  };
+}
+
+export type ReferenceType = "shortcut" | "collapsed" | "full";
+
+export interface InlineCodeMapNode extends MapNode {
+  value: {
+    type: { type: "string"; value: "inlineCode" };
+    value: StringNode;
+  };
+}
+
+export interface LinkReferenceMapNode extends MapNode {
+  value: {
+    type: {
+      type: "string";
+      value: "linkReference";
+    };
+    identifier: StringNode;
+    label: StringNode;
+    referenceType: { type: "string"; value: ReferenceType };
+    children: PhrasingContentListNode;
+  };
 }

@@ -1,0 +1,11 @@
+{
+  "name": "@cosmos/codec-map",
+  "exports": "./src/mod.ts",
+  "imports": {
+    "@std/collections": "jsr:@std/collections@^1.1.6"
+  },
+  "tasks": {
+    "build": "deno run -A ./scripts/build.ts",
+    "publish": "npm publish ./npm"
+  }
+}

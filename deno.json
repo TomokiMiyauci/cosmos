@@ -1,5 +1,17 @@
 {
-  "workspace": ["packages/*", "packages/*/*"],
+  "workspace": [
+    "packages/*",
+    "packages/codecs/*",
+    "packages/indexes/*",
+    "packages/protocols/*",
+    "packages/resolvers/*",
+    "packages/stores/*",
+    "packages/storages/*",
+    "packages/formatters/*",
+    "packages/node/*",
+    "packages/graphql/*",
+    "examples/*"
+  ],
   "lint": {
     "rules": {
       "include": [
@@ -23,5 +35,14 @@
         "single-var-declarator"
       ]
     }
-  }
+  },
+  "imports": {
+    "@deno/dnt": "jsr:@deno/dnt@^0.42.3",
+    "@std/expect": "jsr:@std/expect@^1.0.19",
+    "@std/testing": "jsr:@std/testing@^1.0.18"
+  },
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true
+  },
+  "exclude": ["./**/*/npm", "./**/*/scripts"]
 }
