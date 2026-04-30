@@ -13,7 +13,7 @@ import { DatabaseSync } from "node:sqlite";
 import { Indexer } from "@cosmos/indexer";
 import { SqliteStore } from "@cosmos/store-sqlite";
 import { assertValidSchema, DirectiveLocation } from "graphql";
-import config from "./config.ts";
+import config from "./cosmos/config.ts";
 
 const db = new DatabaseSync(":memory:");
 const store = new SqliteStore(db);
