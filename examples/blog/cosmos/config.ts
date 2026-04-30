@@ -1,5 +1,5 @@
 import type { Config } from "@cosmos/core";
-import { author, post } from "./models/model.ts";
+import { author, post, setting } from "./models/model.ts";
 import { FrontmatterFormatterDefinition } from "@cosmos/formatter-frontmatter";
 import { JsonFormatterDefinition } from "@cosmos/formatter-json";
 import { YamlFormatterDefinition } from "@cosmos/formatter-yaml";
@@ -26,6 +26,7 @@ export default {
   models: {
     post,
     author,
+    setting,
   },
   storage: new FsStorage(new DenoIO()),
   formatters: [
@@ -63,10 +64,17 @@ export default {
         bodyKey: "body",
       },
       model: "post",
+      type: "collection",
     },
     authors: {
       format: { type: "json" },
       model: "author",
+      type: "collection",
+    },
+    setting: {
+      model: "setting",
+      format: { type: "json" },
+      type: "single",
     },
   },
 
@@ -79,6 +87,9 @@ export default {
     }),
     asset: new FsIndexer(rootDir, {
       pattern: "/contents/**/*.png",
+    }),
+    setting: new FsIndexer(rootDir, {
+      pattern: "/contents/setting.json",
     }),
   },
 } satisfies Config;
