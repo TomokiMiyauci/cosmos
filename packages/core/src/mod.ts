@@ -110,5 +110,4 @@ export type {
   ThematicBreakMapNode,
   YamlMapNode,
 } from "./type.ts";
-export { resolveFormatter } from "./url.ts";
-export { parseField, stringifyField } from "./util.ts";
+export { parseField, resolveFormatter, stringifyField } from "./util.ts";

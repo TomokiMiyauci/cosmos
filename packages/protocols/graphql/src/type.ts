@@ -24,7 +24,7 @@ export interface Fetcher {
 }
 
 export interface QueryContext {
-  entries: GraphqlNamedOutputType[];
+  entries: Record<string, GraphqlNamedOutputType>;
 }
 
 export interface GraphQLQueryField {

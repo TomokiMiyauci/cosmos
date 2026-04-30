@@ -1,4 +1,11 @@
-import type { CodecContext, Field, Node, Structure } from "./type.ts";
+import type {
+  CodecContext,
+  Field,
+  Formatter,
+  FormatterDefinitionBase,
+  Node,
+  Structure,
+} from "./type.ts";
 
 export function parseField(
   structure: Structure,
@@ -60,4 +67,19 @@ export function stringifyField(
     case "reference":
       return ctx.config.field.reference.stringify(node, field, ctx);
   }
+}
+
+export function resolveFormatter(
+  format: FormatterDefinitionBase<string>,
+  map: FormatterMap,
+): Formatter {
+  const formatter = map[format.type];
+
+  if (!formatter) throw new Error("unknown formatter");
+
+  return formatter;
+}
+
+export interface FormatterMap {
+  [type: string]: Formatter;
 }
