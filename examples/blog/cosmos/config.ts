@@ -8,15 +8,15 @@ import { DenoIO } from "@cosmos/storage-fs/deno";
 import { FsStorage } from "@cosmos/storage-fs";
 import { AssetCodec } from "@cosmos/codec-asset";
 import { StringCodec } from "@cosmos/codec-string";
-import { MapField } from "@cosmos/codec-map";
+import { MapCodec } from "@cosmos/codec-map";
 import { BooleanCodec } from "@cosmos/codec-boolean";
 import { NumberCodec } from "@cosmos/codec-number";
-import { ListField } from "@cosmos/codec-list";
-import { InstanceField } from "@cosmos/codec-instance";
+import { ListCodec } from "@cosmos/codec-list";
+import { InstanceCodec } from "@cosmos/codec-instance";
 import { MarkdownCodec } from "@cosmos/codec-markdown";
 import { ReferenceCodec } from "@cosmos/codec-reference";
 import { DatetimeCodec } from "@cosmos/codec-datetime";
-import { UnionField } from "@cosmos/codec-union";
+import { UnionCodec } from "@cosmos/codec-union";
 import { FsIndexer } from "@cosmos/index-fs";
 import { resolve } from "@std/path";
 import { PathConverter } from "@cosmos/converter-path";
@@ -43,15 +43,15 @@ export default {
   field: {
     string: new StringCodec(),
     asset: new AssetCodec(),
-    map: new MapField(),
+    map: new MapCodec(),
     boolean: new BooleanCodec(),
     number: new NumberCodec(),
-    instance: new InstanceField(),
-    list: new ListField(),
+    instance: new InstanceCodec(),
+    list: new ListCodec(),
     markdown: new MarkdownCodec(["post"]),
     reference: new ReferenceCodec(),
     datetime: new DatetimeCodec(),
-    union: new UnionField(),
+    union: new UnionCodec(),
   },
   resources: {
     posts: {
