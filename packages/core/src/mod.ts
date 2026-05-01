@@ -15,6 +15,8 @@ export type {
   Codec,
   CodecContext,
   Config,
+  Converter,
+  ConverterContext,
   Datalayer,
   DatetimeField,
   DatetimeNode,
@@ -112,4 +114,4 @@ export type {
   ThematicBreakMapNode,
   YamlMapNode,
 } from "./type.ts";
-export { parseField, resolveFormatter, stringifyField } from "./util.ts";
+export { parseField, resolveFormatter } from "./util.ts";

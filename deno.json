@@ -9,6 +9,7 @@
     "packages/formatters/*",
     "packages/node/*",
     "packages/graphql/*",
+    "packages/converters/*",
     "examples/*"
   ],
   "lint": {

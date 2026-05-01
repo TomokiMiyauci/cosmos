@@ -69,9 +69,9 @@ export class Indexer {
 
       switch (resource.type) {
         case "document": {
-          const model = models[resource.model];
+          const field = models[resource.model];
 
-          if (!model) {
+          if (!field) {
             throw new Error(`model is not defined. ${resource.model}`);
           }
 
@@ -86,7 +86,7 @@ export class Indexer {
               options: resource.format,
             });
 
-            const node = await parseField(structure, model, {
+            const node = await parseField(structure, field, {
               baseUrl: url,
               config,
               asset: {

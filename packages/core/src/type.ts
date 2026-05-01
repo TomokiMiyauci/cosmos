@@ -11,34 +11,57 @@ export interface Config {
   sources: Record<string, Source>;
   storage: Storage;
   models: Record<string, Model>;
+  converters?: Partial<ConvertMap>;
 }
 
 export type Source = Indexer;
 
 export interface CodecMap {
-  string: Codec<StringNode>;
-  asset: Codec<AssetNode>;
-  map: Codec;
-  boolean: Codec;
-  number: Codec;
-  instance: Codec;
-  list: Codec;
-  markdown: Codec;
-  reference: Codec<ReferenceNode>;
-  datetime: Codec;
-  union: Codec;
+  string: Codec<StringField, StringNode>;
+  asset: Codec<AssetField, AssetNode>;
+  map: Codec<MapField, MapNode>;
+  boolean: Codec<BooleanField, BooleanNode>;
+  number: Codec<NumberField, NumberNode>;
+  instance: Codec<InstanceField>;
+  list: Codec<ListField, ListNode>;
+  markdown: Codec<MarkdownField, MarkdownNode>;
+  reference: Codec<ReferenceField, ReferenceNode>;
+  datetime: Codec<DatetimeField, DatetimeNode>;
+  union: Codec<UnionField, UnionNode>;
 }
 
-export interface Codec<T extends Node = Node> {
+export interface ConvertMap {
+  string: Converter;
+  asset: Converter;
+  map: Converter;
+  boolean: Converter;
+  number: Converter;
+  instance: Converter;
+  list: Converter;
+  markdown: Converter;
+  reference: Converter;
+  datetime: Converter;
+  union: Converter;
+}
+
+export interface Converter {
+  standardize(strucrue: Structure, ctx: ConverterContext): Structure;
+  specialize(strucrue: Structure, ctx: ConverterContext): Structure;
+}
+
+export interface ConverterContext extends ResolverContext {
+}
+
+export interface Codec<T extends Field = Field, U extends Node = Node> {
   parse(
     structure: Structure,
-    field: Field,
+    field: T,
     ctx: CodecContext,
-  ): T | Promise<T>;
+  ): U | Promise<U>;
 
   stringify(
-    node: T,
-    field: Field,
+    node: U,
+    field: T,
     ctx: CodecContext,
   ): Structure | Promise<Structure>;
 }
