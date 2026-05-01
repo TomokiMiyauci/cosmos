@@ -48,11 +48,9 @@ export default {
     datetime: new DatetimeCodec(),
     union: new UnionField(),
   },
-  assets: [
-    "asset",
-  ],
   resources: {
     posts: {
+      type: "document",
       format: {
         type: "frontmatter",
         header: {
@@ -64,17 +62,22 @@ export default {
         bodyKey: "body",
       },
       model: "post",
-      type: "collection",
+      entity: "collection",
     },
     authors: {
+      type: "document",
       format: { type: "json" },
       model: "author",
-      type: "collection",
+      entity: "collection",
     },
     setting: {
-      model: "setting",
+      type: "document",
       format: { type: "json" },
-      type: "single",
+      model: "setting",
+      entity: "singleton",
+    },
+    assets: {
+      type: "asset",
     },
   },
 
@@ -85,7 +88,7 @@ export default {
     authors: new FsIndexer(rootDir, {
       pattern: "/contents/authors/**/*.json",
     }),
-    asset: new FsIndexer(rootDir, {
+    assets: new FsIndexer(rootDir, {
       pattern: "/contents/**/*.png",
     }),
     setting: new FsIndexer(rootDir, {

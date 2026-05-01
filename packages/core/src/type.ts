@@ -10,7 +10,6 @@ export interface Config {
   resources: Record<string, Resource>;
   sources: Record<string, Source>;
   storage: Storage;
-  assets?: string[];
   models: Record<string, Model>;
 }
 
@@ -169,13 +168,24 @@ export interface AssetHeader {
   mimeType: string;
 }
 
-export interface Resource {
-  format: FormatDefinition;
-  model: string;
-  type: ResourceType;
+export type Resource = DocumentResource | AssetResource;
+
+export interface BaseResource {
+  description?: string;
 }
 
-export type ResourceType = "single" | "collection";
+export interface DocumentResource extends BaseResource {
+  type: "document";
+  model: string;
+  entity: EntityType;
+  format: FormatDefinition;
+}
+
+export interface AssetResource extends BaseResource {
+  type: "asset";
+}
+
+export type EntityType = "singleton" | "collection";
 
 export interface IndexerDefinition {
   type: string;

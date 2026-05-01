@@ -1,4 +1,11 @@
-import type { DatetimeNode, Node, Resource, StringNode } from "@cosmos/core";
+import type {
+  AssetResource,
+  DatetimeNode,
+  DocumentResource,
+  Node,
+  Resource,
+  StringNode,
+} from "@cosmos/core";
 import type {
   Entry,
   GraphqlNamedOutputType,
@@ -255,10 +262,14 @@ export class OpenCrud implements Plugin {
     } satisfies Context;
 
     const resourceEntreis = Object.entries(resources);
+    const [documents] = partition(
+      resourceEntreis,
+      ([, resource]) => resource.type === "document",
+    ) as [[string, DocumentResource][], [string, AssetResource][]];
 
     const [singletonEntries, collectionEntreis] = partition(
-      resourceEntreis,
-      ([, resource]) => resource.type === "single",
+      documents,
+      ([, resource]) => resource.entity === "singleton",
     );
 
     const fields = collectionEntreis.map(([key, resource]) => {
@@ -295,7 +306,7 @@ export class OpenCrud implements Plugin {
             ...orderByArgs,
           },
           resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
-            const ids = await ctx.fetcher.list(name);
+            const ids = await ctx.fetcher.list(key);
             const resources = await Promise.all(
               ids.map(async (id) => {
                 return { id, node: await ctx.fetcher.fetch(id) };

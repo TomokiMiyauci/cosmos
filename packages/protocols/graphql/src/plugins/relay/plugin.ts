@@ -10,14 +10,17 @@ import type {
   Plugin,
   QueryContext,
 } from "../../type.ts";
+import type { DocumentResource } from "@cosmos/core";
 
 export class RelayPlugin implements Plugin {
   name = "relay";
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
-    return Object.values(ctx.resources).filter((resource) =>
-      resource.type === "collection"
-    ).map((resource) => {
-      const entry = ctx.entries[resource.model];
+    return Object.entries(ctx.resources).filter((
+      [, resource],
+    ): boolean =>
+      resource.type === "document" && resource.entity === "collection"
+    ).map(([key, resource]) => {
+      const entry = ctx.entries[(resource as DocumentResource).model];
 
       if (!entry) throw new Error();
 
@@ -36,8 +39,7 @@ export class RelayPlugin implements Plugin {
             args,
             ctx,
           ): Promise<Connection<Entry>> {
-            const model = entry.name;
-            const keys = await ctx.fetcher.list(model);
+            const keys = await ctx.fetcher.list(key);
             const promise = keys.map(async (key) => {
               const node = await ctx.fetcher.fetch(key);
               const resource = {
