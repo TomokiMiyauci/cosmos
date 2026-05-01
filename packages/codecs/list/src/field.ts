@@ -78,45 +78,45 @@ export function stringifyField(
   switch (field.type) {
     case "string": {
       assertStringNode(node);
-      return ctx.config.field.string.stringify(node, field, ctx);
+      return ctx.config.codec.string.stringify(node, field, ctx);
     }
     case "number": {
       assertNumberNode(node);
-      return ctx.config.field.number.stringify(node, field, ctx);
+      return ctx.config.codec.number.stringify(node, field, ctx);
     }
     case "boolean": {
       assertBooleanNode(node);
-      return ctx.config.field.boolean.stringify(node, field, ctx);
+      return ctx.config.codec.boolean.stringify(node, field, ctx);
     }
     case "map": {
       assertMapNode(node);
-      return ctx.config.field.map.stringify(node, field, ctx);
+      return ctx.config.codec.map.stringify(node, field, ctx);
     }
     case "instance":
-      return ctx.config.field.instance.stringify(node, field, ctx);
+      return ctx.config.codec.instance.stringify(node, field, ctx);
     case "list": {
       assertListNode(node);
-      return ctx.config.field.list.stringify(node, field, ctx);
+      return ctx.config.codec.list.stringify(node, field, ctx);
     }
     case "asset": {
       assertAssertNode(node);
-      return ctx.config.field.asset.stringify(node, field, ctx);
+      return ctx.config.codec.asset.stringify(node, field, ctx);
     }
     case "datetime": {
       assertDatetimeNode(node);
-      return ctx.config.field.datetime.stringify(node, field, ctx);
+      return ctx.config.codec.datetime.stringify(node, field, ctx);
     }
     case "markdown": {
       assertMarkdownNode(node);
-      return ctx.config.field.markdown.stringify(node, field, ctx);
+      return ctx.config.codec.markdown.stringify(node, field, ctx);
     }
     case "union": {
       assertUnionNode(node);
-      return ctx.config.field.union.stringify(node, field, ctx);
+      return ctx.config.codec.union.stringify(node, field, ctx);
     }
     case "reference": {
       assertReferenceNode(node);
-      return ctx.config.field.reference.stringify(node, field, ctx);
+      return ctx.config.codec.reference.stringify(node, field, ctx);
     }
   }
 }

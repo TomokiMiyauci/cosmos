@@ -40,7 +40,7 @@ export default {
     asset: new PathConverter(rootDir),
     reference: new PathConverter(rootDir),
   },
-  field: {
+  codec: {
     string: new StringCodec(),
     asset: new AssetCodec(),
     map: new MapCodec(),
