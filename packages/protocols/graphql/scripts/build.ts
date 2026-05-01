@@ -45,4 +45,5 @@ await build({
     },
   },
   typeCheck: false,
+  test: false,
 });

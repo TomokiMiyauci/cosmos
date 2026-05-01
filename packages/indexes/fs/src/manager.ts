@@ -1,7 +1,8 @@
 import { join, toFileUrl } from "@std/path";
 import { expandGlob } from "@std/fs";
+import type { Indexer } from "@cosmos/core";
 
-export class FsIndexer {
+export class FsIndexer implements Indexer {
   constructor(private rootDir: string, private options: { pattern: string }) {}
 
   async *search(): AsyncIterable<URL> {

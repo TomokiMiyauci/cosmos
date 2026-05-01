@@ -4,7 +4,6 @@
     "packages/codecs/*",
     "packages/indexes/*",
     "packages/protocols/*",
-    "packages/resolvers/*",
     "packages/stores/*",
     "packages/storages/*",
     "packages/formatters/*",
