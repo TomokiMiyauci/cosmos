@@ -1,7 +1,7 @@
-import type { Codec, Node, Structure } from "@cosmos/core";
+import type { Codec, Node, NumberNode, Structure } from "@cosmos/core";
 
 export class NumberCodec implements Codec {
-  parse(structure: Structure): Node {
+  parse(structure: Structure): NumberNode {
     if (typeof structure !== "string") throw new SyntaxError();
 
     const num = Number.parseFloat(structure);

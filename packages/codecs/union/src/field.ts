@@ -6,6 +6,7 @@ import {
   parseField,
   type Structure,
   type StructureObject,
+  type UnionNode,
 } from "@cosmos/core";
 
 export class UnionField implements Codec {
@@ -13,7 +14,7 @@ export class UnionField implements Codec {
     structure: Structure,
     field: Field,
     ctx: CodecContext,
-  ): Promise<Node> {
+  ): Promise<UnionNode> {
     if (field.type !== "union") throw new Error();
     if (typeof structure === "string") throw new SyntaxError();
 

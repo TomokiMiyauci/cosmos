@@ -2,6 +2,7 @@ import {
   type Codec,
   type CodecContext,
   type Field,
+  type MapNode,
   type Node,
   parseField,
   type Structure,
@@ -12,7 +13,7 @@ export class MapField implements Codec {
     structure: Structure,
     field: Field,
     ctx: CodecContext,
-  ): Promise<Node> {
+  ): Promise<MapNode> {
     if (typeof structure === "string") throw new SyntaxError();
     if (field.type !== "map") throw new Error();
 
