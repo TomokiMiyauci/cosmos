@@ -83,16 +83,16 @@ export default {
 
   sources: {
     posts: new FsIndexer(rootDir, {
-      pattern: "/contents/posts/**/*.md",
+      patterns: "/contents/posts/**/*.md",
     }),
     authors: new FsIndexer(rootDir, {
-      pattern: "/contents/authors/**/*.json",
+      patterns: "/contents/authors/**/*.json",
     }),
     assets: new FsIndexer(rootDir, {
-      pattern: "/contents/**/*.png",
+      patterns: "/contents/**/*.png",
     }),
     setting: new FsIndexer(rootDir, {
-      pattern: "/contents/setting.json",
+      patterns: "/contents/setting.json",
     }),
   },
 } satisfies Config;
