@@ -14,11 +14,12 @@ import { NumberCodec } from "@cosmos/codec-number";
 import { ListField } from "@cosmos/codec-list";
 import { InstanceField } from "@cosmos/codec-instance";
 import { MarkdownCodec } from "@cosmos/codec-markdown";
-import { PathReferenceCodec } from "@cosmos/codec-path-reference";
+import { ReferenceCodec } from "@cosmos/codec-reference";
 import { DatetimeCodec } from "@cosmos/codec-datetime";
 import { UnionField } from "@cosmos/codec-union";
 import { FsIndexer } from "@cosmos/index-fs";
 import { resolve } from "@std/path";
+import { PathConverter } from "@cosmos/converter-path";
 
 const rootDir = resolve(import.meta.dirname!, "..");
 
@@ -35,16 +36,20 @@ export default {
     new YamlFormatterDefinition(),
     new TextFormatterDefinition(),
   ],
+  converters: {
+    asset: new PathConverter(rootDir),
+    reference: new PathConverter(rootDir),
+  },
   field: {
     string: new StringCodec(),
-    asset: new AssetCodec(rootDir),
+    asset: new AssetCodec(),
     map: new MapField(),
     boolean: new BooleanCodec(),
     number: new NumberCodec(),
     instance: new InstanceField(),
     list: new ListField(),
-    markdown: new MarkdownCodec(),
-    reference: new PathReferenceCodec(rootDir),
+    markdown: new MarkdownCodec(["post"]),
+    reference: new ReferenceCodec(),
     datetime: new DatetimeCodec(),
     union: new UnionField(),
   },
