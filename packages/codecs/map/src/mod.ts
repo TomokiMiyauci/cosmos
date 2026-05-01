@@ -1,1 +1,1 @@
-export { MapField } from "./field.ts";
+export { MapCodec } from "./field.ts";

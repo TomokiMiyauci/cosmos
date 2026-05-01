@@ -1,12 +1,11 @@
-import {
-  type Codec,
-  type CodecContext,
-  type Field,
-  type ListNode,
-  type Node,
-  parseField,
-  type Structure,
-  type StructureObject,
+import type {
+  CodecContext,
+  Field,
+  FieldCodec,
+  ListNode,
+  Node,
+  Structure,
+  StructureObject,
 } from "@cosmos/core";
 import {
   assertAssertNode,
@@ -21,7 +20,7 @@ import {
   assertUnionNode,
 } from "@cosmos/node-validator";
 
-export class ListField implements Codec {
+export class ListCodec implements FieldCodec {
   async parse(
     structure: Structure,
     field: Field,
@@ -35,7 +34,7 @@ export class ListField implements Codec {
 
     const promise = values.map(
       (value) => {
-        return parseField(value, field.field, ctx);
+        return ctx.codec.parse(value, field.field, ctx);
       },
     );
 

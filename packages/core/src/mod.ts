@@ -14,6 +14,7 @@ export type {
   BooleanSchema,
   Codec,
   CodecContext,
+  CodecMap,
   Config,
   Converter,
   ConverterContext,
@@ -25,6 +26,7 @@ export type {
   Entry,
   EntryFilter,
   Field,
+  FieldCodec,
   FormatDefinition,
   Formatter,
   FormatterContext,
@@ -114,4 +116,4 @@ export type {
   ThematicBreakMapNode,
   YamlMapNode,
 } from "./type.ts";
-export { parseField, resolveFormatter } from "./util.ts";
+export { resolveFormatter } from "./util.ts";

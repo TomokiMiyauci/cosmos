@@ -6,13 +6,13 @@ import {
   type Field,
   type Manifest,
   type Node,
-  parseField,
   resolveFormatter,
   type Schema,
   type Store,
 } from "@cosmos/core";
 import { mapValues } from "@std/collections";
 import { HashMap } from "./util.ts";
+import { ParentCodec } from "./codec.ts";
 
 export class Indexer {
   constructor(private config: Config) {}
@@ -86,7 +86,8 @@ export class Indexer {
               options: resource.format,
             });
 
-            const node = await parseField(structure, field, {
+            const codec = new ParentCodec();
+            const node = await codec.parse(structure, field, {
               baseUrl: url,
               config,
               asset: {
@@ -119,6 +120,7 @@ export class Indexer {
                   return false;
                 },
               },
+              codec,
             });
 
             return {

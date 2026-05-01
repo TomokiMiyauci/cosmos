@@ -1,12 +1,17 @@
-import type { Codec, Node, StringNode, Structure } from "@cosmos/core";
+import type {
+  Codec,
+  FieldCodec,
+  Node,
+  StringNode,
+  Structure,
+} from "@cosmos/core";
 import { createStringNode } from "@cosmos/node-builder";
 
 export interface FormatCodec {
   [k: string]: Codec;
 }
 
-export class StringCodec implements Codec {
-  constructor() {}
+export class StringCodec implements FieldCodec {
   parse(
     structure: Structure,
   ): Promise<StringNode> | StringNode {

@@ -1,8 +1,8 @@
 import type {
   AssetNode,
-  Codec,
   CodecContext,
   Field,
+  FieldCodec,
   MarkdownNode,
   Node,
   ReferenceNode,
@@ -12,7 +12,7 @@ import type {
 import { MarkdownParser } from "./parser.ts";
 import { fromMarkdown } from "mdast-util-from-markdown";
 
-export class MarkdownCodec implements Codec {
+export class MarkdownCodec implements FieldCodec {
   #parser = new MarkdownParser();
 
   constructor(public models: string[]) {}
@@ -29,7 +29,7 @@ export class MarkdownCodec implements Codec {
     async function resolver(
       specifier: string,
     ): Promise<AssetNode | StringNode | ReferenceNode> {
-      const assetNode = await ctx.config.field.asset.parse(specifier, {
+      const assetNode = await ctx.codec.parse(specifier, {
         type: "asset",
       }, ctx);
 
@@ -38,7 +38,7 @@ export class MarkdownCodec implements Codec {
       }
 
       for (const model of models) {
-        const referenceNode = await ctx.config.field.reference.parse(
+        const referenceNode = await ctx.codec.parse(
           specifier,
           { type: "reference", model },
           ctx,
@@ -49,9 +49,11 @@ export class MarkdownCodec implements Codec {
         }
       }
 
-      const stringNode = await ctx.config.field.string.parse(specifier, {
-        type: "string",
-      }, ctx);
+      const stringNode = await ctx.codec.parse(
+        specifier,
+        { type: "string" },
+        ctx,
+      );
 
       return stringNode;
     }

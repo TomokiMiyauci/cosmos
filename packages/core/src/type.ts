@@ -17,17 +17,17 @@ export interface Config {
 export type Source = Indexer;
 
 export interface CodecMap {
-  string: Codec<StringField, StringNode>;
-  asset: Codec<AssetField, AssetNode>;
-  map: Codec<MapField, MapNode>;
-  boolean: Codec<BooleanField, BooleanNode>;
-  number: Codec<NumberField, NumberNode>;
-  instance: Codec<InstanceField>;
-  list: Codec<ListField, ListNode>;
-  markdown: Codec<MarkdownField, MarkdownNode>;
-  reference: Codec<ReferenceField, ReferenceNode>;
-  datetime: Codec<DatetimeField, DatetimeNode>;
-  union: Codec<UnionField, UnionNode>;
+  string: FieldCodec<StringField, StringNode>;
+  asset: FieldCodec<AssetField, AssetNode>;
+  map: FieldCodec<MapField, MapNode>;
+  boolean: FieldCodec<BooleanField, BooleanNode>;
+  number: FieldCodec<NumberField, NumberNode>;
+  instance: FieldCodec<InstanceField>;
+  list: FieldCodec<ListField, ListNode>;
+  markdown: FieldCodec<MarkdownField, MarkdownNode>;
+  reference: FieldCodec<ReferenceField, ReferenceNode>;
+  datetime: FieldCodec<DatetimeField, DatetimeNode>;
+  union: FieldCodec<UnionField, UnionNode>;
 }
 
 export interface ConvertMap {
@@ -52,7 +52,7 @@ export interface Converter {
 export interface ConverterContext extends ResolverContext {
 }
 
-export interface Codec<T extends Field = Field, U extends Node = Node> {
+export interface FieldCodec<T extends Field = Field, U extends Node = Node> {
   parse(
     structure: Structure,
     field: T,
@@ -66,9 +66,63 @@ export interface Codec<T extends Field = Field, U extends Node = Node> {
   ): Structure | Promise<Structure>;
 }
 
+export interface Codec {
+  parse(
+    structure: Structure,
+    field: StringField,
+    ctx: CodecContext,
+  ): StringNode | Promise<StringNode>;
+  parse(
+    structure: Structure,
+    field: NumberField,
+    ctx: CodecContext,
+  ): NumberNode | Promise<NumberNode>;
+  parse(
+    structure: Structure,
+    field: BooleanField,
+    ctx: CodecContext,
+  ): BooleanNode | Promise<BooleanNode>;
+  parse(
+    structure: Structure,
+    field: AssetField,
+    ctx: CodecContext,
+  ): AssetNode | Promise<AssetNode>;
+  parse(
+    structure: Structure,
+    field: DatetimeField,
+    ctx: CodecContext,
+  ): DatetimeNode | Promise<DatetimeNode>;
+  parse(
+    structure: Structure,
+    field: ReferenceField,
+    ctx: CodecContext,
+  ): ReferenceNode | Promise<ReferenceNode>;
+  parse(
+    structure: Structure,
+    field: ListField,
+    ctx: CodecContext,
+  ): ListNode | Promise<ListNode>;
+  parse(
+    structure: Structure,
+    field: MapField,
+    ctx: CodecContext,
+  ): MapNode | Promise<MapNode>;
+  parse(
+    structure: Structure,
+    field: UnionField,
+    ctx: CodecContext,
+  ): UnionNode | Promise<UnionNode>;
+  parse(
+    structure: Structure,
+    field: Field,
+    ctx: CodecContext,
+  ): Node | Promise<Node>;
+}
+
 export interface CodecContext extends ResolverContext {
   asset: AssetRegistry;
   node: NodeRegistry;
+  codec: Codec;
 }
 
 export interface FormatterDefinition {

@@ -1,14 +1,13 @@
-import {
-  type Codec,
-  type CodecContext,
-  type Field,
-  type MapNode,
-  type Node,
-  parseField,
-  type Structure,
+import type {
+  CodecContext,
+  Field,
+  FieldCodec,
+  MapNode,
+  Node,
+  Structure,
 } from "@cosmos/core";
 
-export class MapField implements Codec {
+export class MapCodec implements FieldCodec {
   async parse(
     structure: Structure,
     field: Field,
@@ -32,7 +31,7 @@ export class MapField implements Codec {
         key,
         // Ensure by before prosess
         // deno-lint-ignore no-non-null-assertion
-        await parseField(structure[key]!, value, ctx),
+        await ctx.codec.parse(structure[key]!, value, ctx),
       ];
     });
 

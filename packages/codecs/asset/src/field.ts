@@ -1,14 +1,13 @@
 import type {
   AssetNode,
-  Codec,
-  Field,
+  FieldCodec,
   Node,
   Structure,
   StructureValue,
 } from "@cosmos/core";
 
-export class AssetCodec implements Codec {
-  parse(structure: Structure, _: Field): AssetNode {
+export class AssetCodec implements FieldCodec {
+  parse(structure: Structure): AssetNode {
     if (typeof structure !== "string") throw new SyntaxError();
 
     return {

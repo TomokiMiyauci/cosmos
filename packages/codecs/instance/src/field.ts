@@ -1,13 +1,12 @@
-import {
-  type Codec,
-  type CodecContext,
-  type Field,
-  type Node,
-  parseField,
-  type Structure,
+import type {
+  CodecContext,
+  Field,
+  FieldCodec,
+  Node,
+  Structure,
 } from "@cosmos/core";
 
-export class InstanceField implements Codec {
+export class InstanceCodec implements FieldCodec {
   parse(
     structure: Structure,
     field: Field,
@@ -19,7 +18,7 @@ export class InstanceField implements Codec {
 
     if (!model) throw new Error();
 
-    return parseField(structure, model, ctx);
+    return ctx.codec.parse(structure, model, ctx);
   }
 
   stringify(node: Node): Structure | Promise<Structure> {
