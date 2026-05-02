@@ -1,1 +1,1 @@
-export { FsIndexer } from "./manager.ts";
+export { FsIndexer, type FsOptions } from "./manager.ts";

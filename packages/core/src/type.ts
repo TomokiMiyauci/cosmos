@@ -5,53 +5,145 @@ export interface Manifest {
 }
 
 export interface Config {
-  formatters: FormatterDefinition[];
-  field: CodecMap;
+  formats: Record<string, Formatter>;
+  codec: CodecMap;
   resources: Record<string, Resource>;
-  sources: Record<string, Source>;
+  sources: Source[];
   storage: Storage;
-  assets?: string[];
+  indexers: Record<string, Indexer>;
   models: Record<string, Model>;
+  converters?: Partial<ConvertMap>;
+  assets?: Record<string, Asset>;
 }
 
-export type Source = Indexer;
+export interface Asset {
+  indexer: IndexerDefinition;
+}
+
+export interface Source {
+  resource: string;
+  indexer: IndexerDefinition;
+  format: FormatDefinition;
+}
+
+export interface IndexerContext<T> {
+  options: T;
+}
+
+export type IndexerDefinition = {
+  [K in keyof IndexerRegistry]: { type: K } & IndexerRegistry[K];
+}[keyof IndexerRegistry];
+
+// deno-lint-ignore no-empty-interface
+export interface IndexerRegistry {}
 
 export interface CodecMap {
-  string: Codec<StringNode>;
-  asset: Codec<AssetNode>;
-  map: Codec;
-  boolean: Codec;
-  number: Codec;
-  instance: Codec;
-  list: Codec;
-  markdown: Codec;
-  reference: Codec<ReferenceNode>;
-  datetime: Codec;
-  union: Codec;
+  string: FieldCodec<StringField, StringNode>;
+  asset: FieldCodec<AssetField, AssetNode>;
+  map: FieldCodec<MapField, MapNode>;
+  boolean: FieldCodec<BooleanField, BooleanNode>;
+  number: FieldCodec<NumberField, NumberNode>;
+  instance: FieldCodec<InstanceField>;
+  list: FieldCodec<ListField, ListNode>;
+  markdown: FieldCodec<MarkdownField, MarkdownNode>;
+  reference: FieldCodec<ReferenceField, ReferenceNode>;
+  datetime: FieldCodec<DatetimeField, DatetimeNode>;
+  union: FieldCodec<UnionField, UnionNode>;
 }
 
-export interface Codec<T extends Node = Node> {
+export interface ConvertMap {
+  string: Converter;
+  asset: Converter;
+  map: Converter;
+  boolean: Converter;
+  number: Converter;
+  instance: Converter;
+  list: Converter;
+  markdown: Converter;
+  reference: Converter;
+  datetime: Converter;
+  union: Converter;
+}
+
+export interface Converter {
+  standardize(strucrue: Structure, ctx: ConverterContext): Structure;
+  specialize(strucrue: Structure, ctx: ConverterContext): Structure;
+}
+
+export interface ConverterContext extends ResolverContext {
+}
+
+export interface FieldCodec<T extends Field = Field, U extends Node = Node> {
+  parse(
+    structure: Structure,
+    field: T,
+    ctx: CodecContext,
+  ): U | Promise<U>;
+
+  stringify(
+    node: U,
+    field: T,
+    ctx: CodecContext,
+  ): Structure | Promise<Structure>;
+}
+
+export interface Codec {
+  parse(
+    structure: Structure,
+    field: StringField,
+    ctx: CodecContext,
+  ): StringNode | Promise<StringNode>;
+  parse(
+    structure: Structure,
+    field: NumberField,
+    ctx: CodecContext,
+  ): NumberNode | Promise<NumberNode>;
+  parse(
+    structure: Structure,
+    field: BooleanField,
+    ctx: CodecContext,
+  ): BooleanNode | Promise<BooleanNode>;
+  parse(
+    structure: Structure,
+    field: AssetField,
+    ctx: CodecContext,
+  ): AssetNode | Promise<AssetNode>;
+  parse(
+    structure: Structure,
+    field: DatetimeField,
+    ctx: CodecContext,
+  ): DatetimeNode | Promise<DatetimeNode>;
+  parse(
+    structure: Structure,
+    field: ReferenceField,
+    ctx: CodecContext,
+  ): ReferenceNode | Promise<ReferenceNode>;
+  parse(
+    structure: Structure,
+    field: ListField,
+    ctx: CodecContext,
+  ): ListNode | Promise<ListNode>;
+  parse(
+    structure: Structure,
+    field: MapField,
+    ctx: CodecContext,
+  ): MapNode | Promise<MapNode>;
+  parse(
+    structure: Structure,
+    field: UnionField,
+    ctx: CodecContext,
+  ): UnionNode | Promise<UnionNode>;
   parse(
     structure: Structure,
     field: Field,
     ctx: CodecContext,
-  ): T | Promise<T>;
-
-  stringify(
-    node: T,
-    field: Field,
-    ctx: CodecContext,
-  ): Structure | Promise<Structure>;
+  ): Node | Promise<Node>;
 }
 
 export interface CodecContext extends ResolverContext {
   asset: AssetRegistry;
   node: NodeRegistry;
-}
-
-export interface FormatterDefinition {
-  type: string;
-  formatter: Formatter;
+  codec: Codec;
 }
 
 export type Model = Field;
@@ -128,17 +220,11 @@ export interface MarkdownField extends BaseField {
 export type FieldType = Field["type"];
 
 export type FormatDefinition = {
-  [K in keyof FormatterRegistry]:
-    & FormatterDefinitionBase<K>
-    & FormatterRegistry[K];
-}[keyof FormatterRegistry];
-
-export interface FormatterDefinitionBase<T> {
-  type: T;
-}
+  [K in keyof FormatRegistry]: { type: K } & FormatRegistry[K];
+}[keyof FormatRegistry];
 
 // deno-lint-ignore no-empty-interface
-export interface FormatterRegistry {}
+export interface FormatRegistry {}
 
 export interface Protocol {
   handle(request: Request, ctx: ProtocolContext): Promise<Response> | Response;
@@ -170,17 +256,13 @@ export interface AssetHeader {
 }
 
 export interface Resource {
-  format: FormatDefinition;
+  type: EntityType;
   model: string;
-  type: ResourceType;
+  description?: string;
+  main?: string;
 }
 
-export type ResourceType = "single" | "collection";
-
-export interface IndexerDefinition {
-  type: string;
-  options: unknown;
-}
+export type EntityType = "singleton" | "collection";
 
 export interface Storage {
   read(url: URL): Blob | Promise<Blob>;
@@ -188,8 +270,8 @@ export interface Storage {
   delete(url: URL): void | Promise<void>;
 }
 
-export interface Indexer {
-  search(): AsyncIterable<URL>;
+export interface Indexer<T = unknown> {
+  search(ctx: IndexerContext<T>): AsyncIterable<URL>;
 }
 
 export type StructureValue = string;
@@ -203,6 +285,7 @@ export type Structure = StructureValue | StructureObject;
 export interface FormatterContext<T = unknown> {
   config: Config;
   options: T;
+  resource: Resource;
 }
 
 export interface Formatter<T = unknown> {

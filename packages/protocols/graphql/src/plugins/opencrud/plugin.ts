@@ -258,7 +258,7 @@ export class OpenCrud implements Plugin {
 
     const [singletonEntries, collectionEntreis] = partition(
       resourceEntreis,
-      ([, resource]) => resource.type === "single",
+      ([, resource]) => resource.type === "singleton",
     );
 
     const fields = collectionEntreis.map(([key, resource]) => {
@@ -295,7 +295,7 @@ export class OpenCrud implements Plugin {
             ...orderByArgs,
           },
           resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
-            const ids = await ctx.fetcher.list(name);
+            const ids = await ctx.fetcher.list(key);
             const resources = await Promise.all(
               ids.map(async (id) => {
                 return { id, node: await ctx.fetcher.fetch(id) };

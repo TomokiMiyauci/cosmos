@@ -1,20 +1,41 @@
 import { join, toFileUrl } from "@std/path";
 import { expandGlob } from "@std/fs";
+import type { Indexer, IndexerContext } from "@cosmos/core";
 
-export class FsIndexer {
-  constructor(private rootDir: string, private options: { pattern: string }) {}
+export class FsIndexer implements Indexer {
+  constructor(
+    private rootDir: string,
+  ) {}
 
-  async *search(): AsyncIterable<URL> {
-    const pattern = join(this.rootDir, this.options.pattern);
-    const iterator = expandGlob(pattern);
+  async *search(
+    ctx: IndexerContext<FsOptions>,
+  ): AsyncIterable<URL> {
+    const patterns = wrap(ctx.options.patterns);
 
-    for await (const entry of iterator) {
-      if (entry.isFile) {
-        const filePath = entry.path;
-        const url = toFileUrl(filePath);
+    for (const pattern of patterns) {
+      const path = join(this.rootDir, pattern);
+      const iterator = expandGlob(path);
 
-        yield new URL(url);
+      for await (const entry of iterator) {
+        if (entry.isFile) {
+          const filePath = entry.path;
+          const url = toFileUrl(filePath);
+
+          yield new URL(url);
+        }
       }
     }
   }
+}
+
+export interface FsOptions {
+  patterns: string | string[];
+}
+
+function wrap<T>(value: T): T extends unknown[] ? T : T[] {
+  // deno-lint-ignore no-explicit-any
+  if (Array.isArray(value)) return value as any;
+
+  // deno-lint-ignore no-explicit-any
+  return [value] as any;
 }

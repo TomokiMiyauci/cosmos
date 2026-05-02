@@ -1,13 +1,13 @@
 import type {
   BooleanNode,
-  Codec,
+  FieldCodec,
   Node,
   Structure,
   StructureValue,
 } from "@cosmos/core";
 import { createBooleanNode } from "@cosmos/node-builder";
 
-export class BooleanCodec implements Codec {
+export class BooleanCodec implements FieldCodec {
   parse(structure: Structure): BooleanNode {
     if (typeof structure !== "string") throw new SyntaxError();
     if (structure !== "true" && structure !== "false") {

@@ -1,1 +1,1 @@
-export { InstanceField } from "./field.ts";
+export { InstanceCodec } from "./field.ts";

@@ -1,25 +1,44 @@
 import type { Config } from "@cosmos/core";
 import { author, post, setting } from "./models/model.ts";
-import { FrontmatterFormatterDefinition } from "@cosmos/formatter-frontmatter";
-import { JsonFormatterDefinition } from "@cosmos/formatter-json";
-import { YamlFormatterDefinition } from "@cosmos/formatter-yaml";
-import { TextFormatterDefinition } from "@cosmos/formatter-text";
+import {
+  FrontmatterFormatter,
+  FrontmatterOptions,
+} from "@cosmos/formatter-frontmatter";
+import { JsonFormatter } from "@cosmos/formatter-json";
+import { YamlFormatter } from "@cosmos/formatter-yaml";
+import { TextFormatter } from "@cosmos/formatter-text";
 import { DenoIO } from "@cosmos/storage-fs/deno";
 import { FsStorage } from "@cosmos/storage-fs";
 import { AssetCodec } from "@cosmos/codec-asset";
 import { StringCodec } from "@cosmos/codec-string";
-import { MapField } from "@cosmos/codec-map";
+import { MapCodec } from "@cosmos/codec-map";
 import { BooleanCodec } from "@cosmos/codec-boolean";
 import { NumberCodec } from "@cosmos/codec-number";
-import { ListField } from "@cosmos/codec-list";
-import { InstanceField } from "@cosmos/codec-instance";
+import { ListCodec } from "@cosmos/codec-list";
+import { InstanceCodec } from "@cosmos/codec-instance";
 import { MarkdownCodec } from "@cosmos/codec-markdown";
-import { PathReferenceCodec } from "@cosmos/codec-path-reference";
+import { ReferenceCodec } from "@cosmos/codec-reference";
 import { DatetimeCodec } from "@cosmos/codec-datetime";
-import { UnionField } from "@cosmos/codec-union";
-import { FsIndexer } from "@cosmos/index-fs";
+import { UnionCodec } from "@cosmos/codec-union";
+import { FsIndexer, type FsOptions } from "@cosmos/index-fs";
 import { resolve } from "@std/path";
+import { PathConverter } from "@cosmos/converter-path";
 
+// deno-lint-ignore no-implicit-declare-namespace-export
+declare module "@cosmos/core" {
+  interface FormatRegistry {
+    json: unknown;
+    text: unknown;
+    yaml: unknown;
+    frontmatter: FrontmatterOptions;
+  }
+
+  interface IndexerRegistry {
+    fs: FsOptions;
+  }
+}
+
+// deno-lint-ignore no-non-null-assertion
 const rootDir = resolve(import.meta.dirname!, "..");
 
 export default {
@@ -29,30 +48,55 @@ export default {
     setting,
   },
   storage: new FsStorage(new DenoIO()),
-  formatters: [
-    new FrontmatterFormatterDefinition(),
-    new JsonFormatterDefinition(),
-    new YamlFormatterDefinition(),
-    new TextFormatterDefinition(),
-  ],
-  field: {
+  formats: {
+    text: new TextFormatter(),
+    yaml: new YamlFormatter(),
+    frontmatter: new FrontmatterFormatter(),
+    json: new JsonFormatter(),
+  },
+  converters: {
+    asset: new PathConverter(rootDir),
+    reference: new PathConverter(rootDir),
+  },
+  codec: {
     string: new StringCodec(),
-    asset: new AssetCodec(rootDir),
-    map: new MapField(),
+    asset: new AssetCodec(),
+    map: new MapCodec(),
     boolean: new BooleanCodec(),
     number: new NumberCodec(),
-    instance: new InstanceField(),
-    list: new ListField(),
-    markdown: new MarkdownCodec(),
-    reference: new PathReferenceCodec(rootDir),
+    instance: new InstanceCodec(),
+    list: new ListCodec(),
+    markdown: new MarkdownCodec(["post"]),
+    reference: new ReferenceCodec(),
     datetime: new DatetimeCodec(),
-    union: new UnionField(),
+    union: new UnionCodec(),
   },
-  assets: [
-    "asset",
-  ],
   resources: {
     posts: {
+      model: "post",
+      type: "collection",
+      main: "body",
+    },
+    authors: {
+      model: "author",
+      type: "collection",
+    },
+    setting: {
+      model: "setting",
+      type: "singleton",
+    },
+  },
+  indexers: {
+    fs: new FsIndexer(rootDir),
+  },
+
+  sources: [
+    {
+      resource: "posts",
+      indexer: {
+        type: "fs",
+        patterns: "/contents/posts/**/*.md",
+      },
       format: {
         type: "frontmatter",
         header: {
@@ -61,35 +105,31 @@ export default {
         body: {
           type: "text",
         },
-        bodyKey: "body",
       },
-      model: "post",
-      type: "collection",
     },
-    authors: {
+    {
+      resource: "authors",
+      indexer: {
+        type: "fs",
+        patterns: "/contents/authors/**/*.json",
+      },
       format: { type: "json" },
-      model: "author",
-      type: "collection",
     },
-    setting: {
-      model: "setting",
+    {
+      resource: "setting",
+      indexer: {
+        type: "fs",
+        patterns: "/contents/setting.json",
+      },
       format: { type: "json" },
-      type: "single",
     },
-  },
-
-  sources: {
-    posts: new FsIndexer(rootDir, {
-      pattern: "/contents/posts/**/*.md",
-    }),
-    authors: new FsIndexer(rootDir, {
-      pattern: "/contents/authors/**/*.json",
-    }),
-    asset: new FsIndexer(rootDir, {
-      pattern: "/contents/**/*.png",
-    }),
-    setting: new FsIndexer(rootDir, {
-      pattern: "/contents/setting.json",
-    }),
+  ],
+  assets: {
+    assets: {
+      indexer: {
+        type: "fs",
+        patterns: "/contents/**/*.png",
+      },
+    },
   },
 } satisfies Config;

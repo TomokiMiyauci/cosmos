@@ -1,1 +1,1 @@
-export { UnionField } from "./field.ts";
+export { UnionCodec } from "./field.ts";

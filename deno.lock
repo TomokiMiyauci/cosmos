@@ -1012,7 +1012,7 @@
           "npm:mdast@3"
         ]
       },
-      "packages/codecs/path_reference": {
+      "packages/converters/path": {
         "dependencies": [
           "jsr:@std/path@^1.1.4"
         ]

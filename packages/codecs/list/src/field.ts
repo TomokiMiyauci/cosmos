@@ -1,16 +1,26 @@
-import {
-  type Codec,
-  type CodecContext,
-  type Field,
-  type ListNode,
-  type Node,
-  parseField,
-  stringifyField,
-  type Structure,
-  type StructureObject,
+import type {
+  CodecContext,
+  Field,
+  FieldCodec,
+  ListNode,
+  Node,
+  Structure,
+  StructureObject,
 } from "@cosmos/core";
+import {
+  assertAssertNode,
+  assertBooleanNode,
+  assertDatetimeNode,
+  assertListNode,
+  assertMapNode,
+  assertMarkdownNode,
+  assertNumberNode,
+  assertReferenceNode,
+  assertStringNode,
+  assertUnionNode,
+} from "@cosmos/node-validator";
 
-export class ListField implements Codec {
+export class ListCodec implements FieldCodec {
   async parse(
     structure: Structure,
     field: Field,
@@ -24,7 +34,7 @@ export class ListField implements Codec {
 
     const promise = values.map(
       (value) => {
-        return parseField(value, field.field, ctx);
+        return ctx.codec.parse(value, field.field, ctx);
       },
     );
 
@@ -57,5 +67,56 @@ export class ListField implements Codec {
     }
 
     return structure;
+  }
+}
+
+export function stringifyField(
+  node: Node,
+  field: Field,
+  ctx: CodecContext,
+): Promise<Structure> | Structure {
+  switch (field.type) {
+    case "string": {
+      assertStringNode(node);
+      return ctx.config.codec.string.stringify(node, field, ctx);
+    }
+    case "number": {
+      assertNumberNode(node);
+      return ctx.config.codec.number.stringify(node, field, ctx);
+    }
+    case "boolean": {
+      assertBooleanNode(node);
+      return ctx.config.codec.boolean.stringify(node, field, ctx);
+    }
+    case "map": {
+      assertMapNode(node);
+      return ctx.config.codec.map.stringify(node, field, ctx);
+    }
+    case "instance":
+      return ctx.config.codec.instance.stringify(node, field, ctx);
+    case "list": {
+      assertListNode(node);
+      return ctx.config.codec.list.stringify(node, field, ctx);
+    }
+    case "asset": {
+      assertAssertNode(node);
+      return ctx.config.codec.asset.stringify(node, field, ctx);
+    }
+    case "datetime": {
+      assertDatetimeNode(node);
+      return ctx.config.codec.datetime.stringify(node, field, ctx);
+    }
+    case "markdown": {
+      assertMarkdownNode(node);
+      return ctx.config.codec.markdown.stringify(node, field, ctx);
+    }
+    case "union": {
+      assertUnionNode(node);
+      return ctx.config.codec.union.stringify(node, field, ctx);
+    }
+    case "reference": {
+      assertReferenceNode(node);
+      return ctx.config.codec.reference.stringify(node, field, ctx);
+    }
   }
 }

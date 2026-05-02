@@ -1,19 +1,19 @@
-import {
-  type Codec,
-  type CodecContext,
-  type Field,
-  type Node,
-  parseField,
-  type Structure,
-  type StructureObject,
+import type {
+  CodecContext,
+  Field,
+  FieldCodec,
+  Node,
+  Structure,
+  StructureObject,
+  UnionNode,
 } from "@cosmos/core";
 
-export class UnionField implements Codec {
+export class UnionCodec implements FieldCodec {
   async parse(
     structure: Structure,
     field: Field,
     ctx: CodecContext,
-  ): Promise<Node> {
+  ): Promise<UnionNode> {
     if (field.type !== "union") throw new Error();
     if (typeof structure === "string") throw new SyntaxError();
 
@@ -27,7 +27,7 @@ export class UnionField implements Codec {
 
     if (!childField) throw new Error();
 
-    const node = await parseField(value, childField, ctx);
+    const node = await ctx.codec.parse(value, childField, ctx);
 
     return {
       type: "union",

@@ -1,1 +1,1 @@
-export { FrontmatterFormatterDefinition } from "./definition.ts";
+export { FrontmatterFormatter, type FrontmatterOptions } from "./formatter.ts";
