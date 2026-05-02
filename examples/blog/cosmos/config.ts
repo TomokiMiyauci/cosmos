@@ -57,6 +57,7 @@ export default {
     posts: {
       model: "post",
       type: "collection",
+      main: "body",
     },
     authors: {
       model: "author",
@@ -82,7 +83,6 @@ export default {
         body: {
           type: "text",
         },
-        bodyKey: "body",
       },
     },
     {
