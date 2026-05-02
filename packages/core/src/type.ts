@@ -8,13 +8,16 @@ export interface Config {
   formatters: FormatterDefinition[];
   codec: CodecMap;
   resources: Record<string, Resource>;
-  sources: Record<string, Source>;
+  sources: Source[];
   storage: Storage;
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;
 }
 
-export type Source = Indexer;
+export interface Source {
+  resource: string;
+  indexer: Indexer;
+}
 
 export interface CodecMap {
   string: FieldCodec<StringField, StringNode>;

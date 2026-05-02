@@ -86,18 +86,30 @@ export default {
     },
   },
 
-  sources: {
-    posts: new FsIndexer(rootDir, {
-      patterns: "/contents/posts/**/*.md",
-    }),
-    authors: new FsIndexer(rootDir, {
-      patterns: "/contents/authors/**/*.json",
-    }),
-    assets: new FsIndexer(rootDir, {
-      patterns: "/contents/**/*.png",
-    }),
-    setting: new FsIndexer(rootDir, {
-      patterns: "/contents/setting.json",
-    }),
-  },
+  sources: [
+    {
+      resource: "posts",
+      indexer: new FsIndexer(rootDir, {
+        patterns: "/contents/posts/**/*.md",
+      }),
+    },
+    {
+      resource: "authors",
+      indexer: new FsIndexer(rootDir, {
+        patterns: "/contents/authors/**/*.json",
+      }),
+    },
+    {
+      resource: "assets",
+      indexer: new FsIndexer(rootDir, {
+        patterns: "/contents/**/*.png",
+      }),
+    },
+    {
+      resource: "setting",
+      indexer: new FsIndexer(rootDir, {
+        patterns: "/contents/setting.json",
+      }),
+    },
+  ],
 } satisfies Config;

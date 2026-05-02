@@ -42,10 +42,10 @@ export class Indexer {
     const contentMap = new HashMap<URL, Blob>((url) => url.href);
 
     await Promise.all(
-      Object.entries(sources).map(async ([k, i]) => {
-        const urls = await Array.fromAsync(i.search());
+      sources.map(async (source) => {
+        const urls = await Array.fromAsync(source.indexer.search());
 
-        sourceMap.set(k, urls);
+        sourceMap.set(source.resource, urls);
       }),
     );
 
