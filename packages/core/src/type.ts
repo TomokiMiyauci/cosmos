@@ -10,32 +10,32 @@ export interface Config {
   resources: Record<string, Resource>;
   sources: Source[];
   storage: Storage;
-  indexers: Record<string, Indexer>;
+  locators: Record<string, Locator>;
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;
   assets?: Record<string, Asset>;
 }
 
 export interface Asset {
-  indexer: IndexerDefinition;
+  locator: LocatorDefinition;
 }
 
 export interface Source {
   resource: string;
-  indexer: IndexerDefinition;
+  locator: LocatorDefinition;
   format: FormatDefinition;
 }
 
-export interface IndexerContext<T> {
+export interface LocatorContext<T> {
   options: T;
 }
 
-export type IndexerDefinition = {
-  [K in keyof IndexerRegistry]: { type: K } & IndexerRegistry[K];
-}[keyof IndexerRegistry];
+export type LocatorDefinition = {
+  [K in keyof LocatorRegistry]: { type: K } & LocatorRegistry[K];
+}[keyof LocatorRegistry];
 
 // deno-lint-ignore no-empty-interface
-export interface IndexerRegistry {}
+export interface LocatorRegistry {}
 
 export interface CodecMap {
   string: FieldCodec<StringField, StringNode>;
@@ -270,8 +270,8 @@ export interface Storage {
   delete(url: URL): void | Promise<void>;
 }
 
-export interface Indexer<T = unknown> {
-  search(ctx: IndexerContext<T>): AsyncIterable<URL>;
+export interface Locator<T = unknown> {
+  search(ctx: LocatorContext<T>): AsyncIterable<URL>;
 }
 
 export type StructureValue = string;

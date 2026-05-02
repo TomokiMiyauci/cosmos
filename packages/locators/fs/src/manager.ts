@@ -1,14 +1,14 @@
 import { join, toFileUrl } from "@std/path";
 import { expandGlob } from "@std/fs";
-import type { Indexer, IndexerContext } from "@cosmos/core";
+import type { Locator, LocatorContext } from "@cosmos/core";
 
-export class FsIndexer implements Indexer {
+export class FsLocator implements Locator {
   constructor(
     private rootDir: string,
   ) {}
 
   async *search(
-    ctx: IndexerContext<FsOptions>,
+    ctx: LocatorContext<FsOptions>,
   ): AsyncIterable<URL> {
     const patterns = wrap(ctx.options.patterns);
 

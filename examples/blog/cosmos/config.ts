@@ -20,7 +20,7 @@ import { MarkdownCodec } from "@cosmos/codec-markdown";
 import { ReferenceCodec } from "@cosmos/codec-reference";
 import { DatetimeCodec } from "@cosmos/codec-datetime";
 import { UnionCodec } from "@cosmos/codec-union";
-import { FsIndexer, type FsOptions } from "@cosmos/index-fs";
+import { FsLocator, type FsOptions } from "@cosmos/locator-fs";
 import { resolve } from "@std/path";
 import { PathConverter } from "@cosmos/converter-path";
 
@@ -33,7 +33,7 @@ declare module "@cosmos/core" {
     frontmatter: FrontmatterOptions;
   }
 
-  interface IndexerRegistry {
+  interface LocatorRegistry {
     fs: FsOptions;
   }
 }
@@ -65,7 +65,7 @@ export default {
   sources: [
     {
       resource: "posts",
-      indexer: {
+      locator: {
         type: "fs",
         patterns: "/contents/posts/**/*.md",
       },
@@ -81,7 +81,7 @@ export default {
     },
     {
       resource: "authors",
-      indexer: {
+      locator: {
         type: "fs",
         patterns: "/contents/authors/**/*.json",
       },
@@ -89,7 +89,7 @@ export default {
     },
     {
       resource: "setting",
-      indexer: {
+      locator: {
         type: "fs",
         patterns: "/contents/setting.json",
       },
@@ -98,15 +98,15 @@ export default {
   ],
   assets: {
     assets: {
-      indexer: {
+      locator: {
         type: "fs",
         patterns: "/contents/**/*.png",
       },
     },
   },
   storage: new FsStorage(new DenoIO()),
-  indexers: {
-    fs: new FsIndexer(rootDir),
+  locators: {
+    fs: new FsLocator(rootDir),
   },
   converters: {
     asset: new PathConverter(rootDir),

@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/index-fs",
+  "name": "@cosmos/locator-fs",
   "exports": {
     ".": "./src/mod.ts"
   },
