@@ -4,7 +4,6 @@ import {
   type Datalayer,
   type Entry,
   type Field,
-  type FormatDefinition,
   type Manifest,
   type Node,
   resolveFormatter,
@@ -31,6 +30,7 @@ export class Indexer {
       models,
       storage,
       sources,
+      assets = [],
     } = config;
     const formatterMap = formatters.reduce((acc, { type, formatter }) => {
       return {
@@ -39,21 +39,31 @@ export class Indexer {
       };
     }, {});
 
-    const sourceMap = new Map<
-      string,
-      { urls: URL[]; format: FormatDefinition }
-    >();
+    const registry = {
+      document: new Map<number, URL[]>(),
+      asset: new Map<string, URL[]>(),
+    };
     const contentMap = new HashMap<URL, Blob>((url) => url.href);
 
     await Promise.all(
-      sources.map(async (source) => {
+      sources.map(async (source, i) => {
         const urls = await Array.fromAsync(source.indexer.search());
 
-        sourceMap.set(source.resource, { urls, format: source.format });
+        registry.document.set(i, urls);
       }),
     );
 
-    for (const { urls } of sourceMap.values()) {
+    await Promise.all(
+      Object.entries(assets).map(async ([key, asset]) => {
+        const urls = await Array.fromAsync(asset.indexer.search());
+
+        registry.asset.set(key, urls);
+      }),
+    );
+
+    for (
+      const urls of [...registry.document.values(), ...registry.asset.values()]
+    ) {
       await Promise.all(urls.map(async (url) => {
         const blob = await storage.read(url);
 
@@ -61,99 +71,105 @@ export class Indexer {
       }));
     }
 
-    const resourceMap = new Map<string, ResourceEntry[]>();
+    const assetMap = new Map<string, AssetResourceEntry[]>();
+    const resourceMap = new Map<string, DocumentResourceEntry[]>();
 
-    for (const [key, { urls, format }] of sourceMap.entries()) {
+    for (const [i, urls] of registry.document.entries()) {
+      const source = sources[i];
+      if (!source) throw new Error();
+
+      const key = source.resource;
       const resource = resources[key];
 
       if (!resource) throw new Error();
 
+      const format = source.format;
+
       const contents = urls.map((url) => [url, contentMap.get(url)] as const)
         .filter(([_, data]) => !!data) as [URL, Blob][];
 
-      switch (resource.type) {
-        case "document": {
-          const field = models[resource.model];
+      const field = models[resource.model];
 
-          if (!field) {
-            throw new Error(`model is not defined. ${resource.model}`);
-          }
-
-          const formatter = resolveFormatter(format, formatterMap);
-          const decoder = new TextDecoder();
-
-          const promises = contents.map(async ([url, content]) => {
-            const buffer = await content.arrayBuffer();
-            const text = decoder.decode(buffer);
-            const structure = formatter.parse(text, {
-              config,
-              options: format,
-            });
-
-            const codec = new ParentCodec();
-            const node = await codec.parse(structure, field, {
-              baseUrl: url,
-              config,
-              asset: {
-                has(url): boolean {
-                  for (const entries of resourceMap.values()) {
-                    for (const entry of entries) {
-                      if (
-                        entry.type === "asset" && entry.url.href === url.href
-                      ) {
-                        return true;
-                      }
-                    }
-                  }
-
-                  return false;
-                },
-              },
-              node: {
-                has(url): boolean {
-                  for (const entries of resourceMap.values()) {
-                    for (const entry of entries) {
-                      if (
-                        entry.type === "document" && entry.url.href === url.href
-                      ) {
-                        return true;
-                      }
-                    }
-                  }
-
-                  return false;
-                },
-              },
-              codec,
-            });
-
-            return {
-              url,
-              type: "document",
-              data: node,
-            } satisfies DocumentResourceEntry;
-          });
-
-          const entries = await Promise.all(promises);
-
-          resourceMap.set(key, entries);
-          break;
-        }
-        case "asset": {
-          const enties = contents.map(([url, blob]) => {
-            return {
-              url,
-              type: "asset",
-              data: blob,
-            } satisfies AssetResourceEntry;
-          });
-
-          resourceMap.set(key, enties);
-        }
+      if (!field) {
+        throw new Error(`model is not defined. ${resource.model}`);
       }
+
+      const formatter = resolveFormatter(format, formatterMap);
+      const decoder = new TextDecoder();
+
+      const promises = contents.map(async ([url, content]) => {
+        const buffer = await content.arrayBuffer();
+        const text = decoder.decode(buffer);
+        const structure = formatter.parse(text, {
+          config,
+          options: format,
+        });
+
+        const codec = new ParentCodec();
+        const node = await codec.parse(structure, field, {
+          baseUrl: url,
+          config,
+          asset: {
+            has(url): boolean {
+              for (const entries of assetMap.values()) {
+                for (const entry of entries) {
+                  if (
+                    entry.type === "asset" && entry.url.href === url.href
+                  ) {
+                    return true;
+                  }
+                }
+              }
+
+              return false;
+            },
+          },
+          node: {
+            has(url): boolean {
+              for (const entries of resourceMap.values()) {
+                for (const entry of entries) {
+                  if (
+                    entry.type === "document" && entry.url.href === url.href
+                  ) {
+                    return true;
+                  }
+                }
+              }
+
+              return false;
+            },
+          },
+          codec,
+        });
+
+        return {
+          url,
+          type: "document",
+          data: node,
+        } satisfies DocumentResourceEntry;
+      });
+
+      const entries = await Promise.all(promises);
+
+      resourceMap.set(key, entries);
     }
 
-    for (const [key, entries] of resourceMap) {
+    for (const [key, urls] of registry.asset) {
+      const contents = urls.map((url) => [url, contentMap.get(url)] as const)
+        .filter(([_, data]) => !!data) as [URL, Blob][];
+
+      const enties = contents.map(([url, blob]) => {
+        return {
+          url,
+          type: "asset",
+          data: blob,
+        } satisfies AssetResourceEntry;
+      });
+
+      assetMap.set(key, enties);
+    }
+
+    for (const [key, entries] of [...resourceMap, ...assetMap]) {
       for (const resourceEntry of entries) {
         const entry = toEntry(key, resourceEntry);
         await store.save(entry);

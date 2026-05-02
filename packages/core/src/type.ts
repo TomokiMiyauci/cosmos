@@ -12,6 +12,11 @@ export interface Config {
   storage: Storage;
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;
+  assets?: Record<string, Asset>;
+}
+
+export interface Asset {
+  indexer: Indexer;
 }
 
 export interface Source {
@@ -249,20 +254,10 @@ export interface AssetHeader {
   mimeType: string;
 }
 
-export type Resource = DocumentResource | AssetResource;
-
-export interface BaseResource {
-  description?: string;
-}
-
-export interface DocumentResource extends BaseResource {
-  type: "document";
+export interface Resource {
+  type: EntityType;
   model: string;
-  entity: EntityType;
-}
-
-export interface AssetResource extends BaseResource {
-  type: "asset";
+  description?: string;
 }
 
 export type EntityType = "singleton" | "collection";

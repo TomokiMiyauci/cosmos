@@ -1,11 +1,4 @@
-import type {
-  AssetResource,
-  DatetimeNode,
-  DocumentResource,
-  Node,
-  Resource,
-  StringNode,
-} from "@cosmos/core";
+import type { DatetimeNode, Node, Resource, StringNode } from "@cosmos/core";
 import type {
   Entry,
   GraphqlNamedOutputType,
@@ -262,14 +255,10 @@ export class OpenCrud implements Plugin {
     } satisfies Context;
 
     const resourceEntreis = Object.entries(resources);
-    const [documents] = partition(
-      resourceEntreis,
-      ([, resource]) => resource.type === "document",
-    ) as [[string, DocumentResource][], [string, AssetResource][]];
 
     const [singletonEntries, collectionEntreis] = partition(
-      documents,
-      ([, resource]) => resource.entity === "singleton",
+      resourceEntreis,
+      ([, resource]) => resource.type === "singleton",
     );
 
     const fields = collectionEntreis.map(([key, resource]) => {
