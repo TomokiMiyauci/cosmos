@@ -1,7 +1,7 @@
-import type { Formatter, FormatterDefinitionBase } from "./type.ts";
+import type { Formatter } from "./type.ts";
 
 export function resolveFormatter(
-  format: FormatterDefinitionBase<string>,
+  format: { type: string },
   map: FormatterMap,
 ): Formatter {
   const formatter = map[format.type];

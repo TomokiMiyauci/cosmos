@@ -134,11 +134,6 @@ export interface CodecContext extends ResolverContext {
   codec: Codec;
 }
 
-export interface FormatterDefinition {
-  type: string;
-  formatter: Formatter;
-}
-
 export type Model = Field;
 
 export type Field =
@@ -213,17 +208,11 @@ export interface MarkdownField extends BaseField {
 export type FieldType = Field["type"];
 
 export type FormatDefinition = {
-  [K in keyof FormatterRegistry]:
-    & FormatterDefinitionBase<K>
-    & FormatterRegistry[K];
-}[keyof FormatterRegistry];
-
-export interface FormatterDefinitionBase<T> {
-  type: T;
-}
+  [K in keyof FormatRegistry]: { type: K } & FormatRegistry[K];
+}[keyof FormatRegistry];
 
 // deno-lint-ignore no-empty-interface
-export interface FormatterRegistry {}
+export interface FormatRegistry {}
 
 export interface Protocol {
   handle(request: Request, ctx: ProtocolContext): Promise<Response> | Response;
