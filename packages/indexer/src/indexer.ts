@@ -4,6 +4,7 @@ import {
   type Datalayer,
   type Entry,
   type Field,
+  type FormatDefinition,
   type Manifest,
   type Node,
   resolveFormatter,
@@ -38,18 +39,21 @@ export class Indexer {
       };
     }, {});
 
-    const sourceMap = new Map<string, URL[]>();
+    const sourceMap = new Map<
+      string,
+      { urls: URL[]; format: FormatDefinition }
+    >();
     const contentMap = new HashMap<URL, Blob>((url) => url.href);
 
     await Promise.all(
       sources.map(async (source) => {
         const urls = await Array.fromAsync(source.indexer.search());
 
-        sourceMap.set(source.resource, urls);
+        sourceMap.set(source.resource, { urls, format: source.format });
       }),
     );
 
-    for (const urls of sourceMap.values()) {
+    for (const { urls } of sourceMap.values()) {
       await Promise.all(urls.map(async (url) => {
         const blob = await storage.read(url);
 
@@ -59,7 +63,7 @@ export class Indexer {
 
     const resourceMap = new Map<string, ResourceEntry[]>();
 
-    for (const [key, urls] of sourceMap.entries()) {
+    for (const [key, { urls, format }] of sourceMap.entries()) {
       const resource = resources[key];
 
       if (!resource) throw new Error();
@@ -75,7 +79,7 @@ export class Indexer {
             throw new Error(`model is not defined. ${resource.model}`);
           }
 
-          const formatter = resolveFormatter(resource.format, formatterMap);
+          const formatter = resolveFormatter(format, formatterMap);
           const decoder = new TextDecoder();
 
           const promises = contents.map(async ([url, content]) => {
@@ -83,7 +87,7 @@ export class Indexer {
             const text = decoder.decode(buffer);
             const structure = formatter.parse(text, {
               config,
-              options: resource.format,
+              options: format,
             });
 
             const codec = new ParentCodec();

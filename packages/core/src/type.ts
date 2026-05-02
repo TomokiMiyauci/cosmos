@@ -17,6 +17,7 @@ export interface Config {
 export interface Source {
   resource: string;
   indexer: Indexer;
+  format: FormatDefinition;
 }
 
 export interface CodecMap {
@@ -258,7 +259,6 @@ export interface DocumentResource extends BaseResource {
   type: "document";
   model: string;
   entity: EntityType;
-  format: FormatDefinition;
 }
 
 export interface AssetResource extends BaseResource {
