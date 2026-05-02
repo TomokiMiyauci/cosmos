@@ -258,6 +258,7 @@ export interface Resource {
   type: EntityType;
   model: string;
   description?: string;
+  main?: string;
 }
 
 export type EntityType = "singleton" | "collection";
@@ -288,6 +289,7 @@ export type Structure = StructureValue | StructureObject;
 export interface FormatterContext<T = unknown> {
   config: Config;
   options: T;
+  resource: Resource;
 }
 
 export interface Formatter<T = unknown> {

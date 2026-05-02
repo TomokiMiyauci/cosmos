@@ -103,6 +103,7 @@ export class Indexer {
         const structure = formatter.parse(text, {
           config,
           options: format,
+          resource,
         });
 
         const codec = new ParentCodec();

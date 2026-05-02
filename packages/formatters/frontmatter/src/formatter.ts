@@ -4,7 +4,6 @@ import {
   type FormatterContext,
   resolveFormatter,
   type Structure,
-  type StructureObject,
 } from "@cosmos/core";
 import { Frontmatter } from "./parser.ts";
 
@@ -24,32 +23,54 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
       {},
     );
 
+    const mainField = ctx.resource.main;
     const { header, body } = this.#frontmatter.parse(content);
     const headerFormatter = resolveFormatter(ctx.options.header, formatterMap);
     const bodyFormatter = resolveFormatter(ctx.options.body, formatterMap);
     const parsedHeader = headerFormatter.parse(header, {
       config: ctx.config,
       options: ctx.options.header,
+      resource: ctx.resource,
     });
     const parsedBody = bodyFormatter.parse(body, {
       config: ctx.config,
       options: ctx.options.body,
+      resource: ctx.resource,
     });
 
-    const remappedHeader = remap(
-      parsedHeader,
-      ctx.options.headerKey,
-      "headerKey is required",
-    );
-    const remappedBody = remap(
-      parsedBody,
-      ctx.options.bodyKey,
-      "bodyKey is required",
-    );
+    if (typeof parsedHeader !== "string" && typeof parsedBody !== "string") {
+      const data = { ...parsedHeader, ...parsedBody };
 
-    const data = { ...remappedHeader, ...remappedBody };
+      return data;
+    }
 
-    return data;
+    if (typeof parsedHeader === "string" && typeof parsedBody !== "string") {
+      if (mainField === undefined) {
+        throw new Error(
+          "resource main field is requried if the format is mix strucure",
+        );
+      }
+
+      return {
+        ...parsedBody,
+        [mainField]: parsedHeader,
+      };
+    }
+
+    if (typeof parsedBody === "string" && typeof parsedHeader !== "string") {
+      if (mainField === undefined) {
+        throw new Error(
+          "resource main field is requried if the format is mix strucure",
+        );
+      }
+
+      return {
+        ...parsedHeader,
+        [mainField]: parsedBody,
+      };
+    }
+
+    throw new Error("header and body should not be string");
   }
 
   serialize(): string {
@@ -57,28 +78,8 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
   }
 }
 
-function remap(
-  structure: Structure,
-  key: string | undefined,
-  msg?: string,
-): StructureObject {
-  if (typeof structure === "string") {
-    if (typeof key === "undefined") {
-      throw new Error(msg ?? "key is required");
-    }
-
-    return {
-      [key]: structure,
-    };
-  }
-
-  return structure;
-}
-
 export interface FrontmatterOptions {
   header: FormatDefinition;
   body: FormatDefinition;
   delimiter?: string;
-  headerKey?: string;
-  bodyKey?: string;
 }
