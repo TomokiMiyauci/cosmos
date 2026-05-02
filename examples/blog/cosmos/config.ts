@@ -1,6 +1,9 @@
 import type { Config } from "@cosmos/core";
 import { author, post, setting } from "./models/model.ts";
-import { FrontmatterFormatter } from "@cosmos/formatter-frontmatter";
+import {
+  FrontmatterFormatter,
+  FrontmatterOptions,
+} from "@cosmos/formatter-frontmatter";
 import { JsonFormatter } from "@cosmos/formatter-json";
 import { YamlFormatter } from "@cosmos/formatter-yaml";
 import { TextFormatter } from "@cosmos/formatter-text";
@@ -20,6 +23,16 @@ import { UnionCodec } from "@cosmos/codec-union";
 import { FsIndexer } from "@cosmos/index-fs";
 import { resolve } from "@std/path";
 import { PathConverter } from "@cosmos/converter-path";
+
+// deno-lint-ignore no-implicit-declare-namespace-export
+declare module "@cosmos/core" {
+  interface FormatRegistry {
+    json: unknown;
+    text: unknown;
+    yaml: unknown;
+    frontmatter: FrontmatterOptions;
+  }
+}
 
 const rootDir = resolve(import.meta.dirname!, "..");
 
