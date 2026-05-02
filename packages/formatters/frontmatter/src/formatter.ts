@@ -13,20 +13,16 @@ export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
     content: string,
     ctx: FormatterContext<FrontmatterOptions>,
   ): Structure {
-    const formatterMap = ctx.config.formatters.reduce(
-      (acc, { type, formatter }) => {
-        return {
-          ...acc,
-          [type]: formatter,
-        };
-      },
-      {},
-    );
-
     const mainField = ctx.resource.main;
     const { header, body } = this.#frontmatter.parse(content);
-    const headerFormatter = resolveFormatter(ctx.options.header, formatterMap);
-    const bodyFormatter = resolveFormatter(ctx.options.body, formatterMap);
+    const headerFormatter = resolveFormatter(
+      ctx.options.header,
+      ctx.config.formats,
+    );
+    const bodyFormatter = resolveFormatter(
+      ctx.options.body,
+      ctx.config.formats,
+    );
     const parsedHeader = headerFormatter.parse(header, {
       config: ctx.config,
       options: ctx.options.header,

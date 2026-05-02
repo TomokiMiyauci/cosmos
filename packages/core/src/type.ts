@@ -5,7 +5,7 @@ export interface Manifest {
 }
 
 export interface Config {
-  formatters: FormatterDefinition[];
+  formats: Record<string, Formatter>;
   codec: CodecMap;
   resources: Record<string, Resource>;
   sources: Source[];

@@ -25,19 +25,13 @@ export class Indexer {
   > {
     const config = this.config;
     const {
-      formatters,
+      formats,
       resources,
       models,
       storage,
       sources,
       assets = [],
     } = config;
-    const formatterMap = formatters.reduce((acc, { type, formatter }) => {
-      return {
-        ...acc,
-        [type]: formatter,
-      };
-    }, {});
 
     const registry = {
       document: new Map<number, URL[]>(),
@@ -94,7 +88,7 @@ export class Indexer {
         throw new Error(`model is not defined. ${resource.model}`);
       }
 
-      const formatter = resolveFormatter(format, formatterMap);
+      const formatter = resolveFormatter(format, formats);
       const decoder = new TextDecoder();
 
       const promises = contents.map(async ([url, content]) => {

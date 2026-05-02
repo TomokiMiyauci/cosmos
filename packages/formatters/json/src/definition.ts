@@ -1,9 +1,9 @@
 import type { FormatterDefinition } from "@cosmos/core";
-import { JSONFormatter } from "../src/formatter.ts";
+import { JsonFormatter } from "../src/formatter.ts";
 
 export class JsonFormatterDefinition implements FormatterDefinition {
   type = "json";
-  formatter = new JSONFormatter();
+  formatter = new JsonFormatter();
 }
 
 // deno-lint-ignore no-implicit-declare-namespace-export
