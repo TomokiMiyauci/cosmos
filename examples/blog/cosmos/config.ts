@@ -55,7 +55,25 @@ export default {
   },
   resources: {
     posts: {
-      type: "document",
+      model: "post",
+      type: "collection",
+    },
+    authors: {
+      model: "author",
+      type: "collection",
+    },
+    setting: {
+      model: "setting",
+      type: "singleton",
+    },
+  },
+
+  sources: [
+    {
+      resource: "posts",
+      indexer: new FsIndexer(rootDir, {
+        patterns: "/contents/posts/**/*.md",
+      }),
       format: {
         type: "frontmatter",
         header: {
@@ -66,50 +84,27 @@ export default {
         },
         bodyKey: "body",
       },
-      model: "post",
-      entity: "collection",
-    },
-    authors: {
-      type: "document",
-      format: { type: "json" },
-      model: "author",
-      entity: "collection",
-    },
-    setting: {
-      type: "document",
-      format: { type: "json" },
-      model: "setting",
-      entity: "singleton",
-    },
-    assets: {
-      type: "asset",
-    },
-  },
-
-  sources: [
-    {
-      resource: "posts",
-      indexer: new FsIndexer(rootDir, {
-        patterns: "/contents/posts/**/*.md",
-      }),
     },
     {
       resource: "authors",
       indexer: new FsIndexer(rootDir, {
         patterns: "/contents/authors/**/*.json",
       }),
-    },
-    {
-      resource: "assets",
-      indexer: new FsIndexer(rootDir, {
-        patterns: "/contents/**/*.png",
-      }),
+      format: { type: "json" },
     },
     {
       resource: "setting",
       indexer: new FsIndexer(rootDir, {
         patterns: "/contents/setting.json",
       }),
+      format: { type: "json" },
     },
   ],
+  assets: {
+    assets: {
+      indexer: new FsIndexer(rootDir, {
+        patterns: "/contents/**/*.png",
+      }),
+    },
+  },
 } satisfies Config;
