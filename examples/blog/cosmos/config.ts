@@ -1,9 +1,9 @@
 import type { Config } from "@cosmos/core";
 import { author, post, setting } from "./models/model.ts";
-import { FrontmatterFormatterDefinition } from "@cosmos/formatter-frontmatter";
-import { JsonFormatterDefinition } from "@cosmos/formatter-json";
-import { YamlFormatterDefinition } from "@cosmos/formatter-yaml";
-import { TextFormatterDefinition } from "@cosmos/formatter-text";
+import { FrontmatterFormatter } from "@cosmos/formatter-frontmatter";
+import { JsonFormatter } from "@cosmos/formatter-json";
+import { YamlFormatter } from "@cosmos/formatter-yaml";
+import { TextFormatter } from "@cosmos/formatter-text";
 import { DenoIO } from "@cosmos/storage-fs/deno";
 import { FsStorage } from "@cosmos/storage-fs";
 import { AssetCodec } from "@cosmos/codec-asset";
@@ -30,12 +30,12 @@ export default {
     setting,
   },
   storage: new FsStorage(new DenoIO()),
-  formatters: [
-    new FrontmatterFormatterDefinition(),
-    new JsonFormatterDefinition(),
-    new YamlFormatterDefinition(),
-    new TextFormatterDefinition(),
-  ],
+  formats: {
+    text: new TextFormatter(),
+    yaml: new YamlFormatter(),
+    frontmatter: new FrontmatterFormatter(),
+    json: new JsonFormatter(),
+  },
   converters: {
     asset: new PathConverter(rootDir),
     reference: new PathConverter(rootDir),
