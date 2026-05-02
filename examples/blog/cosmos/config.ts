@@ -1,9 +1,6 @@
 import type { Config } from "@cosmos/core";
 import { author, post, setting } from "./models/model.ts";
-import {
-  FrontmatterFormatter,
-  FrontmatterOptions,
-} from "@cosmos/formatter-frontmatter";
+import { FrontmatterFormatter } from "@cosmos/formatter-frontmatter";
 import { JsonFormatter } from "@cosmos/formatter-json";
 import { YamlFormatter } from "@cosmos/formatter-yaml";
 import { TextFormatter } from "@cosmos/formatter-text";
@@ -20,23 +17,9 @@ import { MarkdownCodec } from "@cosmos/codec-markdown";
 import { ReferenceCodec } from "@cosmos/codec-reference";
 import { DatetimeCodec } from "@cosmos/codec-datetime";
 import { UnionCodec } from "@cosmos/codec-union";
-import { FsLocator, type FsOptions } from "@cosmos/locator-fs";
+import { FsLocator } from "@cosmos/locator-fs";
 import { resolve } from "@std/path";
 import { PathConverter } from "@cosmos/converter-path";
-
-// deno-lint-ignore no-implicit-declare-namespace-export
-declare module "@cosmos/core" {
-  interface FormatRegistry {
-    json: unknown;
-    text: unknown;
-    yaml: unknown;
-    frontmatter: FrontmatterOptions;
-  }
-
-  interface LocatorRegistry {
-    fs: FsOptions;
-  }
-}
 
 // deno-lint-ignore no-non-null-assertion
 const rootDir = resolve(import.meta.dirname!, "..");
