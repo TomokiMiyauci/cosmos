@@ -47,30 +47,6 @@ export default {
     author,
     setting,
   },
-  storage: new FsStorage(new DenoIO()),
-  formats: {
-    text: new TextFormatter(),
-    yaml: new YamlFormatter(),
-    frontmatter: new FrontmatterFormatter(),
-    json: new JsonFormatter(),
-  },
-  converters: {
-    asset: new PathConverter(rootDir),
-    reference: new PathConverter(rootDir),
-  },
-  codec: {
-    string: new StringCodec(),
-    asset: new AssetCodec(),
-    map: new MapCodec(),
-    boolean: new BooleanCodec(),
-    number: new NumberCodec(),
-    instance: new InstanceCodec(),
-    list: new ListCodec(),
-    markdown: new MarkdownCodec(["post"]),
-    reference: new ReferenceCodec(),
-    datetime: new DatetimeCodec(),
-    union: new UnionCodec(),
-  },
   resources: {
     posts: {
       model: "post",
@@ -86,10 +62,6 @@ export default {
       type: "singleton",
     },
   },
-  indexers: {
-    fs: new FsIndexer(rootDir),
-  },
-
   sources: [
     {
       resource: "posts",
@@ -131,5 +103,32 @@ export default {
         patterns: "/contents/**/*.png",
       },
     },
+  },
+  storage: new FsStorage(new DenoIO()),
+  indexers: {
+    fs: new FsIndexer(rootDir),
+  },
+  converters: {
+    asset: new PathConverter(rootDir),
+    reference: new PathConverter(rootDir),
+  },
+  formats: {
+    text: new TextFormatter(),
+    yaml: new YamlFormatter(),
+    frontmatter: new FrontmatterFormatter(),
+    json: new JsonFormatter(),
+  },
+  codec: {
+    string: new StringCodec(),
+    asset: new AssetCodec(),
+    map: new MapCodec(),
+    boolean: new BooleanCodec(),
+    number: new NumberCodec(),
+    instance: new InstanceCodec(),
+    list: new ListCodec(),
+    markdown: new MarkdownCodec(["post"]),
+    reference: new ReferenceCodec(),
+    datetime: new DatetimeCodec(),
+    union: new UnionCodec(),
   },
 } satisfies Config;
