@@ -20,7 +20,7 @@ import { MarkdownCodec } from "@cosmos/codec-markdown";
 import { ReferenceCodec } from "@cosmos/codec-reference";
 import { DatetimeCodec } from "@cosmos/codec-datetime";
 import { UnionCodec } from "@cosmos/codec-union";
-import { FsIndexer } from "@cosmos/index-fs";
+import { FsIndexer, type FsOptions } from "@cosmos/index-fs";
 import { resolve } from "@std/path";
 import { PathConverter } from "@cosmos/converter-path";
 
@@ -32,8 +32,13 @@ declare module "@cosmos/core" {
     yaml: unknown;
     frontmatter: FrontmatterOptions;
   }
+
+  interface IndexerRegistry {
+    fs: FsOptions;
+  }
 }
 
+// deno-lint-ignore no-non-null-assertion
 const rootDir = resolve(import.meta.dirname!, "..");
 
 export default {
@@ -81,13 +86,17 @@ export default {
       type: "singleton",
     },
   },
+  indexers: {
+    fs: new FsIndexer(rootDir),
+  },
 
   sources: [
     {
       resource: "posts",
-      indexer: new FsIndexer(rootDir, {
+      indexer: {
+        type: "fs",
         patterns: "/contents/posts/**/*.md",
-      }),
+      },
       format: {
         type: "frontmatter",
         header: {
@@ -100,24 +109,27 @@ export default {
     },
     {
       resource: "authors",
-      indexer: new FsIndexer(rootDir, {
+      indexer: {
+        type: "fs",
         patterns: "/contents/authors/**/*.json",
-      }),
+      },
       format: { type: "json" },
     },
     {
       resource: "setting",
-      indexer: new FsIndexer(rootDir, {
+      indexer: {
+        type: "fs",
         patterns: "/contents/setting.json",
-      }),
+      },
       format: { type: "json" },
     },
   ],
   assets: {
     assets: {
-      indexer: new FsIndexer(rootDir, {
+      indexer: {
+        type: "fs",
         patterns: "/contents/**/*.png",
-      }),
+      },
     },
   },
 } satisfies Config;
