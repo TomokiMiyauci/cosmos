@@ -7,6 +7,7 @@ import {
   type Manifest,
   type Node,
   resolveFormatter,
+  resolveIndexer,
   type Schema,
   type Store,
 } from "@cosmos/core";
@@ -31,6 +32,7 @@ export class Indexer {
       storage,
       sources,
       assets = [],
+      indexers,
     } = config;
 
     const registry = {
@@ -41,7 +43,11 @@ export class Indexer {
 
     await Promise.all(
       sources.map(async (source, i) => {
-        const urls = await Array.fromAsync(source.indexer.search());
+        const indexer = resolveIndexer(source.indexer, indexers);
+
+        const urls = await Array.fromAsync(
+          indexer.search({ options: source.indexer }),
+        );
 
         registry.document.set(i, urls);
       }),
@@ -49,7 +55,10 @@ export class Indexer {
 
     await Promise.all(
       Object.entries(assets).map(async ([key, asset]) => {
-        const urls = await Array.fromAsync(asset.indexer.search());
+        const indexer = resolveIndexer(asset.indexer, indexers);
+        const urls = await Array.fromAsync(indexer.search({
+          options: asset.indexer,
+        }));
 
         registry.asset.set(key, urls);
       }),

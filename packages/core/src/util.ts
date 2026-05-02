@@ -1,4 +1,4 @@
-import type { Formatter } from "./type.ts";
+import type { Formatter, Indexer } from "./type.ts";
 
 export function resolveFormatter(
   format: { type: string },
@@ -13,4 +13,19 @@ export function resolveFormatter(
 
 export interface FormatterMap {
   [type: string]: Formatter;
+}
+
+export function resolveIndexer(
+  indexer: { type: string },
+  map: IndexerMap,
+): Indexer {
+  const formatter = map[indexer.type];
+
+  if (!formatter) throw new Error("unknown indexer");
+
+  return formatter;
+}
+
+export interface IndexerMap {
+  [type: string]: Indexer;
 }

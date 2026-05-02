@@ -30,7 +30,9 @@ export type {
   Formatter,
   FormatterContext,
   Indexer,
+  IndexerContext,
   IndexerDefinition,
+  IndexerRegistry,
   InstanceField,
   InstanceSchema,
   ListField,
@@ -112,4 +114,4 @@ export type {
   ThematicBreakMapNode,
   YamlMapNode,
 } from "./type.ts";
-export { resolveFormatter } from "./util.ts";
+export { resolveFormatter, resolveIndexer } from "./util.ts";

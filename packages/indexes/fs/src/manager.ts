@@ -1,15 +1,16 @@
 import { join, toFileUrl } from "@std/path";
 import { expandGlob } from "@std/fs";
-import type { Indexer } from "@cosmos/core";
+import type { Indexer, IndexerContext } from "@cosmos/core";
 
 export class FsIndexer implements Indexer {
   constructor(
     private rootDir: string,
-    private options: { patterns: string | string[] },
   ) {}
 
-  async *search(): AsyncIterable<URL> {
-    const patterns = wrap(this.options.patterns);
+  async *search(
+    ctx: IndexerContext<FsOptions>,
+  ): AsyncIterable<URL> {
+    const patterns = wrap(ctx.options.patterns);
 
     for (const pattern of patterns) {
       const path = join(this.rootDir, pattern);
@@ -25,6 +26,10 @@ export class FsIndexer implements Indexer {
       }
     }
   }
+}
+
+export interface FsOptions {
+  patterns: string | string[];
 }
 
 function wrap<T>(value: T): T extends unknown[] ? T : T[] {

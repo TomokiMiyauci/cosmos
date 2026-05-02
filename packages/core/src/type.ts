@@ -10,20 +10,32 @@ export interface Config {
   resources: Record<string, Resource>;
   sources: Source[];
   storage: Storage;
+  indexers: Record<string, Indexer>;
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;
   assets?: Record<string, Asset>;
 }
 
 export interface Asset {
-  indexer: Indexer;
+  indexer: IndexerDefinition;
 }
 
 export interface Source {
   resource: string;
-  indexer: Indexer;
+  indexer: IndexerDefinition;
   format: FormatDefinition;
 }
+
+export interface IndexerContext<T> {
+  options: T;
+}
+
+export type IndexerDefinition = {
+  [K in keyof IndexerRegistry]: { type: K } & IndexerRegistry[K];
+}[keyof IndexerRegistry];
+
+// deno-lint-ignore no-empty-interface
+export interface IndexerRegistry {}
 
 export interface CodecMap {
   string: FieldCodec<StringField, StringNode>;
@@ -252,19 +264,14 @@ export interface Resource {
 
 export type EntityType = "singleton" | "collection";
 
-export interface IndexerDefinition {
-  type: string;
-  options: unknown;
-}
-
 export interface Storage {
   read(url: URL): Blob | Promise<Blob>;
   write(url: URL, content: Blob): void | Promise<void>;
   delete(url: URL): void | Promise<void>;
 }
 
-export interface Indexer {
-  search(): AsyncIterable<URL>;
+export interface Indexer<T = unknown> {
+  search(ctx: IndexerContext<T>): AsyncIterable<URL>;
 }
 
 export type StructureValue = string;
