@@ -1,4 +1,4 @@
-import type { Formatter, Locator } from "./type.ts";
+import type { Formatter, Locator } from "./types/core.ts";
 
 export function resolveFormatter(
   format: { type: string },
