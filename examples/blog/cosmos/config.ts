@@ -87,7 +87,9 @@ export default {
       },
     },
   },
-  storage: new FsStorage(new DenoIO()),
+  storages: {
+    file: new FsStorage(new DenoIO()),
+  },
   locators: {
     fs: new FsLocator(rootDir),
   },
