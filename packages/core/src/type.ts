@@ -9,7 +9,7 @@ export interface Config {
   codec: CodecMap;
   resources: Record<string, Resource>;
   sources: Source[];
-  storage: Storage;
+  storages: Record<string, Storage>;
   locators: Record<string, Locator>;
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;

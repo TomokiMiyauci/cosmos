@@ -29,7 +29,7 @@ export class Indexer {
       formats,
       resources,
       models,
-      storage,
+      storages,
       sources,
       assets = [],
       locators,
@@ -68,6 +68,11 @@ export class Indexer {
       const urls of [...registry.document.values(), ...registry.asset.values()]
     ) {
       await Promise.all(urls.map(async (url) => {
+        const protocol = normalizeProtocol(url.protocol);
+        const storage = storages[protocol];
+
+        if (!storage) throw new Error(`storage is not defined. ${protocol}`);
+
         const blob = await storage.read(url);
 
         contentMap.set(url, blob);
@@ -192,6 +197,10 @@ export class Indexer {
       datalayer,
     };
   }
+}
+
+function normalizeProtocol(protocol: string): string {
+  return protocol.replace(/:$/, "");
 }
 
 function toEntry(key: string, resourceEntry: ResourceEntry): Entry {
