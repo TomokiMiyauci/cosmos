@@ -50,7 +50,9 @@ export default {
       resource: "posts",
       locator: {
         type: "fs",
-        patterns: "/contents/posts/**/*.md",
+        option: {
+          patterns: ["/contents/posts/**/*.md"],
+        },
       },
       format: {
         type: "frontmatter",
@@ -66,7 +68,9 @@ export default {
       resource: "authors",
       locator: {
         type: "fs",
-        patterns: "/contents/authors/**/*.json",
+        option: {
+          patterns: ["/contents/authors/**/*.json"],
+        },
       },
       format: { type: "json" },
     },
@@ -74,7 +78,9 @@ export default {
       resource: "setting",
       locator: {
         type: "fs",
-        patterns: "/contents/setting.json",
+        option: {
+          patterns: ["/contents/setting.json"],
+        },
       },
       format: { type: "json" },
     },
@@ -83,7 +89,9 @@ export default {
     assets: {
       locator: {
         type: "fs",
-        patterns: "/contents/**/*.png",
+        option: {
+          patterns: ["/contents/**/*.png"],
+        },
       },
     },
   },
