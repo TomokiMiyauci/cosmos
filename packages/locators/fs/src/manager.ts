@@ -8,9 +8,10 @@ export class FsLocator implements Locator {
   ) {}
 
   async *search(
-    ctx: LocatorContext<FsOptions>,
+    ctx: LocatorContext,
   ): AsyncIterable<URL> {
-    const patterns = wrap(ctx.options.patterns);
+    console.log(ctx);
+    const { patterns } = ctx.option as FsOptions;
 
     for (const pattern of patterns) {
       const path = join(this.rootDir, pattern);
@@ -29,13 +30,5 @@ export class FsLocator implements Locator {
 }
 
 export interface FsOptions {
-  patterns: string | string[];
-}
-
-function wrap<T>(value: T): T extends unknown[] ? T : T[] {
-  // deno-lint-ignore no-explicit-any
-  if (Array.isArray(value)) return value as any;
-
-  // deno-lint-ignore no-explicit-any
-  return [value] as any;
+  patterns: string[];
 }

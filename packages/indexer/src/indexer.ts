@@ -46,7 +46,7 @@ export class Indexer {
         const locator = resolveLocator(source.locator, locators);
 
         const urls = await Array.fromAsync(
-          locator.search({ options: source.locator }),
+          locator.search({ option: source.locator.option }),
         );
 
         registry.document.set(i, urls);
@@ -57,7 +57,7 @@ export class Indexer {
       Object.entries(assets).map(async ([key, asset]) => {
         const locator = resolveLocator(asset.locator, locators);
         const urls = await Array.fromAsync(locator.search({
-          options: asset.locator,
+          option: asset.locator.option,
         }));
 
         registry.asset.set(key, urls);

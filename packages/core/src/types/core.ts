@@ -55,13 +55,14 @@ export interface Source {
   format: FormatDefinition;
 }
 
-export interface LocatorContext<T> {
-  options: T;
+export interface LocatorContext {
+  option: unknown;
 }
 
-export type LocatorDefinition = {
-  [K in keyof LocatorRegistry]: { type: K } & LocatorRegistry[K];
-}[keyof LocatorRegistry];
+export interface LocatorDefinition {
+  type: string;
+  option?: unknown;
+}
 
 // deno-lint-ignore no-empty-interface
 export interface LocatorRegistry {}
@@ -228,8 +229,8 @@ export interface Storage {
   delete(url: URL): void | Promise<void>;
 }
 
-export interface Locator<T = unknown> {
-  search(ctx: LocatorContext<T>): AsyncIterable<URL>;
+export interface Locator {
+  search(ctx: LocatorContext): AsyncIterable<URL>;
 }
 
 export type StructureValue = string;
