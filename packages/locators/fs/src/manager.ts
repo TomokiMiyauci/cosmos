@@ -10,7 +10,6 @@ export class FsLocator implements Locator {
   async *search(
     ctx: LocatorContext,
   ): AsyncIterable<URL> {
-    console.log(ctx);
     const { patterns } = ctx.option as FsOptions;
 
     for (const pattern of patterns) {
