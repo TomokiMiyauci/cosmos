@@ -1,1 +1,1 @@
-export { FsLocator, type FsOptions } from "./manager.ts";
+export { FsLocator, type FsOptions } from "./locator.ts";
