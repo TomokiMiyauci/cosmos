@@ -1,0 +1,7 @@
+{
+  "name": "@miyauci/glob",
+  "exports": "./src/mod.ts",
+  "imports": {
+    "@std/path": "jsr:@std/path@^1.1.4"
+  }
+}
