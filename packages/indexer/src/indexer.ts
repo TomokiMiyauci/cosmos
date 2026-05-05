@@ -16,7 +16,7 @@ import { HashMap } from "./util.ts";
 import { ParentCodec } from "./codec.ts";
 
 export class Indexer {
-  constructor(private config: Config) {}
+  constructor(private config: Config, private base: URL) {}
 
   async index(store: Store): Promise<
     {
@@ -46,7 +46,11 @@ export class Indexer {
         const locator = resolveLocator(source.locator, locators);
 
         const urls = await Array.fromAsync(
-          locator.search({ option: source.locator.option }),
+          locator.search({
+            option: source.locator.option,
+            base: this.base,
+            config: this.config,
+          }),
         );
 
         registry.document.set(i, urls);
@@ -58,6 +62,8 @@ export class Indexer {
         const locator = resolveLocator(asset.locator, locators);
         const urls = await Array.fromAsync(locator.search({
           option: asset.locator.option,
+          base: this.base,
+          config: this.config,
         }));
 
         registry.asset.set(key, urls);
@@ -117,6 +123,7 @@ export class Indexer {
         const codec = new ParentCodec();
         const node = await codec.parse(structure, field, {
           baseUrl: url,
+          base: this.base,
           config,
           asset: {
             has(url): boolean {

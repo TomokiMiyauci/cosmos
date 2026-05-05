@@ -51,7 +51,7 @@ export default {
       locator: {
         type: "fs",
         option: {
-          patterns: ["/contents/posts/**/*.md"],
+          patterns: ["../contents/posts/**/*.md"],
         },
       },
       format: {
@@ -69,7 +69,7 @@ export default {
       locator: {
         type: "fs",
         option: {
-          patterns: ["/contents/authors/**/*.json"],
+          patterns: ["../contents/authors/**/*.json"],
         },
       },
       format: { type: "json" },
@@ -79,7 +79,7 @@ export default {
       locator: {
         type: "fs",
         option: {
-          patterns: ["/contents/setting.json"],
+          patterns: ["../contents/setting.json"],
         },
       },
       format: { type: "json" },
@@ -90,7 +90,7 @@ export default {
       locator: {
         type: "fs",
         option: {
-          patterns: ["/contents/**/*.png"],
+          patterns: ["../contents/**/*.png"],
         },
       },
     },
@@ -99,7 +99,7 @@ export default {
     file: new FsStorage(new DenoIO()),
   },
   locators: {
-    fs: new FsLocator(rootDir),
+    fs: new FsLocator(),
   },
   converters: {
     asset: new PathConverter(rootDir),

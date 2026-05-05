@@ -55,7 +55,7 @@ export interface Source {
   format: FormatDefinition;
 }
 
-export interface LocatorContext {
+export interface LocatorContext extends BaseContext {
   option: unknown;
 }
 
@@ -296,8 +296,9 @@ export interface AssetEntryFilter {
   type: "asset";
 }
 
-interface BaseContext {
+export interface BaseContext {
   config: Config;
+  base: URL;
 }
 
 export interface ResolverContext extends BaseContext {
