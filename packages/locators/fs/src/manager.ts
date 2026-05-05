@@ -1,11 +1,14 @@
 import { join, toFileUrl } from "@std/path";
-import { expandGlob } from "@std/fs";
 import type { Locator, LocatorContext } from "@cosmos/core";
+import { Glob } from "@miyauci/glob";
+import { DenoAdaptor } from "./deno.ts";
 
 export class FsLocator implements Locator {
+  #glob: Glob = new Glob(new DenoAdaptor());
   constructor(
     private rootDir: string,
-  ) {}
+  ) {
+  }
 
   async *search(
     ctx: LocatorContext,
@@ -14,14 +17,12 @@ export class FsLocator implements Locator {
 
     for (const pattern of patterns) {
       const path = join(this.rootDir, pattern);
-      const iterator = expandGlob(path);
+      const url = toFileUrl(path);
+      const entries = this.#glob.scan(url);
 
-      for await (const entry of iterator) {
-        if (entry.isFile) {
-          const filePath = entry.path;
-          const url = toFileUrl(filePath);
-
-          yield new URL(url);
+      for await (const entry of entries) {
+        if (entry.type === "file") {
+          yield entry.url;
         }
       }
     }
