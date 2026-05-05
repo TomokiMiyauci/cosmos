@@ -1,10 +1,8 @@
-// import { join, toFileUrl } from "@std/path";
 import type { Locator, LocatorContext } from "@cosmos/core";
 import { Glob, type ScannerAdapter } from "@miyauci/glob";
-import { DenoAdaptor } from "./adaptors/deno.ts";
 
 export class FsLocator implements Locator {
-  #glob: Glob = new Glob(new DenoAdaptor());
+  #glob: Glob;
 
   constructor(adaptor: ScannerAdapter) {
     this.#glob = new Glob(adaptor);
