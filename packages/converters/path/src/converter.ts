@@ -1,12 +1,10 @@
 import type { Converter, ConverterContext, Structure } from "@cosmos/core";
-import { isAbsolute, join, toFileUrl } from "@std/path";
+import { isAbsolute } from "@std/path";
 
 export class PathConverter implements Converter {
-  constructor(private rootDir: string) {}
-
   standardize(structure: Structure, ctx: ConverterContext): Structure {
     if (typeof structure === "string") {
-      const url = resolveUrl(this.rootDir, ctx.baseUrl, structure);
+      const url = resolveUrl(ctx.base, ctx.baseUrl, structure);
 
       return url.href;
     }
@@ -19,11 +17,9 @@ export class PathConverter implements Converter {
   }
 }
 
-function resolveUrl(rootDir: string, baseUrl: URL, path: string): URL {
+function resolveUrl(root: URL, baseUrl: URL, path: string): URL {
   if (isAbsolute(path)) {
-    const fullPath = join(rootDir, path);
-
-    return toFileUrl(fullPath);
+    return new URL(path, root);
   }
 
   return new URL(path, baseUrl);
