@@ -1,14 +1,24 @@
 import { globToRegExp, isGlob } from "@std/path";
 
+export type EntryType = "file" | "directory" | "symlink";
+
+export interface Source {
+  type: EntryType;
+  name: string;
+}
+
 export interface Entry {
-  type: "file" | "directory" | "symlink";
+  type: EntryType;
   url: URL;
+}
+
+interface InternalEntry extends Entry {
   name: string;
 }
 
 export interface ScannerAdapter {
-  stat(url: URL): Promise<Entry>;
-  readDir(url: URL): AsyncIterable<Entry>;
+  stat(url: URL): Promise<EntryType>;
+  readDir(url: URL): AsyncIterable<Source>;
 }
 
 export class Glob {
@@ -33,18 +43,24 @@ export class Glob {
       return new URL(encodeURIComponent(seg) + suffix, base);
     }, new URL("/", patternUrl));
 
-    const entry = await this.adapter.stat(currentRoot);
+    const type = await this.adapter.stat(currentRoot);
+
+    const rootEntry: InternalEntry = {
+      type,
+      url: currentRoot,
+      name: fixedSegments[fixedSegments.length - 1] ?? "",
+    };
 
     if (dynamicSegments.length > 0) {
-      if (entry.type !== "directory") return;
-      yield* this.processSegments([entry], dynamicSegments);
+      if (rootEntry.type !== "directory") return;
+      yield* this.processSegments([rootEntry], dynamicSegments);
     } else {
-      yield entry;
+      yield { type: rootEntry.type, url: rootEntry.url };
     }
   }
 
   private async *processSegments(
-    matches: Entry[],
+    matches: InternalEntry[],
     segments: string[],
   ): AsyncIterable<Entry> {
     if (segments.length === 0) {
@@ -56,7 +72,7 @@ export class Glob {
       string,
       ...string[],
     ];
-    const nextMatches = new Map<string, Entry>();
+    const nextMatches = new Map<string, InternalEntry>();
 
     for (const match of matches) {
       for await (const next of this.advanceMatch(match, currentSegment)) {
@@ -68,16 +84,16 @@ export class Glob {
   }
 
   private async *advanceMatch(
-    current: Entry,
+    current: InternalEntry,
     segment: string,
-  ): AsyncIterable<Entry> {
+  ): AsyncIterable<InternalEntry> {
     if (current.type !== "directory") return;
 
     if (segment === "**") {
       yield current;
 
       for await (const sub of this.walk(current.url)) {
-        if (sub.type === "directory") yield sub;
+        yield sub;
       }
     } else {
       const re = globToRegExp(segment, {
@@ -87,7 +103,7 @@ export class Glob {
 
       for await (const sub of this.adapter.readDir(current.url)) {
         if (re.test(sub.name)) {
-          yield sub;
+          yield this.createEntry(current.url, sub);
         }
       }
     }
@@ -96,12 +112,14 @@ export class Glob {
   private async *walk(
     url: URL,
     visited = new Set<string>(),
-  ): AsyncIterable<Entry> {
+  ): AsyncIterable<InternalEntry> {
     if (visited.has(url.href)) return;
     visited.add(url.href);
 
     for await (const sub of this.adapter.readDir(url)) {
-      yield sub;
+      const entry = this.createEntry(url, sub);
+
+      yield entry;
 
       switch (sub.type) {
         case "symlink":
@@ -109,9 +127,21 @@ export class Glob {
           continue;
         }
         case "directory": {
-          yield* this.walk(sub.url, visited);
+          yield* this.walk(entry.url, visited);
         }
       }
     }
+  }
+
+  private createEntry(baseUrl: URL, source: Source): InternalEntry {
+    return {
+      name: source.name,
+      type: source.type,
+      url: new URL(
+        encodeURIComponent(source.name) +
+          (source.type === "directory" ? "/" : ""),
+        baseUrl,
+      ),
+    };
   }
 }
