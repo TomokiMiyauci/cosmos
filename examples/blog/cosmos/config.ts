@@ -1,9 +1,6 @@
 import type { Config } from "@cosmos/core";
 import { author, post, setting } from "./models/model.ts";
-import {
-  FrontmatterFormatter,
-  FrontmatterOptions,
-} from "@cosmos/formatter-frontmatter";
+import { FrontmatterFormatter } from "@cosmos/formatter-frontmatter";
 import { JsonFormatter } from "@cosmos/formatter-json";
 import { YamlFormatter } from "@cosmos/formatter-yaml";
 import { TextFormatter } from "@cosmos/formatter-text";
@@ -20,23 +17,10 @@ import { MarkdownCodec } from "@cosmos/codec-markdown";
 import { ReferenceCodec } from "@cosmos/codec-reference";
 import { DatetimeCodec } from "@cosmos/codec-datetime";
 import { UnionCodec } from "@cosmos/codec-union";
-import { FsIndexer, type FsOptions } from "@cosmos/index-fs";
+import { FsLocator } from "@cosmos/locator-fs";
+import { DenoAdaptor } from "@cosmos/locator-fs/deno";
 import { resolve } from "@std/path";
 import { PathConverter } from "@cosmos/converter-path";
-
-// deno-lint-ignore no-implicit-declare-namespace-export
-declare module "@cosmos/core" {
-  interface FormatRegistry {
-    json: unknown;
-    text: unknown;
-    yaml: unknown;
-    frontmatter: FrontmatterOptions;
-  }
-
-  interface IndexerRegistry {
-    fs: FsOptions;
-  }
-}
 
 // deno-lint-ignore no-non-null-assertion
 const rootDir = resolve(import.meta.dirname!, "..");
@@ -65,9 +49,11 @@ export default {
   sources: [
     {
       resource: "posts",
-      indexer: {
+      locator: {
         type: "fs",
-        patterns: "/contents/posts/**/*.md",
+        option: {
+          patterns: ["../contents/posts/**/*.md"],
+        },
       },
       format: {
         type: "frontmatter",
@@ -81,32 +67,40 @@ export default {
     },
     {
       resource: "authors",
-      indexer: {
+      locator: {
         type: "fs",
-        patterns: "/contents/authors/**/*.json",
+        option: {
+          patterns: ["../contents/authors/**/*.json"],
+        },
       },
       format: { type: "json" },
     },
     {
       resource: "setting",
-      indexer: {
+      locator: {
         type: "fs",
-        patterns: "/contents/setting.json",
+        option: {
+          patterns: ["../contents/setting.json"],
+        },
       },
       format: { type: "json" },
     },
   ],
   assets: {
     assets: {
-      indexer: {
+      locator: {
         type: "fs",
-        patterns: "/contents/**/*.png",
+        option: {
+          patterns: ["../contents/**/*.png"],
+        },
       },
     },
   },
-  storage: new FsStorage(new DenoIO()),
-  indexers: {
-    fs: new FsIndexer(rootDir),
+  storages: {
+    file: new FsStorage(new DenoIO()),
+  },
+  locators: {
+    fs: new FsLocator(new DenoAdaptor()),
   },
   converters: {
     asset: new PathConverter(rootDir),

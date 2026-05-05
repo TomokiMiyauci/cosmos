@@ -1,0 +1,14 @@
+{
+  "with": {
+    "type": "object",
+    "properties": {
+      "patterns": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": ["patterns"]
+  }
+}

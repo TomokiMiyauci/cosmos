@@ -7,7 +7,7 @@ import {
   type Manifest,
   type Node,
   resolveFormatter,
-  resolveIndexer,
+  resolveLocator,
   type Schema,
   type Store,
 } from "@cosmos/core";
@@ -16,7 +16,7 @@ import { HashMap } from "./util.ts";
 import { ParentCodec } from "./codec.ts";
 
 export class Indexer {
-  constructor(private config: Config) {}
+  constructor(private config: Config, private base: URL) {}
 
   async index(store: Store): Promise<
     {
@@ -29,10 +29,10 @@ export class Indexer {
       formats,
       resources,
       models,
-      storage,
+      storages,
       sources,
       assets = [],
-      indexers,
+      locators,
     } = config;
 
     const registry = {
@@ -43,10 +43,14 @@ export class Indexer {
 
     await Promise.all(
       sources.map(async (source, i) => {
-        const indexer = resolveIndexer(source.indexer, indexers);
+        const locator = resolveLocator(source.locator, locators);
 
         const urls = await Array.fromAsync(
-          indexer.search({ options: source.indexer }),
+          locator.search({
+            option: source.locator.option,
+            base: this.base,
+            config: this.config,
+          }),
         );
 
         registry.document.set(i, urls);
@@ -55,9 +59,11 @@ export class Indexer {
 
     await Promise.all(
       Object.entries(assets).map(async ([key, asset]) => {
-        const indexer = resolveIndexer(asset.indexer, indexers);
-        const urls = await Array.fromAsync(indexer.search({
-          options: asset.indexer,
+        const locator = resolveLocator(asset.locator, locators);
+        const urls = await Array.fromAsync(locator.search({
+          option: asset.locator.option,
+          base: this.base,
+          config: this.config,
         }));
 
         registry.asset.set(key, urls);
@@ -68,6 +74,11 @@ export class Indexer {
       const urls of [...registry.document.values(), ...registry.asset.values()]
     ) {
       await Promise.all(urls.map(async (url) => {
+        const protocol = normalizeProtocol(url.protocol);
+        const storage = storages[protocol];
+
+        if (!storage) throw new Error(`storage is not defined. ${protocol}`);
+
         const blob = await storage.read(url);
 
         contentMap.set(url, blob);
@@ -112,6 +123,7 @@ export class Indexer {
         const codec = new ParentCodec();
         const node = await codec.parse(structure, field, {
           baseUrl: url,
+          base: this.base,
           config,
           asset: {
             has(url): boolean {
@@ -192,6 +204,10 @@ export class Indexer {
       datalayer,
     };
   }
+}
+
+function normalizeProtocol(protocol: string): string {
+  return protocol.replace(/:$/, "");
 }
 
 function toEntry(key: string, resourceEntry: ResourceEntry): Entry {

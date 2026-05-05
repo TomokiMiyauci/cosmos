@@ -2,7 +2,7 @@
   "workspace": [
     "packages/*",
     "packages/codecs/*",
-    "packages/indexes/*",
+    "packages/locators/*",
     "packages/protocols/*",
     "packages/stores/*",
     "packages/storages/*",

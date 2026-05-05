@@ -1,4 +1,4 @@
-import type { Formatter, Indexer } from "./type.ts";
+import type { Formatter, Locator } from "./types/core.ts";
 
 export function resolveFormatter(
   format: { type: string },
@@ -15,17 +15,17 @@ export interface FormatterMap {
   [type: string]: Formatter;
 }
 
-export function resolveIndexer(
-  indexer: { type: string },
-  map: IndexerMap,
-): Indexer {
-  const formatter = map[indexer.type];
+export function resolveLocator(
+  locator: { type: string },
+  map: LocatorMap,
+): Locator {
+  const formatter = map[locator.type];
 
-  if (!formatter) throw new Error("unknown indexer");
+  if (!formatter) throw new Error("unknown locator");
 
   return formatter;
 }
 
-export interface IndexerMap {
-  [type: string]: Indexer;
+export interface LocatorMap {
+  [type: string]: Locator;
 }

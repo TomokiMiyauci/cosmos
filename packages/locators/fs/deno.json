@@ -1,10 +1,10 @@
 {
-  "name": "@cosmos/index-fs",
+  "name": "@cosmos/locator-fs",
   "exports": {
-    ".": "./src/mod.ts"
+    ".": "./src/mod.ts",
+    "./deno": "./src/adaptors/deno.ts"
   },
   "imports": {
-    "@std/fs": "jsr:@std/fs@^1.0.23",
     "@std/path": "jsr:@std/path@^1.1.4"
   },
   "tasks": {

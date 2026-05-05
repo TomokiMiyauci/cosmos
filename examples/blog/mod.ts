@@ -17,7 +17,10 @@ import config from "./cosmos/config.ts";
 
 const db = new DatabaseSync(":memory:");
 const store = new SqliteStore(db);
-const indexer = new Indexer(config);
+const indexer = new Indexer(
+  config,
+  new URL(import.meta.resolve("./cosmos/config.ts")),
+);
 
 const result = await indexer.index(store);
 
