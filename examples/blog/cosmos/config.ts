@@ -18,6 +18,7 @@ import { ReferenceCodec } from "@cosmos/codec-reference";
 import { DatetimeCodec } from "@cosmos/codec-datetime";
 import { UnionCodec } from "@cosmos/codec-union";
 import { FsLocator } from "@cosmos/locator-fs";
+import { DenoAdaptor } from "@cosmos/locator-fs/deno";
 import { resolve } from "@std/path";
 import { PathConverter } from "@cosmos/converter-path";
 
@@ -99,7 +100,7 @@ export default {
     file: new FsStorage(new DenoIO()),
   },
   locators: {
-    fs: new FsLocator(),
+    fs: new FsLocator(new DenoAdaptor()),
   },
   converters: {
     asset: new PathConverter(rootDir),
