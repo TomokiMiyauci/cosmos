@@ -19,11 +19,7 @@ import { DatetimeCodec } from "@cosmos/codec-datetime";
 import { UnionCodec } from "@cosmos/codec-union";
 import { FsLocator } from "@cosmos/locator-fs";
 import { DenoAdaptor } from "@cosmos/locator-fs/deno";
-import { resolve } from "@std/path";
 import { PathConverter } from "@cosmos/converter-path";
-
-// deno-lint-ignore no-non-null-assertion
-const rootDir = resolve(import.meta.dirname!, "..");
 
 export default {
   models: {
@@ -103,8 +99,8 @@ export default {
     fs: new FsLocator(new DenoAdaptor()),
   },
   converters: {
-    asset: new PathConverter(rootDir),
-    reference: new PathConverter(rootDir),
+    asset: new PathConverter(),
+    reference: new PathConverter(),
   },
   formats: {
     text: new TextFormatter(),
