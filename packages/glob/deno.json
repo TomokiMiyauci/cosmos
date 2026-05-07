@@ -3,5 +3,9 @@
   "exports": "./src/mod.ts",
   "imports": {
     "@std/path": "jsr:@std/path@^1.1.4"
+  },
+  "tasks": {
+    "build": "deno run -A ./scripts/build.ts",
+    "prepublish": "npm publish ./npm"
   }
 }
