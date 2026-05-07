@@ -64,9 +64,6 @@ export interface LocatorDefinition {
   option?: unknown;
 }
 
-// deno-lint-ignore no-empty-interface
-export interface LocatorRegistry {}
-
 export interface CodecMap {
   string: FieldCodec<StringField, StringNode>;
   asset: FieldCodec<AssetField, AssetNode>;
@@ -178,12 +175,10 @@ export interface CodecContext extends ResolverContext {
 
 export type Model = Field;
 
-export type FormatDefinition = {
-  [K in keyof FormatRegistry]: { type: K } & FormatRegistry[K];
-}[keyof FormatRegistry];
-
-// deno-lint-ignore no-empty-interface
-export interface FormatRegistry {}
+export interface FormatDefinition {
+  type: string;
+  option?: unknown;
+}
 
 export interface Protocol {
   handle(request: Request, ctx: ProtocolContext): Promise<Response> | Response;
@@ -241,16 +236,16 @@ export interface StructureObject {
 
 export type Structure = StructureValue | StructureObject;
 
-export interface FormatterContext<T = unknown> {
+export interface FormatterContext {
   config: Config;
-  options: T;
+  option: unknown;
   resource: Resource;
 }
 
-export interface Formatter<T = unknown> {
-  parse(content: string, ctx: FormatterContext<T>): Structure;
+export interface Formatter {
+  parse(content: string, ctx: FormatterContext): Structure;
 
-  serialize(content: Structure, ctx: FormatterContext<T>): string;
+  serialize(content: Structure, ctx: FormatterContext): string;
 }
 
 export interface BaseEntry<T> {

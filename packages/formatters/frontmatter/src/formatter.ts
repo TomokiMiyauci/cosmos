@@ -1,36 +1,36 @@
-import {
-  type FormatDefinition,
-  type Formatter,
-  type FormatterContext,
-  resolveFormatter,
-  type Structure,
+import type {
+  FormatDefinition,
+  Formatter,
+  FormatterContext,
+  Structure,
 } from "@cosmos/core";
 import { Frontmatter } from "./parser.ts";
 
-export class FrontmatterFormatter implements Formatter<FrontmatterOptions> {
+export class FrontmatterFormatter implements Formatter {
   #frontmatter = new Frontmatter();
   parse(
     content: string,
-    ctx: FormatterContext<FrontmatterOptions>,
+    ctx: FormatterContext,
   ): Structure {
     const mainField = ctx.resource.main;
+    const option = ctx.option as FrontmatterOptions;
     const { header, body } = this.#frontmatter.parse(content);
-    const headerFormatter = resolveFormatter(
-      ctx.options.header,
-      ctx.config.formats,
-    );
-    const bodyFormatter = resolveFormatter(
-      ctx.options.body,
-      ctx.config.formats,
-    );
+    const headerFormatter = ctx.config.formats[option.header.type];
+
+    if (!headerFormatter) throw new Error("header formatter not found");
+
+    const bodyFormatter = ctx.config.formats[option.body.type];
+
+    if (!bodyFormatter) throw new Error("header formatter not found");
+
     const parsedHeader = headerFormatter.parse(header, {
       config: ctx.config,
-      options: ctx.options.header,
+      option: option.header.option,
       resource: ctx.resource,
     });
     const parsedBody = bodyFormatter.parse(body, {
       config: ctx.config,
-      options: ctx.options.body,
+      option: option.body.option,
       resource: ctx.resource,
     });
 

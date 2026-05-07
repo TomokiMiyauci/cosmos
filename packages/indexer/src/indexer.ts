@@ -1,15 +1,13 @@
-import {
-  type BaseSchema,
-  type Config,
-  type Datalayer,
-  type Entry,
-  type Field,
-  type Manifest,
-  type Node,
-  resolveFormatter,
-  resolveLocator,
-  type Schema,
-  type Store,
+import type {
+  BaseSchema,
+  Config,
+  Datalayer,
+  Entry,
+  Field,
+  Manifest,
+  Node,
+  Schema,
+  Store,
 } from "@cosmos/core";
 import { mapValues } from "@std/collections";
 import { HashMap } from "./util.ts";
@@ -43,7 +41,11 @@ export class Indexer {
 
     await Promise.all(
       sources.map(async (source, i) => {
-        const locator = resolveLocator(source.locator, locators);
+        const locator = locators[source.locator.type];
+
+        if (!locator) {
+          throw new Error(`locator is not defined. ${source.locator.type}`);
+        }
 
         const urls = await Array.fromAsync(
           locator.search({
@@ -59,7 +61,11 @@ export class Indexer {
 
     await Promise.all(
       Object.entries(assets).map(async ([key, asset]) => {
-        const locator = resolveLocator(asset.locator, locators);
+        const locator = locators[asset.locator.type];
+
+        if (!locator) {
+          throw new Error(`locator is not defined. ${asset.locator.type}`);
+        }
         const urls = await Array.fromAsync(locator.search({
           option: asset.locator.option,
           base: this.base,
@@ -108,7 +114,12 @@ export class Indexer {
         throw new Error(`model is not defined. ${resource.model}`);
       }
 
-      const formatter = resolveFormatter(format, formats);
+      const formatter = formats[format.type];
+
+      if (!formatter) {
+        throw new Error(`formatter is not defined. ${format.type}`);
+      }
+
       const decoder = new TextDecoder();
 
       const promises = contents.map(async ([url, content]) => {
@@ -116,7 +127,7 @@ export class Indexer {
         const text = decoder.decode(buffer);
         const structure = formatter.parse(text, {
           config,
-          options: format,
+          option: format.option,
           resource,
         });
 

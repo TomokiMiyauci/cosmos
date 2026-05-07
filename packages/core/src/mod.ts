@@ -14,13 +14,11 @@ export type {
   EntryFilter,
   FieldCodec,
   FormatDefinition,
-  FormatRegistry,
   Formatter,
   FormatterContext,
   Locator,
   LocatorContext,
   LocatorDefinition,
-  LocatorRegistry,
   Manifest,
   Model,
   NodeEntry,
@@ -118,4 +116,3 @@ export type {
   StringSchema,
   UnionSchema,
 } from "./types/schema.ts";
-export { resolveFormatter, resolveLocator } from "./util.ts";
