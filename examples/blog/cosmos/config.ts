@@ -53,11 +53,13 @@ export default {
       },
       format: {
         type: "frontmatter",
-        header: {
-          type: "yaml",
-        },
-        body: {
-          type: "text",
+        option: {
+          header: {
+            type: "yaml",
+          },
+          body: {
+            type: "text",
+          },
         },
       },
     },
