@@ -1,11 +1,11 @@
 import type { Locator, LocatorContext } from "@cosmos/core";
-import { Glob, type ScannerAdapter } from "@miyauci/glob";
+import { type FileSystem, Glob } from "@miyauci/glob";
 
 export class FsLocator implements Locator {
   #glob: Glob;
 
-  constructor(adaptor: ScannerAdapter) {
-    this.#glob = new Glob(adaptor);
+  constructor(fs: FileSystem) {
+    this.#glob = new Glob(fs);
   }
 
   async *search(
@@ -15,7 +15,7 @@ export class FsLocator implements Locator {
 
     for (const pattern of patterns) {
       const url = new URL(pattern, ctx.base);
-      const entries = this.#glob.scan(url);
+      const entries = this.#glob.walk(url);
 
       for await (const entry of entries) {
         if (entry.type === "file") {

@@ -2,9 +2,10 @@
   "name": "@cosmos/locator-fs",
   "exports": {
     ".": "./src/mod.ts",
-    "./deno": "./src/adaptors/deno.ts"
+    "./deno": "./src/deno.ts"
   },
   "imports": {
+    "@miyauci/glob": "jsr:@miyauci/glob@^1.0.0-beta.1",
     "@std/path": "jsr:@std/path@^1.1.4"
   },
   "tasks": {
