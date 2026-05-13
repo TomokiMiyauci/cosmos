@@ -4,8 +4,7 @@ import {
   createYoga,
   type YogaServerInstance,
 } from "graphql-yoga";
-import type { GraphQLSchema } from "graphql";
-import type { Fetcher, Plugin, ResolverContext } from "./type.ts";
+import type { Builder, Fetcher, Plugin, ResolverContext } from "./type.ts";
 
 export interface GraphqlConfig {
   plugins?: Plugin[];
@@ -16,10 +15,12 @@ interface Context {
 }
 
 export class GraphqlProtocol implements Protocol<Context> {
-  constructor(private schema: GraphQLSchema) {
+  constructor(private builder: Builder) {
   }
 
   init(ctx: ProtocolContext): Context {
+    const schema = this.builder.build(ctx);
+
     const fetcher = {
       async fetch(id): Promise<Node> {
         const node = await ctx.datalayer.node.fetch(id);
@@ -30,7 +31,7 @@ export class GraphqlProtocol implements Protocol<Context> {
     } satisfies Fetcher;
 
     const yoga = createYoga<ProtocolContext, ResolverContext>({
-      schema: createSchema({ typeDefs: this.schema }),
+      schema: createSchema({ typeDefs: schema }),
       context: { fetcher },
     });
 

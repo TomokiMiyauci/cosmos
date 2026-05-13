@@ -6,6 +6,7 @@ import type {
   GraphQLObjectType,
   GraphQLObjectTypeConfig,
   GraphQLScalarType,
+  GraphQLSchema,
   GraphQLUnionType,
 } from "graphql";
 
@@ -34,12 +35,7 @@ export interface GraphQLQueryField {
 }
 
 export interface TypeBuilder {
-  build(ctx: BuilderContext): GraphqlNamedOutputType[];
-}
-
-export interface BuilderContext {
-  manifest: Manifest;
-  datalayer: Datalayer;
+  build(ctx: BuildContext): GraphqlNamedOutputType[];
 }
 
 export interface Plugin {
@@ -55,3 +51,12 @@ export type GraphqlNamedOutputType =
   | GraphQLInterfaceType
   | GraphQLUnionType
   | GraphQLEnumType;
+
+export interface BuildContext {
+  manifest: Manifest;
+  datalayer: Datalayer;
+}
+
+export interface Builder {
+  build(ctx: BuildContext): GraphQLSchema;
+}

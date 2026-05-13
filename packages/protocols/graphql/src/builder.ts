@@ -1,4 +1,5 @@
 import {
+  assertValidSchema,
   type GraphQLFieldConfig,
   GraphQLObjectType,
   type GraphQLObjectTypeConfig,
@@ -7,7 +8,8 @@ import {
   type ThunkObjMap,
 } from "graphql";
 import type {
-  BuilderContext,
+  BuildContext,
+  Builder,
   Entry,
   GraphqlNamedOutputType,
   Plugin,
@@ -18,20 +20,24 @@ import { isNamedOutputType } from "./util.ts";
 import { CoreTypeBuilder } from "./builder/type_builder.ts";
 import { rewireTypes } from "@graphql-tools/utils";
 import { mapValues } from "@std/collections/map-values";
+import {
+  type Plugin as TransformPlugin,
+  SchemaTransformer,
+} from "@miyauci/graphql-transformer";
 
 export interface SchemaConfig {
   plugins: Plugin[];
   builder?: TypeBuilder;
 }
 
-export class SchemaBuilder {
+export class QueryBuilder {
   #builder: TypeBuilder;
 
   constructor(private config: SchemaConfig) {
     this.#builder = config.builder ?? new CoreTypeBuilder();
   }
 
-  build(ctx: BuilderContext): GraphQLSchema {
+  build(ctx: BuildContext): GraphQLSchema {
     const entries = this.#builder.build(ctx);
 
     const transformers = this.config.plugins.map((plugin) =>
@@ -102,4 +108,34 @@ function applyTransform(
   );
 
   return Object.fromEntries(entries);
+}
+
+export interface BuilderOptions {
+  plugins?: Plugin[];
+  transformers?: TransformPlugin[];
+}
+
+export class SchemaBuilder implements Builder {
+  #builder: QueryBuilder;
+  #transformer: SchemaTransformer;
+  constructor(private options: BuilderOptions) {
+    this.#builder = new QueryBuilder({
+      plugins: this.options.plugins ?? [],
+    });
+    this.#transformer = new SchemaTransformer({
+      plugins: this.options.transformers ?? [],
+    });
+  }
+
+  build(ctx: BuildContext): GraphQLSchema {
+    const schema = this.#builder.build({
+      manifest: ctx.manifest,
+      datalayer: ctx.datalayer,
+    });
+    const finalSchema = this.#transformer.transform(schema);
+
+    assertValidSchema(finalSchema);
+
+    return finalSchema;
+  }
 }
