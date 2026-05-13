@@ -1,21 +1,28 @@
 import type {
   AssetMapping,
+  Config,
   Datalayer,
-  Manifest,
   Node,
   Protocol,
   ProtocolContext,
+  Store,
 } from "@cosmos/core";
-import type { Middleware, MiddlewareVariant } from "./type.ts";
+import type { MiddlewareVariant } from "./type.ts";
 import { compose, normalizeMiddleware } from "./util.ts";
 import { walk } from "@cosmos/node-walker";
+import { Indexer } from "@cosmos/indexer";
 
 export interface DeliveryConfig {
   protocol: Protocol<unknown>;
-  manifest: Manifest;
-  datalayer: Datalayer;
   assetMapping?: AssetMappingRule;
   middleware?: MiddlewareVariant[];
+  base: Core;
+  store: Store;
+}
+
+export interface Core {
+  config: Config;
+  location: URL;
 }
 
 interface AssetMappingRule {
@@ -28,56 +35,6 @@ interface AssetMappingContext {
 
 export interface AssetMap {
   [original: string]: string;
-}
-
-export class Delivery {
-  #middleware: Middleware[];
-  constructor(
-    private config: DeliveryConfig,
-  ) {
-    this.#middleware = config.middleware?.map(normalizeMiddleware) ?? [];
-  }
-
-  async handle(request: Request): Promise<Response> {
-    const config = this.config;
-    const urls = await config.datalayer.asset.list();
-    const mapper = config.assetMapping ?? baseMapping;
-    const assetEntries = await Promise.all(
-      urls.map(async (id: string) =>
-        [id, (await mapper(new URL(id), { request })).href] as [string, string]
-      ),
-    );
-    const assetMap = Object.fromEntries(assetEntries);
-    const asset = createAssetMapping(assetMap);
-
-    const ctx: ProtocolContext = {
-      datalayer: config.datalayer,
-      manifest: config.manifest,
-      asset,
-    };
-
-    const proxy = createDatalayerProxy(
-      config.datalayer,
-      [mappedUrlPlugin],
-      ctx,
-    );
-
-    const result = config.protocol.init({
-      ...ctx,
-      datalayer: proxy,
-    });
-
-    function handler(request: Request): Promise<Response> | Response {
-      return config.protocol.handle(request, result);
-    }
-
-    const componsed = compose(this.#middleware, handler, {
-      datalayer: proxy,
-      asset,
-    });
-
-    return componsed(request);
-  }
 }
 
 const baseMapping = async (url: URL, ctx: AssetMappingContext) => {
@@ -161,5 +118,60 @@ function createDatalayerProxy(
         }) ?? node;
       },
     },
+  };
+}
+
+export async function createDelivery(
+  config: DeliveryConfig,
+): Promise<(request: Request) => Response | Promise<Response>> {
+  const indexer = new Indexer(
+    config.base.config,
+    config.base.location,
+  );
+
+  const result = await indexer.index(config.store);
+
+  const datalayer = result.datalayer;
+  const manifest = result.manifest;
+  const urls = await result.datalayer.asset.list();
+  const middleware = config.middleware?.map(normalizeMiddleware) ?? [];
+
+  return async (request: Request) => {
+    const mapper = config.assetMapping ?? baseMapping;
+    const assetEntries = await Promise.all(
+      urls.map(async (id: string) =>
+        [id, (await mapper(new URL(id), { request })).href] as [string, string]
+      ),
+    );
+    const assetMap = Object.fromEntries(assetEntries);
+    const asset = createAssetMapping(assetMap);
+
+    const ctx: ProtocolContext = {
+      datalayer,
+      manifest,
+      asset,
+    };
+
+    const proxy = createDatalayerProxy(
+      datalayer,
+      [mappedUrlPlugin],
+      ctx,
+    );
+
+    const result = config.protocol.init({
+      ...ctx,
+      datalayer: proxy,
+    });
+
+    function handler(request: Request): Promise<Response> | Response {
+      return config.protocol.handle(request, result);
+    }
+
+    const componsed = compose(middleware, handler, {
+      datalayer: proxy,
+      asset,
+    });
+
+    return componsed(request);
   };
 }

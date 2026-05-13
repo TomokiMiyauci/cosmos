@@ -1,1 +1,1 @@
-export { Delivery, type DeliveryConfig } from "./delivery.ts";
+export { createDelivery, type DeliveryConfig } from "./delivery.ts";
