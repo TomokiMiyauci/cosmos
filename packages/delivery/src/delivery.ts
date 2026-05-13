@@ -11,7 +11,7 @@ import { compose, normalizeMiddleware } from "./util.ts";
 import { walk } from "@cosmos/node-walker";
 
 export interface DeliveryConfig {
-  protocol: Protocol;
+  protocol: Protocol<unknown>;
   manifest: Manifest;
   datalayer: Datalayer;
   assetMapping?: AssetMappingRule;
@@ -62,8 +62,13 @@ export class Delivery {
       ctx,
     );
 
+    const result = config.protocol.init({
+      ...ctx,
+      datalayer: proxy,
+    });
+
     function handler(request: Request): Promise<Response> | Response {
-      return config.protocol.handle(request, { ...ctx, datalayer: proxy });
+      return config.protocol.handle(request, result);
     }
 
     const componsed = compose(this.#middleware, handler, {

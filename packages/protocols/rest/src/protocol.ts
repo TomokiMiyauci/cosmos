@@ -10,7 +10,10 @@ import { renderUi } from "./util.ts";
 import plural from "pluralize";
 import { join } from "@std/path";
 
-export class RestProtocol implements Protocol {
+export class RestProtocol implements Protocol<ProtocolContext> {
+  init(ctx: ProtocolContext): ProtocolContext {
+    return ctx;
+  }
   async handle(
     request: globalThis.Request,
     ctx: ProtocolContext,

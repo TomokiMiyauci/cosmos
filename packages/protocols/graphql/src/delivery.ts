@@ -11,31 +11,34 @@ export interface GraphqlConfig {
   plugins?: Plugin[];
 }
 
-export class GraphqlProtocol implements Protocol {
-  #handler: YogaServerInstance<ProtocolContext, ResolverContext>;
+interface Context {
+  handler: YogaServerInstance<ProtocolContext, ResolverContext>;
+}
+
+export class GraphqlProtocol implements Protocol<Context> {
   constructor(private schema: GraphQLSchema) {
+  }
+
+  init(ctx: ProtocolContext): Context {
+    const fetcher = {
+      async fetch(id): Promise<Node> {
+        const node = await ctx.datalayer.node.fetch(id);
+
+        return node;
+      },
+      list: ctx.datalayer.node.list.bind(ctx.datalayer.node),
+    } satisfies Fetcher;
+
     const yoga = createYoga<ProtocolContext, ResolverContext>({
       schema: createSchema({ typeDefs: this.schema }),
-      context: (ctx) => {
-        const fetcher = {
-          async fetch(id): Promise<Node> {
-            const node = await ctx.datalayer.node.fetch(id);
-
-            return node;
-          },
-          list: ctx.datalayer.node.list.bind(ctx.datalayer.node),
-        } satisfies Fetcher;
-
-        return {
-          fetcher,
-        };
-      },
+      context: { fetcher },
     });
 
-    this.#handler = yoga;
+    return { handler: yoga };
   }
-  handle(request: Request, ctx: ProtocolContext): Promise<Response> {
-    const result = this.#handler(request, ctx);
+
+  handle(request: Request, ctx: Context): Promise<Response> {
+    const result = ctx.handler(request);
 
     return Promise.resolve(result);
   }

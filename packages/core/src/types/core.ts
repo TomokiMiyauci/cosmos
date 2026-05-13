@@ -180,8 +180,9 @@ export interface FormatDefinition {
   option?: unknown;
 }
 
-export interface Protocol {
-  handle(request: Request, ctx: ProtocolContext): Promise<Response> | Response;
+export interface Protocol<T> {
+  init(ctx: ProtocolContext): T;
+  handle(request: Request, ctx: T): Promise<Response> | Response;
 }
 
 export interface ProtocolContext {
