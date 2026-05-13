@@ -5,7 +5,7 @@ await emptyDir("./npm");
 await build({
   entryPoints: ["./src/mod.ts", {
     name: "./deno",
-    path: "./src/adaptors/deno.ts",
+    path: "./src/deno.ts",
   }],
   outDir: "./npm",
   shims: {},
@@ -23,10 +23,6 @@ await build({
   mappings: {
     "../../core/src/mod.ts": {
       name: "@TomokiMiyauci/cosmos",
-      version: Deno.args[0],
-    },
-    "../../glob/src/mod.ts": {
-      name: "@TomokiMiyauci/glob",
       version: Deno.args[0],
     },
   },
