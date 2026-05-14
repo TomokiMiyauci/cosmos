@@ -12,7 +12,7 @@ export class PathConverter implements Converter {
     return structure;
   }
 
-  specialize(structure: Structure): Structure {
+  specialize(): Structure {
     throw new Error("unimplemented");
   }
 }

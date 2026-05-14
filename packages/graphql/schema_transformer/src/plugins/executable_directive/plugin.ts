@@ -66,7 +66,7 @@ function toMapper(directive: ExecutableDirective): SchemaMapper {
               node.name.value === directive.name
             );
 
-            const resolved = targetDirectiveNodes.reduce((acc, node) => {
+            const resolved = targetDirectiveNodes.reduce((acc) => {
               return directive.resolve(acc);
             }, result);
 

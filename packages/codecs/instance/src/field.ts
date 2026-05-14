@@ -21,7 +21,7 @@ export class InstanceCodec implements FieldCodec {
     return ctx.codec.parse(structure, model, ctx);
   }
 
-  stringify(node: Node): Structure | Promise<Structure> {
+  stringify(): Structure | Promise<Structure> {
     throw new Error();
   }
 }

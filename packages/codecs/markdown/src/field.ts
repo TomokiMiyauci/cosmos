@@ -4,7 +4,6 @@ import type {
   Field,
   FieldCodec,
   MarkdownNode,
-  Node,
   ReferenceNode,
   StringNode,
   Structure,
@@ -68,7 +67,7 @@ export class MarkdownCodec implements FieldCodec {
     return value;
   }
 
-  stringify(node: Node): Structure {
+  stringify(): Structure {
     throw new Error();
   }
 }

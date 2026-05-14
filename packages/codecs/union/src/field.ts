@@ -2,7 +2,6 @@ import type {
   CodecContext,
   Field,
   FieldCodec,
-  Node,
   Structure,
   StructureObject,
   UnionNode,
@@ -36,7 +35,7 @@ export class UnionCodec implements FieldCodec {
     };
   }
 
-  stringify(node: Node): Structure | Promise<Structure> {
+  stringify(): Structure | Promise<Structure> {
     throw new Error();
   }
 }
