@@ -1,6 +1,5 @@
 import type { DatetimeNode, Node, Resource, StringNode } from "@cosmos/core";
 import type {
-  Entry,
   GraphqlNamedOutputType,
   GraphQLQueryField,
   Plugin,
@@ -256,7 +255,7 @@ export class OpenCrud implements Plugin {
 
     const resourceEntreis = Object.entries(resources);
 
-    const [singletonEntries, collectionEntreis] = partition(
+    const [_, collectionEntreis] = partition(
       resourceEntreis,
       ([, resource]) => resource.type === "singleton",
     );
@@ -316,33 +315,7 @@ export class OpenCrud implements Plugin {
       } satisfies GraphQLQueryField;
     });
 
-    const singleFields = singletonEntries.map(([key, resource]) => {
-      const type = ctx.entries[resource.model];
-
-      if (!type) throw new Error();
-
-      return {
-        name: key,
-        type: {
-          type,
-          async resolve(_, __, ctx): Promise<Entry | null> {
-            const lists = await ctx.fetcher.list(type.name);
-            const first = lists[0];
-
-            if (typeof first !== "string") return null;
-
-            const node = await ctx.fetcher.fetch(first);
-
-            return {
-              id: first,
-              node,
-            } satisfies Entry;
-          },
-        },
-      } satisfies GraphQLQueryField;
-    });
-
-    return [...fields, ...singleFields];
+    return fields;
   }
 }
 

@@ -3,6 +3,7 @@ import { Asset } from "@cosmos/delivery/asset";
 import { GraphqlProtocol, SchemaBuilder } from "@cosmos/protocol-graphql";
 import { RelayPlugin } from "@cosmos/protocol-graphql/relay";
 import { OpenCrud } from "@cosmos/protocol-graphql/opencrud";
+import { SingletonPlugin } from "@cosmos/protocol-graphql/singleton";
 import { NamerPlugin } from "@miyauci/graphql-transformer/namer";
 import { ExecutableDirectivePlugin } from "@miyauci/graphql-transformer/executable-directive";
 import { UppercaseDirective } from "@miyauci/graphql-directives";
@@ -21,6 +22,7 @@ export default {
         new RelayPlugin(),
         new NodePlugin(),
         new OpenCrud(),
+        new SingletonPlugin(),
       ],
       transformers: [
         new NamerPlugin(),
