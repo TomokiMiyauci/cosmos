@@ -38,11 +38,11 @@ export class QueryBuilder {
   }
 
   build(ctx: BuildContext): GraphQLSchema {
-    const entries = this.#builder.build(ctx);
+    const types = this.#builder.build(ctx);
 
-    const transformers = this.config.plugins.map((plugin) =>
-      plugin.transform?.bind(plugin)
-    ).filter(isTruthy);
+    // const transformers = this.config.plugins.map((plugin) =>
+    //   plugin.transform?.bind(plugin)
+    // ).filter(isTruthy);
     const prividers = this.config.plugins.map((plugin) =>
       plugin.provideQuery?.bind(plugin)
     ).filter(isTruthy);
@@ -50,10 +50,10 @@ export class QueryBuilder {
       plugin.query?.bind(plugin)
     ).filter(isTruthy);
 
-    const transformed = applyTransform(entries, transformers);
+    // const transformed = applyTransform(entries, transformers);
 
     const queryFields = prividers.map((provider) =>
-      provider({ entries: transformed, resources: ctx.manifest.resources })
+      provider({ types, resources: ctx.manifest.resources })
     )
       .flat();
 

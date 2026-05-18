@@ -17,14 +17,15 @@ export class RelayPlugin implements Plugin {
     return Object.entries(ctx.resources).filter((
       [, resource],
     ): boolean => resource.type === "collection").map(([key, resource]) => {
-      const entry = ctx.entries[resource.model];
+      const entry = ctx.types[resource.model];
 
       if (!entry) throw new Error();
+      const { type } = entry;
 
       const { connectionType } = connectionDefinitions({
-        nodeType: entry,
+        nodeType: type,
       });
-      const name = `${entry.name}Connection`;
+      const name = `${type.name}Connection`;
 
       return {
         name,

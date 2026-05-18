@@ -1,28 +1,27 @@
-import type { BuildContext, Entry, TypeBuilder } from "../type.ts";
+import type { BuildContext, TypeBuilder, TypeEntry } from "../type.ts";
 import { createObject, type RuntimeContext } from "./definition.ts";
-import type { GraphQLObjectType } from "graphql";
+import { mapValues } from "@std/collections/map-values";
 
 export class CoreTypeBuilder implements TypeBuilder {
-  build(ctx: BuildContext): GraphQLObjectType<Entry>[] {
+  build(ctx: BuildContext): Record<string, TypeEntry> {
     const map: RuntimeContext["map"] = {};
     const context = {
       map,
       fetcher: ctx.datalayer.node,
     } satisfies RuntimeContext;
-    const entries = Object.entries(ctx.manifest.schemas).map(
-      ([name, schema]) => {
-        const type = createObject(
-          name,
-          schema,
-          context,
-        );
 
-        map[name] = type;
+    const types = mapValues(ctx.manifest.schemas, (schema, name) => {
+      const type = createObject(
+        name,
+        schema,
+        context,
+      );
 
-        return type;
-      },
-    );
+      map[name] = type;
 
-    return entries;
+      return { type, schema } satisfies TypeEntry;
+    });
+
+    return types;
   }
 }

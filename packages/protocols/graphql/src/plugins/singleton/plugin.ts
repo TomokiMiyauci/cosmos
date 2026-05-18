@@ -12,14 +12,16 @@ export class SingletonPlugin implements Plugin {
       [, resource],
     ): boolean => resource.type === "singleton")
       .map(([key, resource]) => {
-        const entry = ctx.entries[resource.model];
+        const entry = ctx.types[resource.model];
 
         if (!entry) throw new Error();
 
+        const { type } = entry;
+
         return {
-          name: entry.name,
+          name: type.name,
           type: {
-            type: entry,
+            type,
             async resolve(
               _,
               __,

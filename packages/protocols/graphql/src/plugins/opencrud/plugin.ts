@@ -235,7 +235,7 @@ export class OpenCrud implements Plugin {
   name = "opencrud";
 
   provideQuery(ctx: QueryContext): GraphQLQueryField[] {
-    const { entries, resources } = ctx;
+    const { types, resources } = ctx;
     const scalar = {
       map: {
         where: {
@@ -261,10 +261,11 @@ export class OpenCrud implements Plugin {
     );
 
     const fields = collectionEntreis.map(([key, resource]) => {
-      const type = entries[resource.model];
+      const entry = types[resource.model];
 
-      if (!type) throw new Error();
+      if (!entry) throw new Error();
 
+      const { type } = entry;
       const name = type.name;
       const whereInput = createWhereInput(name, type, scalar);
       const whereArgs: Record<string, GraphQLArgumentConfig> = whereInput
