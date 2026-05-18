@@ -42,10 +42,13 @@ export class QueryBuilder {
 
     const transformers = this.config.plugins.map((plugin) =>
       plugin.transform?.bind(plugin)
-    ).filter((v) => !!v);
+    ).filter(isTruthy);
     const prividers = this.config.plugins.map((plugin) =>
       plugin.provideQuery?.bind(plugin)
-    ).filter((v) => !!v);
+    ).filter(isTruthy);
+    const queries = this.config.plugins.map((plugin) =>
+      plugin.query?.bind(plugin)
+    ).filter(isTruthy);
 
     const transformed = applyTransform(entries, transformers);
 
@@ -62,8 +65,13 @@ export class QueryBuilder {
         [field.name]: field.type,
       };
     }, {});
+    const baseQueryConfig = {
+      name: "Query",
+      fields,
+    } satisfies GraphQLObjectTypeConfig<unknown, ResolverContext>;
 
-    const query = new GraphQLObjectType({ name: "Query", fields });
+    const queryConfig = queries.reduce((acc, fn) => fn(acc), baseQueryConfig);
+    const query = new GraphQLObjectType(queryConfig);
     const schema = new GraphQLSchema({ query });
 
     return schema;
@@ -138,4 +146,8 @@ export class SchemaBuilder implements Builder {
 
     return finalSchema;
   }
+}
+
+function isTruthy<T>(value: T): value is NonNullable<T> {
+  return !!value;
 }

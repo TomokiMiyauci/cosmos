@@ -43,6 +43,9 @@ export interface Plugin {
     config: GraphQLObjectTypeConfig<Entry, unknown>,
   ): GraphQLObjectTypeConfig<Entry, unknown>;
   provideQuery?(ctx: QueryContext): GraphQLQueryField[];
+  query?(
+    config: GraphQLObjectTypeConfig<unknown, ResolverContext>,
+  ): GraphQLObjectTypeConfig<unknown, unknown>;
 }
 
 export type GraphqlNamedOutputType =
