@@ -13,7 +13,8 @@
     ".": "./src/mod.ts",
     "./relay": "./src/plugins/relay/mod.ts",
     "./opencrud": "./src/plugins/opencrud/mod.ts",
-    "./node": "./src/plugins/node/mod.ts"
+    "./node": "./src/plugins/node/mod.ts",
+    "./singleton": "./src/plugins/singleton/mod.ts"
   },
   "tasks": {
     "build": "deno run -A ./scripts/build.ts",
