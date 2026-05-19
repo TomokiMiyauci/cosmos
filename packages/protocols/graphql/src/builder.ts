@@ -54,15 +54,14 @@ export class QueryBuilder {
 
     const queryFields = prividers.map((provider) =>
       provider({ types, resources: ctx.manifest.resources })
-    )
-      .flat();
+    );
 
     const fields = queryFields.reduce<
       ThunkObjMap<GraphQLFieldConfig<unknown, ResolverContext>>
     >((acc, field) => {
       return {
         ...acc,
-        [field.name]: field.type,
+        ...field,
       };
     }, {});
     const baseQueryConfig = {

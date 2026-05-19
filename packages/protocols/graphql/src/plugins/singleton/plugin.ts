@@ -1,44 +1,42 @@
-import type {
-  Entry,
-  GraphQLQueryField,
-  Plugin,
-  QueryContext,
-} from "../../type.ts";
+import type { Resource } from "@cosmos/core";
+import type { Entry, Plugin, QueryContext, QueryMap } from "../../type.ts";
+import { mapValues } from "@std/collections/map-values";
+import { filterValues } from "@std/collections/filter-values";
 
 export class SingletonPlugin implements Plugin {
   name = "singleton";
-  provideQuery(ctx: QueryContext): GraphQLQueryField[] {
-    return Object.entries(ctx.resources).filter((
-      [, resource],
-    ): boolean => resource.type === "singleton")
-      .map(([key, resource]) => {
-        const entry = ctx.types[resource.model];
+  provideQuery(ctx: QueryContext): QueryMap {
+    const singletonResources = filterValues(ctx.resources, isSingleton);
 
-        if (!entry) throw new Error();
+    return mapValues(singletonResources, (resource, key) => {
+      const entry = ctx.types[resource.model];
 
-        const { type } = entry;
+      if (!entry) throw new Error();
 
-        return {
-          name: type.name,
-          type: {
-            type,
-            async resolve(
-              _,
-              __,
-              ctx,
-            ): Promise<Entry | null> {
-              const keys = await ctx.fetcher.list(key);
-              const id = keys[0];
+      const { type } = entry;
 
-              if (!id) return null;
+      return {
+        type,
+        async resolve(
+          _,
+          __,
+          ctx,
+        ): Promise<Entry | null> {
+          const keys = await ctx.fetcher.list(key);
+          const id = keys[0];
 
-              const node = await ctx.fetcher.fetch(id);
-              const resource = { id, node } satisfies Entry;
+          if (!id) return null;
 
-              return resource;
-            },
-          },
-        };
-      });
+          const node = await ctx.fetcher.fetch(id);
+          const resource = { id, node } satisfies Entry;
+
+          return resource;
+        },
+      };
+    });
   }
+}
+
+function isSingleton(resource: Resource): boolean {
+  return resource.type === "singleton";
 }

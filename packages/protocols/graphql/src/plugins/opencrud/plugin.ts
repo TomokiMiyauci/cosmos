@@ -1,9 +1,21 @@
-import type { DatetimeNode, Node, Schema, StringNode } from "@cosmos/core";
-import type { GraphQLQueryField, Plugin, QueryContext } from "../../type.ts";
+import type {
+  DatetimeNode,
+  Node,
+  Resource,
+  Schema,
+  StringNode,
+} from "@cosmos/core";
+import type {
+  Plugin,
+  QueryContext,
+  QueryMap,
+  ResolverContext,
+} from "../../type.ts";
 import {
   type GraphQLArgumentConfig,
   GraphQLBoolean,
   GraphQLEnumType,
+  type GraphQLFieldConfig,
   type GraphQLInputFieldConfig,
   GraphQLInputObjectType,
   type GraphQLInputObjectTypeConfig,
@@ -12,7 +24,8 @@ import {
   GraphQLString,
 } from "graphql";
 import { ascend, descend } from "@std/data-structures/comparators";
-import { partition } from "@std/collections";
+import { filterValues } from "@std/collections/filter-values";
+import { mapValues } from "@std/collections/map-values";
 
 export interface OpenCrudArgs {
   where?: WhereInput;
@@ -214,7 +227,7 @@ function createOrderByInput(
 export class OpenCrud implements Plugin {
   name = "opencrud";
 
-  provideQuery(ctx: QueryContext): GraphQLQueryField[] {
+  provideQuery(ctx: QueryContext): QueryMap {
     const { types, resources } = ctx;
     const scalar = {
       map: {
@@ -233,14 +246,9 @@ export class OpenCrud implements Plugin {
       },
     } satisfies Context;
 
-    const resourceEntreis = Object.entries(resources);
+    const collectionResources = filterValues(resources, isCollection);
 
-    const [_, collectionEntreis] = partition(
-      resourceEntreis,
-      ([, resource]) => resource.type === "singleton",
-    );
-
-    const fields = collectionEntreis.map(([key, resource]) => {
+    const fields = mapValues(collectionResources, (resource, key) => {
       const entry = types[resource.model];
 
       if (!entry) throw new Error();
@@ -265,35 +273,32 @@ export class OpenCrud implements Plugin {
         : {};
 
       return {
-        name: key,
-        type: {
-          type: new GraphQLNonNull(
-            new GraphQLList(new GraphQLNonNull(type)),
-          ),
-          args: {
-            ...whereArgs,
-            ...orderByArgs,
-          },
-          resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
-            const ids = await ctx.fetcher.list(key);
-            const resources = await Promise.all(
-              ids.map(async (id) => {
-                return { id, node: await ctx.fetcher.fetch(id) };
-              }),
+        type: new GraphQLNonNull(
+          new GraphQLList(new GraphQLNonNull(type)),
+        ),
+        args: {
+          ...whereArgs,
+          ...orderByArgs,
+        },
+        resolve: async (_source: unknown, args: OpenCrudArgs, ctx) => {
+          const ids = await ctx.fetcher.list(key);
+          const resources = await Promise.all(
+            ids.map(async (id) => {
+              return { id, node: await ctx.fetcher.fetch(id) };
+            }),
+          );
+
+          const filter = createFilterFromArgs(args);
+          const compare = createCompareFromArts(args);
+
+          const result = resources.filter(({ node }) => filter(node))
+            .toSorted(({ node: left }, { node: right }) =>
+              compare(left, right)
             );
 
-            const filter = createFilterFromArgs(args);
-            const compare = createCompareFromArts(args);
-
-            const result = resources.filter(({ node }) => filter(node))
-              .toSorted(({ node: left }, { node: right }) =>
-                compare(left, right)
-              );
-
-            return result;
-          },
+          return result;
         },
-      } satisfies GraphQLQueryField;
+      } satisfies GraphQLFieldConfig<unknown, ResolverContext>;
     });
 
     return fields;
@@ -535,3 +540,7 @@ type FieldFilter =
   | NumberFieldFilter
   | BooleanFieldFilter
   | DatetimeFieldFilter;
+
+function isCollection(resource: Resource): boolean {
+  return resource.type === "collection";
+}

@@ -43,11 +43,15 @@ export interface TypeBuilder {
   build(ctx: BuildContext): Record<string, TypeEntry>;
 }
 
+export interface QueryMap {
+  [k: string]: GraphQLFieldConfig<unknown, ResolverContext>;
+}
+
 export interface Plugin {
   transform?(
     config: GraphQLObjectTypeConfig<Entry, unknown>,
   ): GraphQLObjectTypeConfig<Entry, unknown>;
-  provideQuery?(ctx: QueryContext): GraphQLQueryField[];
+  provideQuery?(ctx: QueryContext): QueryMap;
   query?(
     config: GraphQLObjectTypeConfig<unknown, ResolverContext>,
   ): GraphQLObjectTypeConfig<unknown, unknown>;
