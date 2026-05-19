@@ -4,22 +4,16 @@ import {
   GraphQLObjectType,
   type GraphQLObjectTypeConfig,
   GraphQLSchema,
-  isObjectType,
   type ThunkObjMap,
 } from "graphql";
 import type {
   BuildContext,
   Builder,
-  Entry,
-  GraphqlNamedOutputType,
   Plugin,
   ResolverContext,
   TypeBuilder,
 } from "./type.ts";
-import { isNamedOutputType } from "./util.ts";
 import { CoreTypeBuilder } from "./builder/type_builder.ts";
-import { rewireTypes } from "@graphql-tools/utils";
-import { mapValues } from "@std/collections/map-values";
 import {
   type Plugin as TransformPlugin,
   SchemaTransformer,
@@ -75,46 +69,6 @@ export class QueryBuilder {
 
     return schema;
   }
-}
-
-function applyTransform(
-  entreis: GraphqlNamedOutputType[],
-  transformers: ((
-    config: GraphQLObjectTypeConfig<Entry, unknown>,
-  ) => GraphQLObjectTypeConfig<Entry, unknown>)[],
-): Record<string, GraphqlNamedOutputType> {
-  const record = entreis.reduce<Record<string, GraphqlNamedOutputType>>(
-    (acc, entry) => {
-      acc[entry.name] = entry;
-
-      return acc;
-    },
-    {},
-  );
-
-  const map = mapValues(record, (type) => {
-    if (isObjectType(type)) {
-      const config = type.toConfig();
-
-      const transformed = transformers.reduce<
-        GraphQLObjectTypeConfig<Entry, unknown>
-      >((acc, transformer) => {
-        return transformer(acc);
-      }, config);
-
-      return new GraphQLObjectType(transformed);
-    }
-
-    return type;
-  });
-
-  const { typeMap } = rewireTypes(map, []);
-
-  const entries = Object.values(typeMap).filter(isNamedOutputType).map((type) =>
-    [type.name, type] as const
-  );
-
-  return Object.fromEntries(entries);
 }
 
 export interface BuilderOptions {

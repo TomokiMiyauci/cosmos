@@ -94,48 +94,44 @@ function createWhereInput(
   schema: Schema,
   ctx: Context,
 ): GraphQLInputObjectType | undefined {
+  function resolveScalar(
+    schema: Schema,
+  ): GraphQLInputFieldConfig | null {
+    switch (schema.type) {
+      case "string": {
+        return {
+          type: ctx.map.where.string,
+        };
+      }
+      case "boolean": {
+        return {
+          type: ctx.map.where.boolean,
+        };
+      }
+      case "datetime": {
+        return {
+          type: ctx.map.where.datetime,
+        };
+      }
+      case "number":
+      case "asset":
+      case "map":
+      case "list":
+      case "reference":
+      case "instance":
+      case "union":
+      case "markdown":
+    }
+
+    return null;
+  }
+
   if (schema.type === "map") {
-    const fieldEntries = Object.entries(schema.props).map(
-      ([name, schema]) => {
-        function resolveScalar(
-          schema: Schema,
-        ): GraphQLInputFieldConfig {
-          switch (schema.type) {
-            case "string": {
-              return {
-                type: ctx.map.where.string,
-              };
-            }
-            case "boolean": {
-              return {
-                type: ctx.map.where.boolean,
-              };
-            }
-            case "datetime": {
-              return {
-                type: ctx.map.where.datetime,
-              };
-            }
-            case "number":
-            case "asset":
-            case "map":
-            case "list":
-            case "reference":
-            case "instance":
-            case "union":
-            case "markdown":
-          }
-
-          return {} as any;
-        }
-
-        const config = resolveScalar(schema);
-
-        return [name, config] as const;
-      },
-    );
-
-    const fields = Object.fromEntries(fieldEntries);
+    const mappedProps = mapValues(schema.props, resolveScalar);
+    const fields = filterValues(mappedProps, isTruthy) as Record<
+      string,
+      GraphQLInputFieldConfig
+    >;
 
     const input: GraphQLInputObjectType = new GraphQLInputObjectType({
       name: `${name}WhereInput`,
@@ -179,47 +175,37 @@ function createOrderByInput(
   ctx: Context,
 ): GraphQLInputObjectType | undefined {
   if (schema.type === "map") {
-    const fieldEntries = Object.entries(schema.props).map(
-      ([name, schema]) => {
-        function resolveScalar(
-          schema: Schema,
-        ): GraphQLInputFieldConfig {
-          switch (schema.type) {
-            case "string": {
-              return {
-                type: ctx.map.orderBy,
-              };
-            }
-            case "datetime": {
-              return {
-                type: ctx.map.orderBy,
-              };
-            }
-            case "number":
-            case "boolean":
-            case "asset":
-            case "map":
-            case "list":
-            case "reference":
-            case "instance":
-            case "union":
-            case "markdown":
-          }
-
-          return {} as any;
+    const mappedProps = mapValues(schema.props, (schema) => {
+      switch (schema.type) {
+        case "string": {
+          return {
+            type: ctx.map.orderBy,
+          };
         }
-
-        const config = resolveScalar(schema);
-
-        return [name, config] as const;
-      },
-    );
-
-    const fields = Object.fromEntries(fieldEntries);
+        case "datetime": {
+          return {
+            type: ctx.map.orderBy,
+          };
+        }
+        case "number":
+        case "boolean":
+        case "asset":
+        case "map":
+        case "list":
+        case "reference":
+        case "instance":
+        case "union":
+        case "markdown":
+      }
+    });
+    const fields = filterValues(mappedProps, isTruthy) as Record<
+      string,
+      { type: GraphQLEnumType }
+    >;
 
     return new GraphQLInputObjectType({
       name: `${name}OrderByInput`,
-      fields: () => fields,
+      fields,
     });
   }
 }
@@ -543,4 +529,8 @@ type FieldFilter =
 
 function isCollection(resource: Resource): boolean {
   return resource.type === "collection";
+}
+
+function isTruthy<T>(value: T): value is NonNullable<T> {
+  return !!value;
 }
