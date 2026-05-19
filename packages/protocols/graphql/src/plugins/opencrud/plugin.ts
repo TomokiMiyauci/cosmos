@@ -50,17 +50,17 @@ const stringWhereInput = {
     eq: { type: GraphQLString },
     not: { type: GraphQLString },
     contains: { type: GraphQLString },
-    not_contains: { type: GraphQLString },
-    starts_with: { type: GraphQLString },
-    not_starts_with: { type: GraphQLString },
-    ends_with: { type: GraphQLString },
-    not_ends_with: { type: GraphQLString },
+    notContains: { type: GraphQLString },
+    startsWith: { type: GraphQLString },
+    notStartsWith: { type: GraphQLString },
+    endsWith: { type: GraphQLString },
+    notEndsWith: { type: GraphQLString },
     lt: { type: GraphQLString },
     lte: { type: GraphQLString },
     gt: { type: GraphQLString },
     gte: { type: GraphQLString },
     in: { type: new GraphQLList(GraphQLString) },
-    not_in: { type: new GraphQLList(GraphQLString) },
+    notIn: { type: new GraphQLList(GraphQLString) },
   },
   isOneOf: true,
 } satisfies GraphQLInputObjectTypeConfig;
@@ -80,7 +80,7 @@ const datetimeWhereInput = {
     eq: { type: GraphQLString },
     not: { type: GraphQLString },
     in: { type: new GraphQLList(GraphQLString) },
-    not_in: { type: new GraphQLList(GraphQLString) },
+    notIn: { type: new GraphQLList(GraphQLString) },
     lt: { type: GraphQLString },
     lte: { type: GraphQLString },
     gt: { type: GraphQLString },
@@ -426,19 +426,19 @@ function compareString(value: string, pair: StringOperationPair): boolean {
     case "contains": {
       return value.includes(operand);
     }
-    case "not_contains": {
+    case "notContains": {
       return !value.includes(operand);
     }
-    case "starts_with": {
+    case "startsWith": {
       return value.startsWith(operand);
     }
-    case "not_starts_with": {
+    case "notStartsWith": {
       return !value.startsWith(operand);
     }
-    case "ends_with": {
+    case "endsWith": {
       return value.endsWith(operand);
     }
-    case "not_ends_with": {
+    case "notEndsWith": {
       return !value.endsWith(operand);
     }
     case "lt": {
@@ -453,7 +453,7 @@ function compareString(value: string, pair: StringOperationPair): boolean {
     case "gte": {
       return value >= operand;
     }
-    case "not_in": {
+    case "notIn": {
       return !operand.includes(value);
     }
   }
@@ -483,17 +483,17 @@ interface StringFieldFilter {
   eq?: string;
   not?: string;
   contains?: string;
-  not_contains?: string;
-  starts_with?: string;
-  not_starts_with?: string;
-  ends_with?: string;
-  not_ends_with?: string;
+  notContains?: string;
+  startsWith?: string;
+  notStartsWith?: string;
+  endsWith?: string;
+  notEndsWith?: string;
   lt?: string;
   lte?: string;
   gt?: string;
   gte?: string;
   in?: string[];
-  not_in?: string[];
+  notIn?: string[];
 }
 
 interface NumberFieldFilter {
@@ -504,7 +504,7 @@ interface NumberFieldFilter {
   gt?: number;
   gte?: number;
   in?: number[];
-  not_in?: number[];
+  notIn?: number[];
 }
 
 interface BooleanFieldFilter {
