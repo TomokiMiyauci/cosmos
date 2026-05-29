@@ -1,13 +1,18 @@
 import type { BuildContext, TypeBuilder, TypeEntry } from "../type.ts";
 import { createObject, type RuntimeContext } from "./definition.ts";
 import { mapValues } from "@std/collections/map-values";
+import { SchemaBuilder } from "@miyauci/graphql-builder";
+import { GraphQLFloat, GraphQLString } from "graphql";
+import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
 
 export class CoreTypeBuilder implements TypeBuilder {
   build(ctx: BuildContext): Record<string, TypeEntry> {
-    const map: RuntimeContext["map"] = {};
+    const builder = new SchemaBuilder({
+      types: [GraphQLString, GraphQLDateTime, GraphQLURL, GraphQLFloat],
+    });
     const context = {
-      map,
       fetcher: ctx.datalayer.node,
+      builder,
     } satisfies RuntimeContext;
 
     const types = mapValues(ctx.manifest.schemas, (schema, name) => {
@@ -17,11 +22,12 @@ export class CoreTypeBuilder implements TypeBuilder {
         context,
       );
 
-      map[name] = type;
-
-      return { type, schema } satisfies TypeEntry;
+      return { type, schema };
     });
 
-    return types;
+    return mapValues(types, ({ type, schema }) => ({
+      type: type.type,
+      schema,
+    }));
   }
 }
