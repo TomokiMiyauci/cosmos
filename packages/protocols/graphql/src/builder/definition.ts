@@ -1,4 +1,13 @@
-import type { GraphQLObjectType, GraphQLOutputType } from "graphql";
+import {
+  GraphQLBoolean,
+  GraphQLFloat,
+  GraphQLList,
+  GraphQLNonNull,
+  type GraphQLObjectType,
+  type GraphQLOutputType,
+  type GraphQLScalarType,
+  GraphQLString,
+} from "graphql";
 import type {
   AssetNode,
   AssetSchema,
@@ -46,9 +55,10 @@ import {
   type SchemaBuilder,
   type UnionType,
 } from "@miyauci/graphql-builder";
+import { GraphQLDateTime, GraphQLURL } from "graphql-scalars";
 
 export interface GraphqlScalarDefinition<In, Out, Ctx = unknown> {
-  type: ScalarType<Out>;
+  type: ScalarType<Out> | GraphQLScalarType<Out>;
   resolve: GraphqlResolve<In, Out>;
 }
 
@@ -58,7 +68,7 @@ export interface GrpahqlObjectTypeDefinition<T, U, Ctx = unknown> {
 }
 
 export interface GraphqlListDefinition<T, U, Ctx = unknown> {
-  type: List<GraphQLOutputType>;
+  type: List<GraphQLOutputType> | GraphQLList<GraphQLOutputType>;
   resolve: GraphqlResolve<T, U[]>;
 }
 
@@ -77,52 +87,39 @@ export interface GraphqlResolve<In, Out> {
   (value: In): Out | Promise<Out>;
 }
 
-function string(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<StringNode, string> {
-  return {
-    type: ctx.builder.scalarType("String") as ScalarType<string>,
-    resolve(node): string {
-      return node.value;
-    },
-  };
-}
+const string = {
+  type: GraphQLString,
+  resolve(node): string {
+    return node.value;
+  },
+} satisfies GraphqlScalarDefinition<StringNode, string>;
 
-function boolean(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<BooleanNode, boolean> {
-  return {
-    type: ctx.builder.scalarType("Boolean") as ScalarType<boolean>,
-    resolve(node): boolean {
-      return node.value;
-    },
-  };
-}
+const boolean = {
+  type: GraphQLBoolean,
+  resolve(node): boolean {
+    return node.value;
+  },
+} satisfies GraphqlScalarDefinition<BooleanNode, boolean>;
 
-function datetime(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<DatetimeNode, Date> {
-  return {
-    type: ctx.builder.scalarType("DateTime") as ScalarType<Date>,
-    resolve(node): Date {
-      return node.value;
-    },
-  };
-}
+const datetime = {
+  type: GraphQLDateTime,
+  resolve(node): Date {
+    return node.value;
+  },
+} satisfies GraphqlScalarDefinition<DatetimeNode, Date>;
 
-function asset(ctx: RuntimeContext): GraphqlScalarDefinition<AssetNode, URL> {
-  return {
-    type: ctx.builder.scalarType("URL") as ScalarType<URL>,
-    resolve(node): URL {
-      return node.value;
-    },
-  };
-}
+const asset = {
+  type: GraphQLURL as GraphQLScalarType<URL>,
+  resolve(node): URL {
+    return node.value;
+  },
+} satisfies GraphqlScalarDefinition<AssetNode, URL>;
+
 function markdown(
   ctx: RuntimeContext,
 ): GraphqlScalarDefinition<MarkdownNode, string> {
   return {
-    type: ctx.builder.scalarType("String") as ScalarType<string>,
+    type: GraphQLString,
     resolve(node): string {
       const root = toRoot(node.value);
       const str = toString(root);
@@ -132,75 +129,48 @@ function markdown(
   };
 }
 
-export function number(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<NumberNode, number> {
-  return {
-    type: ctx.builder.scalarType("Float") as ScalarType<number>,
-    resolve(node): number {
-      return node.value;
-    },
-  };
-}
-export function stringNode(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<Node, string> {
-  const { type, resolve } = string(ctx);
+export const number = {
+  type: GraphQLFloat,
+  resolve(node): number {
+    return node.value;
+  },
+} satisfies GraphqlScalarDefinition<NumberNode, number>;
 
-  return {
-    type,
-    resolve(node): string | Promise<string> {
-      assertStringNode(node);
+const stringNode = {
+  type: string.type,
+  resolve(node): string {
+    assertStringNode(node);
 
-      return resolve(node);
-    },
-  };
-}
+    return string.resolve(node);
+  },
+} satisfies GraphqlScalarDefinition<Node, string>;
 
-export function numberNode(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<Node, number> {
-  const { type, resolve } = number(ctx);
+export const numberNode = {
+  type: number.type,
+  resolve(node): number {
+    assertNumberNode(node);
 
-  return {
-    type,
-    resolve(node): number | Promise<number> {
-      assertNumberNode(node);
+    return number.resolve(node);
+  },
+} satisfies GraphqlScalarDefinition<Node, number>;
 
-      return resolve(node);
-    },
-  };
-}
+export const booleanNode = {
+  type: boolean.type,
+  resolve(node): boolean {
+    assertBooleanNode(node);
 
-export function booleanNode(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<Node, boolean> {
-  const { type, resolve } = boolean(ctx);
+    return boolean.resolve(node);
+  },
+} satisfies GraphqlScalarDefinition<Node, boolean>;
 
-  return {
-    type,
-    resolve(node): boolean | Promise<boolean> {
-      assertBooleanNode(node);
+export const datetimeNode = {
+  type: datetime.type,
+  resolve(node): Date {
+    assertDatetimeNode(node);
 
-      return resolve(node);
-    },
-  };
-}
-
-export function datetimeNode(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<Node, Date> {
-  const { type, resolve } = datetime(ctx);
-
-  return {
-    type,
-    resolve(node): Date | Promise<Date> {
-      assertDatetimeNode(node);
-
-      return resolve(node);
-    },
-  };
-}
+    return datetime.resolve(node);
+  },
+} satisfies GraphqlScalarDefinition<Node, Date>;
 
 export function markdownNode(
   ctx: RuntimeContext,
@@ -217,20 +187,14 @@ export function markdownNode(
   };
 }
 
-export function assetNode(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<Node, URL> {
-  const { type, resolve } = asset(ctx);
+export const assetNode = {
+  type: asset.type,
+  resolve(node): URL {
+    assertAssertNode(node);
 
-  return {
-    type,
-    resolve(node): URL | Promise<URL> {
-      assertAssertNode(node);
-
-      return resolve(node);
-    },
-  };
-}
+    return asset.resolve(node);
+  },
+} satisfies GraphqlScalarDefinition<Node, URL>;
 
 export function createNodeDefinition(
   name: string,
@@ -239,28 +203,28 @@ export function createNodeDefinition(
 ): GraphqlDefinition<Node, Data> {
   switch (schema.type) {
     case "number":
-      return numberNode(ctx);
+      return numberNode;
 
     case "boolean":
-      return booleanNode(ctx);
+      return booleanNode;
 
     case "datetime":
-      return datetimeNode(ctx);
+      return datetimeNode;
 
     case "markdown":
       return markdownNode(ctx);
 
     case "asset":
-      return assetNode(ctx);
+      return assetNode;
 
     case "string":
-      return stringNode(ctx);
+      return stringNode;
 
     case "map": {
       const { config, resolve } = createMapConfig(name, schema, ctx);
 
       return {
-        type: ctx.builder.objectType<Data, unknown>(config),
+        type: ctx.builder.objectType(config),
         resolve,
       };
     }
@@ -314,7 +278,9 @@ function createMapConfig(
     const { type, resolve } = createNodeDefinition(name, schema, ctx);
 
     return {
-      type: required.has(key) ? nonNull(type) : type,
+      type: required.has(key)
+        ? "type" in type ? nonNull(type) : new GraphQLNonNull(type)
+        : type,
       resolve(data): Data | Promise<Data> | null {
         data = data as Record<string, Node>;
 
@@ -345,7 +311,7 @@ function createList(
   const { type, resolve } = createNodeDefinition(name, schema.item, ctx);
 
   return {
-    type: list(type),
+    type: "type" in type ? list(type) : new GraphQLList(type),
     async resolve(node): Promise<Data[]> {
       assertListNode(node);
 
@@ -423,15 +389,15 @@ function resolveScalarDefinition(
 ): GraphqlScalarDefinition<Node, Data> {
   switch (schema.type) {
     case "string":
-      return stringNode(ctx);
+      return stringNode;
     case "number":
-      return numberNode(ctx);
+      return numberNode;
     case "boolean":
-      return booleanNode(ctx);
+      return booleanNode;
     case "datetime":
-      return datetimeNode(ctx);
+      return datetimeNode;
     case "asset":
-      return assetNode(ctx);
+      return assetNode;
     case "markdown":
       return markdownNode(ctx);
   }
