@@ -87,7 +87,7 @@ export interface GraphqlResolve<In, Out> {
   (value: In): Out | Promise<Out>;
 }
 
-const string = {
+export const string = {
   type: GraphQLString,
   resolve(node): string {
     return node.value;
@@ -265,7 +265,11 @@ function createMapConfig(
 } {
   const required = new Set(schema.required);
   const fields = mapValues(schema.props, (schema, key) => {
-    const { type, resolve } = createNodeDefinition(name, schema, ctx);
+    const { type, resolve } = createNodeDefinition(
+      scope(name, key),
+      schema,
+      ctx,
+    );
 
     return {
       type: required.has(key)
