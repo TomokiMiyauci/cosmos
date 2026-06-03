@@ -325,7 +325,7 @@ function createUnion(
 ): GraphqlUnionDefinition<Node, Data> {
   const map = mapValues(
     schema.props,
-    (_, key) => ctx.builder.objectType(scope(name, key)),
+    (schema, key) => createObject(scope(name, key), schema, ctx),
   );
   const types = Object.values(map);
   const weakMap = new WeakMap<object, string>();
