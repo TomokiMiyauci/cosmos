@@ -284,6 +284,7 @@ function createMapConfig(
 
         return resolve(node);
       },
+      description: schema.description,
     } satisfies FieldConfig<Data, unknown>;
   });
 
