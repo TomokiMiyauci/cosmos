@@ -115,19 +115,15 @@ const asset = {
   },
 } satisfies GraphqlScalarDefinition<AssetNode, URL>;
 
-function markdown(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<MarkdownNode, string> {
-  return {
-    type: GraphQLString,
-    resolve(node): string {
-      const root = toRoot(node.value);
-      const str = toString(root);
+const markdown = {
+  type: GraphQLString,
+  resolve(node): string {
+    const root = toRoot(node.value);
+    const str = toString(root);
 
-      return str;
-    },
-  };
-}
+    return str;
+  },
+} satisfies GraphqlScalarDefinition<MarkdownNode, string>;
 
 export const number = {
   type: GraphQLFloat,
@@ -172,20 +168,14 @@ export const datetimeNode = {
   },
 } satisfies GraphqlScalarDefinition<Node, Date>;
 
-export function markdownNode(
-  ctx: RuntimeContext,
-): GraphqlScalarDefinition<Node, string> {
-  const { type, resolve } = markdown(ctx);
+export const markdownNode = {
+  type: markdown.type,
+  resolve(node): string | Promise<string> {
+    assertMarkdownNode(node);
 
-  return {
-    type,
-    resolve(node): string | Promise<string> {
-      assertMarkdownNode(node);
-
-      return resolve(node);
-    },
-  };
-}
+    return markdown.resolve(node);
+  },
+} satisfies GraphqlScalarDefinition<Node, string>;
 
 export const assetNode = {
   type: asset.type,
@@ -212,7 +202,7 @@ export function createNodeDefinition(
       return datetimeNode;
 
     case "markdown":
-      return markdownNode(ctx);
+      return markdownNode;
 
     case "asset":
       return assetNode;
@@ -399,7 +389,7 @@ function resolveScalarDefinition(
     case "asset":
       return assetNode;
     case "markdown":
-      return markdownNode(ctx);
+      return markdownNode;
   }
 }
 
