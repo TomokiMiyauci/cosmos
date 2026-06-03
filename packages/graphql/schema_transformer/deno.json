@@ -10,7 +10,7 @@
     "@graphql-tools/utils": "npm:@graphql-tools/utils@^11.1.0",
     "@std/collections": "jsr:@std/collections@^1.1.7",
     "@std/text": "jsr:@std/text@^1.0.18",
-    "graphql": "npm:graphql@^16.13.2"
+    "graphql": "npm:graphql@^16.14.0"
   },
   "tasks": {
     "build": "deno run -A ./scripts/build.ts",

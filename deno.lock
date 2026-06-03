@@ -37,7 +37,6 @@
     "npm:graphql-relay@~0.10.2": "0.10.2_graphql@16.14.0",
     "npm:graphql-scalars@^1.25.0": "1.25.0_graphql@16.14.0",
     "npm:graphql-yoga@^5.18.0": "5.21.0_graphql@16.14.0",
-    "npm:graphql@^16.13.2": "16.14.0",
     "npm:graphql@^16.14.0": "16.14.0",
     "npm:gray-matter@^4.0.3": "4.0.3",
     "npm:mdast-util-from-markdown@^2.0.3": "2.0.3",
@@ -72,7 +71,7 @@
       "integrity": "c1eb0e042a82aa820954b2d5054978c253f6258212623030b611552df02e6b0a",
       "dependencies": [
         "jsr:@std/collections@^1.1.7",
-        "npm:graphql@^16.14.0"
+        "npm:graphql"
       ]
     },
     "@std/assert@1.0.19": {
@@ -995,7 +994,7 @@
     "members": {
       "examples/blog": {
         "dependencies": [
-          "npm:graphql@^16.13.2"
+          "npm:graphql@^16.14.0"
         ]
       },
       "packages/codecs/asset": {
@@ -1042,7 +1041,7 @@
       },
       "packages/graphql/directives": {
         "dependencies": [
-          "npm:graphql@^16.13.2"
+          "npm:graphql@^16.14.0"
         ]
       },
       "packages/graphql/schema_transformer": {
@@ -1051,7 +1050,7 @@
           "jsr:@std/text@^1.0.18",
           "npm:@graphql-tools/schema@^10.0.33",
           "npm:@graphql-tools/utils@^11.1.0",
-          "npm:graphql@^16.13.2"
+          "npm:graphql@^16.14.0"
         ]
       },
       "packages/indexer": {
@@ -1074,7 +1073,7 @@
           "npm:graphql-relay@~0.10.2",
           "npm:graphql-scalars@^1.25.0",
           "npm:graphql-yoga@^5.18.0",
-          "npm:graphql@^16.13.2"
+          "npm:graphql@^16.14.0"
         ]
       },
       "packages/protocols/rest": {

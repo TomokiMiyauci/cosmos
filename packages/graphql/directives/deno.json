@@ -2,6 +2,6 @@
   "name": "@miyauci/graphql-directives",
   "exports": "./src/mod.ts",
   "imports": {
-    "graphql": "npm:graphql@^16.13.2"
+    "graphql": "npm:graphql@^16.14.0"
   }
 }
