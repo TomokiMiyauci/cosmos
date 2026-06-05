@@ -1,0 +1,12 @@
+{
+  "name": "@cosmos/ui",
+  "exports": "./src/mod.ts",
+  "imports": {
+    "@std/collections": "jsr:@std/collections@^1.2.0",
+    "@types/react": "npm:@types/react@^19.2.14",
+    "react": "npm:react@^19.2.5"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  }
+}
