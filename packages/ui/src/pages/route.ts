@@ -1,6 +1,8 @@
 import type { Routes } from "./type.ts";
+import { Page } from "./symbol.ts";
 
 export const routes = {
-  resources: "/resources/:name" as const,
-  home: "/" as const,
+  [Page.Resources]: "/resources/:name" as const,
+  [Page.Home]: "/" as const,
+  [Page.Resource]: "/contents/:id" as const,
 } satisfies Routes;
