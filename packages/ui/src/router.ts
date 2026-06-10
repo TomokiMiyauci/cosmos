@@ -55,8 +55,10 @@ export function createResolve<T extends Routes>(
     let url: string = pattern;
 
     if (params) {
-      for (const [pKey, pValue] of Object.entries(params)) {
-        url = url.replace(`:${pKey}`, pValue as unknown as string);
+      for (const object of params) {
+        for (const [pKey, pValue] of Object.entries(object)) {
+          url = url.replace(`:${pKey}`, pValue as unknown as string);
+        }
       }
     }
     return url;
@@ -64,3 +66,5 @@ export function createResolve<T extends Routes>(
 }
 
 type IsNever<T> = [T] extends [never] ? true : false;
+
+export const resolvePath = createResolve(routes);
