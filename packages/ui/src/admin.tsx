@@ -1,7 +1,8 @@
 import type { JSX } from "react";
 import type { Config } from "@cosmos/core";
-import type { RouteResult } from "./router.ts";
+import { createResolve, type RouteResult } from "./router.ts";
 import { views } from "./pages/view.ts";
+import { routes } from "./pages/route.ts";
 
 export interface AdminProps {
   basePath: string;
@@ -9,6 +10,8 @@ export interface AdminProps {
   config: Config;
   route: RouteResult;
 }
+
+const resolvePath = createResolve(routes);
 
 export function Admin(props: AdminProps): JSX.Element {
   const { config } = props;
@@ -18,7 +21,7 @@ export function Admin(props: AdminProps): JSX.Element {
       <head></head>
       <body>
         <header>
-          <a href="/">Home</a>
+          <a href={resolvePath("home")}>Home</a>
         </header>
         <aside>
           <h2>Resources</h2>
@@ -27,7 +30,7 @@ export function Admin(props: AdminProps): JSX.Element {
             {Object.entries(config.resources).map(([name]) => {
               return (
                 <li key={name}>
-                  <a href={`/resources/${name}`}>{name}</a>
+                  <a href={resolvePath("resources", { name })}>{name}</a>
                 </li>
               );
             })}
