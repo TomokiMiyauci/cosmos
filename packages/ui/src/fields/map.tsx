@@ -1,25 +1,26 @@
-import type { Field, MapField, Node } from "@cosmos/core";
 import type { JSX } from "react";
+import type { MapNode, Node } from "@cosmos/client";
 
 export interface MapFieldProps {
-  field: MapField;
-  render(field: Field, node: Node | undefined): JSX.Element;
-  node: Node;
+  render(node: Node): JSX.Element;
+  node: MapNode;
 }
 
 export default function MapField(props: MapFieldProps): JSX.Element {
-  const { field, render, node } = props;
-
-  if (node.type !== "map") throw new Error();
+  const { render, node } = props;
 
   return (
     <ul>
-      {Object.entries(field.fields).map(([key, field]) => {
-        const value = node.value[key];
-
+      {Object.entries(node.fields).map(([key, field]) => {
         return (
           <li key={key}>
-            <label>{key} {render(field, value)}</label>
+            <label>
+              {key}
+
+              <div>
+                {render(field)}
+              </div>
+            </label>
           </li>
         );
       })}
