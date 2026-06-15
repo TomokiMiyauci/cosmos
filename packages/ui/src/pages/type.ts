@@ -1,10 +1,10 @@
-import type { Config } from "@cosmos/core";
+import type { Client } from "../type.ts";
 
 export type Routes = Record<PropertyKey, string>;
 
 export interface PageProps {
-  config: ParsedConfig;
   params: Record<string, string>;
+  client: Client;
 }
 
 export type ExtractParams<T extends string> = T extends
@@ -12,8 +12,3 @@ export type ExtractParams<T extends string> = T extends
   ? { [K in Param | keyof ExtractParams<`/${Rest}`>]: string }
   : T extends `${string}:${infer Param}` ? { [K in Param]: string }
   : never;
-
-export interface ParsedConfig {
-  value: Config;
-  location: URL;
-}

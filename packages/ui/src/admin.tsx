@@ -1,37 +1,24 @@
 import type { JSX } from "react";
-import { resolvePath, type RouteResult } from "./router.ts";
+import { Page, resolvePath, type RouteResult } from "./router.ts";
 import { views } from "./pages/view.ts";
-import type { ParsedConfig } from "./pages/type.ts";
+import type { Client } from "./type.ts";
 
 export interface AdminProps {
-  basePath: string;
   url: URL;
-  config: ParsedConfig;
   route: RouteResult;
+  client: Client;
 }
 
 export function Admin(props: AdminProps): JSX.Element {
-  const { config } = props;
-
   return (
     <html>
       <head></head>
       <body>
         <header>
-          <a href={resolvePath("home")}>Home</a>
+          <a href={resolvePath(Page.Home)}>Home</a>
         </header>
         <aside>
           <h2>Resources</h2>
-
-          <ul>
-            {Object.entries(config.value.resources).map(([name]) => {
-              return (
-                <li key={name}>
-                  <a href={resolvePath("resources", { name })}>{name}</a>
-                </li>
-              );
-            })}
-          </ul>
         </aside>
 
         <main>
@@ -43,7 +30,7 @@ export function Admin(props: AdminProps): JSX.Element {
 }
 
 function PageMatcher(props: AdminProps): JSX.Element {
-  const { route, config } = props;
+  const { route, client } = props;
 
-  return views[route.type]({ config, params: route.params });
+  return views[route.type]({ params: route.params, client });
 }
