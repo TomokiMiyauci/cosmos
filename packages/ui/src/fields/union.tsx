@@ -1,10 +1,10 @@
-import type { UnionField } from "@cosmos/core";
+import type { UnionNode } from "@cosmos/core";
 import type { JSX } from "react";
 
-export interface DatatimeFieldProps {
-  field: UnionField;
+export interface UnionFieldProps {
+  node: UnionNode;
 }
 
-export default function DatetimeField(_: DatatimeFieldProps): JSX.Element {
-  return <input type="date" />;
+export default function UnionField(_: UnionFieldProps): JSX.Element {
+  return <input />;
 }

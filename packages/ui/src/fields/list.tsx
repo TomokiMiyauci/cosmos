@@ -1,10 +1,45 @@
 import type { JSX } from "react";
-import type { ListField } from "@cosmos/core";
+import type { ListNode, Node } from "@cosmos/core";
 
 export interface ListFieldProps {
-  field: ListField;
+  node: ListNode;
+  render(
+    props: { node: Node; onChange: OnChange },
+  ): JSX.Element;
+  onChange: OnChange;
 }
 
-export default function ListField(_: ListFieldProps): JSX.Element {
-  return <input />;
+interface OnChange {
+  (node: Node): void;
+}
+
+export default function ListField(props: ListFieldProps): JSX.Element {
+  const { node, render, onChange } = props;
+
+  return (
+    <ul>
+      {node.value.map((childNode, name) => {
+        const onC: OnChange = (childNode) => {
+          const changed = {
+            ...node,
+            value: node.value.with(name, childNode),
+          } satisfies ListNode;
+
+          onChange(changed);
+        };
+
+        return (
+          <li key={name}>
+            <label>
+              {name}
+
+              <div>
+                {render({ node: childNode, onChange: onC })}
+              </div>
+            </label>
+          </li>
+        );
+      })}
+    </ul>
+  );
 }

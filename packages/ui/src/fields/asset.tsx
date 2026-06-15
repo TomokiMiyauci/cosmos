@@ -1,12 +1,15 @@
-import type { AssetField } from "@cosmos/core";
+"use client";
+
+import type { AssetNode, Node } from "@cosmos/core";
 import type { JSX } from "react";
 
 export interface AssetFieldProps {
-  field: AssetField;
+  node: AssetNode;
+  onChange: (node: Node) => void;
 }
 
 export default function AssetField(
-  _: AssetFieldProps,
+  props: AssetFieldProps,
 ): JSX.Element {
-  return <input />;
+  return <input type="file" />;
 }
