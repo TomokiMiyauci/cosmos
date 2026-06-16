@@ -1,12 +1,17 @@
 import type { Node } from "@cosmos/core";
 
 export interface Client {
-  content: CongtentClient;
+  content: ContentClient;
+  contents: ContentsClient;
 }
 
-export interface CongtentClient {
-  get(id: Content["id"]): Promise<Content>;
-  update(content: Content): Promise<boolean>;
+export interface ContentClient {
+  get(id: Content["id"]): Promise<Content | null>;
+  update(content: Content): Promise<Content | null>;
+}
+
+export interface ContentsClient {
+  get(): Promise<Content[]>;
 }
 
 export interface Content {
