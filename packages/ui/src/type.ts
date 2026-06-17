@@ -1,13 +1,8 @@
-import type { Node } from "@cosmos/core";
+import type { Field, Node } from "@cosmos/core";
 
 export interface Client {
-  content: ContentClient;
+  content: ContentService;
   contents: ContentsClient;
-}
-
-export interface ContentClient {
-  get(id: Content["id"]): Promise<Content | null>;
-  update(content: Content): Promise<Content | null>;
 }
 
 export interface ContentsClient {
@@ -16,5 +11,20 @@ export interface ContentsClient {
 
 export interface Content {
   id: string;
+  field: Field;
+  node: Node | null;
+}
+
+export interface Service {
+  content: ContentService;
+}
+
+interface Entry {
+  id: string;
   node: Node;
+}
+
+export interface ContentService {
+  get(id: Content["id"]): Promise<Content | null>;
+  update(entry: Entry): Promise<Entry | null>;
 }

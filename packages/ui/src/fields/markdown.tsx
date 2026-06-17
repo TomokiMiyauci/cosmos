@@ -1,12 +1,10 @@
 import type { JSX } from "react";
-import type { MarkdownNode } from "@cosmos/core";
+import type { MarkdownField } from "@cosmos/core";
 
 export interface MarkdownFieldProps {
-  node: MarkdownNode;
+  field: MarkdownField;
 }
 
 export default function MarkdownField(props: MarkdownFieldProps): JSX.Element {
-  const { node } = props;
-
-  return <input type="text" defaultValue={JSON.stringify(node.value)} />;
+  return <input type="text" />;
 }

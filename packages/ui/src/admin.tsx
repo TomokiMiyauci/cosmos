@@ -32,5 +32,5 @@ export function Admin(props: AdminProps): JSX.Element {
 function PageMatcher(props: AdminProps): JSX.Element {
   const { route, client } = props;
 
-  return views[route.type]({ params: route.params, client });
+  return views[route.type]({ params: route.params, service: client });
 }

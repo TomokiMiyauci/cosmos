@@ -9,48 +9,52 @@ import ReferenceField from "./reference.tsx";
 import UnionField from "./union.tsx";
 import MapField from "./map.tsx";
 import MarkdownField from "./markdown.tsx";
-import type { Node } from "@cosmos/core";
+import type { Field, Node } from "@cosmos/core";
 
 export default function Field(
-  props: { node: Node; onChange: (node: Node) => void },
+  props: { node: Node | null; onChange: (node: Node) => void; field: Field },
 ): JSX.Element {
-  const { node, onChange } = props;
+  const { onChange, field, node } = props;
 
-  switch (node.type) {
+  switch (field.type) {
     case "string": {
-      return <StringField node={node} onChange={onChange} />;
+      return <StringField node={node} field={field} onChange={onChange} />;
     }
     case "map": {
       return (
         <MapField
-          render={Field}
           node={node}
+          render={Field}
           onChange={onChange}
+          field={field}
         />
       );
     }
     case "markdown":
-      return <MarkdownField node={node} />;
+      return <MarkdownField field={field} />;
     case "datetime": {
-      return <DatetimeField node={node} onChange={onChange} />;
+      return <DatetimeField field={field} onChange={onChange} />;
     }
     case "number": {
-      return <NumberField node={node} onChange={onChange} />;
+      return <NumberField field={field} onChange={onChange} />;
     }
     case "boolean": {
-      return <BooleanField node={node} onChange={onChange} />;
+      return <BooleanField field={field} onChange={onChange} />;
     }
     case "reference": {
-      return <ReferenceField node={node} />;
+      return <ReferenceField field={field} />;
     }
     case "list": {
-      return <ListField node={node} render={Field} onChange={onChange} />;
+      return <ListField field={field} render={Field} onChange={onChange} />;
     }
     case "asset": {
-      return <AssetField node={node} onChange={onChange} />;
+      return <AssetField field={field} onChange={onChange} />;
     }
     case "union": {
-      return <UnionField node={node} />;
+      return <UnionField field={field} />;
+    }
+    case "instance": {
+      return <></>;
     }
   }
 }

@@ -1,24 +1,23 @@
 "use client";
 
 import type { JSX } from "react";
-import type { DatetimeNode, Node } from "@cosmos/core";
+import type { DatetimeField, Node } from "@cosmos/core";
 
 export interface DatatimeFieldProps {
-  node: DatetimeNode;
+  field: DatetimeField;
   onChange: (node: Node) => void;
 }
 
 export default function DatetimeField(props: DatatimeFieldProps): JSX.Element {
-  const { node, onChange } = props;
+  const { field, onChange } = props;
 
   return (
     <input
       type="date"
-      value={formatYYMMDD(node.value)}
       onChange={(ev) => {
         const value = new Date(ev.target.value);
 
-        onChange({ ...node, value });
+        onChange({ type: "datetime", value });
       }}
     />
   );

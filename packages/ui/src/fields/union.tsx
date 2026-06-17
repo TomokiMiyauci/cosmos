@@ -1,8 +1,8 @@
-import type { UnionNode } from "@cosmos/core";
+import type { UnionField } from "@cosmos/core";
 import type { JSX } from "react";
 
 export interface UnionFieldProps {
-  node: UnionNode;
+  field: UnionField;
 }
 
 export default function UnionField(_: UnionFieldProps): JSX.Element {

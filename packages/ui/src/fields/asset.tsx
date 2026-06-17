@@ -1,10 +1,10 @@
 "use client";
 
-import type { AssetNode, Node } from "@cosmos/core";
+import type { AssetField, Node } from "@cosmos/core";
 import type { JSX } from "react";
 
 export interface AssetFieldProps {
-  node: AssetNode;
+  field: AssetField;
   onChange: (node: Node) => void;
 }
 

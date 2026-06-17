@@ -1,8 +1,8 @@
-import type { ReferenceNode } from "@cosmos/core";
+import type { ReferenceField } from "@cosmos/core";
 import type { JSX } from "react";
 
 export interface ReferenceFieldProps {
-  node: ReferenceNode;
+  field: ReferenceField;
 }
 
 export default function ReferenceField(_: ReferenceFieldProps): JSX.Element {

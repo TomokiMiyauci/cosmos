@@ -1,10 +1,11 @@
-import type { Client } from "../type.ts";
+import type { Client, Service } from "../type.ts";
 
 export type Routes = Record<PropertyKey, string>;
 
 export interface PageProps {
   params: Record<string, string>;
   client: Client;
+  service: Service;
 }
 
 export type ExtractParams<T extends string> = T extends

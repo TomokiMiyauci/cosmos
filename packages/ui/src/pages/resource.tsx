@@ -1,22 +1,32 @@
-import { type JSX, Suspense, use, useState } from "react";
+import { type JSX, Suspense, use } from "react";
 import type { PageProps } from "./type.ts";
-import type { Node } from "@cosmos/core";
-import type { Content } from "@cosmos/client";
-import Field from "../fields/field.tsx";
+import type { Field, Node } from "@cosmos/core";
+import Form from "../form.tsx";
 
 export default function ContentPage(
   props: PageProps,
 ): JSX.Element {
-  const { params, client } = props;
+  const { params, client, service } = props;
 
   if (typeof params.id !== "string") return <></>;
 
   const id = params.id;
 
-  const promise = client.content.get(id);
+  const promise = service.content.get(id).then((content) => {
+    if (!content) return null;
 
-  function update(node: Node): Promise<boolean> {
-    return client.content.update({ id, node });
+    return {
+      node: content.node,
+      field: content.field,
+    };
+  });
+
+  async function update(node: Node): Promise<Node | null> {
+    const content = await client.content.update({ id, node });
+
+    if (content) return content.node;
+
+    return null;
   }
 
   return (
@@ -27,30 +37,28 @@ export default function ContentPage(
 }
 
 function Page(
-  props: { promise: Promise<Content>; update: (node: Node) => void },
+  props: {
+    promise: Promise<Data | null>;
+    update: (node: Node) => Promise<Node | null>;
+  },
 ): JSX.Element {
   const { promise, update } = props;
-  const content = use(promise);
+  const data = use(promise);
 
-  const [node, setState] = useState(content.node);
+  if (!data) return <div>Not Found</div>;
+
+  const { node: init, field } = data;
 
   return (
     <div>
       <h1>Content</h1>
 
-      <form
-        onSubmit={(ev) => {
-          ev.preventDefault();
-
-          update(node);
-        }}
-      >
-        <Field node={node} onChange={setState}></Field>
-
-        <button type="submit">Save</button>
-
-        {JSON.stringify(node)}
-      </form>
+      <Form init={init} update={update} field={field} />
     </div>
   );
+}
+
+interface Data {
+  field: Field;
+  node: Node | null;
 }

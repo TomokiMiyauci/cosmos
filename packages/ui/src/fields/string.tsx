@@ -3,23 +3,23 @@
 "use client";
 
 import type { JSX } from "react";
-import type { Node, StringNode } from "@cosmos/core";
+import type { Node, StringField, StringNode } from "@cosmos/core";
 
 export interface StringFieldProps {
-  node: StringNode;
-  name?: string;
+  field: StringField;
+  node: StringNode | null;
   onChange: (node: Node) => void;
 }
 
 export default function StringField(props: StringFieldProps): JSX.Element {
-  const { node, onChange } = props;
+  const { onChange, node } = props;
 
   return (
     <input
       type="text"
-      value={node.value}
+      value={node?.value}
       onChange={(ev) => {
-        onChange({ ...node, value: ev.target.value });
+        onChange({ type: "string", value: ev.target.value });
       }}
     />
   );
