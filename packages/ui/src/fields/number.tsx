@@ -1,15 +1,16 @@
 "use client";
 
 import type { JSX } from "react";
-import type { Node, NumberField } from "@cosmos/core";
+import type { Node, NumberField, NumberNode } from "@cosmos/core";
 
 export interface NumberFieldProps {
   field: NumberField;
+  node: NumberNode | null;
   onChange: (node: Node) => void;
 }
 
 export default function NumberField(props: NumberFieldProps): JSX.Element {
-  const { onChange } = props;
+  const { onChange, node } = props;
 
   return (
     <input
@@ -19,6 +20,7 @@ export default function NumberField(props: NumberFieldProps): JSX.Element {
 
         onChange({ type: "number", value });
       }}
+      value={node?.value}
     />
   );
 }

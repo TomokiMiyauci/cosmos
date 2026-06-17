@@ -1,17 +1,18 @@
 "use client";
 
 import type { JSX } from "react";
-import type { BooleanField, Node } from "@cosmos/core";
+import type { BooleanField, BooleanNode, Node } from "@cosmos/core";
 
 export interface BooleanFieldProps {
   field: BooleanField;
+  node: BooleanNode | null;
   onChange: (node: Node) => void;
 }
 
 export default function BooleanField(
   props: BooleanFieldProps,
 ): JSX.Element {
-  const { field, onChange } = props;
+  const { node, onChange } = props;
 
   return (
     <input
@@ -21,6 +22,7 @@ export default function BooleanField(
 
         onChange({ type: "boolean", value });
       }}
+      checked={node?.value}
     />
   );
 }

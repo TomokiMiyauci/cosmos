@@ -1,3 +1,5 @@
+"use client";
+
 import type { JSX } from "react";
 import DatetimeField from "./datetime.tsx";
 import StringField from "./string.tsx";
@@ -12,15 +14,27 @@ import MarkdownField from "./markdown.tsx";
 import type { Field, Node } from "@cosmos/core";
 
 export default function Field(
-  props: { node: Node | null; onChange: (node: Node) => void; field: Field },
+  props: {
+    node: Node | null;
+    onChange: (node: Node | null) => void;
+    field: Field;
+  },
 ): JSX.Element {
   const { onChange, field, node } = props;
 
   switch (field.type) {
     case "string": {
+      if (node && node.type !== "string") {
+        return <Mismatch onChange={onChange} />;
+      }
+
       return <StringField node={node} field={field} onChange={onChange} />;
     }
     case "map": {
+      if (node && node.type !== "map") {
+        return <Mismatch onChange={onChange} />;
+      }
+
       return (
         <MapField
           node={node}
@@ -33,13 +47,25 @@ export default function Field(
     case "markdown":
       return <MarkdownField field={field} />;
     case "datetime": {
-      return <DatetimeField field={field} onChange={onChange} />;
+      if (node && node.type !== "datetime") {
+        return <Mismatch onChange={onChange} />;
+      }
+
+      return <DatetimeField node={node} field={field} onChange={onChange} />;
     }
     case "number": {
-      return <NumberField field={field} onChange={onChange} />;
+      if (node && node.type !== "number") {
+        return <Mismatch onChange={onChange} />;
+      }
+
+      return <NumberField node={node} field={field} onChange={onChange} />;
     }
     case "boolean": {
-      return <BooleanField field={field} onChange={onChange} />;
+      if (node && node.type !== "boolean") {
+        return <Mismatch onChange={onChange} />;
+      }
+
+      return <BooleanField node={node} field={field} onChange={onChange} />;
     }
     case "reference": {
       return <ReferenceField field={field} />;
@@ -57,4 +83,25 @@ export default function Field(
       return <></>;
     }
   }
+}
+
+function Mismatch(
+  props: { onChange: (node: Node | null) => void },
+): JSX.Element {
+  const { onChange } = props;
+
+  return (
+    <div>
+      This field is mismatch
+
+      <button
+        onClick={() => {
+          onChange(null);
+        }}
+        type="button"
+      >
+        Clear
+      </button>
+    </div>
+  );
 }

@@ -7,7 +7,7 @@ import Field from "./fields/field.tsx";
 export default function Form(
   props: {
     init: Node | null;
-    update: (node: Node) => Promise<Node | null>;
+    update: (node: Node | null) => Promise<Node | null>;
     field: F;
   },
 ): JSX.Element {

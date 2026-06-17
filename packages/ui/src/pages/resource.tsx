@@ -6,7 +6,7 @@ import Form from "../form.tsx";
 export default function ContentPage(
   props: PageProps,
 ): JSX.Element {
-  const { params, client, service } = props;
+  const { params, service } = props;
 
   if (typeof params.id !== "string") return <></>;
 
@@ -22,7 +22,7 @@ export default function ContentPage(
   });
 
   async function update(node: Node): Promise<Node | null> {
-    const content = await client.content.update({ id, node });
+    const content = await service.content.update({ id, node });
 
     if (content) return content.node;
 

@@ -1,14 +1,5 @@
 import type { Field, Node } from "@cosmos/core";
 
-export interface Client {
-  content: ContentService;
-  contents: ContentsClient;
-}
-
-export interface ContentsClient {
-  get(): Promise<Content[]>;
-}
-
 export interface Content {
   id: string;
   field: Field;
@@ -19,7 +10,7 @@ export interface Service {
   content: ContentService;
 }
 
-interface Entry {
+export interface Entry {
   id: string;
   node: Node;
 }
