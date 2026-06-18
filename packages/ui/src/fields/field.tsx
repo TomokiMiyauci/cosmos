@@ -45,7 +45,11 @@ export default function Field(
       );
     }
     case "markdown":
-      return <MarkdownField field={field} />;
+      if (node && node.type !== "markdown") {
+        return <Mismatch onChange={onChange} />;
+      }
+
+      return <MarkdownField field={field} node={node} onChange={onChange} />;
     case "datetime": {
       if (node && node.type !== "datetime") {
         return <Mismatch onChange={onChange} />;
@@ -71,7 +75,18 @@ export default function Field(
       return <ReferenceField field={field} />;
     }
     case "list": {
-      return <ListField field={field} render={Field} onChange={onChange} />;
+      if (node && node.type !== "list") {
+        return <Mismatch onChange={onChange} />;
+      }
+
+      return (
+        <ListField
+          field={field}
+          node={node}
+          render={Field}
+          onChange={onChange}
+        />
+      );
     }
     case "asset": {
       return <AssetField field={field} onChange={onChange} />;
