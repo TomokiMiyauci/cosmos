@@ -1,12 +1,11 @@
 import type { JSX } from "react";
 import { Page, resolvePath, type RouteResult } from "./router.ts";
 import { views } from "./pages/view.ts";
-import type { Client } from "./type.ts";
+import type { Service } from "./type.ts";
 
 export interface AdminProps {
-  url: URL;
   route: RouteResult;
-  client: Client;
+  service: Service;
 }
 
 export function Admin(props: AdminProps): JSX.Element {
@@ -30,7 +29,7 @@ export function Admin(props: AdminProps): JSX.Element {
 }
 
 function PageMatcher(props: AdminProps): JSX.Element {
-  const { route, client } = props;
+  const { route, service } = props;
 
-  return views[route.type]({ params: route.params, service: client });
+  return views[route.type]({ params: route.params, service });
 }
