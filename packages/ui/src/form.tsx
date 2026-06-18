@@ -19,13 +19,9 @@ export default function Form(
       onSubmit={async (ev) => {
         ev.preventDefault();
 
-        if (!node) return;
-
         const updated = await update(node);
 
-        if (updated) {
-          setState(updated);
-        }
+        setState(updated);
       }}
     >
       <Field node={node} onChange={setState} field={field} />

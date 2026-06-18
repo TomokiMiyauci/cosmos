@@ -17,7 +17,7 @@ export default function StringField(props: StringFieldProps): JSX.Element {
   return (
     <input
       type="text"
-      value={node?.value}
+      value={node?.value ?? ""}
       onChange={(ev) => {
         onChange({ type: "string", value: ev.target.value });
       }}
