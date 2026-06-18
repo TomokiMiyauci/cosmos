@@ -20,7 +20,7 @@ export default function DatetimeField(props: DatatimeFieldProps): JSX.Element {
 
         onChange({ type: "datetime", value });
       }}
-      value={node?.value && formatYYMMDD(node.value)}
+      value={node?.value ? formatYYMMDD(node.value) : ""}
     />
   );
 }

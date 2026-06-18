@@ -20,7 +20,7 @@ export default function NumberField(props: NumberFieldProps): JSX.Element {
 
         onChange({ type: "number", value });
       }}
-      value={node?.value}
+      value={node?.value ?? ""}
     />
   );
 }

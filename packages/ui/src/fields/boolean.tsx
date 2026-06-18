@@ -22,7 +22,7 @@ export default function BooleanField(
 
         onChange({ type: "boolean", value });
       }}
-      checked={node?.value}
+      checked={node?.value ?? false}
     />
   );
 }
