@@ -21,7 +21,7 @@ export default function ContentPage(
     };
   });
 
-  async function update(node: Node): Promise<Node | null> {
+  async function update(node: Node | null): Promise<Node | null> {
     const content = await service.content.update({ id, node });
 
     if (content) return content.node;
@@ -39,7 +39,7 @@ export default function ContentPage(
 function Page(
   props: {
     promise: Promise<Data | null>;
-    update: (node: Node) => Promise<Node | null>;
+    update: (node: Node | null) => Promise<Node | null>;
   },
 ): JSX.Element {
   const { promise, update } = props;

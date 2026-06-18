@@ -12,7 +12,7 @@ export interface Service {
 
 export interface Entry {
   id: string;
-  node: Node;
+  node: Node | null;
 }
 
 export interface ContentService {
