@@ -19,8 +19,20 @@ export class Frontmatter {
     return { body, header };
   }
 
-  stringify(): string {
-    throw new Error("unimplemented");
+  stringify(data: Data): string {
+    return matter.stringify(data.body, { header: data.header }, {
+      engines: {
+        custom: {
+          parse(content): { header: string } {
+            return { header: content };
+          },
+          stringify(): string {
+            return data.header;
+          },
+        },
+      },
+      language: "custom",
+    });
   }
 }
 

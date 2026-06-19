@@ -21,7 +21,7 @@ export class FrontmatterFormatter implements Formatter {
 
     const bodyFormatter = ctx.config.formats[option.body.type];
 
-    if (!bodyFormatter) throw new Error("header formatter not found");
+    if (!bodyFormatter) throw new Error("body formatter not found");
 
     const parsedHeader = headerFormatter.parse(header, {
       config: ctx.config,
@@ -69,8 +69,27 @@ export class FrontmatterFormatter implements Formatter {
     throw new Error("header and body should not be string");
   }
 
-  serialize(): string {
-    throw new Error("unimplemented");
+  serialize(structure: Structure, ctx: FormatterContext): string {
+    const mainField = ctx.resource.main;
+    const option = ctx.option as FrontmatterOptions;
+    const headerFormatter = ctx.config.formats[option.header.type];
+    const bodyFormatter = ctx.config.formats[option.body.type];
+
+    if (!headerFormatter) throw new Error("header formatter not found");
+    if (!bodyFormatter) throw new Error("body formatter not found");
+
+    if (typeof mainField === "string" && typeof structure !== "string") {
+      const { [mainField]: bodyContent, ...rest } = structure;
+
+      const header = headerFormatter.serialize(rest, ctx);
+      const body = bodyFormatter.serialize(bodyContent ?? "", ctx);
+
+      return this.#frontmatter.stringify({ header, body });
+    }
+
+    const header = headerFormatter.serialize(structure, ctx);
+
+    return this.#frontmatter.stringify({ header, body: "" });
   }
 }
 
