@@ -7,7 +7,7 @@ import Field from "./fields/field.tsx";
 export default function Form(
   props: {
     init: Node | null;
-    update: (node: Node | null) => Promise<Node | null>;
+    update: (node: Node | null) => Promise<boolean>;
     field: F;
   },
 ): JSX.Element {
@@ -19,9 +19,7 @@ export default function Form(
       onSubmit={async (ev) => {
         ev.preventDefault();
 
-        const updated = await update(node);
-
-        setState(updated);
+        await update(node);
       }}
     >
       <Field node={node} onChange={setState} field={field} />

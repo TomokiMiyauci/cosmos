@@ -17,16 +17,12 @@ export default function ContentPage(
 
     return {
       node: content.node,
-      field: content.field,
+      field: content.model,
     };
   });
 
-  async function update(node: Node | null): Promise<Node | null> {
-    const content = await service.content.update({ id, node });
-
-    if (content) return content.node;
-
-    return null;
+  async function update(node: Node | null): Promise<boolean> {
+    return await service.content.update({ id, node });
   }
 
   return (
@@ -39,7 +35,7 @@ export default function ContentPage(
 function Page(
   props: {
     promise: Promise<Data | null>;
-    update: (node: Node | null) => Promise<Node | null>;
+    update: (node: Node | null) => Promise<boolean>;
   },
 ): JSX.Element {
   const { promise, update } = props;
