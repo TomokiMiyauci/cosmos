@@ -32,7 +32,7 @@ export class MapCodec implements FieldCodec {
         // Ensure by before prosess
         // deno-lint-ignore no-non-null-assertion
         await ctx.codec.parse(structure[key]!, value, ctx),
-      ];
+      ] as [string, Node];
     });
 
     const entreis = await Promise.all(promises);
@@ -44,7 +44,28 @@ export class MapCodec implements FieldCodec {
     };
   }
 
-  stringify(_: Node): Structure | Promise<Structure> {
-    throw new Error();
+  async stringify(
+    node: Node,
+    field: Field,
+    ctx: CodecContext,
+  ): Promise<Structure> {
+    if (node.type !== "map") throw new SyntaxError();
+    if (field.type !== "map") throw new SyntaxError();
+
+    const promises = Object.entries(field.fields).filter(([key]) =>
+      key in node.value
+    ).map(async ([key, value]) => {
+      return [
+        key,
+        // Ensure by before prosess
+        // deno-lint-ignore no-non-null-assertion
+        await ctx.codec.serialize(node.value[key]!, value, ctx),
+      ] as [string, Structure];
+    });
+
+    const entreis = await Promise.all(promises);
+    const value = Object.fromEntries(entreis);
+
+    return value;
   }
 }
