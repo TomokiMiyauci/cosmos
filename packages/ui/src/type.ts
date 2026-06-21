@@ -6,8 +6,12 @@ export interface Content {
   node: Node | null;
 }
 
-export interface Service {
-  content: ContentService;
+export interface Usecase {
+  findTemplateByModelId(modelId: string): Promise<Template>;
+  findContentById(id: Content["id"]): Promise<Content>;
+  queryContents(): Promise<Identity[]>;
+  saveEntry(entry: Entry): Promise<void>;
+  saveNode(node: Node): Promise<Identity>;
 }
 
 export interface Entry {
@@ -15,7 +19,11 @@ export interface Entry {
   node: Node | null;
 }
 
-export interface ContentService {
-  get(id: Content["id"]): Promise<Content | null>;
-  update(entry: Entry): Promise<boolean>;
+export interface Template {
+  node: Node | null;
+  model: Model;
+}
+
+export interface Identity {
+  id: string;
 }
