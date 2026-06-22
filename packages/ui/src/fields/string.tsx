@@ -3,7 +3,8 @@
 "use client";
 
 import type { JSX } from "react";
-import type { Node, StringField, StringNode } from "@cosmos/core";
+import type { Node, StringNode } from "@cosmos/core";
+import type { StringField } from "../type.ts";
 
 export interface StringFieldProps {
   field: StringField;
@@ -12,7 +13,7 @@ export interface StringFieldProps {
 }
 
 export default function StringField(props: StringFieldProps): JSX.Element {
-  const { onChange, node } = props;
+  const { onChange, node, field } = props;
 
   return (
     <input
@@ -21,6 +22,7 @@ export default function StringField(props: StringFieldProps): JSX.Element {
       onChange={(ev) => {
         onChange({ type: "string", value: ev.target.value });
       }}
+      required={field.required}
     />
   );
 }

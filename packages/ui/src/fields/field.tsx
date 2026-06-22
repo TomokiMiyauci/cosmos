@@ -11,7 +11,8 @@ import ReferenceField from "./reference.tsx";
 import UnionField from "./union.tsx";
 import MapField from "./map.tsx";
 import MarkdownField from "./markdown.tsx";
-import type { Field, Node } from "@cosmos/core";
+import type { Node } from "@cosmos/core";
+import type { Field } from "../type.ts";
 
 export default function Field(
   props: {
