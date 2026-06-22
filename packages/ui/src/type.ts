@@ -7,7 +7,7 @@ export interface Content {
 }
 
 export interface Usecase {
-  findTemplateByModelId(modelId: string): Promise<Template>;
+  findTemplateByFieldId(fieldId: string): Promise<Template | null>;
   findContentById(id: Content["id"]): Promise<Content>;
   queryContents(): Promise<Identity[]>;
   saveEntry(entry: Entry): Promise<void>;

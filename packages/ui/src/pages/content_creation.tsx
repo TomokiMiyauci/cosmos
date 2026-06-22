@@ -22,7 +22,7 @@ export default function ContentCreationPage(
     return false;
   }
 
-  const promise = usecase.findTemplateByModelId("post").catch(() => null);
+  const promise = usecase.findTemplateByFieldId("post");
 
   return (
     <Suspense>
@@ -45,13 +45,13 @@ function MainPage(
 
   if (!data) return <div>Not Found</div>;
 
-  const { node: init, model } = data;
+  const { node: init, field } = data;
 
   return (
     <div>
       <h1>Content</h1>
 
-      <Form init={init} update={update} field={model} />
+      <Form init={init} update={update} field={field} />
     </div>
   );
 }
