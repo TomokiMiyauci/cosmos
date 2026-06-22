@@ -9,10 +9,14 @@ export interface Content {
 export interface CmsService {
   findTemplateByFieldId(fieldId: string): Promise<Template | null>;
   findContentById(id: Content["id"]): Promise<Content>;
-  queryContents(): Promise<Identity[]>;
+  findContents(option?: ContentsOption): Promise<Identity[]>;
   saveEntry(entry: Entry): Promise<void>;
   saveNode(node: Node): Promise<Identity>;
   eraseNodeById(id: string): Promise<void>;
+}
+
+export interface ContentsOption {
+  resource: string;
 }
 
 export interface Entry {

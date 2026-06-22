@@ -1,7 +1,7 @@
 export const enum Page {
   NotFound,
   Home,
-  Resources,
+  Resource,
   ContentCreation,
   Content,
   Contents,
