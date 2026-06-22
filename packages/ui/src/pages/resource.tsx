@@ -1,6 +1,8 @@
 import { type JSX, Suspense, use } from "react";
 import type { PageProps } from "./type.ts";
-import type { Field, Node } from "@cosmos/core";
+import type { Field } from "../type.ts";
+import type { Node } from "@cosmos/core";
+import { Page, resolvePath } from "../router.ts";
 import Form from "../form.tsx";
 
 export default function ContentPage(
@@ -12,33 +14,45 @@ export default function ContentPage(
 
   const id = params.id;
 
-  const promise = service.content.get(id).then((content) => {
+  const promise = service.findContentById(id).then((content) => {
     if (!content) return null;
 
     return {
       node: content.node,
-      field: content.model,
+      field: content.field,
     };
   });
 
   async function update(node: Node | null): Promise<boolean> {
-    return await service.content.update({ id, node });
+    try {
+      await service.saveEntry({ id, node });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function remove(): Promise<void> {
+    await service.eraseNodeById(id);
+
+    location.href = resolvePath(Page.Contents);
   }
 
   return (
     <Suspense>
-      <Page promise={promise} update={update} />
+      <MainPage promise={promise} update={update} remove={remove} />
     </Suspense>
   );
 }
 
-function Page(
+function MainPage(
   props: {
     promise: Promise<Data | null>;
     update: (node: Node | null) => Promise<boolean>;
+    remove(): Promise<void>;
   },
 ): JSX.Element {
-  const { promise, update } = props;
+  const { promise, update, remove } = props;
   const data = use(promise);
 
   if (!data) return <div>Not Found</div>;
@@ -50,6 +64,15 @@ function Page(
       <h1>Content</h1>
 
       <Form init={init} update={update} field={field} />
+
+      <button
+        type="button"
+        onClick={() => {
+          remove();
+        }}
+      >
+        Delete
+      </button>
     </div>
   );
 }

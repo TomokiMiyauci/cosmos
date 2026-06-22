@@ -8,11 +8,11 @@ import type { Template } from "../type.ts";
 export default function ContentCreationPage(
   props: PageProps,
 ): JSX.Element {
-  const { usecase } = props;
+  const { service } = props;
 
   async function update(node: Node | null): Promise<boolean> {
     if (node) {
-      const result = await usecase.saveNode(node);
+      const result = await service.saveNode(node);
 
       const path = resolvePath(Page.Content, { id: result.id });
 
@@ -22,7 +22,7 @@ export default function ContentCreationPage(
     return false;
   }
 
-  const promise = usecase.findTemplateByFieldId("post");
+  const promise = service.findTemplateByFieldId("post");
 
   return (
     <Suspense>

@@ -1,11 +1,11 @@
 import type { JSX } from "react";
 import { Page, resolvePath, type RouteResult } from "./router.ts";
 import { views } from "./pages/view.ts";
-import type { Usecase } from "./type.ts";
+import type { CmsService } from "./type.ts";
 
 export interface AdminProps {
   route: RouteResult;
-  usecase: Usecase;
+  service: CmsService;
 }
 
 export function Admin(props: AdminProps): JSX.Element {
@@ -29,7 +29,7 @@ export function Admin(props: AdminProps): JSX.Element {
 }
 
 function PageMatcher(props: AdminProps): JSX.Element {
-  const { route, usecase } = props;
+  const { route, service } = props;
 
-  return views[route.type]({ params: route.params, usecase });
+  return views[route.type]({ params: route.params, service });
 }

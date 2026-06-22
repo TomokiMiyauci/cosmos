@@ -6,7 +6,7 @@ export interface Content {
   node: Node | null;
 }
 
-export interface Usecase {
+export interface CmsService {
   findTemplateByFieldId(fieldId: string): Promise<Template | null>;
   findContentById(id: Content["id"]): Promise<Content>;
   queryContents(): Promise<Identity[]>;
