@@ -1,7 +1,7 @@
-import type { JSX } from "react";
+import { type JSX, Suspense, use } from "react";
 import { Page, resolvePath, type RouteResult } from "./router.ts";
 import { views } from "./pages/view.ts";
-import type { CmsService } from "./type.ts";
+import type { CmsService, Identity } from "./type.ts";
 
 export interface AdminProps {
   route: RouteResult;
@@ -9,6 +9,8 @@ export interface AdminProps {
 }
 
 export function Admin(props: AdminProps): JSX.Element {
+  const resourcesPromise = props.service.findResources();
+
   return (
     <html>
       <head></head>
@@ -16,15 +18,37 @@ export function Admin(props: AdminProps): JSX.Element {
         <header>
           <a href={resolvePath(Page.Home)}>Home</a>
         </header>
-        <aside>
-          <h2>Resources</h2>
-        </aside>
 
+        <Suspense>
+          <Aside promise={resourcesPromise} />
+        </Suspense>
         <main>
           <PageMatcher {...props} />
         </main>
       </body>
     </html>
+  );
+}
+
+function Aside(props: { promise: Promise<Identity[]> }): JSX.Element {
+  const { promise } = props;
+
+  const identifies = use(promise);
+
+  return (
+    <aside>
+      <h2>Resources</h2>
+
+      <ul>
+        {identifies.map(({ id }) => {
+          return (
+            <li key={id}>
+              <a href={resolvePath(Page.Resource, { id })}>{id}</a>
+            </li>
+          );
+        })}
+      </ul>
+    </aside>
   );
 }
 
