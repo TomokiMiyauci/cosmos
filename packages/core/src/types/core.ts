@@ -40,6 +40,7 @@ export interface Config {
   sources: Source[];
   storages: Record<string, Storage>;
   locators: Record<string, Locator>;
+  indexers: Indexer;
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;
   assets?: Record<string, Asset>;
@@ -165,6 +166,12 @@ export interface Codec {
     field: Field,
     ctx: CodecContext,
   ): Node | Promise<Node>;
+
+  serialize(
+    node: Node,
+    field: Field,
+    ctx: CodecContext,
+  ): Structure | Promise<Structure>;
 }
 
 export interface CodecContext extends ResolverContext {
@@ -246,7 +253,7 @@ export interface FormatterContext {
 export interface Formatter {
   parse(content: string, ctx: FormatterContext): Structure;
 
-  serialize(content: Structure, ctx: FormatterContext): string;
+  serialize(structure: Structure, ctx: FormatterContext): string;
 }
 
 export interface BaseEntry<T> {
@@ -307,4 +314,24 @@ export interface AssetRegistry {
 
 export interface NodeRegistry {
   has(url: URL): boolean;
+}
+
+export interface Indexer {
+  resolve(id: string): Promise<Index>;
+
+  register(id: string, index: Index): Promise<void>;
+  unregister(id: string): Promise<void>;
+
+  search(query: IndexQuery): Promise<IndexEntry[]>;
+}
+
+export type IndexEntry = [id: string, index: Index];
+
+export interface IndexQuery {
+  resource?: string;
+}
+
+export interface Index {
+  url: URL;
+  resource: string;
 }
