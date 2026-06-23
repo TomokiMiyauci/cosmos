@@ -52,7 +52,7 @@ export type {
   ReferenceField,
   StringField,
   UnionField,
-} from "./types/field.ts";
+} from "./types/model.ts";
 export type {
   AssetNode,
   BlockContentMapNode,

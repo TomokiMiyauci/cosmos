@@ -25,7 +25,7 @@ import type {
   ReferenceField,
   StringField,
   UnionField,
-} from "./field.ts";
+} from "./model.ts";
 
 export interface Manifest {
   version: string;
