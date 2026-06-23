@@ -143,4 +143,42 @@ export class ParentCodec implements Codec {
       }
     }
   }
+
+  serialize(
+    node: Node,
+    field: Field,
+    ctx: CodecContext,
+  ): Structure | Promise<Structure> {
+    const fieldCodec = ctx.config.codec;
+
+    switch (field.type) {
+      case "string": {
+        return fieldCodec.string.stringify(node, field, ctx);
+      }
+      case "number": {
+        return fieldCodec.number.stringify(node, field, ctx);
+      }
+      case "boolean": {
+        return fieldCodec.boolean.stringify(node, field, ctx);
+      }
+      case "asset":
+      case "datetime": {
+        return fieldCodec.datetime.stringify(node, field, ctx);
+      }
+      case "reference":
+      case "list": {
+        return fieldCodec.list.stringify(node, field, ctx);
+      }
+      case "map": {
+        return fieldCodec.map.stringify(node, field, ctx);
+      }
+      case "union":
+      case "markdown": {
+        return fieldCodec.markdown.stringify(node, field, ctx);
+      }
+      case "instance": {
+        return fieldCodec.instance.stringify(node, field, ctx);
+      }
+    }
+  }
 }
