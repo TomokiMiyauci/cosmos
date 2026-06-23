@@ -2,6 +2,7 @@ import { routes } from "./pages/route.ts";
 import type { ExtractParams, Routes } from "./pages/type.ts";
 import { mapValues } from "@std/collections/map-values";
 import { filterValues } from "@std/collections/filter-values";
+import { Page } from "./pages/symbol.ts";
 
 export class Router {
   #routes: Record<keyof Routes, URLPattern>;
@@ -17,27 +18,30 @@ export class Router {
       const result = pattern.exec(url);
 
       if (result) {
-        const params = filterValues(
-          result.pathname.groups,
-          (value): value is string => value !== undefined,
-        ) as Record<string, string>;
+        const decodedParams = mapValues(
+          filterValues(
+            result.pathname.groups,
+            (value): value is string => value !== undefined,
+          ) as Record<string, string>,
+          decodeURIComponent,
+        );
 
         return {
-          type: type as keyof Routes,
-          params,
+          type: type as Page,
+          params: decodedParams,
         };
       }
     }
 
     return {
-      type: "not-found",
+      type: Page.NotFound,
       params: {},
     };
   }
 }
 
 export interface RouteResult {
-  type: "not-found" | "home" | "resources";
+  type: Page;
   params: Record<string, string>;
 }
 
@@ -68,3 +72,4 @@ export function createResolve<T extends Routes>(
 type IsNever<T> = [T] extends [never] ? true : false;
 
 export const resolvePath = createResolve(routes);
+export { Page };
