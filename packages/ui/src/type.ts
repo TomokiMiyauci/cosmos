@@ -7,11 +7,12 @@ export interface Content {
 }
 
 export interface CmsService {
-  findTemplateByFieldId(fieldId: string): Promise<Template | null>;
-  findContentById(id: Content["id"]): Promise<Content>;
+  findTemplate(resourceId: string): Promise<Template | null>;
+  findContent(contentId: Content["id"]): Promise<Content>;
   findContents(option?: ContentsOption): Promise<Identity[]>;
+  findResources(): Promise<Identity[]>;
   saveEntry(entry: Entry): Promise<void>;
-  saveNode(node: Node): Promise<Identity>;
+  saveNode(resource: string, node: Node): Promise<Identity>;
   eraseNodeById(id: string): Promise<void>;
 }
 

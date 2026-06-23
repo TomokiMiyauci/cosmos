@@ -9,10 +9,15 @@ export default function ContentCreationPage(
   props: PageProps,
 ): JSX.Element {
   const { service } = props;
+  const { id } = props.params;
+
+  if (!id) return <></>;
+
+  const resourceId = id;
 
   async function update(node: Node | null): Promise<boolean> {
     if (node) {
-      const result = await service.saveNode(node);
+      const result = await service.saveNode(resourceId, node);
 
       const path = resolvePath(Page.Content, { id: result.id });
 
@@ -22,7 +27,7 @@ export default function ContentCreationPage(
     return false;
   }
 
-  const promise = service.findTemplateByFieldId("post");
+  const promise = service.findTemplate(resourceId);
 
   return (
     <Suspense>
