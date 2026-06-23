@@ -1,0 +1,37 @@
+import { type JSX, Suspense, use } from "react";
+import type { PageProps } from "./type.ts";
+import { Page, resolvePath } from "../router.ts";
+
+export default function ContentsPage(props: PageProps): JSX.Element {
+  const { service } = props;
+
+  const promise = service.findContents();
+
+  return (
+    <div>
+      <h1>All Contents</h1>
+
+      <Suspense>
+        <PageInner promise={promise} />
+      </Suspense>
+    </div>
+  );
+}
+
+function PageInner(props: { promise: Promise<{ id: string }[]> }): JSX.Element {
+  const data = use(props.promise);
+
+  return (
+    <ul>
+      {data.map(({ id }) => {
+        const href = resolvePath(Page.Content, { id });
+
+        return (
+          <li key={id}>
+            <a href={href}>{href}</a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}

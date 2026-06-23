@@ -15,7 +15,7 @@ export default function ResourcePage(props: PageProps): JSX.Element {
     <div>
       <h1>{id}</h1>
 
-      <a href={resolvePath(Page.ContentCreation)}>Create</a>
+      <a href={resolvePath(Page.ContentCreation, { id })}>Create</a>
 
       <Suspense>
         <MainPage promise={promise} />
