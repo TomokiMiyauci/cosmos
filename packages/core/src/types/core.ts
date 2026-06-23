@@ -307,11 +307,11 @@ export interface ResolverContext extends BaseContext {
 }
 
 export interface AssetRegistry {
-  has(url: URL): boolean;
+  has(id: string): boolean;
 }
 
 export interface NodeRegistry {
-  has(url: URL): boolean;
+  has(id: string): boolean;
 }
 
 export interface Indexer {

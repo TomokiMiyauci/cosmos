@@ -6,7 +6,7 @@ export class ReferenceCodec implements FieldCodec {
 
     return {
       type: "reference",
-      value: new URL(structure),
+      value: structure,
     };
   }
 

@@ -25,7 +25,7 @@ export type NodeValue =
 
 export interface ReferenceNode {
   type: ReferenceSchema["type"];
-  value: URL;
+  value: string;
 }
 
 export interface StringNode {

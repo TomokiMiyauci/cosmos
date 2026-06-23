@@ -41,7 +41,7 @@ export function createMapNode(
   return { type: "map", value };
 }
 
-export function createReferenceNode(value: URL): ReferenceNode {
+export function createReferenceNode(value: string): ReferenceNode {
   return { type: "reference", value };
 }
 
