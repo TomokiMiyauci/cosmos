@@ -1,4 +1,4 @@
-import type { Index, IndexEntry, Indexer } from "@cosmos/core";
+import type { Index, IndexEntry, Indexer, IndexQuery } from "@cosmos/core";
 
 export class FsIndexer implements Indexer {
   #store: IndexStore;
@@ -19,10 +19,15 @@ export class FsIndexer implements Indexer {
     return this.#store.delete(id);
   }
 
-  search(): Promise<IndexEntry[]> {
+  async search(query: IndexQuery): Promise<IndexEntry[]> {
     const promise = this.#store[Symbol.asyncIterator]();
 
-    return Array.fromAsync(promise);
+    const all = await Array.fromAsync(promise);
+
+    if (query.resource) {
+      return all.filter(([_, index]) => index.resource === query.resource);
+    }
+    return all;
   }
 }
 
@@ -60,6 +65,7 @@ class JsonIndexStore implements IndexStore {
 
     return {
       url,
+      resource: value.resource,
     };
   }
 
@@ -82,6 +88,7 @@ class JsonIndexStore implements IndexStore {
 
     record[id] = {
       path: index.url.href,
+      resource: index.resource,
     };
 
     const newRecord = stringify(record);
@@ -97,7 +104,7 @@ class JsonIndexStore implements IndexStore {
     for (const [id, indexValue] of Object.entries(record)) {
       const url = new URL(indexValue.path, this.url);
 
-      yield [id, { url }];
+      yield [id, { url, resource: indexValue.resource }];
     }
   }
 }
@@ -106,6 +113,7 @@ class NotFoundError extends Error {}
 
 interface IndexValue {
   path: string;
+  resource: string;
 }
 
 function parse(value: string): IndexRecord {
