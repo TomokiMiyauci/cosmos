@@ -3,8 +3,8 @@ import type {
   Config,
   Datalayer,
   Entry,
-  Field,
   Manifest,
+  Model,
   Node,
   Schema,
   Store,
@@ -287,7 +287,7 @@ export function createDatalayer(store: Store): Datalayer {
   };
 }
 
-function fieldToSchema(field: Field): Schema {
+function fieldToSchema(field: Model): Schema {
   const base = {
     description: field.description ?? "",
   } satisfies Omit<BaseSchema, "type">;
@@ -321,7 +321,7 @@ function fieldToSchema(field: Field): Schema {
       return {
         ...base,
         type: "map",
-        props: mapValues(field.fields, fieldToSchema),
+        props: mapValues(field.props, fieldToSchema),
         required: field.required ?? [],
       };
     }
@@ -355,14 +355,14 @@ function fieldToSchema(field: Field): Schema {
       return {
         ...base,
         type: "list",
-        item: fieldToSchema(field.field),
+        item: fieldToSchema(field.item),
       };
     }
     case "union": {
       return {
         ...base,
         type: "union",
-        props: mapValues(field.fields, fieldToSchema),
+        props: mapValues(field.variants, fieldToSchema),
       };
     }
   }

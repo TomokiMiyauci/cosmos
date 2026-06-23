@@ -1,7 +1,7 @@
 import type {
   CodecContext,
-  Field,
   FieldCodec,
+  Model,
   Structure,
   StructureObject,
   UnionNode,
@@ -10,10 +10,10 @@ import type {
 export class UnionCodec implements FieldCodec {
   async parse(
     structure: Structure,
-    field: Field,
+    model: Model,
     ctx: CodecContext,
   ): Promise<UnionNode> {
-    if (field.type !== "union") throw new Error();
+    if (model.type !== "union") throw new Error();
     if (typeof structure === "string") throw new SyntaxError();
 
     const validateResult = validateUnionValue(structure);
@@ -22,7 +22,7 @@ export class UnionCodec implements FieldCodec {
 
     const { key, value } = structure;
 
-    const childField = field.fields[key];
+    const childField = model.variants[key];
 
     if (!childField) throw new Error();
 

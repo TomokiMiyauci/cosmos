@@ -13,18 +13,18 @@ import type {
 } from "./node.ts";
 import type { Schema } from "./schema.ts";
 import type {
-  AssetField,
-  BooleanField,
-  DatetimeField,
-  Field,
-  InstanceField,
-  ListField,
-  MapField,
-  MarkdownField,
-  NumberField,
-  ReferenceField,
-  StringField,
-  UnionField,
+  AssetModel,
+  BooleanModel,
+  DatetimeModel,
+  InstanceModel,
+  ListModel,
+  MapModel,
+  MarkdownModel,
+  Model,
+  NumberModel,
+  ReferenceModel,
+  StringModel,
+  UnionModel,
 } from "./model.ts";
 
 export interface Manifest {
@@ -66,17 +66,17 @@ export interface LocatorDefinition {
 }
 
 export interface CodecMap {
-  string: FieldCodec<StringField, StringNode>;
-  asset: FieldCodec<AssetField, AssetNode>;
-  map: FieldCodec<MapField, MapNode>;
-  boolean: FieldCodec<BooleanField, BooleanNode>;
-  number: FieldCodec<NumberField, NumberNode>;
-  instance: FieldCodec<InstanceField>;
-  list: FieldCodec<ListField, ListNode>;
-  markdown: FieldCodec<MarkdownField, MarkdownNode>;
-  reference: FieldCodec<ReferenceField, ReferenceNode>;
-  datetime: FieldCodec<DatetimeField, DatetimeNode>;
-  union: FieldCodec<UnionField, UnionNode>;
+  string: FieldCodec<StringModel, StringNode>;
+  asset: FieldCodec<AssetModel, AssetNode>;
+  map: FieldCodec<MapModel, MapNode>;
+  boolean: FieldCodec<BooleanModel, BooleanNode>;
+  number: FieldCodec<NumberModel, NumberNode>;
+  instance: FieldCodec<InstanceModel>;
+  list: FieldCodec<ListModel, ListNode>;
+  markdown: FieldCodec<MarkdownModel, MarkdownNode>;
+  reference: FieldCodec<ReferenceModel, ReferenceNode>;
+  datetime: FieldCodec<DatetimeModel, DatetimeNode>;
+  union: FieldCodec<UnionModel, UnionNode>;
 }
 
 export interface ConvertMap {
@@ -101,16 +101,16 @@ export interface Converter {
 export interface ConverterContext extends ResolverContext {
 }
 
-export interface FieldCodec<T extends Field = Field, U extends Node = Node> {
+export interface FieldCodec<T extends Model = Model, U extends Node = Node> {
   parse(
     structure: Structure,
-    field: T,
+    model: T,
     ctx: CodecContext,
   ): U | Promise<U>;
 
   stringify(
     node: U,
-    field: T,
+    model: T,
     ctx: CodecContext,
   ): Structure | Promise<Structure>;
 }
@@ -118,58 +118,58 @@ export interface FieldCodec<T extends Field = Field, U extends Node = Node> {
 export interface Codec {
   parse(
     structure: Structure,
-    field: StringField,
+    field: StringModel,
     ctx: CodecContext,
   ): StringNode | Promise<StringNode>;
   parse(
     structure: Structure,
-    field: NumberField,
+    field: NumberModel,
     ctx: CodecContext,
   ): NumberNode | Promise<NumberNode>;
   parse(
     structure: Structure,
-    field: BooleanField,
+    field: BooleanModel,
     ctx: CodecContext,
   ): BooleanNode | Promise<BooleanNode>;
   parse(
     structure: Structure,
-    field: AssetField,
+    field: AssetModel,
     ctx: CodecContext,
   ): AssetNode | Promise<AssetNode>;
   parse(
     structure: Structure,
-    field: DatetimeField,
+    field: DatetimeModel,
     ctx: CodecContext,
   ): DatetimeNode | Promise<DatetimeNode>;
   parse(
     structure: Structure,
-    field: ReferenceField,
+    field: ReferenceModel,
     ctx: CodecContext,
   ): ReferenceNode | Promise<ReferenceNode>;
   parse(
     structure: Structure,
-    field: ListField,
+    field: ListModel,
     ctx: CodecContext,
   ): ListNode | Promise<ListNode>;
   parse(
     structure: Structure,
-    field: MapField,
+    field: MapModel,
     ctx: CodecContext,
   ): MapNode | Promise<MapNode>;
   parse(
     structure: Structure,
-    field: UnionField,
+    field: UnionModel,
     ctx: CodecContext,
   ): UnionNode | Promise<UnionNode>;
   parse(
     structure: Structure,
-    field: Field,
+    model: Model,
     ctx: CodecContext,
   ): Node | Promise<Node>;
 
   serialize(
     node: Node,
-    field: Field,
+    model: Model,
     ctx: CodecContext,
   ): Structure | Promise<Structure>;
 }
@@ -179,8 +179,6 @@ export interface CodecContext extends ResolverContext {
   node: NodeRegistry;
   codec: Codec;
 }
-
-export type Model = Field;
 
 export interface FormatDefinition {
   type: string;

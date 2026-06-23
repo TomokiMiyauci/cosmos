@@ -1,68 +1,68 @@
-export type Field =
-  | StringField
-  | NumberField
-  | BooleanField
-  | InstanceField
-  | ReferenceField
-  | ListField
-  | AssetField
-  | MapField
-  | DatetimeField
-  | MarkdownField
-  | UnionField;
+export type Model =
+  | StringModel
+  | NumberModel
+  | BooleanModel
+  | InstanceModel
+  | ReferenceModel
+  | ListModel
+  | AssetModel
+  | MapModel
+  | DatetimeModel
+  | MarkdownModel
+  | UnionModel;
 
-export interface BaseField {
+export interface BaseModel {
   description?: string;
   type: string;
 }
 
-export interface StringField extends BaseField {
+export interface StringModel extends BaseModel {
   type: "string";
   format?: string;
 }
 
-export interface NumberField extends BaseField {
+export interface NumberModel extends BaseModel {
   type: "number";
 }
 
-export interface BooleanField extends BaseField {
+export interface BooleanModel extends BaseModel {
   type: "boolean";
 }
 
-export interface DatetimeField extends BaseField {
+export interface DatetimeModel extends BaseModel {
   type: "datetime";
 }
 
-export interface MapField extends BaseField {
+export interface MapModel extends BaseModel {
   type: "map";
-  fields: Record<string, Field>;
+  props: Record<string, Model>;
   required?: string[];
 }
 
-export interface InstanceField extends BaseField {
+export interface InstanceModel extends BaseModel {
   type: "instance";
   model: string;
 }
 
-export interface ReferenceField extends BaseField {
+export interface ReferenceModel extends BaseModel {
   type: "reference";
   model: string;
 }
 
-export interface ListField extends BaseField {
+export interface ListModel extends BaseModel {
   type: "list";
-  field: Field;
+  item: Model;
 }
 
-export interface AssetField extends BaseField {
+export interface AssetModel extends BaseModel {
   type: "asset";
 }
 
-export interface UnionField extends BaseField {
+export interface UnionModel extends BaseModel {
   type: "union";
-  fields: Record<string, Field>;
+  variants: Record<string, Model>;
 }
 
-export interface MarkdownField extends BaseField {
+export interface MarkdownModel extends BaseModel {
   type: "markdown";
 }

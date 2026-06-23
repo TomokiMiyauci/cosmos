@@ -1,8 +1,8 @@
 import type {
   CodecContext,
-  Field,
   FieldCodec,
   ListNode,
+  Model,
   Node,
   Structure,
   StructureObject,
@@ -23,7 +23,7 @@ import {
 export class ListCodec implements FieldCodec {
   async parse(
     structure: Structure,
-    field: Field,
+    field: Model,
     ctx: CodecContext,
   ): Promise<ListNode> {
     if (typeof structure === "string") throw new Error();
@@ -34,7 +34,7 @@ export class ListCodec implements FieldCodec {
 
     const promise = values.map(
       (value) => {
-        return ctx.codec.parse(value, field.field, ctx);
+        return ctx.codec.parse(value, field.item, ctx);
       },
     );
 
@@ -48,7 +48,7 @@ export class ListCodec implements FieldCodec {
 
   async stringify(
     node: Node,
-    field: Field,
+    field: Model,
     ctx: CodecContext,
   ): Promise<StructureObject> {
     if (node.type !== "list") throw new Error();
@@ -59,7 +59,7 @@ export class ListCodec implements FieldCodec {
     for (const [key, child] of node.value.entries()) {
       const childValue = await stringifyField(
         child,
-        field.field,
+        field.item,
         ctx,
       );
 
@@ -72,7 +72,7 @@ export class ListCodec implements FieldCodec {
 
 export function stringifyField(
   node: Node,
-  field: Field,
+  field: Model,
   ctx: CodecContext,
 ): Promise<Structure> | Structure {
   switch (field.type) {

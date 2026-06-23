@@ -1,26 +1,26 @@
 import type {
-  AssetField,
+  AssetModel,
   AssetNode,
-  BooleanField,
+  BooleanModel,
   BooleanNode,
   Codec,
   CodecContext,
-  DatetimeField,
+  DatetimeModel,
   DatetimeNode,
-  Field,
-  ListField,
+  ListModel,
   ListNode,
-  MapField,
+  MapModel,
   MapNode,
+  Model,
   Node,
-  NumberField,
+  NumberModel,
   NumberNode,
-  ReferenceField,
+  ReferenceModel,
   ReferenceNode,
-  StringField,
+  StringModel,
   StringNode,
   Structure,
-  UnionField,
+  UnionModel,
   UnionNode,
 } from "@cosmos/core";
 
@@ -28,57 +28,57 @@ export class ParentCodec implements Codec {
   constructor() {}
   parse(
     structure: Structure,
-    field: StringField,
+    field: StringModel,
     ctx: CodecContext,
   ): StringNode | Promise<StringNode>;
   parse(
     structure: Structure,
-    field: NumberField,
+    field: NumberModel,
     ctx: CodecContext,
   ): NumberNode | Promise<NumberNode>;
   parse(
     structure: Structure,
-    field: BooleanField,
+    field: BooleanModel,
     ctx: CodecContext,
   ): BooleanNode | Promise<BooleanNode>;
   parse(
     structure: Structure,
-    field: AssetField,
+    field: AssetModel,
     ctx: CodecContext,
   ): AssetNode | Promise<AssetNode>;
   parse(
     structure: Structure,
-    field: DatetimeField,
+    field: DatetimeModel,
     ctx: CodecContext,
   ): DatetimeNode | Promise<DatetimeNode>;
   parse(
     structure: Structure,
-    field: ReferenceField,
+    field: ReferenceModel,
     ctx: CodecContext,
   ): ReferenceNode | Promise<ReferenceNode>;
   parse(
     structure: Structure,
-    field: ListField,
+    field: ListModel,
     ctx: CodecContext,
   ): ListNode | Promise<ListNode>;
   parse(
     structure: Structure,
-    field: MapField,
+    field: MapModel,
     ctx: CodecContext,
   ): MapNode | Promise<MapNode>;
   parse(
     structure: Structure,
-    field: UnionField,
+    field: UnionModel,
     ctx: CodecContext,
   ): UnionNode | Promise<UnionNode>;
   parse(
     structure: Structure,
-    field: Field,
+    field: Model,
     ctx: CodecContext,
   ): Node | Promise<Node>;
   parse(
     structure: Structure,
-    field: Field,
+    field: Model,
     ctx: CodecContext,
   ): Node | Promise<Node> {
     const converters = ctx.config.converters;
@@ -146,7 +146,7 @@ export class ParentCodec implements Codec {
 
   serialize(
     node: Node,
-    field: Field,
+    field: Model,
     ctx: CodecContext,
   ): Structure | Promise<Structure> {
     const fieldCodec = ctx.config.codec;

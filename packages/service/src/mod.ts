@@ -234,7 +234,7 @@ function modelToField(
       }
       case "map": {
         const set = new Set(model.required);
-        const fields = mapValues(model.fields, (childModel, key) => {
+        const fields = mapValues(model.props, (childModel, key) => {
           return to(childModel, { required: set.has(key) });
         });
         return {
@@ -245,13 +245,13 @@ function modelToField(
       case "list": {
         return {
           type: "list",
-          field: to(model.field),
+          field: to(model.item),
         };
       }
       case "reference": {
         return {
           type: "reference",
-          candidates: ["a", "b"],
+          candidates: [],
         };
       }
       case "instance": {

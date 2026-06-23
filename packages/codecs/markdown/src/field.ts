@@ -1,9 +1,9 @@
 import type {
   AssetNode,
   CodecContext,
-  Field,
   FieldCodec,
   MarkdownNode,
+  Model,
   ReferenceNode,
   StringNode,
   Structure,
@@ -18,7 +18,7 @@ export class MarkdownCodec implements FieldCodec {
 
   async parse(
     structure: Structure,
-    _: Field,
+    _: Model,
     ctx: CodecContext,
   ): Promise<MarkdownNode> {
     if (typeof structure !== "string") throw new Error();
