@@ -1,0 +1,4 @@
+{
+  "name": "@cosmos/parser",
+  "exports": "./src/mod.ts"
+}
