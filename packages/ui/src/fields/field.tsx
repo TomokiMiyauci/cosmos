@@ -95,9 +95,6 @@ export default function Field(
     case "union": {
       return <UnionField field={field} />;
     }
-    case "instance": {
-      return <></>;
-    }
   }
 }
 
