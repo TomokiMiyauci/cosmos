@@ -1,7 +1,8 @@
 "use client";
 
 import type { JSX } from "react";
-import type { DatetimeField, DatetimeNode, Node } from "@cosmos/core";
+import type { DatetimeNode, Node } from "@cosmos/core";
+import type { DatetimeField } from "../type.ts";
 
 export interface DatatimeFieldProps {
   field: DatetimeField;

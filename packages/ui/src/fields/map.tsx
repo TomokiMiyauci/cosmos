@@ -1,5 +1,6 @@
 import type { JSX } from "react";
-import type { Field, MapField, MapNode, Node } from "@cosmos/core";
+import type { MapNode, Node } from "@cosmos/core";
+import type { Field, MapField } from "../type.ts";
 
 export interface MapFieldProps {
   render(
@@ -22,7 +23,6 @@ export default function MapField(props: MapFieldProps): JSX.Element {
       {Object.entries(field.fields).map(([name, field]) => {
         const onC: OnChange = (childNode) => {
           const changed: MapNode = {
-            ...node,
             type: "map",
             value: {
               ...node?.value,

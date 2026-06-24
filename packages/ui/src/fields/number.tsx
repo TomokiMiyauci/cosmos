@@ -1,7 +1,8 @@
 "use client";
 
 import type { JSX } from "react";
-import type { Node, NumberField, NumberNode } from "@cosmos/core";
+import type { Node, NumberNode } from "@cosmos/core";
+import type { NumberField } from "../type.ts";
 
 export interface NumberFieldProps {
   field: NumberField;

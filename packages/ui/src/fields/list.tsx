@@ -1,5 +1,6 @@
 import type { JSX } from "react";
-import type { Field, ListField, ListNode, Node } from "@cosmos/core";
+import type { ListNode, Node } from "@cosmos/core";
+import type { Field, ListField } from "../type.ts";
 
 export interface ListFieldProps {
   render(

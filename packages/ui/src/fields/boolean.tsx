@@ -1,7 +1,8 @@
 "use client";
 
 import type { JSX } from "react";
-import type { BooleanField, BooleanNode, Node } from "@cosmos/core";
+import type { BooleanNode, Node } from "@cosmos/core";
+import type { BooleanField } from "../type.ts";
 
 export interface BooleanFieldProps {
   field: BooleanField;
