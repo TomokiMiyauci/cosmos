@@ -36,12 +36,35 @@ export class RestCmsService implements CmsService {
       allModels.map(({ id, model }) => [id, model] as const),
     );
 
+    const contents = await findContents(baseUrl);
+    const resources = await findResources(baseUrl);
+
+    const store = contents.map((index) => {
+      const resource = resources.find((resource) =>
+        resource.id === index.resource
+      );
+
+      if (!resource) return null;
+
+      return {
+        id: index.id,
+        model: resource.model,
+        resource: index.resource,
+      };
+    }).filter((v) => !!v);
+
     const field = modelToField(result.model, (id) => {
       const value = modelRecord.get(id);
 
       if (!value) throw new Error();
 
       return value;
+    }, (model) => {
+      const values = store.filter((value) => value.model === model).map((
+        value,
+      ) => value.id);
+
+      return values;
     });
 
     return {
@@ -72,12 +95,35 @@ export class RestCmsService implements CmsService {
 
       const node = parseToNode(json.node);
 
+      const contents = await findContents(baseUrl);
+      const resources = await findResources(baseUrl);
+
+      const store = contents.map((index) => {
+        const resource = resources.find((resource) =>
+          resource.id === index.resource
+        );
+
+        if (!resource) return null;
+
+        return {
+          id: index.id,
+          model: resource.model,
+          resource: index.resource,
+        };
+      }).filter((v) => !!v);
+
       const field = modelToField(model, (id) => {
         const value = modelRecord.get(id);
 
         if (!value) throw new Error();
 
         return value;
+      }, (model) => {
+        const values = store.filter((value) => value.model === model).map((
+          value,
+        ) => value.id);
+
+        return values;
       });
 
       return {
@@ -192,9 +238,34 @@ async function findModel(modelId: string, baseUrl: URL): Promise<Model> {
   return model.model;
 }
 
+async function findContents(
+  baseUrl: URL,
+): Promise<{ id: string; resource: string }[]> {
+  const url = new URL(`./contents`, baseUrl);
+
+  const response = await fetch(url);
+
+  const json = await response.json();
+
+  return json;
+}
+
+async function findResources(
+  baseUrl: URL,
+): Promise<{ id: string; model: string }[]> {
+  const url = new URL(`./resources`, baseUrl);
+
+  const response = await fetch(url);
+
+  const json = await response.json();
+
+  return json;
+}
+
 function modelToField(
   model: Model,
   getModel: (modelId: string) => Model,
+  getIndexies: (modelId: string) => string[],
 ): Field {
   function to(
     model: Model,
@@ -249,9 +320,11 @@ function modelToField(
         };
       }
       case "reference": {
+        const candidates = getIndexies(model.model);
+
         return {
           type: "reference",
-          candidates: [],
+          candidates,
         };
       }
       case "instance": {
