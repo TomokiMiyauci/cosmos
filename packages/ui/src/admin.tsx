@@ -1,7 +1,7 @@
 import { type JSX, Suspense, use } from "react";
 import { Page, resolvePath, type RouteResult } from "./router.ts";
-import { views } from "./pages/view.ts";
 import type { CmsService, Identity } from "./type.ts";
+import { views } from "./pages/view.ts";
 
 export interface AdminProps {
   route: RouteResult;
@@ -53,7 +53,26 @@ function Aside(props: { promise: Promise<Identity[]> }): JSX.Element {
 }
 
 function PageMatcher(props: AdminProps): JSX.Element {
-  const { route, service } = props;
+  const { route } = props;
 
-  return views[route.type]({ params: route.params, service });
+  switch (route.type) {
+    case Page.ContentCreation: {
+      return views[route.type].component(route.data);
+    }
+    case Page.Content: {
+      return views[route.type].component(route.data);
+    }
+    case Page.Contents: {
+      return views[route.type].component(route.data);
+    }
+    case Page.Resource: {
+      return views[route.type].component(route.data);
+    }
+    case Page.NotFound: {
+      return views[route.type].component();
+    }
+    case Page.Home: {
+      return views[route.type].component();
+    }
+  }
 }

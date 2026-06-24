@@ -1,28 +1,19 @@
-import { type JSX, Suspense, use } from "react";
-import type { PageProps } from "./type.ts";
-import type { Field } from "../type.ts";
+import type { JSX } from "react";
+import type { CmsService, Field } from "../type.ts";
 import type { Node } from "@cosmos/core";
 import { Page, resolvePath } from "../router.ts";
 import Form from "../form.tsx";
 
+export interface ContentPageProps {
+  contentId: string;
+  data: Data;
+  service: CmsService;
+}
+
 export default function ContentPage(
-  props: PageProps,
+  props: ContentPageProps,
 ): JSX.Element {
-  const { params, service } = props;
-
-  const { id } = params;
-  if (typeof id !== "string") return <></>;
-
-  const contentId = id;
-
-  const promise = service.findContent(contentId).then((content) => {
-    if (!content) return null;
-
-    return {
-      node: content.node,
-      field: content.field,
-    };
-  });
+  const { contentId, data, service } = props;
 
   async function update(node: Node | null): Promise<boolean> {
     try {
@@ -38,25 +29,6 @@ export default function ContentPage(
 
     location.href = resolvePath(Page.Contents);
   }
-
-  return (
-    <Suspense>
-      <MainPage promise={promise} update={update} remove={remove} />
-    </Suspense>
-  );
-}
-
-function MainPage(
-  props: {
-    promise: Promise<Data | null>;
-    update: (node: Node | null) => Promise<boolean>;
-    remove(): Promise<void>;
-  },
-): JSX.Element {
-  const { promise, update, remove } = props;
-  const data = use(promise);
-
-  if (!data) return <div>Not Found</div>;
 
   const { node: init, field } = data;
 

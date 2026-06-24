@@ -3,21 +3,28 @@ import type { ExtractParams, Routes } from "./pages/type.ts";
 import { mapValues } from "@std/collections/map-values";
 import { filterValues } from "@std/collections/filter-values";
 import { Page } from "./pages/symbol.ts";
+import type { ContentCreatePageProps } from "./pages/content_creation.tsx";
+import type { ContentPageProps } from "./pages/content.tsx";
+import { views } from "./pages/view.ts";
+import type { CmsService } from "@cosmos/ui";
+import type { ContentsPageProps } from "./pages/contents.tsx";
+import type { ResourcePageProps } from "./pages/resource.tsx";
 
 export class Router {
   #routes: Record<keyof Routes, URLPattern>;
 
-  constructor() {
+  constructor(private service: CmsService) {
     this.#routes = mapValues(
       routes,
       (init) => new URLPattern({ pathname: init }),
     );
   }
-  route(url: URL): RouteResult {
+  async route(url: URL): Promise<RouteResult> {
     for (const [type, pattern] of Object.entries(this.#routes)) {
       const result = pattern.exec(url);
 
       if (result) {
+        const entry = views[type];
         const decodedParams = mapValues(
           filterValues(
             result.pathname.groups,
@@ -26,21 +33,37 @@ export class Router {
           decodeURIComponent,
         );
 
+        if (entry.getStaticProps) {
+          const data = await entry.getStaticProps({
+            params: decodedParams,
+            service: this.service,
+          });
+
+          if (!data) {
+            return {
+              type: Page.NotFound,
+            };
+          }
+
+          return {
+            data,
+            type: Number(type),
+          };
+        }
+
         return {
-          type: type as Page,
-          params: decodedParams,
+          type: Number(type),
         };
       }
     }
 
     return {
       type: Page.NotFound,
-      params: {},
     };
   }
 }
 
-export interface RouteResult {
+export interface RouteResultt {
   type: Page;
   params: Record<string, string>;
 }
@@ -73,3 +96,21 @@ type IsNever<T> = [T] extends [never] ? true : false;
 
 export const resolvePath = createResolve(routes);
 export { Page };
+
+export type RouteResult = {
+  type: Page.ContentCreation;
+  data: ContentCreatePageProps;
+} | {
+  type: Page.Content;
+  data: ContentPageProps;
+} | {
+  type: Page.Contents;
+  data: ContentsPageProps;
+} | {
+  type: Page.Resource;
+  data: ResourcePageProps;
+} | {
+  type: Page.NotFound;
+} | {
+  type: Page.Home;
+};

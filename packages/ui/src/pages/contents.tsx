@@ -1,8 +1,12 @@
 import { type JSX, Suspense, use } from "react";
-import type { PageProps } from "./type.ts";
 import { Page, resolvePath } from "../router.ts";
+import type { CmsService } from "../type.ts";
 
-export default function ContentsPage(props: PageProps): JSX.Element {
+export interface ContentsPageProps {
+  service: CmsService;
+}
+
+export default function ContentsPage(props: ContentsPageProps): JSX.Element {
   const { service } = props;
 
   const promise = service.findContents();

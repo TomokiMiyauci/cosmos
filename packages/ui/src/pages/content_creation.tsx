@@ -1,19 +1,20 @@
-import { type JSX, Suspense, use } from "react";
-import type { PageProps } from "./type.ts";
+import type { JSX } from "react";
 import type { Node } from "@cosmos/core";
 import Form from "../form.tsx";
 import { Page, resolvePath } from "../router.ts";
-import type { Template } from "../type.ts";
+import type { CmsService, Template } from "../type.ts";
+
+export interface ContentCreatePageProps {
+  template: Template;
+  resourceId: string;
+  service: CmsService;
+}
 
 export default function ContentCreationPage(
-  props: PageProps,
+  props: ContentCreatePageProps,
 ): JSX.Element {
-  const { service } = props;
-  const { id } = props.params;
-
-  if (!id) return <></>;
-
-  const resourceId = id;
+  const { template, resourceId, service } = props;
+  const { node: init, field } = template;
 
   async function update(node: Node | null): Promise<boolean> {
     if (node) {
@@ -26,31 +27,6 @@ export default function ContentCreationPage(
 
     return false;
   }
-
-  const promise = service.findTemplate(resourceId);
-
-  return (
-    <Suspense>
-      <MainPage
-        promise={promise}
-        update={update}
-      />
-    </Suspense>
-  );
-}
-
-function MainPage(
-  props: {
-    promise: Promise<Template | null>;
-    update: (node: Node | null) => Promise<boolean>;
-  },
-): JSX.Element {
-  const { promise, update } = props;
-  const data = use(promise);
-
-  if (!data) return <div>Not Found</div>;
-
-  const { node: init, field } = data;
 
   return (
     <div>
