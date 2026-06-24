@@ -73,7 +73,11 @@ export default function Field(
       return <BooleanField node={node} field={field} onChange={onChange} />;
     }
     case "reference": {
-      return <ReferenceField field={field} />;
+      if (node && node.type !== "reference") {
+        return <Mismatch onChange={onChange} />;
+      }
+
+      return <ReferenceField node={node} field={field} onChange={onChange} />;
     }
     case "list": {
       if (node && node.type !== "list") {
@@ -93,7 +97,18 @@ export default function Field(
       return <AssetField field={field} onChange={onChange} />;
     }
     case "union": {
-      return <UnionField field={field} />;
+      if (node && node.type !== "union") {
+        return <Mismatch onChange={onChange} />;
+      }
+
+      return (
+        <UnionField
+          field={field}
+          node={node}
+          render={Field}
+          onChange={onChange}
+        />
+      );
     }
   }
 }

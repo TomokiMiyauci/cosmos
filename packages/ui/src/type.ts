@@ -40,7 +40,9 @@ export type Field =
   | DatetimeField
   | BooleanField
   | ListField
-  | NumberField;
+  | NumberField
+  | ReferenceField
+  | UnionField;
 
 export interface StringField extends FieldMeta {
   type: "string";
@@ -72,4 +74,14 @@ export interface ListField {
 }
 export interface NumberField extends FieldMeta {
   type: "number";
+}
+
+export interface ReferenceField {
+  type: "reference";
+  candidates: string[];
+}
+
+export interface UnionField {
+  type: "union";
+  variants: Record<string, Field>;
 }
