@@ -1,37 +1,37 @@
 import type {
   CodecContext,
   FieldCodec,
-  Model,
   Node,
+  Schema,
   Structure,
 } from "@cosmos/core";
 
 export class InstanceCodec implements FieldCodec {
   parse(
     structure: Structure,
-    model: Model,
+    schema: Schema,
     ctx: CodecContext,
   ): Promise<Node> | Node {
-    if (model.type !== "instance") throw new Error();
+    if (schema.type !== "instance") throw new Error();
 
-    const childModel = ctx.config.models[model.model];
+    const childModel = ctx.config.models[schema.model];
 
     if (!childModel) throw new Error();
 
-    return ctx.codec.parse(structure, childModel, ctx);
+    return ctx.codec.parse(structure, childModel.schema, ctx);
   }
 
   stringify(
     node: Node,
-    field: Model,
+    schema: Schema,
     ctx: CodecContext,
   ): Structure | Promise<Structure> {
-    if (field.type !== "instance") throw new Error();
+    if (schema.type !== "instance") throw new Error();
 
-    const model = ctx.config.models[field.model];
+    const model = ctx.config.models[schema.model];
 
     if (!model) throw new Error();
 
-    return ctx.codec.serialize(node, model, ctx);
+    return ctx.codec.serialize(node, model.schema, ctx);
   }
 }

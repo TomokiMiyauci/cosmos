@@ -1,4 +1,5 @@
 export type {
+  Asset,
   AssetEntry,
   AssetHeader,
   AssetLayer,
@@ -9,6 +10,7 @@ export type {
   Config,
   Converter,
   ConverterContext,
+  ConvertMap,
   Datalayer,
   Entry,
   EntryFilter,
@@ -37,21 +39,6 @@ export type {
   StructureObject,
   StructureValue,
 } from "./types/core.ts";
-export type {
-  AssetModel,
-  BaseModel,
-  BooleanModel,
-  DatetimeModel,
-  InstanceModel,
-  ListModel,
-  MapModel,
-  MarkdownModel,
-  Model,
-  NumberModel,
-  ReferenceModel,
-  StringModel,
-  UnionModel,
-} from "./types/model.ts";
 export type {
   AssetNode,
   BlockContentMapNode,
@@ -106,13 +93,13 @@ export type {
 } from "./types/node.ts";
 export type {
   AssetSchema,
-  BaseSchema,
   BooleanSchema,
   DatetimeSchema,
   InstanceSchema,
   ListSchema,
   MapSchema,
   MarkdownSchema,
+  Model,
   NumberSchema,
   ReferenceSchema,
   Schema,

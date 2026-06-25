@@ -9,7 +9,7 @@ import type {
   Template,
 } from "@cosmos/ui";
 import { assertContent } from "@cosmos/json";
-import type { Model, Node, Resource } from "@cosmos/core";
+import type { Model, Node, Resource, Schema } from "@cosmos/core";
 import { mapValues } from "@std/collections/map-values";
 import type { Resource as C } from "./type.ts";
 
@@ -275,13 +275,13 @@ function modelToField(
   getIndexies: (modelId: string) => string[],
 ): Field {
   function to(
-    model: Model,
-    meta?: { required: boolean },
+    schema: Schema,
+    meta?: { required: boolean; description: string },
   ): Field {
     const required = meta?.required ?? false;
-    const description = model.description ?? "";
+    const description = meta?.description ?? "";
 
-    switch (model.type) {
+    switch (schema.type) {
       case "string": {
         return {
           type: "string",
@@ -311,9 +311,12 @@ function modelToField(
         };
       }
       case "map": {
-        const set = new Set(model.required);
-        const fields = mapValues(model.props, (childModel, key) => {
-          return to(childModel, { required: set.has(key) });
+        const set = new Set(schema.required);
+        const fields = mapValues(schema.props, (childModel, key) => {
+          return to(childModel.schema, {
+            required: set.has(key),
+            description: childModel.description,
+          });
         });
         return {
           type: "map",
@@ -323,11 +326,11 @@ function modelToField(
       case "list": {
         return {
           type: "list",
-          field: to(model.item),
+          field: to(schema.item),
         };
       }
       case "reference": {
-        const candidates = getIndexies(model.model);
+        const candidates = getIndexies(schema.model);
 
         return {
           type: "reference",
@@ -335,12 +338,15 @@ function modelToField(
         };
       }
       case "instance": {
-        const childModel = getModel(model.model);
+        const childModel = getModel(schema.model);
 
-        return to(childModel);
+        return to(childModel.schema);
       }
       case "union": {
-        const variants = mapValues(model.variants, (model) => to(model));
+        const variants = mapValues(
+          schema.variants,
+          (model) => to(model.schema),
+        );
         return {
           type: "union",
           variants,
@@ -353,5 +359,5 @@ function modelToField(
     }
   }
 
-  return to(model);
+  return to(model.schema);
 }

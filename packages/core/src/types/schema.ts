@@ -3,65 +3,66 @@ export type Schema =
   | NumberSchema
   | BooleanSchema
   | DatetimeSchema
-  | AssetSchema
-  | MapSchema
-  | ListSchema
-  | ReferenceSchema
   | InstanceSchema
+  | MapSchema
+  | ReferenceSchema
+  | ListSchema
+  | AssetSchema
   | UnionSchema
   | MarkdownSchema;
 
-export interface BaseSchema {
-  type: string;
-  description: string;
-}
-
-export interface StringSchema extends BaseSchema {
-  type: "string";
-}
-
-export interface NumberSchema extends BaseSchema {
-  type: "number";
-}
-
-export interface BooleanSchema extends BaseSchema {
-  type: "boolean";
-}
-
-export interface DatetimeSchema extends BaseSchema {
-  type: "datetime";
-}
-
-export interface AssetSchema extends BaseSchema {
-  type: "asset";
-}
-
-export interface MapSchema extends BaseSchema {
+export interface MapSchema {
   type: "map";
-  props: Record<string, Schema>;
+  props: Record<string, Model>;
   required: string[];
 }
 
-export interface ListSchema extends BaseSchema {
-  type: "list";
-  item: Schema;
+export interface StringSchema {
+  type: "string";
 }
 
-export interface ReferenceSchema extends BaseSchema {
-  type: "reference";
-  model: string;
+export interface NumberSchema {
+  type: "number";
 }
 
-export interface InstanceSchema extends BaseSchema {
+export interface BooleanSchema {
+  type: "boolean";
+}
+
+export interface DatetimeSchema {
+  type: "datetime";
+}
+
+export interface InstanceSchema {
   type: "instance";
   model: string;
 }
 
-export interface UnionSchema extends BaseSchema {
-  type: "union";
-  props: Record<string, Schema>;
+export interface ReferenceSchema {
+  type: "reference";
+  model: string;
 }
 
-export interface MarkdownSchema extends BaseSchema {
+export interface ListSchema {
+  type: "list";
+  item: Schema;
+}
+
+export interface AssetSchema {
+  type: "asset";
+}
+
+export interface UnionSchema {
+  type: "union";
+  variants: Record<string, Model>;
+}
+
+export interface MarkdownSchema {
   type: "markdown";
+}
+
+export interface Model {
+  title: string;
+  description: string;
+  schema: Schema;
 }

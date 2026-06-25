@@ -89,7 +89,7 @@ class Collector {
       resource,
     });
     const codec = new ParentCodec();
-    const node = await codec.parse(structure, field, {
+    const node = await codec.parse(structure, field.schema, {
       baseUrl: url,
       base: this.config.location,
       config,
@@ -154,7 +154,7 @@ class Collector {
     const storage = config.storages["file"]!;
     const codec = new ParentCodec();
 
-    const structure = await codec.serialize(node, field, {
+    const structure = await codec.serialize(node, field.schema, {
       baseUrl: url,
       base: this.config.location,
       config,
@@ -221,7 +221,7 @@ class Collector {
 
     if (!field) throw new Error();
 
-    const structure = await codec.serialize(node, field, {
+    const structure = await codec.serialize(node, field.schema, {
       baseUrl: url,
       base: this.config.location,
       config: this.config.value,

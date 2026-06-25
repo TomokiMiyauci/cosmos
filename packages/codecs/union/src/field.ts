@@ -1,7 +1,8 @@
 import type {
   CodecContext,
   FieldCodec,
-  Model,
+  Node,
+  Schema,
   Structure,
   StructureObject,
   UnionNode,
@@ -10,10 +11,10 @@ import type {
 export class UnionCodec implements FieldCodec {
   async parse(
     structure: Structure,
-    model: Model,
+    schema: Schema,
     ctx: CodecContext,
   ): Promise<UnionNode> {
-    if (model.type !== "union") throw new Error();
+    if (schema.type !== "union") throw new Error();
     if (typeof structure === "string") throw new SyntaxError();
 
     const validateResult = validateUnionValue(structure);
@@ -22,11 +23,11 @@ export class UnionCodec implements FieldCodec {
 
     const { key, value } = structure;
 
-    const childField = model.variants[key];
+    const childField = schema.variants[key];
 
     if (!childField) throw new Error();
 
-    const node = await ctx.codec.parse(value, childField, ctx);
+    const node = await ctx.codec.parse(value, childField.schema, ctx);
 
     return {
       type: "union",
@@ -35,8 +36,22 @@ export class UnionCodec implements FieldCodec {
     };
   }
 
-  stringify(): Structure | Promise<Structure> {
-    throw new Error();
+  async stringify(
+    node: Node,
+    schema: Schema,
+    ctx: CodecContext,
+  ): Promise<Structure> {
+    if (node.type !== "union") throw new Error();
+    if (schema.type !== "union") throw new Error();
+
+    const childModel = schema.variants[node.key];
+
+    if (!childModel) throw new Error();
+
+    return {
+      key: node.key,
+      value: await ctx.codec.serialize(node.value, childModel.schema, ctx),
+    };
   }
 }
 

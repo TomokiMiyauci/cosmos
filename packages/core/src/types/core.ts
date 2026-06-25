@@ -13,19 +13,19 @@ import type {
 } from "./node.ts";
 import type { Schema } from "./schema.ts";
 import type {
-  AssetModel,
-  BooleanModel,
-  DatetimeModel,
-  InstanceModel,
-  ListModel,
-  MapModel,
-  MarkdownModel,
+  AssetSchema,
+  BooleanSchema,
+  DatetimeSchema,
+  InstanceSchema,
+  ListSchema,
+  MapSchema,
+  MarkdownSchema,
   Model,
-  NumberModel,
-  ReferenceModel,
-  StringModel,
-  UnionModel,
-} from "./model.ts";
+  NumberSchema,
+  ReferenceSchema,
+  StringSchema,
+  UnionSchema,
+} from "./schema.ts";
 
 export interface Manifest {
   version: string;
@@ -66,17 +66,17 @@ export interface LocatorDefinition {
 }
 
 export interface CodecMap {
-  string: FieldCodec<StringModel, StringNode>;
-  asset: FieldCodec<AssetModel, AssetNode>;
-  map: FieldCodec<MapModel, MapNode>;
-  boolean: FieldCodec<BooleanModel, BooleanNode>;
-  number: FieldCodec<NumberModel, NumberNode>;
-  instance: FieldCodec<InstanceModel>;
-  list: FieldCodec<ListModel, ListNode>;
-  markdown: FieldCodec<MarkdownModel, MarkdownNode>;
-  reference: FieldCodec<ReferenceModel, ReferenceNode>;
-  datetime: FieldCodec<DatetimeModel, DatetimeNode>;
-  union: FieldCodec<UnionModel, UnionNode>;
+  string: FieldCodec<StringSchema, StringNode>;
+  asset: FieldCodec<AssetSchema, AssetNode>;
+  map: FieldCodec<MapSchema, MapNode>;
+  boolean: FieldCodec<BooleanSchema, BooleanNode>;
+  number: FieldCodec<NumberSchema, NumberNode>;
+  instance: FieldCodec<InstanceSchema>;
+  list: FieldCodec<ListSchema, ListNode>;
+  markdown: FieldCodec<MarkdownSchema, MarkdownNode>;
+  reference: FieldCodec<ReferenceSchema, ReferenceNode>;
+  datetime: FieldCodec<DatetimeSchema, DatetimeNode>;
+  union: FieldCodec<UnionSchema, UnionNode>;
 }
 
 export interface ConvertMap {
@@ -101,7 +101,7 @@ export interface Converter {
 export interface ConverterContext extends ResolverContext {
 }
 
-export interface FieldCodec<T extends Model = Model, U extends Node = Node> {
+export interface FieldCodec<T extends Schema = Schema, U extends Node = Node> {
   parse(
     structure: Structure,
     model: T,
@@ -118,58 +118,58 @@ export interface FieldCodec<T extends Model = Model, U extends Node = Node> {
 export interface Codec {
   parse(
     structure: Structure,
-    field: StringModel,
+    field: StringSchema,
     ctx: CodecContext,
   ): StringNode | Promise<StringNode>;
   parse(
     structure: Structure,
-    field: NumberModel,
+    field: NumberSchema,
     ctx: CodecContext,
   ): NumberNode | Promise<NumberNode>;
   parse(
     structure: Structure,
-    field: BooleanModel,
+    field: BooleanSchema,
     ctx: CodecContext,
   ): BooleanNode | Promise<BooleanNode>;
   parse(
     structure: Structure,
-    field: AssetModel,
+    field: AssetSchema,
     ctx: CodecContext,
   ): AssetNode | Promise<AssetNode>;
   parse(
     structure: Structure,
-    field: DatetimeModel,
+    field: DatetimeSchema,
     ctx: CodecContext,
   ): DatetimeNode | Promise<DatetimeNode>;
   parse(
     structure: Structure,
-    field: ReferenceModel,
+    field: ReferenceSchema,
     ctx: CodecContext,
   ): ReferenceNode | Promise<ReferenceNode>;
   parse(
     structure: Structure,
-    field: ListModel,
+    field: ListSchema,
     ctx: CodecContext,
   ): ListNode | Promise<ListNode>;
   parse(
     structure: Structure,
-    field: MapModel,
+    field: MapSchema,
     ctx: CodecContext,
   ): MapNode | Promise<MapNode>;
   parse(
     structure: Structure,
-    field: UnionModel,
+    field: UnionSchema,
     ctx: CodecContext,
   ): UnionNode | Promise<UnionNode>;
   parse(
     structure: Structure,
-    model: Model,
+    schema: Schema,
     ctx: CodecContext,
   ): Node | Promise<Node>;
 
   serialize(
     node: Node,
-    model: Model,
+    schema: Schema,
     ctx: CodecContext,
   ): Structure | Promise<Structure>;
 }

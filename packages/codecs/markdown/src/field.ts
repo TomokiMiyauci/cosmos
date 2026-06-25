@@ -3,8 +3,8 @@ import type {
   CodecContext,
   FieldCodec,
   MarkdownNode,
-  Model,
   ReferenceNode,
+  Schema,
   StringNode,
   Structure,
 } from "@cosmos/core";
@@ -18,7 +18,7 @@ export class MarkdownCodec implements FieldCodec {
 
   async parse(
     structure: Structure,
-    _: Model,
+    _: Schema,
     ctx: CodecContext,
   ): Promise<MarkdownNode> {
     if (typeof structure !== "string") throw new Error();
