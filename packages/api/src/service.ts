@@ -332,8 +332,14 @@ function modelToField(
 
         return to(childModel);
       }
+      case "union": {
+        const variants = mapValues(model.variants, (model) => to(model));
+        return {
+          type: "union",
+          variants,
+        };
+      }
       case "asset":
-      case "union":
       case "markdown": {
         throw new Error();
       }

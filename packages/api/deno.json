@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/service",
+  "name": "@cosmos/rest",
   "exports": "./src/mod.ts",
   "imports": {
     "@std/collections": "jsr:@std/collections@^1.2.0"
