@@ -13,17 +13,23 @@ export interface BooleanFieldProps {
 export default function BooleanField(
   props: BooleanFieldProps,
 ): JSX.Element {
-  const { node, onChange } = props;
+  const { node, onChange, field } = props;
 
   return (
-    <input
-      type="checkbox"
-      onChange={(ev) => {
-        const value = ev.target.checked;
+    <label>
+      {field.title}
 
-        onChange({ type: "boolean", value });
-      }}
-      checked={node?.value ?? false}
-    />
+      <p>{field.description}</p>
+
+      <input
+        type="checkbox"
+        onChange={(ev) => {
+          const value = ev.target.checked;
+
+          onChange({ type: "boolean", value });
+        }}
+        checked={node?.value ?? false}
+      />
+    </label>
   );
 }

@@ -23,6 +23,8 @@ export default function ListField(props: ListFieldProps): JSX.Element {
 
   return (
     <div>
+      {field.title}
+
       <ul>
         {values.map((child, index) => {
           function onC(child: Node | null): void {

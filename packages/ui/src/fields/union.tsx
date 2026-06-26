@@ -26,6 +26,9 @@ export default function UnionField(props: UnionFieldProps): JSX.Element {
 
   return (
     <div>
+      <label>
+        {field.title}
+      </label>
       <div>
         {Object.entries(field.variants).map(([name]) => {
           return (

@@ -16,22 +16,28 @@ export default function ReferenceField(
   const { field, node, onChange } = props;
 
   return (
-    <select
-      onChange={(ev) => {
-        const value = ev.target.value;
+    <label>
+      {field.title}
 
-        if (value) {
-          onChange({ type: "reference", value });
-        } else {
-          onChange(null);
-        }
-      }}
-      value={node?.value ?? ""}
-    >
-      <option></option>
-      {field.candidates.map((candidate) => {
-        return <option key={candidate} value={candidate}>{candidate}</option>;
-      })}
-    </select>
+      <p>{field.description}</p>
+
+      <select
+        onChange={(ev) => {
+          const value = ev.target.value;
+
+          if (value) {
+            onChange({ type: "reference", value });
+          } else {
+            onChange(null);
+          }
+        }}
+        value={node?.value ?? ""}
+      >
+        <option></option>
+        {field.candidates.map((candidate) => {
+          return <option key={candidate} value={candidate}>{candidate}</option>;
+        })}
+      </select>
+    </label>
   );
 }

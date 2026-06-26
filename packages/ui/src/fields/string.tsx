@@ -16,13 +16,18 @@ export default function StringField(props: StringFieldProps): JSX.Element {
   const { onChange, node, field } = props;
 
   return (
-    <input
-      type="text"
-      value={node?.value ?? ""}
-      onChange={(ev) => {
-        onChange({ type: "string", value: ev.target.value });
-      }}
-      required={field.required}
-    />
+    <label>
+      {field.title}
+
+      <p>{field.description}</p>
+      <input
+        type="text"
+        value={node?.value ?? ""}
+        onChange={(ev) => {
+          onChange({ type: "string", value: ev.target.value });
+        }}
+        required={field.required}
+      />
+    </label>
   );
 }

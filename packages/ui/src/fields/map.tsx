@@ -19,32 +19,29 @@ export default function MapField(props: MapFieldProps): JSX.Element {
   const { render, field, onChange, node } = props;
 
   return (
-    <ul>
-      {Object.entries(field.fields).map(([name, field]) => {
-        const onC: OnChange = (childNode) => {
-          const changed: MapNode = {
-            type: "map",
-            value: {
-              ...node?.value,
-              [name]: childNode,
-            },
+    <>
+      {field.title}
+      <ul>
+        {Object.entries(field.fields).map(([name, field]) => {
+          const onC: OnChange = (childNode) => {
+            const changed: MapNode = {
+              type: "map",
+              value: {
+                ...node?.value,
+                [name]: childNode,
+              },
+            };
+            onChange(changed);
           };
-          onChange(changed);
-        };
-        const childNode = node?.value[name] ?? null;
+          const childNode = node?.value[name] ?? null;
 
-        return (
-          <li key={name}>
-            <label>
-              {name}
-
-              <div>
-                {render({ onChange: onC, field, node: childNode })}
-              </div>
-            </label>
-          </li>
-        );
-      })}
-    </ul>
+          return (
+            <li key={name}>
+              {render({ onChange: onC, field, node: childNode })}
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
 }

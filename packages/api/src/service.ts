@@ -165,6 +165,10 @@ export class RestCmsService implements CmsService {
     return {
       field,
       node: null,
+      meta: {
+        title: model.title,
+        description: model.description,
+      },
     };
   }
 
@@ -221,6 +225,10 @@ export class RestCmsService implements CmsService {
       id: content.id,
       field,
       node,
+      meta: {
+        title: model.title,
+        description: model.description,
+      },
     };
   }
 
@@ -276,10 +284,11 @@ function modelToField(
 ): Field {
   function to(
     schema: Schema,
-    meta?: { required: boolean; description: string },
+    meta?: { required: boolean; description: string; title: string },
   ): Field {
     const required = meta?.required ?? false;
     const description = meta?.description ?? "";
+    const title = meta?.title ?? "";
 
     switch (schema.type) {
       case "string": {
@@ -287,6 +296,7 @@ function modelToField(
           type: "string",
           description,
           required,
+          title,
         };
       }
       case "number": {
@@ -294,6 +304,7 @@ function modelToField(
           type: "number",
           description,
           required,
+          title,
         };
       }
       case "boolean": {
@@ -301,6 +312,7 @@ function modelToField(
           type: "boolean",
           description,
           required,
+          title,
         };
       }
       case "datetime": {
@@ -308,6 +320,7 @@ function modelToField(
           type: "datetime",
           description,
           required,
+          title,
         };
       }
       case "map": {
@@ -316,17 +329,24 @@ function modelToField(
           return to(childModel.schema, {
             required: set.has(key),
             description: childModel.description,
+            title: childModel.title,
           });
         });
         return {
           type: "map",
           fields,
+          title,
+          description,
+          required,
         };
       }
       case "list": {
         return {
           type: "list",
           field: to(schema.item),
+          title,
+          description,
+          required,
         };
       }
       case "reference": {
@@ -335,12 +355,19 @@ function modelToField(
         return {
           type: "reference",
           candidates,
+          description,
+          title,
+          required,
         };
       }
       case "instance": {
         const childModel = getModel(schema.model);
 
-        return to(childModel.schema);
+        return to(childModel.schema, {
+          description: childModel.description,
+          title: childModel.title,
+          required: false,
+        });
       }
       case "union": {
         const variants = mapValues(
@@ -350,6 +377,9 @@ function modelToField(
         return {
           type: "union",
           variants,
+          title,
+          description,
+          required,
         };
       }
       case "asset":

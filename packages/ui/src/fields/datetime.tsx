@@ -11,18 +11,25 @@ export interface DatatimeFieldProps {
 }
 
 export default function DatetimeField(props: DatatimeFieldProps): JSX.Element {
-  const { node, onChange } = props;
+  const { node, onChange, field } = props;
 
   return (
-    <input
-      type="date"
-      onChange={(ev) => {
-        const value = new Date(ev.target.value);
+    <>
+      <label>
+        {field.title}
 
-        onChange({ type: "datetime", value });
-      }}
-      value={node?.value ? formatYYMMDD(node.value) : ""}
-    />
+        <p>{field.description}</p>
+        <input
+          type="date"
+          onChange={(ev) => {
+            const value = new Date(ev.target.value);
+
+            onChange({ type: "datetime", value });
+          }}
+          value={node?.value ? formatYYMMDD(node.value) : ""}
+        />
+      </label>
+    </>
   );
 }
 

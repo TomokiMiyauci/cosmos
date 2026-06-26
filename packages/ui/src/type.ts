@@ -1,9 +1,18 @@
 import type { Node } from "@cosmos/core";
 
-export interface Content {
+export interface Content extends Data {
   id: string;
+}
+
+export interface Data {
   field: Field;
+  meta: Meta;
   node: Node | null;
+}
+
+export interface Meta {
+  title: string;
+  description: string;
 }
 
 export interface CmsService {
@@ -28,6 +37,7 @@ export interface Entry {
 export interface Template {
   node: Node | null;
   field: Field;
+  meta: Meta;
 }
 
 export interface Identity {
@@ -48,7 +58,7 @@ export interface StringField extends FieldMeta {
   type: "string";
 }
 
-export interface MapField {
+export interface MapField extends FieldMeta {
   type: "map";
   fields: Record<string, Field>;
 }
@@ -58,8 +68,9 @@ export interface DatetimeField extends FieldMeta {
 }
 
 export interface FieldMeta {
-  required: boolean;
+  title: string;
   description: string;
+  required: boolean;
 }
 
 export interface BooleanField extends FieldMeta {
@@ -68,7 +79,7 @@ export interface BooleanField extends FieldMeta {
   description: string;
 }
 
-export interface ListField {
+export interface ListField extends FieldMeta {
   type: "list";
   field: Field;
 }
@@ -76,12 +87,12 @@ export interface NumberField extends FieldMeta {
   type: "number";
 }
 
-export interface ReferenceField {
+export interface ReferenceField extends FieldMeta {
   type: "reference";
   candidates: string[];
 }
 
-export interface UnionField {
+export interface UnionField extends FieldMeta {
   type: "union";
   variants: Record<string, Field>;
 }

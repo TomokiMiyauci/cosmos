@@ -11,17 +11,22 @@ export interface NumberFieldProps {
 }
 
 export default function NumberField(props: NumberFieldProps): JSX.Element {
-  const { onChange, node } = props;
+  const { onChange, node, field } = props;
 
   return (
-    <input
-      type="number"
-      onChange={(ev) => {
-        const value = Number(ev.target.value);
+    <label>
+      {field.title}
 
-        onChange({ type: "number", value });
-      }}
-      value={node?.value ?? ""}
-    />
+      <p>{field.description}</p>
+      <input
+        type="number"
+        onChange={(ev) => {
+          const value = Number(ev.target.value);
+
+          onChange({ type: "number", value });
+        }}
+        value={node?.value ?? ""}
+      />
+    </label>
   );
 }
