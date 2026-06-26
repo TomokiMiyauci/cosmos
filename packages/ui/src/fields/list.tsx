@@ -1,18 +1,13 @@
 import type { JSX } from "react";
 import type { ListNode, Node } from "@cosmos/core";
-import type { Field, ListField } from "../type.ts";
+import type { ListField } from "../type.ts";
+import type { OnChange, RenderField } from "./type.ts";
 
 export interface ListFieldProps {
-  render(
-    props: { field: Field; node: Node | null; onChange: OnChange },
-  ): JSX.Element;
+  render: RenderField;
   onChange: OnChange;
   field: ListField;
   node: ListNode | null;
-}
-
-interface OnChange {
-  (node: Node | null): void;
 }
 
 export default function ListField(props: ListFieldProps): JSX.Element {

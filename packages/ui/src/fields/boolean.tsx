@@ -1,13 +1,14 @@
 "use client";
 
 import type { JSX } from "react";
-import type { BooleanNode, Node } from "@cosmos/core";
+import type { BooleanNode } from "@cosmos/core";
 import type { BooleanField } from "../type.ts";
+import type { OnChange } from "./type.ts";
 
 export interface BooleanFieldProps {
   field: BooleanField;
   node: BooleanNode | null;
-  onChange: (node: Node) => void;
+  onChange: OnChange;
 }
 
 export default function BooleanField(

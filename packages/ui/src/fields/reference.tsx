@@ -2,12 +2,13 @@
 
 import type { JSX } from "react";
 import type { ReferenceField } from "../type.ts";
-import type { Node, ReferenceNode } from "@cosmos/core";
+import type { ReferenceNode } from "@cosmos/core";
+import type { OnChange } from "./type.ts";
 
 export interface ReferenceFieldProps {
   field: ReferenceField;
   node: ReferenceNode | null;
-  onChange: (node: Node | null) => void;
+  onChange: OnChange;
 }
 
 export default function ReferenceField(

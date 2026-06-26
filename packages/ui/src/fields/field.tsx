@@ -13,14 +13,9 @@ import MapField from "./map.tsx";
 import MarkdownField from "./markdown.tsx";
 import type { Node } from "@cosmos/core";
 import type { Field } from "../type.ts";
+import type { FieldProps } from "./type.ts";
 
-export default function Field(
-  props: {
-    node: Node | null;
-    onChange: (node: Node | null) => void;
-    field: Field;
-  },
-): JSX.Element {
+export default function Field(props: FieldProps): JSX.Element {
   const { onChange, field, node } = props;
 
   switch (field.type) {

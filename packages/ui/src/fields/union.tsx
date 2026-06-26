@@ -1,20 +1,15 @@
 "use client";
 
 import { type JSX, useState } from "react";
-import type { Node, UnionNode } from "@cosmos/core";
-import type { Field, UnionField } from "../type.ts";
+import type { UnionNode } from "@cosmos/core";
+import type { UnionField } from "../type.ts";
+import type { OnChange, RenderField } from "./type.ts";
 
 export interface UnionFieldProps {
   field: UnionField;
   node: UnionNode | null;
-  render: (props: Props) => JSX.Element;
-  onChange: (node: Node | null) => void;
-}
-
-interface Props {
-  node: Node | null;
-  onChange: (node: Node | null) => void;
-  field: Field;
+  render: RenderField;
+  onChange: OnChange;
 }
 
 export default function UnionField(props: UnionFieldProps): JSX.Element {
