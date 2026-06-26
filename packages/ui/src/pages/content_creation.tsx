@@ -1,4 +1,6 @@
-import type { JSX } from "react";
+"use client";
+
+import { type JSX, useState } from "react";
 import type { Node } from "@cosmos/core";
 import Form from "../form.tsx";
 import { Page, resolvePath } from "../router.ts";
@@ -20,19 +22,25 @@ export default function ContentCreationPage(
     if (node) {
       const result = await service.saveNode(resourceId, node);
 
-      const path = resolvePath(Page.Content, { id: result.id });
+      if (result.ok) {
+        const path = resolvePath(Page.Content, { id: result.data.id });
 
-      globalThis.location.href = path;
+        globalThis.location.href = path;
+      } else {
+        console.log("error");
+      }
     }
 
     return false;
   }
 
+  const [node, setState] = useState(init);
+
   return (
     <div>
       <h1>Content</h1>
 
-      <Form init={init} update={update} field={field} />
+      <Form node={node} update={update} field={field} onChange={setState} />
     </div>
   );
 }

@@ -20,9 +20,21 @@ export interface CmsService {
   findContent(contentId: Content["id"]): Promise<Content>;
   findContents(option?: ContentsOption): Promise<Identity[]>;
   findResources(): Promise<Identity[]>;
-  saveEntry(entry: Entry): Promise<void>;
-  saveNode(resource: string, node: Node): Promise<Identity>;
+  saveEntry(entry: Entry): Promise<Result<Node, {}>>;
+  saveNode(resource: string, node: Node): Promise<Result<Identity, {}>>;
   eraseNodeById(id: string): Promise<void>;
+}
+
+export type Result<T, E> = Success<T> | Failure<E>;
+
+export interface Success<T> {
+  ok: true;
+  data: T;
+}
+
+export interface Failure<E> {
+  ok: false;
+  error: E;
 }
 
 export interface ContentsOption {
@@ -31,7 +43,7 @@ export interface ContentsOption {
 
 export interface Entry {
   id: string;
-  node: Node | null;
+  node: Node;
 }
 
 export interface Template {

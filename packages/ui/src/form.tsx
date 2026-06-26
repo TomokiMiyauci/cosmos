@@ -1,27 +1,27 @@
-"use client";
-
-import { type JSX, useState } from "react";
+import type { JSX } from "react";
 import type { Node } from "@cosmos/core";
 import FieldComponent from "./fields/field.tsx";
 import type { Field } from "./type.ts";
+import type { OnChange } from "./fields/type.ts";
 
-export default function Form(
-  props: {
-    init: Node | null;
-    update: (node: Node | null) => Promise<boolean>;
-    field: Field;
-  },
-): JSX.Element {
-  const { init, update, field } = props;
-  const [node, setState] = useState(init);
+export interface FormProps {
+  node: Node | null;
+  update: (node: Node | null) => Promise<void>;
+  field: Field;
+  onChange: OnChange;
+}
+
+export default function Form(props: FormProps): JSX.Element {
+  const { node, update, field, onChange } = props;
 
   return (
     <form
       action={async () => {
+        "use server";
         await update(node);
       }}
     >
-      <FieldComponent node={node} onChange={setState} field={field} />
+      <FieldComponent node={node} onChange={onChange} field={field} />
 
       <button type="submit">Save</button>
 

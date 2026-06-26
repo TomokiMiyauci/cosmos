@@ -6,6 +6,7 @@ import type {
   Entry,
   Field,
   Identity,
+  Result,
   Template,
 } from "@cosmos/ui";
 import { assertContent } from "@cosmos/json";
@@ -240,15 +241,19 @@ export class RestCmsService implements CmsService {
     return this.#client.findResources();
   }
 
-  async saveEntry(entry: Entry): Promise<void> {
-    if (entry.node) {
-      await this.#client.updateContent({ id: entry.id, node: entry.node });
-    } else {
-      await this.#client.deleteContent(entry.id);
-    }
+  async saveEntry(entry: Entry): Promise<Result<Node, {}>> {
+    await this.#client.updateContent({ id: entry.id, node: entry.node });
+
+    return {
+      ok: true,
+      data: entry.node,
+    };
   }
 
-  async saveNode(resourceId: string, node: Node): Promise<Identity> {
+  async saveNode(
+    resourceId: string,
+    node: Node,
+  ): Promise<Result<Identity, {}>> {
     const url = new URL(`./contents`, this.#baseUrl);
     const data = { node, resource: resourceId };
     const body = JSON.stringify(data);
@@ -265,7 +270,10 @@ export class RestCmsService implements CmsService {
       const json: { id: string } = await response.json();
 
       return {
-        id: json.id,
+        ok: true,
+        data: {
+          id: json.id,
+        },
       };
     }
 

@@ -1,4 +1,6 @@
-import type { JSX } from "react";
+"use client";
+
+import { type JSX, useState } from "react";
 import type { CmsService, Data } from "../type.ts";
 import type { Node } from "@cosmos/core";
 import { Page, resolvePath } from "../router.ts";
@@ -14,13 +16,23 @@ export default function ContentPage(
   props: ContentPageProps,
 ): JSX.Element {
   const { contentId, data, service } = props;
+  const { node: init, field, meta } = data;
+  const [node, setState] = useState(init);
 
-  async function update(node: Node | null): Promise<boolean> {
-    try {
-      await service.saveEntry({ id: contentId, node });
-      return true;
-    } catch {
-      return false;
+  async function update(node: Node): Promise<void> {
+    const result = await service.saveEntry({ id: contentId, node });
+
+    if (result.ok) {
+      setState(result.data);
+    } else {
+    }
+  }
+
+  async function action(node: Node | null): Promise<void> {
+    if (node) {
+      await update(node);
+    } else {
+      await service.eraseNodeById(contentId);
     }
   }
 
@@ -30,15 +42,13 @@ export default function ContentPage(
     location.href = resolvePath(Page.Contents);
   }
 
-  const { node: init, field, meta } = data;
-
   return (
     <div>
       <h1>Content</h1>
 
       <h2>{meta.title}</h2>
       <p>{meta.description}</p>
-      <Form init={init} update={update} field={field} />
+      <Form node={node} update={action} field={field} onChange={setState} />
 
       <button
         type="button"
