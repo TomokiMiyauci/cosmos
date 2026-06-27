@@ -320,16 +320,30 @@ export interface Indexer {
   register(id: string, index: Index): Promise<void>;
   unregister(id: string): Promise<void>;
 
-  search(query: IndexQuery): Promise<IndexEntry[]>;
+  search(query?: IndexQuery): Promise<IndexEntry[]>;
 }
 
 export type IndexEntry = [id: string, index: Index];
 
-export interface IndexQuery {
+export type IndexQuery = ModelIndexQuery | AssetIndexQuery;
+
+export interface ModelIndexQuery {
+  type: "model";
   resource?: string;
 }
 
-export interface Index {
+export interface AssetIndexQuery {
+  type: "asset";
+}
+
+export type Index = ModelIndex | AssetIndex;
+
+export interface ModelIndex {
+  type: "model";
   url: URL;
   resource: string;
+}
+
+export interface AssetIndex {
+  type: "asset";
 }

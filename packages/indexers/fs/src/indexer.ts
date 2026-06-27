@@ -19,15 +19,28 @@ export class FsIndexer implements Indexer {
     return this.#store.delete(id);
   }
 
-  async search(query: IndexQuery): Promise<IndexEntry[]> {
+  async search(query?: IndexQuery): Promise<IndexEntry[]> {
     const promise = this.#store[Symbol.asyncIterator]();
 
     const all = await Array.fromAsync(promise);
 
-    if (query.resource) {
-      return all.filter(([_, index]) => index.resource === query.resource);
+    if (!query) return all;
+
+    switch (query.type) {
+      case "model": {
+        return all.filter(([_, index]) => {
+          if (index.type === "model") {
+            return index.resource === query.resource;
+          }
+          return false;
+        });
+      }
+      case "asset": {
+        return all.filter(([_, index]) => {
+          return index.type === "asset";
+        });
+      }
     }
-    return all;
   }
 }
 
@@ -59,14 +72,22 @@ class JsonIndexStore implements IndexStore {
 
     if (!value) throw new NotFoundError();
 
-    const url = URL.canParse(value.path)
-      ? new URL(value.path)
-      : new URL(value.path, this.url);
+    switch (value.type) {
+      case "asset": {
+        return { type: "asset" };
+      }
+      case "model": {
+        const url = URL.canParse(value.path)
+          ? new URL(value.path)
+          : new URL(value.path, this.url);
 
-    return {
-      url,
-      resource: value.resource,
-    };
+        return {
+          url,
+          resource: value.resource,
+          type: "model",
+        };
+      }
+    }
   }
 
   async delete(id: string): Promise<void> {
@@ -85,11 +106,17 @@ class JsonIndexStore implements IndexStore {
     const result = await Deno.readTextFile(this.url);
 
     const record = parse(result);
+    const value: IndexValue = index.type === "asset"
+      ? {
+        type: "asset",
+      }
+      : {
+        type: "model",
+        resource: index.resource,
+        path: index.url.href,
+      };
 
-    record[id] = {
-      path: index.url.href,
-      resource: index.resource,
-    };
+    record[id] = value;
 
     const newRecord = stringify(record);
 
@@ -102,19 +129,34 @@ class JsonIndexStore implements IndexStore {
     const record = parse(result);
 
     for (const [id, indexValue] of Object.entries(record)) {
-      const url = new URL(indexValue.path, this.url);
+      switch (indexValue.type) {
+        case "model": {
+          const url = new URL(indexValue.path, this.url);
 
-      yield [id, { url, resource: indexValue.resource }];
+          yield [id, { type: "model", url, resource: indexValue.resource }];
+          break;
+        }
+        case "asset": {
+          yield [id, { type: "asset" }];
+        }
+      }
     }
   }
 }
 
 class NotFoundError extends Error {}
 
-interface IndexValue {
+interface ModelIndexValue {
+  type: "model";
   path: string;
   resource: string;
 }
+
+interface AssetIndexValue {
+  type: "asset";
+}
+
+type IndexValue = ModelIndexValue | AssetIndexValue;
 
 function parse(value: string): IndexRecord {
   return JSON.parse(value);

@@ -55,6 +55,8 @@ class Collector {
 
     const index = await config.indexers.resolve(id);
 
+    if (index.type !== "model") throw new Error();
+
     const url = index.url;
     const resourceKey = index.resource;
 
@@ -117,7 +119,10 @@ class Collector {
     option?: { id?: string },
   ): Promise<{ id: string; resource: string }[]> {
     const config = this.config.value;
-    const entries = await config.indexers.search({ resource: option?.id });
+    const entries = await config.indexers.search({
+      type: "model",
+      resource: option?.id,
+    });
 
     return entries.map(([id, index]) => ({ id, resource: index.resource }));
   }
@@ -126,6 +131,9 @@ class Collector {
     const config = this.config.value;
 
     const index = await config.indexers.resolve(id);
+
+    if (index.type !== "model") throw new Error();
+
     const url = index.url;
     const resourceKey = index.resource;
 
@@ -247,7 +255,11 @@ class Collector {
     const storage = config.storages["file"]!;
 
     await storage.write(url, new Blob([content]));
-    await config.indexers.register(id, { url, resource: resourceKey });
+    await config.indexers.register(id, {
+      url,
+      resource: resourceKey,
+      type: "model",
+    });
 
     return {
       id,
@@ -258,6 +270,8 @@ class Collector {
     const config = this.config.value;
 
     const index = await config.indexers.resolve(id);
+
+    if (index.type !== "model") throw new Error();
 
     const storage = config.storages["file"];
 
