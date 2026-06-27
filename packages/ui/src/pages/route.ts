@@ -7,4 +7,5 @@ export const routes = {
   [Page.Contents]: "/contents",
   [Page.ContentCreation]: "/resources/:id/new" as const,
   [Page.Content]: "/contents/:id" as const,
+  [Page.Assets]: "/assets" as const,
 } satisfies Routes;

@@ -22,6 +22,14 @@ export function Admin(props: AdminProps): JSX.Element {
         <Suspense>
           <Aside promise={resourcesPromise} />
         </Suspense>
+
+        <aside>
+          <h2>
+            <a href={resolvePath(Page.Assets)}>
+              Assets
+            </a>
+          </h2>
+        </aside>
         <main>
           <PageMatcher {...props} />
         </main>
@@ -72,6 +80,9 @@ function PageMatcher(props: AdminProps): JSX.Element {
       return views[route.type].component();
     }
     case Page.Home: {
+      return views[route.type].component();
+    }
+    case Page.Assets: {
       return views[route.type].component();
     }
   }

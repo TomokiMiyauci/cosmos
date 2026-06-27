@@ -113,4 +113,6 @@ export type RouteResult = {
   type: Page.NotFound;
 } | {
   type: Page.Home;
+} | {
+  type: Page.Assets;
 };

@@ -5,4 +5,5 @@ export const enum Page {
   ContentCreation,
   Content,
   Contents,
+  Assets,
 }

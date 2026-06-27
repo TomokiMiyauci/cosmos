@@ -8,6 +8,7 @@ import ContentCreationPage, {
 } from "./content_creation.tsx";
 import { Page } from "./symbol.ts";
 import type { CmsService } from "../type.ts";
+import AssetsPage, { type AssetsPageProps } from "./assets.tsx";
 
 export const views = {
   [Page.NotFound]: {
@@ -76,6 +77,14 @@ export const views = {
       };
     },
     component: ContentCreationPage,
+  },
+  [Page.Assets]: {
+    getStaticProps(parapms: Params): AssetsPageProps {
+      return {
+        service: parapms.service,
+      };
+    },
+    component: AssetsPage,
   },
 };
 
