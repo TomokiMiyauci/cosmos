@@ -10,7 +10,7 @@ import AssetField from "./asset.tsx";
 import ReferenceField from "./reference.tsx";
 import UnionField from "./union.tsx";
 import MapField from "./map.tsx";
-import MarkdownField from "./markdown.tsx";
+// import MarkdownField from "./markdown.tsx";
 import type { Node } from "@cosmos/core";
 import type { Field } from "../type.ts";
 import type { FieldProps } from "./type.ts";
@@ -40,12 +40,12 @@ export default function Field(props: FieldProps): JSX.Element {
         />
       );
     }
-    case "markdown":
-      if (node && node.type !== "markdown") {
-        return <Mismatch onChange={onChange} />;
-      }
+    // case "markdown":
+    //   if (node && node.type !== "markdown") {
+    //     return <Mismatch onChange={onChange} />;
+    //   }
 
-      return <MarkdownField field={field} node={node} onChange={onChange} />;
+    //   return <MarkdownField field={field} node={node} onChange={onChange} />;
     case "datetime": {
       if (node && node.type !== "datetime") {
         return <Mismatch onChange={onChange} />;
@@ -89,7 +89,11 @@ export default function Field(props: FieldProps): JSX.Element {
       );
     }
     case "asset": {
-      return <AssetField field={field} onChange={onChange} />;
+      if (node && node.type !== "asset") {
+        return <Mismatch onChange={onChange} />;
+      }
+
+      return <AssetField field={field} node={node} onChange={onChange} />;
     }
     case "union": {
       if (node && node.type !== "union") {

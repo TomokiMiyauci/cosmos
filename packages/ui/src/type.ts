@@ -64,7 +64,8 @@ export type Field =
   | ListField
   | NumberField
   | ReferenceField
-  | UnionField;
+  | UnionField
+  | AssetField;
 
 export interface StringField extends FieldMeta {
   type: "string";
@@ -107,4 +108,9 @@ export interface ReferenceField extends FieldMeta {
 export interface UnionField extends FieldMeta {
   type: "union";
   variants: Record<string, Field>;
+}
+
+export interface AssetField extends FieldMeta {
+  type: "asset";
+  candidates: string[];
 }
