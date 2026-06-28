@@ -46,8 +46,12 @@ class ServerClient {
     });
   }
 
-  async findIndexies() {
-    const indexEntries = await this.config.value.indexers.search();
+  async findIndexies(option?: { resource?: string }) {
+    const resource = option?.resource;
+    const indexEntries = await this.config.value.indexers.search({
+      resource,
+      type: "model",
+    });
 
     const values = indexEntries.map(([id, index]) => {
       return {
@@ -536,9 +540,12 @@ const definitions = [
       pathname: "./indexies",
     },
     method: "GET",
-    handler: async (_, ctx) => {
-      const indexies = await ctx.client.findIndexies();
-      console.log(indexies);
+    handler: async (request, ctx) => {
+      const url = new URL(request.url);
+
+      const resource = url.searchParams.get("resource") ?? undefined;
+      const indexies = await ctx.client.findIndexies({ resource });
+
       const body = JSON.stringify(indexies);
 
       return new Response(body, {

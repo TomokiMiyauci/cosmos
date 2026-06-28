@@ -10,5 +10,6 @@ export {
   type Identity,
   type Result,
   type Success,
+  type Summary,
   type Template,
 } from "./type.ts";

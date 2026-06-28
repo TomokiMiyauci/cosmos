@@ -18,8 +18,9 @@ export interface Meta {
 export interface CmsService {
   findTemplate(resourceId: string): Promise<Template | null>;
   findContent(contentId: Content["id"]): Promise<Content>;
-  findContents(option?: ContentsOption): Promise<Identity[]>;
+  findSummaries(option?: ContentsOption): Promise<Summary[]>;
   findResources(): Promise<Identity[]>;
+  findAssets(): Promise<[]>;
   saveEntry(entry: Entry): Promise<Result<Node, {}>>;
   saveNode(resource: string, node: Node): Promise<Result<Identity, {}>>;
   eraseNodeById(id: string): Promise<void>;
@@ -102,7 +103,7 @@ export interface NumberField extends FieldMeta {
 
 export interface ReferenceField extends FieldMeta {
   type: "reference";
-  candidates: string[];
+  candidates: Summary[];
 }
 
 export interface UnionField extends FieldMeta {
@@ -112,5 +113,10 @@ export interface UnionField extends FieldMeta {
 
 export interface AssetField extends FieldMeta {
   type: "asset";
-  candidates: string[];
+  candidates: Summary[];
+}
+
+export interface Summary {
+  id: string;
+  name: string;
 }

@@ -36,7 +36,11 @@ export default function ReferenceField(
       >
         <option></option>
         {field.candidates.map((candidate) => {
-          return <option key={candidate} value={candidate}>{candidate}</option>;
+          return (
+            <option key={candidate.id} value={candidate.id}>
+              {candidate.name}
+            </option>
+          );
         })}
       </select>
     </label>

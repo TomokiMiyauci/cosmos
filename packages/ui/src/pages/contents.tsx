@@ -1,6 +1,6 @@
 import { type JSX, Suspense, use } from "react";
 import { Page, resolvePath } from "../router.ts";
-import type { CmsService } from "../type.ts";
+import type { CmsService, Summary } from "../type.ts";
 
 export interface ContentsPageProps {
   service: CmsService;
@@ -9,7 +9,7 @@ export interface ContentsPageProps {
 export default function ContentsPage(props: ContentsPageProps): JSX.Element {
   const { service } = props;
 
-  const promise = service.findContents();
+  const promise = service.findSummaries();
 
   return (
     <div>
@@ -22,17 +22,17 @@ export default function ContentsPage(props: ContentsPageProps): JSX.Element {
   );
 }
 
-function PageInner(props: { promise: Promise<{ id: string }[]> }): JSX.Element {
+function PageInner(props: { promise: Promise<Summary[]> }): JSX.Element {
   const data = use(props.promise);
 
   return (
     <ul>
-      {data.map(({ id }) => {
+      {data.map(({ id, name }) => {
         const href = resolvePath(Page.Content, { id });
 
         return (
           <li key={id}>
-            <a href={href}>{href}</a>
+            <a href={href}>{name}</a>
           </li>
         );
       })}

@@ -1,5 +1,5 @@
 import { type JSX, Suspense, use } from "react";
-import type { CmsService, Identity } from "../type.ts";
+import type { CmsService, Summary } from "../type.ts";
 import { Page, resolvePath } from "../router.ts";
 
 export interface ResourcePageProps {
@@ -10,7 +10,7 @@ export interface ResourcePageProps {
 export default function ResourcePage(props: ResourcePageProps): JSX.Element {
   const { resourceId, service } = props;
 
-  const promise = service.findContents({ resource: resourceId });
+  const promise = service.findSummaries({ resource: resourceId });
 
   return (
     <div>
@@ -25,18 +25,18 @@ export default function ResourcePage(props: ResourcePageProps): JSX.Element {
   );
 }
 
-function MainPage(props: { promise: Promise<Identity[]> }): JSX.Element {
+function MainPage(props: { promise: Promise<Summary[]> }): JSX.Element {
   const result = use(props.promise);
 
   return (
     <div>
       <ul>
-        {result.map((value) => {
-          const href = resolvePath(Page.Content, { id: value.id });
+        {result.map(({ id, name }) => {
+          const href = resolvePath(Page.Content, { id });
 
           return (
-            <li key={value.id}>
-              <a href={href}>{value.id}</a>
+            <li key={id}>
+              <a href={href}>{name}</a>
             </li>
           );
         })}

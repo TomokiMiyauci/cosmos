@@ -7,6 +7,7 @@ import type {
   Field,
   Identity,
   Result,
+  Summary,
   Template,
 } from "@cosmos/ui";
 import { assertContent } from "@cosmos/json";
@@ -48,9 +49,9 @@ class RestClient {
 
   async findContents(
     option?: { resource?: string },
-  ): Promise<{ id: string; resource: string }[]> {
+  ): Promise<Summary[]> {
     const resourceId = option?.resource;
-    const url = new URL(`./contents`, this.entpoint);
+    const url = new URL(`./indexies`, this.entpoint);
 
     if (resourceId) {
       url.searchParams.set("resource", resourceId);
@@ -247,7 +248,7 @@ export class RestCmsService implements CmsService {
     };
   }
 
-  findContents(option?: ContentsOption): Promise<Identity[]> {
+  findSummaries(option?: ContentsOption): Promise<Summary[]> {
     return this.#client.findContents({ resource: option?.resource });
   }
 
@@ -423,9 +424,4 @@ function modelToField(
   }
 
   return to(model.schema);
-}
-
-interface Summary {
-  id: string;
-  name: string;
 }
