@@ -338,12 +338,16 @@ export interface AssetIndexQuery {
 
 export type Index = ModelIndex | AssetIndex;
 
-export interface ModelIndex {
+interface IndexBase {
+  name: string;
+}
+
+export interface ModelIndex extends IndexBase {
   type: "model";
   url: URL;
   resource: string;
 }
 
-export interface AssetIndex {
+export interface AssetIndex extends IndexBase {
   type: "asset";
 }

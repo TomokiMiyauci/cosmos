@@ -10,7 +10,7 @@ import type {
   Template,
 } from "@cosmos/ui";
 import { assertContent } from "@cosmos/json";
-import type { Model, Node, Resource, Schema } from "@cosmos/core";
+import type { Index, Model, Node, Resource, Schema } from "@cosmos/core";
 import { mapValues } from "@std/collections/map-values";
 import type { Resource as C } from "./type.ts";
 
@@ -55,6 +55,16 @@ class RestClient {
     if (resourceId) {
       url.searchParams.set("resource", resourceId);
     }
+
+    const response = await fetch(url);
+
+    const json = await response.json();
+
+    return json;
+  }
+
+  async findIndeies(): Promise<(Index & { id: string })[]> {
+    const url = new URL(`./indexies`, this.entpoint);
 
     const response = await fetch(url);
 
@@ -132,22 +142,25 @@ export class RestCmsService implements CmsService {
       allModels.map(({ id, model }) => [id, model] as const),
     );
 
-    const contents = await this.#client.findContents();
+    const indexies = await this.#client.findIndeies();
     const resources = await this.#client.findResources();
 
-    const store = contents.map((index) => {
-      const resource = resources.find((resource) =>
-        resource.id === index.resource
-      );
+    const store = indexies.filter((index) => index.type === "model").map(
+      (index) => {
+        const resource = resources.find((resource) =>
+          resource.id === index.resource
+        );
 
-      if (!resource) return null;
+        if (!resource) return null;
 
-      return {
-        id: index.id,
-        model: resource.model,
-        resource: index.resource,
-      };
-    }).filter((v) => !!v);
+        return {
+          id: index.id,
+          model: resource.model,
+          resource: index.resource,
+          name: index.name,
+        };
+      },
+    ).filter((v) => !!v);
 
     const field = modelToField(model, (id) => {
       const value = modelRecord.get(id);
@@ -156,11 +169,11 @@ export class RestCmsService implements CmsService {
 
       return value;
     }, (model) => {
-      const values = store.filter((value) => value.model === model).map((
-        value,
-      ) => value.id);
+      const values = store.filter((value) => value.model === model);
 
       return values;
+    }, () => {
+      return [];
     });
 
     return {
@@ -191,22 +204,25 @@ export class RestCmsService implements CmsService {
 
     const node = parseToNode(content.node);
 
-    const contents = await this.#client.findContents();
+    const indexies = await this.#client.findIndeies();
     const resources = await this.#client.findResources();
 
-    const store = contents.map((index) => {
-      const resource = resources.find((resource) =>
-        resource.id === index.resource
-      );
+    const store = indexies.filter((index) => index.type === "model").map(
+      (index) => {
+        const resource = resources.find((resource) =>
+          resource.id === index.resource
+        );
 
-      if (!resource) return null;
+        if (!resource) return null;
 
-      return {
-        id: index.id,
-        model: resource.model,
-        resource: index.resource,
-      };
-    }).filter((v) => !!v);
+        return {
+          id: index.id,
+          model: resource.model,
+          resource: index.resource,
+          name: index.name,
+        };
+      },
+    ).filter((v) => !!v);
 
     const field = modelToField(model, (id) => {
       const value = modelRecord.get(id);
@@ -215,12 +231,10 @@ export class RestCmsService implements CmsService {
 
       return value;
     }, (model) => {
-      const values = store.filter((value) => value.model === model).map((
-        value,
-      ) => value.id);
+      const values = store.filter((value) => value.model === model);
 
       return values;
-    });
+    }, () => []);
 
     return {
       id: content.id,
@@ -288,7 +302,8 @@ export class RestCmsService implements CmsService {
 function modelToField(
   model: Model,
   getModel: (modelId: string) => Model,
-  getIndexies: (modelId: string) => string[],
+  getIndexies: (modelId: string) => Summary[],
+  getAssets: () => Summary[],
 ): Field {
   function to(
     schema: Schema,
@@ -390,7 +405,17 @@ function modelToField(
           required,
         };
       }
-      case "asset":
+      case "asset": {
+        const candidates = getAssets();
+
+        return {
+          type: "asset",
+          title,
+          description,
+          required,
+          candidates,
+        };
+      }
       case "markdown": {
         throw new Error();
       }
@@ -398,4 +423,9 @@ function modelToField(
   }
 
   return to(model.schema);
+}
+
+interface Summary {
+  id: string;
+  name: string;
 }

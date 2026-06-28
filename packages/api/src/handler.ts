@@ -45,6 +45,19 @@ class ServerClient {
       };
     });
   }
+
+  async findIndexies() {
+    const indexEntries = await this.config.value.indexers.search();
+
+    const values = indexEntries.map(([id, index]) => {
+      return {
+        id,
+        ...index,
+      };
+    });
+
+    return values;
+  }
 }
 
 class Collector {
@@ -259,6 +272,7 @@ class Collector {
       url,
       resource: resourceKey,
       type: "model",
+      name: "x",
     });
 
     return {
@@ -514,6 +528,23 @@ const definitions = [
 
       return new Response(null, {
         status: 404,
+      });
+    },
+  },
+  {
+    pattern: {
+      pathname: "./indexies",
+    },
+    method: "GET",
+    handler: async (_, ctx) => {
+      const indexies = await ctx.client.findIndexies();
+      console.log(indexies);
+      const body = JSON.stringify(indexies);
+
+      return new Response(body, {
+        headers: {
+          "content-type": "application/json",
+        },
       });
     },
   },
