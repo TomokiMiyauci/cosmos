@@ -23,7 +23,7 @@ export function createBooleanNode(value: boolean): BooleanNode {
   return { type: "boolean", value };
 }
 
-export function createAssetNode(value: URL): AssetNode {
+export function createAssetNode(value: string): AssetNode {
   return { type: "asset", value };
 }
 

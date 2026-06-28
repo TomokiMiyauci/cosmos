@@ -30,7 +30,10 @@ export class FsIndexer implements Indexer {
       case "model": {
         return all.filter(([_, index]) => {
           if (index.type === "model") {
-            return index.resource === query.resource;
+            if (query.resource) {
+              return index.resource === query.resource;
+            }
+            return true;
           }
           return false;
         });
@@ -74,7 +77,7 @@ class JsonIndexStore implements IndexStore {
 
     switch (value.type) {
       case "asset": {
-        return { type: "asset" };
+        return { type: "asset", name: value.name };
       }
       case "model": {
         const url = URL.canParse(value.path)
@@ -85,6 +88,7 @@ class JsonIndexStore implements IndexStore {
           url,
           resource: value.resource,
           type: "model",
+          name: value.name,
         };
       }
     }
@@ -109,11 +113,13 @@ class JsonIndexStore implements IndexStore {
     const value: IndexValue = index.type === "asset"
       ? {
         type: "asset",
+        name: index.name,
       }
       : {
         type: "model",
         resource: index.resource,
         path: index.url.href,
+        name: index.name,
       };
 
     record[id] = value;
@@ -133,11 +139,16 @@ class JsonIndexStore implements IndexStore {
         case "model": {
           const url = new URL(indexValue.path, this.url);
 
-          yield [id, { type: "model", url, resource: indexValue.resource }];
+          yield [id, {
+            type: "model",
+            url,
+            resource: indexValue.resource,
+            name: indexValue.name,
+          }];
           break;
         }
         case "asset": {
-          yield [id, { type: "asset" }];
+          yield [id, { type: "asset", name: indexValue.name }];
         }
       }
     }
@@ -150,10 +161,12 @@ interface ModelIndexValue {
   type: "model";
   path: string;
   resource: string;
+  name: string;
 }
 
 interface AssetIndexValue {
   type: "asset";
+  name: string;
 }
 
 type IndexValue = ModelIndexValue | AssetIndexValue;

@@ -12,7 +12,7 @@ export class AssetCodec implements FieldCodec {
 
     return {
       type: "asset",
-      value: new URL(structure),
+      value: structure,
     };
   }
 

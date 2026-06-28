@@ -152,11 +152,11 @@ export class Indexer {
             },
           },
           node: {
-            has(url): boolean {
+            has(id): boolean {
               for (const entries of resourceMap.values()) {
                 for (const entry of entries) {
                   if (
-                    entry.type === "document" && entry.url.href === url.href
+                    entry.type === "document" && entry.id === id
                   ) {
                     return true;
                   }
@@ -244,6 +244,7 @@ function toEntry(key: string, resourceEntry: ResourceEntry): Entry {
 type ResourceEntry = DocumentResourceEntry | AssetResourceEntry;
 
 interface BaseResourceEntry {
+  id: string;
   url: URL;
 }
 

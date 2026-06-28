@@ -70,14 +70,9 @@ export function parseToNode(base: BaseNode): Node {
         throw new Error();
       }
 
-      if (!URL.canParse(base.value)) {
-        throw new Error();
-      }
-
-      const value = new URL(base.value);
       return {
         type: "asset",
-        value,
+        value: base.value,
       };
     }
 
@@ -88,6 +83,29 @@ export function parseToNode(base: BaseNode): Node {
           type: "list",
           value: [],
         },
+      };
+    }
+
+    case "reference": {
+      if (typeof base.value !== "string") {
+        throw new Error("Type mismatch: expected string");
+      }
+
+      return {
+        type: "reference",
+        value: base.value,
+      };
+    }
+
+    case "union": {
+      if (!("key" in base && typeof base.key === "string")) throw new Error();
+
+      const value = parseToNode(base.value);
+
+      return {
+        type: "union",
+        key: base.key,
+        value,
       };
     }
 
@@ -119,5 +137,6 @@ function toBaseNode(obj: JsonObject): BaseNode {
   return {
     type: obj.type,
     value: obj.value,
+    ...obj,
   };
 }

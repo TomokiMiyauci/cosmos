@@ -161,7 +161,9 @@ export class ParentCodec implements Codec {
       case "boolean": {
         return fieldCodec.boolean.stringify(node, field, ctx);
       }
-      case "asset":
+      case "asset": {
+        return fieldCodec.asset.stringify(node, field, ctx);
+      }
       case "datetime": {
         return fieldCodec.datetime.stringify(node, field, ctx);
       }

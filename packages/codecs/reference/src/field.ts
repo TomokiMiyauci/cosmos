@@ -1,4 +1,4 @@
-import type { FieldCodec, ReferenceNode, Structure } from "@cosmos/core";
+import type { FieldCodec, Node, ReferenceNode, Structure } from "@cosmos/core";
 
 export class ReferenceCodec implements FieldCodec {
   parse(structure: Structure): ReferenceNode {
@@ -10,7 +10,9 @@ export class ReferenceCodec implements FieldCodec {
     };
   }
 
-  stringify(): Structure {
-    throw new Error("unimplemented");
+  stringify(node: Node): Structure {
+    if (node.type !== "reference") throw new Error();
+
+    return node.value;
   }
 }

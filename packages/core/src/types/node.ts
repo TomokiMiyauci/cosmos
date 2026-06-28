@@ -50,7 +50,7 @@ export interface DatetimeNode {
 
 export interface AssetNode {
   type: AssetSchema["type"];
-  value: URL;
+  value: string;
 }
 
 export interface ListNode {
