@@ -1,73 +1,19 @@
-import type { Config, Model, Node, Resource as R } from "@cosmos/core";
+import type { Config, Index, Model, Node, Resource } from "@cosmos/core";
 import { parse, stringify } from "@cosmos/json";
 import { ParentCodec } from "@cosmos/indexer";
 import { parseToNode } from "@cosmos/parser";
-import type { Resource } from "./type.ts";
+import type { Summary } from "@cosmos/ui";
+import type { Entry } from "./type.ts";
 
 interface ParsedConfig {
   value: Config;
   location: URL;
 }
 
-class ServerClient {
-  constructor(private config: ParsedConfig) {
-    const collector = new Collector(config);
-
-    this.content = new ContentClient(collector);
-    this.contents = new ContentsClient(collector);
-    this.model = new ModelClient(config.value.models);
-  }
-  content: ContentClient;
-
-  contents: ContentsClient;
-
-  model: ModelClient;
-
-  async findResources(): Promise<{ id: string; model: string }[]> {
-    return Object.entries(this.config.value.resources).map(
-      ([id, { model }]) => {
-        return { id, model };
-      },
-    );
-  }
-
-  findResource(resourceId: string): Promise<R | null> {
-    const resource = this.config.value.resources[resourceId];
-
-    return Promise.resolve(resource ?? null);
-  }
-
-  findModels() {
-    return Object.entries(this.config.value.models).map(([id, model]) => {
-      return {
-        id,
-        model,
-      };
-    });
-  }
-
-  async findIndexies(option?: { resource?: string }) {
-    const resource = option?.resource;
-    const indexEntries = await this.config.value.indexers.search({
-      resource,
-      type: "model",
-    });
-
-    const values = indexEntries.map(([id, index]) => {
-      return {
-        id,
-        ...index,
-      };
-    });
-
-    return values;
-  }
-}
-
 class Collector {
   constructor(private config: ParsedConfig) {}
 
-  async get(id: string): Promise<Resource | null> {
+  async get(id: string): Promise<Entry | null> {
     const config = this.config.value;
 
     const index = await config.indexers.resolve(id);
@@ -134,14 +80,14 @@ class Collector {
 
   async gets(
     option?: { id?: string },
-  ): Promise<{ id: string; resource: string }[]> {
+  ): Promise<{ id: string; resource: string; name: string }[]> {
     const config = this.config.value;
     const entries = await config.indexers.search({
       type: "model",
       resource: option?.id,
     });
 
-    return entries.map(([id, index]) => ({ id, resource: index.resource }));
+    return entries.map(([id, index]) => ({ id, ...index }));
   }
 
   async update(id: string, node: Node): Promise<boolean> {
@@ -300,60 +246,109 @@ class Collector {
   }
 }
 
-class ContentClient {
-  constructor(private collector: Collector) {}
-  async get(id: string): Promise<Resource | null> {
-    const data = await this.collector.get(id);
-    if (!data) return null;
+interface RouteDefinition {
+  pattern: URLPatternInit;
+  method?: string;
+  handler: Handler;
+}
 
-    return {
-      id,
-      node: data.node,
-      model: data.model,
-    };
-  }
-  update(content: Content): Promise<boolean> {
-    return this.collector.update(content.id, content.node);
+interface Service {
+  findResource(id: string): Promise<Resource | null>;
+
+  findSummaries(option?: { resource?: string }): Promise<Summary[]>;
+
+  updateContent(entry: Entry): Promise<boolean>;
+  deleteContent(id: string): Promise<boolean>;
+  findResources(): Promise<Resource[]>;
+  createContent(resourceId: string, node: Node): Promise<{ id: string }>;
+  findModel(id: string): Promise<Model | null>;
+  findModels(): Promise<{ id: string; model: Model }[]>;
+  findIndexies(option?: { resource?: string }): Promise<Index[]>;
+  findContent(id: string): Promise<Entry | null>;
+}
+
+class CmsServie implements Service {
+  collector: Collector;
+  constructor(private config: ParsedConfig) {
+    this.collector = new Collector(config);
   }
 
-  create(resourceId: string, node: Node): Promise<{ id: string }> {
+  findContent(id: string): Promise<Entry | null> {
+    return this.collector.get(id);
+  }
+
+  async findResource(id: string): Promise<Resource | null> {
+    const resource = this.config.value.resources[id];
+
+    if (!resource) return null;
+
+    return resource;
+  }
+
+  updateContent(entry: Entry): Promise<boolean> {
+    return this.collector.update(entry.id, entry.node);
+  }
+
+  async deleteContent(id: string): Promise<boolean> {
+    try {
+      await this.collector.delete(id);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  findSummaries(option?: { resource?: string }): Promise<Summary[]> {
+    return this.collector.gets({ id: option?.resource });
+  }
+
+  async findResources(): Promise<Resource[]> {
+    return Object.entries(this.config.value.resources).map(
+      ([id, resource]) => {
+        return { id, ...resource };
+      },
+    );
+  }
+  createContent(resourceId: string, node: Node): Promise<{ id: string }> {
     return this.collector.create(resourceId, node);
   }
 
-  delete(id: string) {
-    return this.collector.delete(id);
+  async findModels(): Promise<{
+    id: string;
+    model: Model;
+  }[]> {
+    return Object.entries(this.config.value.models).map(([id, model]) => {
+      return {
+        id,
+        model,
+      };
+    });
   }
-}
 
-class ContentsClient {
-  constructor(private collector: Collector) {}
-  get(
-    option?: { resource: string | undefined },
-  ): Promise<{ id: string; resource: string }[]> {
-    return this.collector.gets({ id: option?.resource });
-  }
-}
-
-class ModelClient {
-  constructor(private models: Record<string, Model>) {}
-  get(id: string): Promise<Model | null> {
-    const model = this.models[id];
+  findModel(id: string): Promise<Model | null> {
+    const model = this.config.value.models[id];
 
     if (!model) return Promise.resolve(null);
 
     return Promise.resolve(model);
   }
-}
 
-interface Content {
-  id: string;
-  node: Node;
-}
+  async findIndexies(option?: { resource?: string }) {
+    const resource = option?.resource;
+    const indexEntries = await this.config.value.indexers.search({
+      resource,
+      type: "model",
+    });
 
-interface RouteDefinition {
-  pattern: URLPatternInit;
-  method?: string;
-  handler: Handler;
+    const values = indexEntries.map(([id, index]) => {
+      return {
+        id,
+        ...index,
+      };
+    });
+
+    return values;
+  }
 }
 
 const definitions = [
@@ -362,9 +357,9 @@ const definitions = [
       pathname: "./contents/:id",
     },
     method: "GET",
-    handler: async (request, ctx) => {
+    handler: async (_, ctx) => {
       const id = ctx.result.pathname.groups.id!;
-      const content = await ctx.client.content.get(id);
+      const content = await ctx.service.findContent(id);
 
       if (!content) return new Response(null, { status: 404 });
 
@@ -386,7 +381,7 @@ const definitions = [
 
       const content = parse(json);
 
-      const result = await ctx.client.content.update(content);
+      const result = await ctx.service.updateContent(content);
 
       if (result) {
         return new Response(null, { status: 204 });
@@ -400,14 +395,14 @@ const definitions = [
       pathname: "./contents/:id",
     },
     method: "DELETE",
-    handler: async (request, ctx) => {
+    handler: async (_, ctx) => {
       const id = ctx.result.pathname.groups["id"]!;
 
-      try {
-        await ctx.client.content.delete(id);
+      const result = await ctx.service.deleteContent(id);
 
+      if (result) {
         return new Response(null, { status: 204 });
-      } catch {
+      } else {
         return new Response(null, {
           status: 404,
         });
@@ -423,7 +418,7 @@ const definitions = [
       const url = new URL(request.url);
       const resourceId = url.searchParams.get("resource");
 
-      const contents = await ctx.client.contents.get({
+      const contents = await ctx.service.findSummaries({
         resource: resourceId ?? undefined,
       });
 
@@ -443,7 +438,7 @@ const definitions = [
       const json: { node: any; resource: string } = await request.json();
       const node = parseToNode(json.node);
 
-      const result = await ctx.client.content.create(json.resource, node);
+      const result = await ctx.service.createContent(json.resource, node);
 
       return new Response(JSON.stringify(result), {
         headers: {
@@ -461,7 +456,7 @@ const definitions = [
     handler: async (_, ctx) => {
       const id = ctx.result.pathname.groups.id!;
 
-      const model = await ctx.client.model.get(id);
+      const model = await ctx.service.findModel(id);
 
       if (!model) {
         return new Response(null, { status: 404 });
@@ -482,8 +477,9 @@ const definitions = [
     },
     method: "GET",
     handler: async (_, ctx) => {
-      const models = ctx.client.findModels();
+      const models = await ctx.service.findModels();
 
+      console.log(models);
       const body = JSON.stringify(models);
 
       return new Response(body, {
@@ -500,7 +496,7 @@ const definitions = [
 
     method: "GET",
     handler: async (_, ctx) => {
-      const identifies = await ctx.client.findResources();
+      const identifies = await ctx.service.findResources();
 
       return new Response(JSON.stringify(identifies), {
         status: 200,
@@ -519,7 +515,7 @@ const definitions = [
     handler: async (_, ctx) => {
       const resourceId = ctx.result.pathname.groups.id!;
 
-      const identifies = await ctx.client.findResource(resourceId);
+      const identifies = await ctx.service.findResource(resourceId);
 
       if (identifies) {
         return new Response(JSON.stringify(identifies), {
@@ -544,7 +540,7 @@ const definitions = [
       const url = new URL(request.url);
 
       const resource = url.searchParams.get("resource") ?? undefined;
-      const indexies = await ctx.client.findIndexies({ resource });
+      const indexies = await ctx.service.findIndexies({ resource });
 
       const body = JSON.stringify(indexies);
 
@@ -557,19 +553,19 @@ const definitions = [
   },
 ] satisfies RouteDefinition[];
 
-interface Route {
+export interface Route {
   pattern: URLPattern;
   method?: string;
   handler: Handler;
 }
 
-interface Handler {
+export interface Handler {
   (request: Request, ctx: HandlerContext): Response | Promise<Response>;
 }
 
-interface HandlerContext {
+export interface HandlerContext {
   result: URLPatternResult;
-  client: ServerClient;
+  service: Service;
 }
 
 export function createRestHandler(
@@ -577,7 +573,7 @@ export function createRestHandler(
   endpoint: URL,
 ): (request: Request) => Promise<Response> {
   const routes = definitions.map((def) => toRoute(def, endpoint));
-  const client = new ServerClient(config);
+  const service = new CmsServie(config);
 
   return async (request: Request) => {
     for (const route of routes) {
@@ -591,7 +587,7 @@ export function createRestHandler(
 
       if (!result) continue;
 
-      return route.handler(request, { result, client });
+      return route.handler(request, { result, service });
     }
 
     return new Response(null, {

@@ -5,6 +5,6 @@ export interface Data {
   model: string;
 }
 
-export interface Resource extends Data {
+export interface Entry extends Data {
   id: string;
 }

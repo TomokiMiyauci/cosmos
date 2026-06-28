@@ -3,7 +3,6 @@ import type {
   CmsService,
   Content,
   ContentsOption,
-  Entry,
   Identity,
   Result,
   Summary,
@@ -11,7 +10,7 @@ import type {
 } from "@cosmos/ui";
 import { assertContent } from "@cosmos/json";
 import type { Index, Model, Node, Resource } from "@cosmos/core";
-import type { Resource as C } from "./type.ts";
+import type { Entry } from "./type.ts";
 import { modelToField } from "./util.ts";
 
 class RestClient {
@@ -83,7 +82,7 @@ class RestClient {
     return json;
   }
 
-  async findContent(contentId: string): Promise<C | null> {
+  async findContent(contentId: string): Promise<Entry | null> {
     const url = new URL(`./contents/${contentId}`, this.entpoint);
 
     const response = await fetch(url);
@@ -127,6 +126,7 @@ export class RestCmsService implements CmsService {
   }
 
   async findTemplate(resourceId: string): Promise<Template | null> {
+    console.log(resourceId);
     const resource = await this.#client.findResource(resourceId);
 
     if (!resource) return null;
@@ -188,6 +188,7 @@ export class RestCmsService implements CmsService {
 
   async findContent(id: Content["id"]): Promise<Content> {
     const content = await this.#client.findContent(id);
+    console.log(2, content);
 
     if (!content) throw new Error();
 
