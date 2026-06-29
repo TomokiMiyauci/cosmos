@@ -1,10 +1,13 @@
-import type { Engine, Model, Schema } from "@cosmos/core";
+import type { Codec, CodecMap, Engine, Model, Schema } from "@cosmos/core";
 import type { Config, ModelConfig, SchemaConfig } from "./type.ts";
 import { mapValues } from "@std/collections";
+import { ParentCodec } from "./codec.ts";
 
 export function convert(config: Config): Engine {
   const models = mapValues(config.models, toModel);
-  return { ...config, models, locators: {} };
+  const codec = toCodec(config.codec);
+
+  return { ...config, models, codec, locators: {} };
 }
 
 function toModel(modelConfig: ModelConfig, key: string): Model {
@@ -46,4 +49,8 @@ function toSchema(schema: SchemaConfig): Schema {
       };
     }
   }
+}
+
+function toCodec(map: CodecMap): Codec {
+  return new ParentCodec(map);
 }

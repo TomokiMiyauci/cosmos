@@ -5,6 +5,7 @@ import type {
   BooleanSchema,
   Codec,
   CodecContext,
+  CodecMap,
   DatetimeNode,
   DatetimeSchema,
   ListNode,
@@ -25,7 +26,7 @@ import type {
 } from "@cosmos/core";
 
 export class ParentCodec implements Codec {
-  constructor() {}
+  constructor(private map: CodecMap) {}
   parse(
     structure: Structure,
     field: StringSchema,
@@ -82,7 +83,7 @@ export class ParentCodec implements Codec {
     ctx: CodecContext,
   ): Node | Promise<Node> {
     const converters = ctx.engine.converters;
-    const fieldCodec = ctx.engine.codec;
+    const fieldCodec = this.map;
 
     switch (field.type) {
       case "string": {
@@ -149,7 +150,7 @@ export class ParentCodec implements Codec {
     field: Schema,
     ctx: CodecContext,
   ): Structure | Promise<Structure> {
-    const fieldCodec = ctx.engine.codec;
+    const fieldCodec = this.map;
 
     switch (field.type) {
       case "string": {

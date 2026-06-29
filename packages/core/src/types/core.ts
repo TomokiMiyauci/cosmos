@@ -35,7 +35,7 @@ export interface Manifest {
 
 export interface Engine {
   formats: Record<string, Formatter>;
-  codec: CodecMap;
+  codec: Codec;
   resources: Record<string, Resource>;
   sources: Source[];
   storages: Record<string, Storage>;

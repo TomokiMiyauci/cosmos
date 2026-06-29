@@ -11,7 +11,6 @@ import type {
 } from "@cosmos/core";
 import { mapValues } from "@std/collections";
 import { HashMap } from "./util.ts";
-import { ParentCodec } from "./codec.ts";
 
 export class Indexer {
   constructor(private config: Config, private base: URL) {}
@@ -131,8 +130,7 @@ export class Indexer {
           resource,
         });
 
-        const codec = new ParentCodec();
-        const node = await codec.parse(structure, field, {
+        const node = await config.codec.parse(structure, field, {
           baseUrl: url,
           base: this.base,
           config,
@@ -166,7 +164,7 @@ export class Indexer {
               return false;
             },
           },
-          codec,
+          codec: config.codec,
         });
 
         return {
