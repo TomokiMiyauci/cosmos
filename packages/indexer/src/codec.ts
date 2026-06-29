@@ -81,8 +81,8 @@ export class ParentCodec implements Codec {
     field: Schema,
     ctx: CodecContext,
   ): Node | Promise<Node> {
-    const converters = ctx.config.converters;
-    const fieldCodec = ctx.config.codec;
+    const converters = ctx.engine.converters;
+    const fieldCodec = ctx.engine.codec;
 
     switch (field.type) {
       case "string": {
@@ -149,7 +149,7 @@ export class ParentCodec implements Codec {
     field: Schema,
     ctx: CodecContext,
   ): Structure | Promise<Structure> {
-    const fieldCodec = ctx.config.codec;
+    const fieldCodec = ctx.engine.codec;
 
     switch (field.type) {
       case "string": {

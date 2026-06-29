@@ -33,14 +33,14 @@ export interface Manifest {
   resources: Record<string, Resource>;
 }
 
-export interface Config {
+export interface Engine {
   formats: Record<string, Formatter>;
   codec: CodecMap;
   resources: Record<string, Resource>;
   sources: Source[];
   storages: Record<string, Storage>;
   locators: Record<string, Locator>;
-  indexers: Indexer;
+  indexer: Indexer;
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;
   assets?: Record<string, Asset>;
@@ -243,7 +243,7 @@ export interface StructureObject {
 export type Structure = StructureValue | StructureObject;
 
 export interface FormatterContext {
-  config: Config;
+  engine: Engine;
   option: unknown;
   resource: Resource;
 }
@@ -298,7 +298,7 @@ export interface AssetEntryFilter {
 }
 
 export interface BaseContext {
-  config: Config;
+  engine: Engine;
   base: URL;
 }
 

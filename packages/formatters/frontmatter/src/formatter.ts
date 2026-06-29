@@ -15,21 +15,21 @@ export class FrontmatterFormatter implements Formatter {
     const mainField = ctx.resource.main;
     const option = ctx.option as FrontmatterOptions;
     const { header, body } = this.#frontmatter.parse(content);
-    const headerFormatter = ctx.config.formats[option.header.type];
+    const headerFormatter = ctx.engine.formats[option.header.type];
 
     if (!headerFormatter) throw new Error("header formatter not found");
 
-    const bodyFormatter = ctx.config.formats[option.body.type];
+    const bodyFormatter = ctx.engine.formats[option.body.type];
 
     if (!bodyFormatter) throw new Error("body formatter not found");
 
     const parsedHeader = headerFormatter.parse(header, {
-      config: ctx.config,
+      engine: ctx.engine,
       option: option.header.option,
       resource: ctx.resource,
     });
     const parsedBody = bodyFormatter.parse(body, {
-      config: ctx.config,
+      engine: ctx.engine,
       option: option.body.option,
       resource: ctx.resource,
     });
@@ -72,8 +72,8 @@ export class FrontmatterFormatter implements Formatter {
   serialize(structure: Structure, ctx: FormatterContext): string {
     const mainField = ctx.resource.main;
     const option = ctx.option as FrontmatterOptions;
-    const headerFormatter = ctx.config.formats[option.header.type];
-    const bodyFormatter = ctx.config.formats[option.body.type];
+    const headerFormatter = ctx.engine.formats[option.header.type];
+    const bodyFormatter = ctx.engine.formats[option.body.type];
 
     if (!headerFormatter) throw new Error("header formatter not found");
     if (!bodyFormatter) throw new Error("body formatter not found");

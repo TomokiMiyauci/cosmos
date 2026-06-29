@@ -14,7 +14,7 @@ export class InstanceCodec implements FieldCodec {
   ): Promise<Node> | Node {
     if (schema.type !== "instance") throw new Error();
 
-    const childModel = ctx.config.models[schema.model];
+    const childModel = ctx.engine.models[schema.model];
 
     if (!childModel) throw new Error();
 
@@ -28,7 +28,7 @@ export class InstanceCodec implements FieldCodec {
   ): Structure | Promise<Structure> {
     if (schema.type !== "instance") throw new Error();
 
-    const model = ctx.config.models[schema.model];
+    const model = ctx.engine.models[schema.model];
 
     if (!model) throw new Error();
 

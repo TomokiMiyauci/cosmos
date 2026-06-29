@@ -1,4 +1,4 @@
-import type { Config, Index, Model, Node, Resource } from "@cosmos/core";
+import type { Engine, Index, Model, Node, Resource } from "@cosmos/core";
 import { parse, stringify } from "@cosmos/json";
 import { ParentCodec } from "@cosmos/indexer";
 import { parseToNode } from "@cosmos/parser";
@@ -6,7 +6,7 @@ import type { Summary } from "@cosmos/ui";
 import type { Entry } from "./type.ts";
 
 interface ParsedConfig {
-  value: Config;
+  value: Engine;
   location: URL;
 }
 
@@ -16,7 +16,7 @@ class Collector {
   async get(id: string): Promise<Entry | null> {
     const config = this.config.value;
 
-    const index = await config.indexers.resolve(id);
+    const index = await config.indexer.resolve(id);
 
     if (index.type !== "model") throw new Error();
 
@@ -49,7 +49,7 @@ class Collector {
     const blob = await storage.read(url);
     const text = await blob.text();
     const structure = formatter.parse(text, {
-      config,
+      engine: config,
       option: format.option,
       resource,
     });
@@ -57,7 +57,7 @@ class Collector {
     const node = await codec.parse(structure, field.schema, {
       baseUrl: url,
       base: this.config.location,
-      config,
+      engine: config,
       asset: {
         has(): boolean {
           return false;
@@ -82,7 +82,7 @@ class Collector {
     option?: { id?: string },
   ): Promise<{ id: string; resource: string; name: string }[]> {
     const config = this.config.value;
-    const entries = await config.indexers.search({
+    const entries = await config.indexer.search({
       type: "model",
       resource: option?.id,
     });
@@ -93,7 +93,7 @@ class Collector {
   async update(id: string, node: Node): Promise<boolean> {
     const config = this.config.value;
 
-    const index = await config.indexers.resolve(id);
+    const index = await config.indexer.resolve(id);
 
     if (index.type !== "model") throw new Error();
 
@@ -128,7 +128,7 @@ class Collector {
     const structure = await codec.serialize(node, field.schema, {
       baseUrl: url,
       base: this.config.location,
-      config,
+      engine: config,
       asset: {
         has(): boolean {
           return false;
@@ -143,7 +143,7 @@ class Collector {
     });
 
     const content = formatter.serialize(structure, {
-      config: this.config.value,
+      engine: config,
       option: format.option,
       resource,
     });
@@ -195,7 +195,7 @@ class Collector {
     const structure = await codec.serialize(node, field.schema, {
       baseUrl: url,
       base: this.config.location,
-      config: this.config.value,
+      engine: this.config.value,
       asset: {
         has(): boolean {
           return false;
@@ -210,7 +210,7 @@ class Collector {
     });
 
     const content = formatter.serialize(structure, {
-      config: this.config.value,
+      engine: this.config.value,
       option: format.option,
       resource,
     });
@@ -218,7 +218,7 @@ class Collector {
     const storage = config.storages["file"]!;
 
     await storage.write(url, new Blob([content]));
-    await config.indexers.register(id, {
+    await config.indexer.register(id, {
       url,
       resource: resourceKey,
       type: "model",
@@ -233,7 +233,7 @@ class Collector {
   async delete(id: string): Promise<void> {
     const config = this.config.value;
 
-    const index = await config.indexers.resolve(id);
+    const index = await config.indexer.resolve(id);
 
     if (index.type !== "model") throw new Error();
 
@@ -242,7 +242,7 @@ class Collector {
     if (!storage) throw new Error();
 
     await storage.delete(index.url);
-    await config.indexers.unregister(id);
+    await config.indexer.unregister(id);
   }
 }
 
@@ -335,7 +335,7 @@ class CmsServie implements Service {
 
   async findIndexies(option?: { resource?: string }) {
     const resource = option?.resource;
-    const indexEntries = await this.config.value.indexers.search({
+    const indexEntries = await this.config.value.indexer.search({
       resource,
       type: "model",
     });
