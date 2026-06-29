@@ -13,7 +13,7 @@ export interface Engine {
   codec: Codec;
   resources: Record<string, Resource>;
   sources: Source[];
-  storages: Record<string, Storage>;
+  storage: Storage;
   indexer: Indexer;
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;

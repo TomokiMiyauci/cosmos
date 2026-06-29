@@ -38,8 +38,7 @@ class Collector {
       return null;
     }
 
-    const storage = config.storages["file"]!;
-    const blob = await storage.read(url);
+    const blob = await config.storage.read(url);
     const text = await blob.text();
     const structure = formatter.parse(text, {
       engine: config,
@@ -113,7 +112,7 @@ class Collector {
       return false;
     }
 
-    const storage = config.storages["file"]!;
+    const storage = config.storage;
 
     const structure = await config.codec.serialize(node, field.schema, {
       baseUrl: url,
@@ -146,7 +145,8 @@ class Collector {
     }
   }
 
-  async create(resourceId: string, node: Node): Promise<{ id: string }> {
+  async create(entry: Ent): Promise<{ id: string }> {
+    const { node, resourceId, name } = entry;
     const config = this.config.value;
 
     const id = crypto.randomUUID();
@@ -202,14 +202,12 @@ class Collector {
       resource,
     });
 
-    const storage = config.storages["file"]!;
-
-    await storage.write(url, new Blob([content]));
+    await config.storage.write(url, new Blob([content]));
     await config.indexer.register(id, {
       url,
       resource: resourceKey,
       type: "model",
-      name: "x",
+      name,
     });
 
     return {
@@ -224,13 +222,19 @@ class Collector {
 
     if (index.type !== "model") throw new Error();
 
-    const storage = config.storages["file"];
+    const storage = config.storage;
 
     if (!storage) throw new Error();
 
     await storage.delete(index.url);
     await config.indexer.unregister(id);
   }
+}
+
+interface Ent {
+  resourceId: string;
+  node: Node;
+  name: string;
 }
 
 export class CmsServie implements CoreService {
@@ -276,7 +280,7 @@ export class CmsServie implements CoreService {
     );
   }
   createContent(resourceId: string, node: Node): Promise<{ id: string }> {
-    return this.collector.create(resourceId, node);
+    return this.collector.create({ resourceId, node, name: "x" });
   }
 
   async findModels(): Promise<{

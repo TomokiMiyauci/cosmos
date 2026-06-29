@@ -2,12 +2,14 @@ import type { Codec, Engine, Model, Schema } from "@cosmos/core";
 import type { Config, ModelConfig, SchemaConfig } from "./type.ts";
 import { mapValues } from "@std/collections";
 import { type CodecMap, ParentCodec } from "./codec.ts";
+import { PoolStorage } from "./storage.ts";
 
 export function convert(config: Config): Engine {
   const models = mapValues(config.models, toModel);
   const codec = toCodec(config.codec);
+  const storage = new PoolStorage(config.storages);
 
-  return { ...config, models, codec };
+  return { ...config, models, codec, storage };
 }
 
 function toModel(modelConfig: ModelConfig, key: string): Model {
