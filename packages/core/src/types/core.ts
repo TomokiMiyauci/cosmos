@@ -14,7 +14,6 @@ export interface Engine {
   resources: Record<string, Resource>;
   sources: Source[];
   storages: Record<string, Storage>;
-  locators: Record<string, Locator>;
   indexer: Indexer;
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;
@@ -22,22 +21,11 @@ export interface Engine {
 }
 
 export interface Asset {
-  locator: LocatorDefinition;
 }
 
 export interface Source {
   resource: string;
-  locator: LocatorDefinition;
   format: FormatDefinition;
-}
-
-export interface LocatorContext extends BaseContext {
-  option: unknown;
-}
-
-export interface LocatorDefinition {
-  type: string;
-  option?: unknown;
 }
 
 export interface ConvertMap {
@@ -129,10 +117,6 @@ export interface Storage {
   read(url: URL): Blob | Promise<Blob>;
   write(url: URL, content: Blob): void | Promise<void>;
   delete(url: URL): void | Promise<void>;
-}
-
-export interface Locator {
-  search(ctx: LocatorContext): AsyncIterable<URL>;
 }
 
 export type StructureValue = string;

@@ -7,7 +7,7 @@ export function convert(config: Config): Engine {
   const models = mapValues(config.models, toModel);
   const codec = toCodec(config.codec);
 
-  return { ...config, models, codec, locators: {} };
+  return { ...config, models, codec };
 }
 
 function toModel(modelConfig: ModelConfig, key: string): Model {
