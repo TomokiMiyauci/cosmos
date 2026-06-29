@@ -2,7 +2,6 @@ import type {
   Asset,
   AssetSchema,
   BooleanSchema,
-  CodecMap,
   ConvertMap,
   DatetimeSchema,
   EntityType,
@@ -15,6 +14,7 @@ import type {
   Storage,
   StringSchema,
 } from "@cosmos/core";
+import type { CodecMap } from "./codec.ts";
 
 export interface ModelConfig {
   title?: string;

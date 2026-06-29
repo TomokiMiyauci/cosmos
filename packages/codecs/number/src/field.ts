@@ -1,4 +1,5 @@
-import type { FieldCodec, Node, NumberNode, Structure } from "@cosmos/core";
+import type { Node, NumberNode, Structure } from "@cosmos/core";
+import type { FieldCodec } from "@cosmos/config";
 
 export class NumberCodec implements FieldCodec {
   parse(structure: Structure): NumberNode {

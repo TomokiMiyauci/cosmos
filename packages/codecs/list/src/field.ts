@@ -1,18 +1,17 @@
 import type {
-  CodecContext,
-  FieldCodec,
   ListNode,
   Node,
   Schema,
   Structure,
   StructureObject,
 } from "@cosmos/core";
+import type { FieldCodec, FieldCodecContext } from "@cosmos/config";
 
 export class ListCodec implements FieldCodec {
   async parse(
     structure: Structure,
     schema: Schema,
-    ctx: CodecContext,
+    ctx: FieldCodecContext,
   ): Promise<ListNode> {
     if (typeof structure === "string") throw new Error();
 
@@ -37,7 +36,7 @@ export class ListCodec implements FieldCodec {
   async stringify(
     node: Node,
     schema: Schema,
-    ctx: CodecContext,
+    ctx: FieldCodecContext,
   ): Promise<StructureObject> {
     if (node.type !== "list") throw new Error();
     if (schema.type !== "list") throw new Error();

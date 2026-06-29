@@ -1,17 +1,11 @@
-import type {
-  CodecContext,
-  FieldCodec,
-  MapNode,
-  Node,
-  Schema,
-  Structure,
-} from "@cosmos/core";
+import type { MapNode, Node, Schema, Structure } from "@cosmos/core";
+import type { FieldCodec, FieldCodecContext } from "@cosmos/config";
 
 export class MapCodec implements FieldCodec {
   async parse(
     structure: Structure,
     schema: Schema,
-    ctx: CodecContext,
+    ctx: FieldCodecContext,
   ): Promise<MapNode> {
     if (typeof structure === "string") throw new SyntaxError();
     if (schema.type !== "map") throw new Error();
@@ -47,7 +41,7 @@ export class MapCodec implements FieldCodec {
   async stringify(
     node: Node,
     schema: Schema,
-    ctx: CodecContext,
+    ctx: FieldCodecContext,
   ): Promise<Structure> {
     if (node.type !== "map") throw new SyntaxError();
     if (schema.type !== "map") throw new SyntaxError();

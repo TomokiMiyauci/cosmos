@@ -1,10 +1,10 @@
 import type {
   DatetimeNode,
-  FieldCodec,
   Node,
   Structure,
   StructureValue,
 } from "@cosmos/core";
+import type { FieldCodec } from "@cosmos/config";
 
 export class DatetimeCodec implements FieldCodec {
   parse(structure: Structure): DatetimeNode {

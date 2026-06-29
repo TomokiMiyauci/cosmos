@@ -1,10 +1,5 @@
-import type {
-  AssetNode,
-  FieldCodec,
-  Node,
-  Structure,
-  StructureValue,
-} from "@cosmos/core";
+import type { AssetNode, Node, Structure, StructureValue } from "@cosmos/core";
+import type { FieldCodec } from "@cosmos/config";
 
 export class AssetCodec implements FieldCodec {
   parse(structure: Structure): AssetNode {

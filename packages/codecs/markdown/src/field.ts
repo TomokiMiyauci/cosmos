@@ -1,7 +1,5 @@
 import type {
   AssetNode,
-  CodecContext,
-  FieldCodec,
   MarkdownNode,
   ReferenceNode,
   Schema,
@@ -10,6 +8,7 @@ import type {
 } from "@cosmos/core";
 import { MarkdownParser } from "./parser.ts";
 import { fromMarkdown } from "mdast-util-from-markdown";
+import type { FieldCodec, FieldCodecContext } from "@cosmos/config";
 
 export class MarkdownCodec implements FieldCodec {
   #parser = new MarkdownParser();
@@ -19,7 +18,7 @@ export class MarkdownCodec implements FieldCodec {
   async parse(
     structure: Structure,
     _: Schema,
-    ctx: CodecContext,
+    ctx: FieldCodecContext,
   ): Promise<MarkdownNode> {
     if (typeof structure !== "string") throw new Error();
 

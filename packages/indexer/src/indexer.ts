@@ -164,7 +164,6 @@ export class Indexer {
               return false;
             },
           },
-          codec: config.codec,
         });
 
         return {

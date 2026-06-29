@@ -1,31 +1,6 @@
-import type {
-  AssetNode,
-  BooleanNode,
-  DatetimeNode,
-  ListNode,
-  MapNode,
-  MarkdownNode,
-  Node,
-  NumberNode,
-  ReferenceNode,
-  StringNode,
-  UnionNode,
-} from "./node.ts";
+import type { Node } from "./node.ts";
 import type { Schema } from "./schema.ts";
-import type {
-  AssetSchema,
-  BooleanSchema,
-  DatetimeSchema,
-  InstanceSchema,
-  ListSchema,
-  MapSchema,
-  MarkdownSchema,
-  Model,
-  NumberSchema,
-  ReferenceSchema,
-  StringSchema,
-  UnionSchema,
-} from "./schema.ts";
+import type { Model } from "./schema.ts";
 
 export interface Manifest {
   version: string;
@@ -65,20 +40,6 @@ export interface LocatorDefinition {
   option?: unknown;
 }
 
-export interface CodecMap {
-  string: FieldCodec<StringSchema, StringNode>;
-  asset: FieldCodec<AssetSchema, AssetNode>;
-  map: FieldCodec<MapSchema, MapNode>;
-  boolean: FieldCodec<BooleanSchema, BooleanNode>;
-  number: FieldCodec<NumberSchema, NumberNode>;
-  instance: FieldCodec<InstanceSchema>;
-  list: FieldCodec<ListSchema, ListNode>;
-  markdown: FieldCodec<MarkdownSchema, MarkdownNode>;
-  reference: FieldCodec<ReferenceSchema, ReferenceNode>;
-  datetime: FieldCodec<DatetimeSchema, DatetimeNode>;
-  union: FieldCodec<UnionSchema, UnionNode>;
-}
-
 export interface ConvertMap {
   string: Converter;
   asset: Converter;
@@ -101,66 +62,7 @@ export interface Converter {
 export interface ConverterContext extends ResolverContext {
 }
 
-export interface FieldCodec<T extends Schema = Schema, U extends Node = Node> {
-  parse(
-    structure: Structure,
-    model: T,
-    ctx: CodecContext,
-  ): U | Promise<U>;
-
-  stringify(
-    node: U,
-    model: T,
-    ctx: CodecContext,
-  ): Structure | Promise<Structure>;
-}
-
 export interface Codec {
-  parse(
-    structure: Structure,
-    field: StringSchema,
-    ctx: CodecContext,
-  ): StringNode | Promise<StringNode>;
-  parse(
-    structure: Structure,
-    field: NumberSchema,
-    ctx: CodecContext,
-  ): NumberNode | Promise<NumberNode>;
-  parse(
-    structure: Structure,
-    field: BooleanSchema,
-    ctx: CodecContext,
-  ): BooleanNode | Promise<BooleanNode>;
-  parse(
-    structure: Structure,
-    field: AssetSchema,
-    ctx: CodecContext,
-  ): AssetNode | Promise<AssetNode>;
-  parse(
-    structure: Structure,
-    field: DatetimeSchema,
-    ctx: CodecContext,
-  ): DatetimeNode | Promise<DatetimeNode>;
-  parse(
-    structure: Structure,
-    field: ReferenceSchema,
-    ctx: CodecContext,
-  ): ReferenceNode | Promise<ReferenceNode>;
-  parse(
-    structure: Structure,
-    field: ListSchema,
-    ctx: CodecContext,
-  ): ListNode | Promise<ListNode>;
-  parse(
-    structure: Structure,
-    field: MapSchema,
-    ctx: CodecContext,
-  ): MapNode | Promise<MapNode>;
-  parse(
-    structure: Structure,
-    field: UnionSchema,
-    ctx: CodecContext,
-  ): UnionNode | Promise<UnionNode>;
   parse(
     structure: Structure,
     schema: Schema,
@@ -177,7 +79,6 @@ export interface Codec {
 export interface CodecContext extends ResolverContext {
   asset: AssetRegistry;
   node: NodeRegistry;
-  codec: Codec;
 }
 
 export interface FormatDefinition {

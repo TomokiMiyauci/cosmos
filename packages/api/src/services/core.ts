@@ -60,7 +60,6 @@ class Collector {
           return false;
         },
       },
-      codec: config.codec,
     });
 
     return {
@@ -130,7 +129,6 @@ class Collector {
           return false;
         },
       },
-      codec: config.codec,
     });
 
     const content = formatter.serialize(structure, {
@@ -196,7 +194,6 @@ class Collector {
           return false;
         },
       },
-      codec: config.codec,
     });
 
     const content = formatter.serialize(structure, {

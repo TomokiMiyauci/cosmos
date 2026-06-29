@@ -1,7 +1,7 @@
-import type { Codec, CodecMap, Engine, Model, Schema } from "@cosmos/core";
+import type { Codec, Engine, Model, Schema } from "@cosmos/core";
 import type { Config, ModelConfig, SchemaConfig } from "./type.ts";
 import { mapValues } from "@std/collections";
-import { ParentCodec } from "./codec.ts";
+import { type CodecMap, ParentCodec } from "./codec.ts";
 
 export function convert(config: Config): Engine {
   const models = mapValues(config.models, toModel);

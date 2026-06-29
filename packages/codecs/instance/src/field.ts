@@ -1,16 +1,11 @@
-import type {
-  CodecContext,
-  FieldCodec,
-  Node,
-  Schema,
-  Structure,
-} from "@cosmos/core";
+import type { Node, Schema, Structure } from "@cosmos/core";
+import type { FieldCodec, FieldCodecContext } from "@cosmos/config";
 
 export class InstanceCodec implements FieldCodec {
   parse(
     structure: Structure,
     schema: Schema,
-    ctx: CodecContext,
+    ctx: FieldCodecContext,
   ): Promise<Node> | Node {
     if (schema.type !== "instance") throw new Error();
 
@@ -24,7 +19,7 @@ export class InstanceCodec implements FieldCodec {
   stringify(
     node: Node,
     schema: Schema,
-    ctx: CodecContext,
+    ctx: FieldCodecContext,
   ): Structure | Promise<Structure> {
     if (schema.type !== "instance") throw new Error();
 

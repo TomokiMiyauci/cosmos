@@ -1,18 +1,17 @@
 import type {
-  CodecContext,
-  FieldCodec,
   Node,
   Schema,
   Structure,
   StructureObject,
   UnionNode,
 } from "@cosmos/core";
+import type { FieldCodec, FieldCodecContext } from "@cosmos/config";
 
 export class UnionCodec implements FieldCodec {
   async parse(
     structure: Structure,
     schema: Schema,
-    ctx: CodecContext,
+    ctx: FieldCodecContext,
   ): Promise<UnionNode> {
     if (schema.type !== "union") throw new Error();
     if (typeof structure === "string") throw new SyntaxError();
@@ -39,7 +38,7 @@ export class UnionCodec implements FieldCodec {
   async stringify(
     node: Node,
     schema: Schema,
-    ctx: CodecContext,
+    ctx: FieldCodecContext,
   ): Promise<Structure> {
     if (node.type !== "union") throw new Error();
     if (schema.type !== "union") throw new Error();
