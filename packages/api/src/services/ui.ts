@@ -10,8 +10,8 @@ import type {
 } from "@cosmos/ui";
 import { assertContent } from "@cosmos/json";
 import type { Index, Model, Node, Resource } from "@cosmos/core";
-import type { Entry } from "./type.ts";
-import { modelToField } from "./util.ts";
+import type { Entry } from "../type.ts";
+import { modelToField } from "../util.ts";
 
 class RestClient {
   constructor(private entpoint: URL) {}
