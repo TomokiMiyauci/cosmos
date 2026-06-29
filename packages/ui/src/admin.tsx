@@ -2,31 +2,37 @@ import { type JSX, Suspense, use } from "react";
 import { Page, resolvePath, type RouteResult } from "./router.ts";
 import type { CmsService, Identity } from "./type.ts";
 import { views } from "./pages/view.ts";
+import type { TranslationService } from "./translation.ts";
 
 export interface AdminProps {
   route: RouteResult;
   service: CmsService;
+  translation: TranslationService;
 }
 
 export function Admin(props: AdminProps): JSX.Element {
-  const resourcesPromise = props.service.findResources();
+  const { service, translation } = props;
+
+  const resourcesPromise = service.findResources();
 
   return (
     <html>
       <head></head>
       <body>
         <header>
-          <a href={resolvePath(Page.Home)}>Home</a>
+          <a href={resolvePath(Page.Home)}>
+            {translation.translate("page.home.title")}
+          </a>
         </header>
 
         <Suspense>
-          <Aside promise={resourcesPromise} />
+          <Aside promise={resourcesPromise} translation={translation} />
         </Suspense>
 
         <aside>
           <h2>
             <a href={resolvePath(Page.Assets)}>
-              Assets
+              {translation.translate("page.assets.title")}
             </a>
           </h2>
         </aside>
@@ -38,14 +44,16 @@ export function Admin(props: AdminProps): JSX.Element {
   );
 }
 
-function Aside(props: { promise: Promise<Identity[]> }): JSX.Element {
-  const { promise } = props;
+function Aside(
+  props: { promise: Promise<Identity[]>; translation: TranslationService },
+): JSX.Element {
+  const { promise, translation } = props;
 
   const identifies = use(promise);
 
   return (
     <aside>
-      <h2>Resources</h2>
+      <h2>{translation.translate("page.resources.title")}</h2>
 
       <ul>
         {identifies.map(({ id }) => {

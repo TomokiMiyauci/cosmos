@@ -13,3 +13,7 @@ export {
   type Summary,
   type Template,
 } from "./type.ts";
+export { I18n } from "./translation.ts";
+import en from "./locales/en.json" with { type: "json" };
+
+export { en };
