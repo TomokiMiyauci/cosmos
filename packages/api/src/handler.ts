@@ -24,7 +24,11 @@ export interface CoreService {
   updateContent(entry: Entry): Promise<boolean>;
   deleteContent(id: string): Promise<boolean>;
   findResources(): Promise<Resource[]>;
-  createContent(resourceId: string, node: Node): Promise<{ id: string }>;
+  createContent(
+    resourceId: string,
+    node: Node,
+    summary: Summary,
+  ): Promise<{ id: string }>;
   findModel(id: string): Promise<Model | null>;
   findModels(): Promise<{ id: string; model: Model }[]>;
   findIndexies(option?: { resource?: string }): Promise<Index[]>;
@@ -115,10 +119,13 @@ const definitions = [
     },
     method: "POST",
     handler: async (request, ctx) => {
-      const json: { node: any; resource: string } = await request.json();
+      const json: { node: any; resource: string; name: string } = await request
+        .json();
       const node = parseToNode(json.node);
 
-      const result = await ctx.service.createContent(json.resource, node);
+      const result = await ctx.service.createContent(json.resource, node, {
+        name: json.name,
+      });
 
       return new Response(JSON.stringify(result), {
         headers: {
@@ -159,7 +166,6 @@ const definitions = [
     handler: async (_, ctx) => {
       const models = await ctx.service.findModels();
 
-      console.log(models);
       const body = JSON.stringify(models);
 
       return new Response(body, {

@@ -279,8 +279,12 @@ export class CmsServie implements CoreService {
       },
     );
   }
-  createContent(resourceId: string, node: Node): Promise<{ id: string }> {
-    return this.collector.create({ resourceId, node, name: "x" });
+  createContent(
+    resourceId: string,
+    node: Node,
+    summary: Summary,
+  ): Promise<{ id: string }> {
+    return this.collector.create({ resourceId, node, name: summary.name });
   }
 
   async findModels(): Promise<{

@@ -126,7 +126,6 @@ export class RestCmsService implements CmsService {
   }
 
   async findTemplate(resourceId: string): Promise<Template | null> {
-    console.log(resourceId);
     const resource = await this.#client.findResource(resourceId);
 
     if (!resource) return null;
@@ -188,7 +187,6 @@ export class RestCmsService implements CmsService {
 
   async findContent(id: Content["id"]): Promise<Content> {
     const content = await this.#client.findContent(id);
-    console.log(2, content);
 
     if (!content) throw new Error();
 
@@ -265,12 +263,13 @@ export class RestCmsService implements CmsService {
     };
   }
 
-  async saveNode(
+  async registerEntry(
     resourceId: string,
     node: Node,
+    summary: Summary,
   ): Promise<Result<Identity, {}>> {
     const url = new URL(`./contents`, this.#baseUrl);
-    const data = { node, resource: resourceId };
+    const data = { node, resource: resourceId, name: summary.name };
     const body = JSON.stringify(data);
     const request = new Request(url, {
       body,

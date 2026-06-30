@@ -20,9 +20,12 @@ export interface CmsService {
   findContent(contentId: Content["id"]): Promise<Content>;
   findSummaries(option?: ContentsOption): Promise<Summary[]>;
   findResources(): Promise<Identity[]>;
-  findAssets(): Promise<[]>;
   saveEntry(entry: Entry): Promise<Result<Node, {}>>;
-  saveNode(resource: string, node: Node): Promise<Result<Identity, {}>>;
+  registerEntry(
+    resourceId: string,
+    node: Node,
+    summary: Summary,
+  ): Promise<Result<Identity, {}>>;
   eraseNodeById(id: string): Promise<void>;
 }
 
@@ -116,7 +119,52 @@ export interface AssetField extends FieldMeta {
   candidates: Summary[];
 }
 
+export interface DraftEntry {
+  node: Node | null;
+  summary: Summary;
+}
+
+export interface Entry extends DraftEntry {
+  node: Node;
+}
+
+export interface ResourceTemplate {
+  /**
+   * Model Name
+   */
+  title: string;
+
+  /**
+   * Model description
+   */
+  description: string;
+  field: Field;
+  node: Node | null;
+}
+
+export interface Document {
+  title: string;
+  description: string;
+  field: Field;
+  entry: DraftEntry;
+}
+
 export interface Summary {
-  id: string;
   name: string;
+}
+
+export interface EntryCreationPayload extends Entry {
+  resourceId: string;
+}
+
+export interface EntryPayload extends Entry {
+  entryId: string;
+}
+
+export interface ResourceTemplatePayload extends ResourceTemplate {
+  resourceId: string;
+}
+
+export interface SummaryPayload extends Summary {
+  entryId: string;
 }

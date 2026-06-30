@@ -4,7 +4,7 @@ import { type JSX, useState } from "react";
 import type { Node } from "@cosmos/core";
 import Form from "../form.tsx";
 import { Page, resolvePath } from "../router.ts";
-import type { CmsService, Template } from "../type.ts";
+import type { CmsService, Summary, Template } from "../type.ts";
 
 export interface ContentCreatePageProps {
   template: Template;
@@ -18,9 +18,9 @@ export default function ContentCreationPage(
   const { template, resourceId, service } = props;
   const { node: init, field } = template;
 
-  async function update(node: Node | null): Promise<boolean> {
+  async function action(node: Node | null): Promise<void> {
     if (node) {
-      const result = await service.saveNode(resourceId, node);
+      const result = await service.registerEntry(resourceId, node, summary);
 
       if (result.ok) {
         const path = resolvePath(Page.Content, { id: result.data.id });
@@ -30,17 +30,25 @@ export default function ContentCreationPage(
         console.log("error");
       }
     }
-
-    return false;
   }
 
   const [node, setState] = useState(init);
+  const [summary, setSummary] = useState<Summary>({ name: "" });
 
   return (
     <div>
       <h1>Content</h1>
 
-      <Form node={node} update={update} field={field} onChange={setState} />
+      <label>
+        Name
+
+        <input
+          value={summary.name}
+          onChange={(ev) => setSummary({ name: ev.target.value })}
+        />
+      </label>
+
+      <Form node={node} update={action} field={field} onChange={setState} />
     </div>
   );
 }
