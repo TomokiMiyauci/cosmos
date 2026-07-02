@@ -1,0 +1,5 @@
+{
+  "name": "@miyauci/util",
+  "exports": "./src/mod.ts",
+  "publish": false
+}
