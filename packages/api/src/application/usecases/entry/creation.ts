@@ -1,10 +1,10 @@
-import { EntryId } from "../../../domain/entry/id.ts";
-import { Entry } from "../../../domain/entry/model.ts";
-import type {
-  EntryContext,
-  EntryRepositry,
-} from "../../../domain/entry/repositry.ts";
-import type { Node } from "../../../types/node.ts";
+import {
+  E as Entry,
+  type EntryContext,
+  EntryId,
+  type EntryRepositry,
+  type Node,
+} from "@cosmos/core";
 
 export class EntryCreateUseCase {
   constructor(private repositry: EntryRepositry, private ctx: EntryContext) {}

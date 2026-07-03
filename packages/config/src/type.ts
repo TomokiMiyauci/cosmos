@@ -5,6 +5,7 @@ import type {
   ConvertMap,
   DatetimeSchema,
   EntityType,
+  EntryRepositry,
   Formatter,
   Indexer,
   InstanceSchema,
@@ -60,6 +61,7 @@ export interface Config {
   models: Record<string, ModelConfig>;
   converters?: Partial<ConvertMap>;
   assets?: Record<string, Asset>;
+  repositry: EntryRepositry;
 }
 
 export interface ResourceConfig {

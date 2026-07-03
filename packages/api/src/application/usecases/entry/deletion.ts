@@ -1,5 +1,4 @@
-import type { EntryId } from "../../../domain/entry/id.ts";
-import type { EntryRepositry } from "../../../domain/entry/repositry.ts";
+import type { EntryId, EntryRepositry } from "@cosmos/core";
 
 export class EntryDeleteUseCase {
   constructor(private repositry: EntryRepositry) {}

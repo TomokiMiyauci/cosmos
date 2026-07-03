@@ -1,9 +1,17 @@
-import type { Engine, Index, Model, Node, Resource } from "@cosmos/core";
+import {
+  type Engine,
+  EntryId,
+  type Index,
+  type Model,
+  type Node,
+  type Resource,
+} from "@cosmos/core";
 import { parse, stringify } from "@cosmos/json";
 import { parseToNode } from "@cosmos/parser";
 import type { Summary } from "@cosmos/ui";
 import type { Entry } from "./type.ts";
 import { CmsServie } from "./services/core.ts";
+import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 
 export interface ParsedConfig {
   value: Engine;
@@ -237,6 +245,25 @@ const definitions = [
       });
     },
   },
+  {
+    pattern: {
+      pathname: "./entries/:id",
+    },
+    method: "DELETE",
+    async handler(_, ctx): Promise<Response> {
+      const id = ctx.result.pathname.groups.id;
+
+      if (!id) return new Response(null, { status: 404 });
+
+      const result = EntryId.from(id);
+
+      if (!result.ok) return new Response(null, { status: 400 });
+
+      await ctx.usecase.execute(result.value);
+
+      return new Response(null, { status: 204 });
+    },
+  },
 ] satisfies RouteDefinition[];
 
 export interface Route {
@@ -252,6 +279,7 @@ export interface Handler {
 export interface HandlerContext {
   result: URLPatternResult;
   service: CoreService;
+  usecase: EntryDeleteUseCase;
 }
 
 export function createRestHandler(
@@ -260,6 +288,8 @@ export function createRestHandler(
 ): (request: Request) => Promise<Response> {
   const routes = definitions.map((def) => toRoute(def, endpoint));
   const service = new CmsServie(config);
+  const repositry = config.value.repositry;
+  const usecase = new EntryDeleteUseCase(repositry);
 
   return async (request: Request) => {
     for (const route of routes) {
@@ -273,7 +303,7 @@ export function createRestHandler(
 
       if (!result) continue;
 
-      return route.handler(request, { result, service });
+      return route.handler(request, { result, service, usecase });
     }
 
     return new Response(null, {
