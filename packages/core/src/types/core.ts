@@ -1,3 +1,4 @@
+import type { EntryRepositry } from "../domain/entry/repositry.ts";
 import type { Node } from "./node.ts";
 import type { Schema } from "./schema.ts";
 import type { Model } from "./schema.ts";
@@ -18,6 +19,7 @@ export interface Engine {
   models: Record<string, Model>;
   converters?: Partial<ConvertMap>;
   assets?: Record<string, Asset>;
+  repositry: EntryRepositry;
 }
 
 export interface Asset {

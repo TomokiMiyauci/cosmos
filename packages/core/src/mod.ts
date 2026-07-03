@@ -102,3 +102,9 @@ export type {
   StringSchema,
   UnionSchema,
 } from "./types/schema.ts";
+export { EntryId } from "./domain/entry/id.ts";
+export { Entry as E } from "./domain/entry/model.ts";
+export {
+  type EntryContext,
+  type EntryRepositry,
+} from "./domain/entry/repositry.ts";
