@@ -1,4 +1,5 @@
 import type { Node } from "@cosmos/core";
+import type { Result } from "@miyauci/util";
 
 export interface Content extends Data {
   id: string;
@@ -28,19 +29,6 @@ export interface CmsService {
   ): Promise<Result<Identity, {}>>;
   eraseNodeById(id: string): Promise<void>;
 }
-
-export type Result<T, E> = Success<T> | Failure<E>;
-
-export interface Success<T> {
-  ok: true;
-  data: T;
-}
-
-export interface Failure<E> {
-  ok: false;
-  error: E;
-}
-
 export interface ContentsOption {
   resource: string;
 }

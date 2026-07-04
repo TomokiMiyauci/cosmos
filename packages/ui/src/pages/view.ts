@@ -43,7 +43,8 @@ export const views = {
       const data = await service.findContent(contentId);
 
       return {
-        service,
+        onAction: (entry) => service.saveEntry(entry),
+        onRemove: (id) => service.eraseNodeById(id),
         contentId,
         data,
       };
