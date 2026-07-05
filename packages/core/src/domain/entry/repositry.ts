@@ -1,21 +1,15 @@
 import type { EntryId } from "./id.ts";
 import type { Entry } from "./model.ts";
 import type { Option } from "@miyauci/util";
-import type { Node } from "../../types/node.ts";
 
 export interface EntryRepositry {
-  save(entry: Entry, ctx: EntryContext): Promise<void>;
+  save(entry: Entry): Promise<void>;
 
-  findById(id: EntryId, ctx: EntryContext): Promise<Option<Entry>>;
+  findById(id: EntryId): Promise<Option<Entry>>;
 
   delete(id: EntryId): Promise<void>;
 }
 
-export interface EntryContext {
-  converter: Conterter;
-}
-
-export interface Conterter {
-  toBlob(node: Node): Blob;
-  fromBlog(blog: Blob): Node;
+export interface EntryReader {
+  findMany(): Promise<Entry[]>;
 }
