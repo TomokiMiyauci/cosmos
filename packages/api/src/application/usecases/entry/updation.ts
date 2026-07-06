@@ -7,24 +7,26 @@ import {
 } from "@cosmos/core";
 import { Result } from "@miyauci/util";
 
-export class EntryCreateUseCase {
+export class EntryUpdateUseCase {
   constructor(private repositry: EntryRepositry) {}
 
   async execute(
+    id: string,
     name: string,
     node: Node,
-  ): Promise<Result<{ id: string }, Error>> {
-    const id = EntryId.new();
+  ): Promise<Result<void, Error>> {
+    const idResult = EntryId.from(id);
+
+    if (!idResult.ok) return Result.error(new Error("invalid id"));
+
     const nameResult = EntryName.of(name);
 
     if (!nameResult.ok) return Result.error(new Error());
 
-    const entry = Entry.of(id, nameResult.value, node);
+    const entry = Entry.of(idResult.value, nameResult.value, node);
 
     await this.repositry.save(entry);
 
-    return Result.ok({
-      id: id.value,
-    });
+    return Result.ok(undefined);
   }
 }
