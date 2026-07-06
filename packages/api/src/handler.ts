@@ -7,16 +7,173 @@ import { EntryCreateUseCase } from "./application/usecases/entry/creation.ts";
 import { EntryRetrievalUseCase } from "./application/usecases/entry/retrieval.ts";
 import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
 import { EntryQueryService } from "./application/queries/enty.ts";
+import { contract } from "./contract.ts";
+import { fetchRequestHandler, tsr } from "@ts-rest/serverless/fetch";
+import { fromNode, type SummaryDTO, toNode } from "./dto.ts";
+
+const router = tsr.platformContext<
+  { usecases: Usecases; service: CoreService }
+>().router(contract, {
+  postEntry: async (params, ctx) => {
+    const { body } = params;
+
+    const node = toNode(body.node);
+    const result = await ctx.usecases.entryCreate.execute(body.name, node);
+
+    if (!result.ok) {
+      return {
+        status: 400,
+        body: {},
+      };
+    }
+
+    const entry = result.value;
+    const dtoNode = fromNode(entry.node);
+
+    return {
+      status: 201,
+      body: {
+        id: entry.id.value,
+        name: entry.name.value,
+        node: dtoNode,
+      },
+    };
+  },
+  deleteEntry: async (args, ctx) => {
+    const maybeId = EntryId.from(args.params.id);
+
+    if (!maybeId.ok) {
+      return { status: 400, body: {} };
+    }
+
+    await ctx.usecases.entryDelete.execute(maybeId.value);
+
+    return {
+      status: 204,
+      body: {},
+    };
+  },
+  putEntry: async (args, ctx) => {
+    const { body, params } = args;
+
+    const result = await ctx.usecases.entryUpdate.execute(
+      params.id,
+      body.name,
+      toNode(body.node),
+    );
+
+    if (!result.ok) {
+      return {
+        status: 400,
+        body: {},
+      };
+    }
+
+    const entry = result.value;
+
+    return {
+      status: 200,
+      body: {
+        id: entry.id.value,
+        name: entry.name.value,
+        node: fromNode(entry.node),
+      },
+    };
+  },
+
+  getEntry: async (args, ctx) => {
+    const { params } = args;
+
+    const meybeId = EntryId.from(params.id);
+
+    if (!meybeId.ok) {
+      return { status: 400, body: {} };
+    }
+
+    const maybeEntry = await ctx.usecases.entryRetrival.execute(meybeId.value);
+
+    if (!maybeEntry.ok) {
+      return {
+        status: 404,
+        body: {},
+      };
+    }
+
+    const entry = maybeEntry.value;
+    return {
+      status: 200,
+      body: {
+        id: entry.id.value,
+        name: entry.name.value,
+        node: fromNode(entry.node),
+      },
+    };
+  },
+  getSummaries: async (_, ctx) => {
+    const result = await ctx.usecases.query.findAll();
+    const body = result.map((entry) =>
+      ({
+        id: entry.id.value,
+        name: entry.name.value,
+      }) satisfies SummaryDTO
+    );
+
+    return { status: 200, body };
+  },
+  getResources: async (_, ctx) => {
+    const identifies = await ctx.service.findResources();
+
+    return {
+      status: 200,
+      body: identifies,
+    };
+  },
+  getResource: async (args, ctx) => {
+    const { params } = args;
+    const resourceId = params.id;
+
+    const identifies = await ctx.service.findResource(resourceId);
+
+    if (identifies) {
+      return {
+        status: 200,
+        body: identifies,
+      };
+    }
+
+    return { status: 404, body: {} };
+  },
+  getModel: async (args, ctx) => {
+    const { params } = args;
+    const id = params.id;
+
+    const model = await ctx.service.findModel(id);
+
+    if (!model) {
+      return {
+        status: 404,
+        body: {},
+      };
+    }
+
+    return {
+      status: 200,
+      body: { model },
+    };
+  },
+  getModels: async (_, ctx) => {
+    const models = await ctx.service.findModels();
+
+    return {
+      status: 200,
+      body: models,
+    };
+  },
+});
 
 export interface ParsedConfig {
   value: Engine;
   location: URL;
-}
-
-interface RouteDefinition {
-  pattern: URLPatternInit;
-  method?: string;
-  handler: Handler;
 }
 
 export interface CoreService {
@@ -25,224 +182,6 @@ export interface CoreService {
   findResources(): Promise<Resource[]>;
   findModel(id: string): Promise<Model | null>;
   findModels(): Promise<{ id: string; model: Model }[]>;
-}
-
-const definitions = [
-  {
-    pattern: {
-      pathname: "./models/:id",
-    },
-    method: "GET",
-    handler: async (_, ctx) => {
-      const id = ctx.result.pathname.groups.id!;
-
-      const model = await ctx.service.findModel(id);
-
-      if (!model) {
-        return new Response(null, { status: 404 });
-      }
-
-      const body = JSON.stringify({ model });
-
-      return new Response(body, {
-        headers: {
-          "content-type": "application/json",
-        },
-      });
-    },
-  },
-  {
-    pattern: {
-      pathname: "./models",
-    },
-    method: "GET",
-    handler: async (_, ctx) => {
-      const models = await ctx.service.findModels();
-
-      const body = JSON.stringify(models);
-
-      return new Response(body, {
-        headers: {
-          "content-type": "application/json",
-        },
-      });
-    },
-  },
-  {
-    pattern: {
-      pathname: "./resources",
-    },
-
-    method: "GET",
-    handler: async (_, ctx) => {
-      const identifies = await ctx.service.findResources();
-
-      return new Response(JSON.stringify(identifies), {
-        status: 200,
-        headers: {
-          "content-type": "application/json",
-        },
-      });
-    },
-  },
-  {
-    pattern: {
-      pathname: "./resources/:id",
-    },
-
-    method: "GET",
-    handler: async (_, ctx) => {
-      const resourceId = ctx.result.pathname.groups.id!;
-
-      const identifies = await ctx.service.findResource(resourceId);
-
-      if (identifies) {
-        return new Response(JSON.stringify(identifies), {
-          status: 200,
-          headers: {
-            "content-type": "application/json",
-          },
-        });
-      }
-
-      return new Response(null, {
-        status: 404,
-      });
-    },
-  },
-  {
-    pattern: {
-      pathname: "./entries/:id",
-    },
-    method: "DELETE",
-    async handler(_, ctx): Promise<Response> {
-      const id = ctx.result.pathname.groups.id;
-
-      if (!id) return new Response(null, { status: 404 });
-
-      const result = EntryId.from(id);
-
-      if (!result.ok) return new Response(null, { status: 400 });
-
-      await ctx.usecases.entryDelete.execute(result.value);
-
-      return new Response(null, { status: 204 });
-    },
-  },
-  {
-    pattern: {
-      pathname: "./entries/:id",
-    },
-    method: "GET",
-    async handler(_, ctx): Promise<Response> {
-      const id = ctx.result.pathname.groups.id;
-
-      if (!id) return new Response(null, { status: 404 });
-
-      const result = EntryId.from(id);
-
-      if (!result.ok) return new Response(null, { status: 400 });
-
-      const maybeEntry = await ctx.usecases.entryRetrival.execute(result.value);
-
-      if (!maybeEntry.ok) return new Response(null, { status: 404 });
-
-      const content = {
-        id: maybeEntry.value.id.value,
-        node: maybeEntry.value.node,
-        model: "post",
-      };
-
-      console.log(maybeEntry.value);
-
-      const body = stringify(content);
-
-      return new Response(body, {
-        headers: { "content-type": "application/json" },
-      });
-    },
-  },
-  {
-    pattern: {
-      pathname: "./entries",
-    },
-    method: "GET",
-    async handler(request, ctx): Promise<Response> {
-      const result = await ctx.usecases.query.findAll();
-      const dto = result.map((entry) => ({
-        id: entry.id.value,
-        name: entry.name.value,
-        node: entry.node,
-      }));
-      const body = JSON.stringify(dto);
-
-      return new Response(body, {
-        headers: {
-          "content-type": "application/json",
-        },
-      });
-    },
-  },
-  {
-    pattern: {
-      pathname: "./entries",
-    },
-    method: "POST",
-    async handler(request, ctx): Promise<Response> {
-      const json: { node: any; resource: string; name: string } = await request
-        .json();
-      const node = parseToNode(json.node);
-
-      const result = await ctx.usecases.entryCreate.execute(json.name, node);
-
-      if (!result.ok) return new Response(null, { status: 400 });
-
-      return new Response(JSON.stringify(result.value), {
-        headers: {
-          "content-type": "application/json",
-        },
-        status: 201,
-      });
-    },
-  },
-  {
-    pattern: {
-      pathname: "./entries/:id",
-    },
-    method: "PUT",
-    async handler(request, ctx): Promise<Response> {
-      const id = ctx.result.pathname.groups.id!;
-
-      const text = await request
-        .text();
-      const x = parse(text);
-
-      const result = await ctx.usecases.entryUpdate.execute(
-        id,
-        "hoge",
-        x.node,
-      );
-
-      if (!result.ok) return new Response(null, { status: 400 });
-
-      return new Response(JSON.stringify(result.value), {
-        headers: {
-          "content-type": "application/json",
-        },
-        status: 204,
-      });
-    },
-  },
-] satisfies RouteDefinition[];
-
-export interface Route {
-  pattern: URLPattern;
-  method?: string;
-  handler: Handler;
-}
-
-export interface Handler {
-  (request: Request, ctx: HandlerContext): Response | Promise<Response>;
 }
 
 export interface HandlerContext {
@@ -263,7 +202,6 @@ export function createRestHandler(
   config: ParsedConfig,
   endpoint: URL,
 ): (request: Request) => Promise<Response> {
-  const routes = definitions.map((def) => toRoute(def, endpoint));
   const service = new CmsServie(config);
   const repositry = config.value.repositry;
 
@@ -276,34 +214,19 @@ export function createRestHandler(
   } satisfies Usecases;
 
   return async (request: Request) => {
-    for (const route of routes) {
-      if (route.method) {
-        if (route.method !== request.method) continue;
-      }
-
-      const pattern = new URLPattern(route.pattern);
-
-      const result = pattern.exec(request.url);
-
-      if (!result) continue;
-
-      return route.handler(request, { result, service, usecases });
-    }
-
-    return new Response(null, {
-      status: 404,
+    const result = await fetchRequestHandler({
+      contract,
+      options: {
+        basePath: endpoint.pathname,
+      },
+      platformContext: {
+        service,
+        usecases,
+      },
+      request,
+      router,
     });
-  };
-}
 
-function toRoute(definition: RouteDefinition, baseUrl: URL): Route {
-  const { method, handler } = definition;
-  return {
-    method,
-    handler,
-    pattern: new URLPattern({
-      ...definition.pattern,
-      baseURL: baseUrl.toString(),
-    }),
+    return result;
   };
 }

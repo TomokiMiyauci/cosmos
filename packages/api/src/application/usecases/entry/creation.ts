@@ -13,7 +13,7 @@ export class EntryCreateUseCase {
   async execute(
     name: string,
     node: Node,
-  ): Promise<Result<{ id: string }, Error>> {
+  ): Promise<Result<Entry, Error>> {
     const id = EntryId.new();
     const nameResult = EntryName.of(name);
 
@@ -23,8 +23,6 @@ export class EntryCreateUseCase {
 
     await this.repositry.save(entry);
 
-    return Result.ok({
-      id: id.value,
-    });
+    return Result.ok(entry);
   }
 }

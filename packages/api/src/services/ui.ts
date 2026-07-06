@@ -8,113 +8,152 @@ import type {
   Summary,
   Template,
 } from "@cosmos/ui";
-import { assertContent } from "@cosmos/json";
 import type { Index, Model, Node, Resource } from "@cosmos/core";
+import { Option } from "@miyauci/util";
 import type { Entry } from "../type.ts";
 import { modelToField } from "../util.ts";
+import { contract } from "../contract.ts";
+import { initClient, type InitClientReturn } from "@ts-rest/core";
+import { fromNode, toNode } from "../dto.ts";
 
 class RestClient {
-  constructor(private entpoint: URL) {}
+  #client: InitClientReturn<typeof contract, { baseUrl: string }>;
+  constructor(private entpoint: URL) {
+    this.#client = initClient(contract, { baseUrl: entpoint.href });
+  }
 
   async findResource(resourceId: string): Promise<Resource | null> {
-    const url = new URL(`./resources/${resourceId}`, this.entpoint);
-    const response = await fetch(url);
+    const result = await this.#client.getResource({
+      params: { id: resourceId },
+    });
 
-    const resource: Resource = await response.json();
-
-    return resource;
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+      case 404: {
+        return null;
+      }
+      default: {
+        throw new Error();
+      }
+    }
   }
 
   async findModel(modelId: string): Promise<Model | null> {
-    const url = new URL(`./models/${modelId}`, this.entpoint);
-    const modelResponse = await fetch(url);
+    const result = await this.#client.getModel({ params: { id: modelId } });
 
-    const result: { model: Model } = await modelResponse.json();
-
-    return result.model;
+    switch (result.status) {
+      case 200: {
+        return result.body.model;
+      }
+      case 404: {
+        return null;
+      }
+      default: {
+        throw new Error();
+      }
+    }
   }
 
   async findModels(): Promise<{
     id: string;
     model: Model;
   }[]> {
-    const url = new URL(`./models`, this.entpoint);
-    const modelResponse = await fetch(url);
-    const result: { id: string; model: Model }[] = await modelResponse.json();
+    const result = await this.#client.getModels();
 
-    return result;
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+
+      default: {
+        throw new Error();
+      }
+    }
   }
 
   async findContents(
     option?: { resource?: string },
   ): Promise<Summary[]> {
-    const resourceId = option?.resource;
-    const url = new URL(`./indexies`, this.entpoint);
+    const result = await this.#client.getSummaries();
 
-    if (resourceId) {
-      url.searchParams.set("resource", resourceId);
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+      default: {
+        throw new Error();
+      }
     }
-
-    const response = await fetch(url);
-
-    const json = await response.json();
-
-    return json;
   }
 
   async findIndeies(): Promise<(Index & { id: string })[]> {
-    const url = new URL(`./indexies`, this.entpoint);
+    const result = await this.#client.getSummaries();
 
-    const response = await fetch(url);
-
-    const json = await response.json();
-
-    return json;
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+      default: {
+        throw new Error();
+      }
+    }
   }
 
   async findResources(): Promise<{ id: string; model: string }[]> {
-    const url = new URL(`./resources`, this.entpoint);
+    const result = await this.#client.getResources();
 
-    const response = await fetch(url);
-
-    const json = await response.json();
-
-    return json;
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+      default: {
+        throw new Error();
+      }
+    }
   }
 
   async findContent(contentId: string): Promise<Entry | null> {
-    const url = new URL(`./contents/${contentId}`, this.entpoint);
+    const result = await this.#client.getEntry({ params: { id: contentId } });
 
-    const response = await fetch(url);
+    switch (result.status) {
+      case 200: {
+        const dto = result.body;
 
-    const json: unknown = await response.json();
-
-    assertContent(json);
-
-    return json;
+        return {
+          id: dto.id,
+          model: BBBBBBBBB,
+          // name: dto.name,
+          node: toNode(dto.node),
+        };
+      }
+      case 400: {
+        throw new Error();
+      }
+      case 404: {
+        return null;
+      }
+      default: {
+        throw new Error();
+      }
+    }
   }
 
   async updateContent(content: { id: string; node: Node }): Promise<void> {
-    const url = new URL(`./contents/${content.id}`, this.entpoint);
-
-    const body = JSON.stringify(content);
-
-    await fetch(url, {
-      body,
-      method: "PUT",
-      headers: {
-        "content-type": "application/json",
-      },
+    const result = await this.#client.putEntry({
+      body: { name: AAAAAAAA, node: fromNode(content.node) },
+      params: { id: content.id },
     });
   }
 
   async deleteContent(contentId: string): Promise<void> {
-    const url = new URL(`./contents/${contentId}`, this.entpoint);
-    const request = new Request(url, { method: "DELETE" });
-
-    await fetch(request);
+    await this.#client.deleteEntry({ params: { id: contentId } });
   }
 }
+
+const AAAAAAAA = "ff";
+const BBBBBBBBB = "post";
 
 export class RestCmsService implements CmsService {
   #baseUrl: URL;
@@ -185,15 +224,15 @@ export class RestCmsService implements CmsService {
     };
   }
 
-  async findContent(id: Content["id"]): Promise<Content> {
+  async findContent(id: Content["id"]): Promise<Option<Content>> {
     const content = await this.#client.findContent(id);
 
-    if (!content) throw new Error();
+    if (!content) return Option.none;
 
     const modelId = content.model;
     const model = await this.#client.findModel(modelId);
 
-    if (!model) throw new Error();
+    if (!model) return Option.none;
 
     const allModels = await this.#client.findModels();
 
@@ -235,7 +274,7 @@ export class RestCmsService implements CmsService {
       return values;
     }, () => []);
 
-    return {
+    return Option.some({
       id: content.id,
       field,
       node,
@@ -243,7 +282,7 @@ export class RestCmsService implements CmsService {
         title: model.title,
         description: model.description,
       },
-    };
+    });
   }
 
   findSummaries(option?: ContentsOption): Promise<Summary[]> {
@@ -268,7 +307,7 @@ export class RestCmsService implements CmsService {
     node: Node,
     summary: Summary,
   ): Promise<Result<Identity, {}>> {
-    const url = new URL(`./contents`, this.#baseUrl);
+    const url = new URL(`./entries`, this.#baseUrl);
     const data = { node, resource: resourceId, name: summary.name };
     const body = JSON.stringify(data);
     const request = new Request(url, {
