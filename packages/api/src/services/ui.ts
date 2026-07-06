@@ -3,14 +3,13 @@ import type {
   CmsService,
   Content,
   ContentsOption,
+  Entry,
   Identity,
-  Result,
   Summary,
   Template,
 } from "@cosmos/ui";
 import type { Index, Model, Node, Resource } from "@cosmos/core";
-import { Option } from "@miyauci/util";
-import type { Entry } from "../type.ts";
+import { Option, Result } from "@miyauci/util";
 import { modelToField } from "../util.ts";
 import { contract } from "../contract.ts";
 import { initClient, type InitClientReturn } from "@ts-rest/core";
@@ -73,6 +72,30 @@ class RestClient {
     }
   }
 
+  async createContent(
+    name: string,
+    model: string,
+    node: Node,
+  ): Promise<Result<Identity, Error>> {
+    const result = await this.#client.postEntry({
+      body: {
+        node: fromNode(node),
+        model,
+        name,
+      },
+    });
+
+    switch (result.status) {
+      case 201: {
+        return Result.ok({
+          id: result.body.id,
+        });
+      }
+    }
+
+    return Result.error(new Error());
+  }
+
   async findContents(
     option?: { resource?: string },
   ): Promise<Summary[]> {
@@ -114,7 +137,9 @@ class RestClient {
     }
   }
 
-  async findContent(contentId: string): Promise<Entry | null> {
+  async findContent(
+    contentId: string,
+  ): Promise<{ id: string; model: string; name: string; node: Node } | null> {
     const result = await this.#client.getEntry({ params: { id: contentId } });
 
     switch (result.status) {
@@ -123,8 +148,8 @@ class RestClient {
 
         return {
           id: dto.id,
-          model: BBBBBBBBB,
-          // name: dto.name,
+          model: dto.model,
+          name: dto.name,
           node: toNode(dto.node),
         };
       }
@@ -140,9 +165,11 @@ class RestClient {
     }
   }
 
-  async updateContent(content: { id: string; node: Node }): Promise<void> {
+  async updateContent(
+    content: { id: string; node: Node; name: string },
+  ): Promise<void> {
     const result = await this.#client.putEntry({
-      body: { name: AAAAAAAA, node: fromNode(content.node) },
+      body: { name: content.name, node: fromNode(content.node) },
       params: { id: content.id },
     });
   }
@@ -151,9 +178,6 @@ class RestClient {
     await this.#client.deleteEntry({ params: { id: contentId } });
   }
 }
-
-const AAAAAAAA = "ff";
-const BBBBBBBBB = "post";
 
 export class RestCmsService implements CmsService {
   #baseUrl: URL;
@@ -220,6 +244,7 @@ export class RestCmsService implements CmsService {
       meta: {
         title: model.title,
         description: model.description,
+        model: modelId,
       },
     };
   }
@@ -281,7 +306,9 @@ export class RestCmsService implements CmsService {
       meta: {
         title: model.title,
         description: model.description,
+        model: modelId,
       },
+      name: content.name,
     });
   }
 
@@ -294,43 +321,30 @@ export class RestCmsService implements CmsService {
   }
 
   async saveEntry(entry: Entry): Promise<Result<Node, {}>> {
-    await this.#client.updateContent({ id: entry.id, node: entry.node });
+    await this.#client.updateContent({
+      id: entry.id,
+      node: entry.node,
+      name: entry.summary.name,
+    });
 
     return {
       ok: true,
-      data: entry.node,
+      value: entry.node,
     };
   }
 
   async registerEntry(
-    resourceId: string,
+    model: string,
     node: Node,
     summary: Summary,
   ): Promise<Result<Identity, {}>> {
-    const url = new URL(`./entries`, this.#baseUrl);
-    const data = { node, resource: resourceId, name: summary.name };
-    const body = JSON.stringify(data);
-    const request = new Request(url, {
-      body,
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-    });
-    const response = await fetch(request);
+    const result = await this.#client.createContent(summary.name, model, node);
 
-    if (response.ok) {
-      const json: { id: string } = await response.json();
-
-      return {
-        ok: true,
-        data: {
-          id: json.id,
-        },
-      };
+    if (result.ok) {
+      return Result.ok({ id: result.value.id });
     }
 
-    throw new Error();
+    return Result.error(new Error());
   }
 
   async eraseNodeById(id: string): Promise<void> {

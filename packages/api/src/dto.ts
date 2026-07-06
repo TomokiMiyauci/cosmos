@@ -26,6 +26,12 @@ export interface EntryDto extends SummaryDTO, JsonObject {
   node: NodeJson;
 }
 
+export interface NewEntryInputDto extends JsonObject {
+  name: string;
+  model: string;
+  node: NodeJson;
+}
+
 export interface EntryInputDto extends JsonObject {
   name: string;
   node: NodeJson;
@@ -33,6 +39,7 @@ export interface EntryInputDto extends JsonObject {
 
 export interface SummaryDTO extends JsonObject {
   id: string;
+  model: string;
   name: string;
 }
 

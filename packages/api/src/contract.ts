@@ -1,5 +1,10 @@
 import { initContract } from "@ts-rest/core";
-import type { EntryDto, EntryInputDto, SummaryDTO } from "./dto.ts";
+import type {
+  EntryDto,
+  EntryInputDto,
+  NewEntryInputDto,
+  SummaryDTO,
+} from "./dto.ts";
 
 const c = initContract();
 
@@ -37,7 +42,7 @@ export const contract = c.router({
       201: c.type<EntryDto>(),
       400: c.type(),
     },
-    body: c.type<EntryInputDto>(),
+    body: c.type<NewEntryInputDto>(),
   },
   getSummaries: {
     method: "GET",

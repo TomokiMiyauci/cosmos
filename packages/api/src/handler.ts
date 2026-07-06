@@ -1,6 +1,4 @@
 import { type Engine, EntryId, type Model, type Resource } from "@cosmos/core";
-import { parse, stringify } from "@cosmos/json";
-import { parseToNode } from "@cosmos/parser";
 import { CmsServie } from "./services/core.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 import { EntryCreateUseCase } from "./application/usecases/entry/creation.ts";
@@ -18,7 +16,11 @@ const router = tsr.platformContext<
     const { body } = params;
 
     const node = toNode(body.node);
-    const result = await ctx.usecases.entryCreate.execute(body.name, node);
+    const result = await ctx.usecases.entryCreate.execute(
+      body.name,
+      body.model,
+      node,
+    );
 
     if (!result.ok) {
       return {
@@ -36,6 +38,7 @@ const router = tsr.platformContext<
         id: entry.id.value,
         name: entry.name.value,
         node: dtoNode,
+        model: entry.model.value,
       },
     };
   },
@@ -77,6 +80,7 @@ const router = tsr.platformContext<
         id: entry.id.value,
         name: entry.name.value,
         node: fromNode(entry.node),
+        model: entry.model.value,
       },
     };
   },
@@ -100,12 +104,14 @@ const router = tsr.platformContext<
     }
 
     const entry = maybeEntry.value;
+
     return {
       status: 200,
       body: {
         id: entry.id.value,
         name: entry.name.value,
         node: fromNode(entry.node),
+        model: entry.model.value,
       },
     };
   },
@@ -115,6 +121,7 @@ const router = tsr.platformContext<
       ({
         id: entry.id.value,
         name: entry.name.value,
+        model: entry.model.value,
       }) satisfies SummaryDTO
     );
 

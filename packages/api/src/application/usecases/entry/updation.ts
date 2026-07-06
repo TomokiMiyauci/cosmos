@@ -15,15 +15,23 @@ export class EntryUpdateUseCase {
     name: string,
     node: Node,
   ): Promise<Result<Entry, Error>> {
-    const idResult = EntryId.from(id);
+    const maybeId = EntryId.from(id);
 
-    if (!idResult.ok) return Result.error(new Error("invalid id"));
+    if (!maybeId.ok) return Result.error(new Error("invalid id"));
 
     const nameResult = EntryName.of(name);
 
     if (!nameResult.ok) return Result.error(new Error());
 
-    const entry = Entry.of(idResult.value, nameResult.value, node);
+    const entryId = maybeId.value;
+
+    const maybeCurrentEntry = await this.repositry.findById(entryId);
+
+    if (!maybeCurrentEntry.ok) return Result.error(new Error());
+
+    const currentModel = maybeCurrentEntry.value.model;
+
+    const entry = Entry.of(entryId, nameResult.value, currentModel, node);
 
     await this.repositry.save(entry);
 

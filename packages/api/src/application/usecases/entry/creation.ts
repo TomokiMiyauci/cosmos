@@ -1,6 +1,7 @@
 import {
   E as Entry,
   EntryId,
+  EntryModel,
   EntryName,
   type EntryRepositry,
   type Node,
@@ -12,14 +13,19 @@ export class EntryCreateUseCase {
 
   async execute(
     name: string,
+    model: string,
     node: Node,
   ): Promise<Result<Entry, Error>> {
     const id = EntryId.new();
-    const nameResult = EntryName.of(name);
+    const maybeName = EntryName.of(name);
 
-    if (!nameResult.ok) return Result.error(new Error());
+    if (!maybeName.ok) return Result.error(new Error());
 
-    const entry = Entry.of(id, nameResult.value, node);
+    const maybeModel = EntryModel.of(model);
+
+    if (!maybeModel.ok) return Result.error(new Error());
+
+    const entry = Entry.of(id, maybeName.value, maybeModel.value, node);
 
     await this.repositry.save(entry);
 
