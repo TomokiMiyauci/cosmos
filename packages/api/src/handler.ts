@@ -51,7 +51,7 @@ const router = tsr.platformContext<
 
     return {
       status: 204,
-      body: {},
+      body: null,
     };
   },
   putEntry: async (args, ctx) => {

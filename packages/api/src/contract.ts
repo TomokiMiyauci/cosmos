@@ -32,7 +32,7 @@ export const contract = c.router({
     method: "DELETE",
     path: "/entries/:id",
     responses: {
-      204: c.type(),
+      204: c.noBody(),
       400: c.type(),
     },
   },
