@@ -1,9 +1,16 @@
-import type { EntryId, EntryRepositry } from "@cosmos/core";
+import { EntryId, type EntryRepositry } from "@cosmos/core";
+import { Result } from "@miyauci/util";
 
 export class EntryDeleteUseCase {
   constructor(private repositry: EntryRepositry) {}
 
-  async execute(id: EntryId): Promise<void> {
-    await this.repositry.delete(id);
+  async execute(id: string): Promise<Result<void, Error>> {
+    const maybeId = EntryId.from(id);
+
+    if (!maybeId.ok) return Result.error(new Error());
+
+    await this.repositry.delete(maybeId.value);
+
+    return Result.ok(undefined);
   }
 }

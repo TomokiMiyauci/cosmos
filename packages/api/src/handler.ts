@@ -1,4 +1,4 @@
-import { type Engine, EntryId, type Model, type Resource } from "@cosmos/core";
+import type { Engine, Model, Resource } from "@cosmos/core";
 import { CmsServie } from "./services/core.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 import { EntryCreateUseCase } from "./application/usecases/entry/creation.ts";
@@ -43,13 +43,11 @@ const router = tsr.platformContext<
     };
   },
   deleteEntry: async (args, ctx) => {
-    const maybeId = EntryId.from(args.params.id);
+    const result = await ctx.usecases.entryDelete.execute(args.params.id);
 
-    if (!maybeId.ok) {
+    if (!result.ok) {
       return { status: 400, body: {} };
     }
-
-    await ctx.usecases.entryDelete.execute(maybeId.value);
 
     return {
       status: 204,
@@ -72,7 +70,25 @@ const router = tsr.platformContext<
       };
     }
 
-    const entry = result.value;
+    const queryResult = await ctx.usecases.entryRetrival.execute(params.id);
+
+    if (!queryResult.ok) {
+      return {
+        status: 400,
+        body: {},
+      };
+    }
+
+    const option = queryResult.value;
+
+    if (!option.ok) {
+      return {
+        status: 404,
+        body: {},
+      };
+    }
+
+    const entry = option.value;
 
     return {
       status: 200,
@@ -88,22 +104,25 @@ const router = tsr.platformContext<
   getEntry: async (args, ctx) => {
     const { params } = args;
 
-    const meybeId = EntryId.from(params.id);
-
-    if (!meybeId.ok) {
-      return { status: 400, body: {} };
-    }
-
-    const maybeEntry = await ctx.usecases.entryRetrival.execute(meybeId.value);
+    const maybeEntry = await ctx.usecases.entryRetrival.execute(params.id);
 
     if (!maybeEntry.ok) {
+      return {
+        status: 400,
+        body: {},
+      };
+    }
+
+    const option = maybeEntry.value;
+
+    if (!option.ok) {
       return {
         status: 404,
         body: {},
       };
     }
 
-    const entry = maybeEntry.value;
+    const entry = option.value;
 
     return {
       status: 200,

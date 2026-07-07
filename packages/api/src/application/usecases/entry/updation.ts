@@ -14,7 +14,7 @@ export class EntryUpdateUseCase {
     id: string,
     name: string,
     node: Node,
-  ): Promise<Result<Entry, Error>> {
+  ): Promise<Result<void, Error>> {
     const maybeId = EntryId.from(id);
 
     if (!maybeId.ok) return Result.error(new Error("invalid id"));
@@ -35,6 +35,6 @@ export class EntryUpdateUseCase {
 
     await this.repositry.save(entry);
 
-    return Result.ok(entry);
+    return Result.ok(undefined);
   }
 }
