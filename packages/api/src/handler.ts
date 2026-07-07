@@ -2,7 +2,6 @@ import type { Engine, Model, Resource } from "@cosmos/core";
 import { CmsServie } from "./services/core.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 import { EntryCreateUseCase } from "./application/usecases/entry/creation.ts";
-import { EntryRetrievalUseCase } from "./application/usecases/entry/retrieval.ts";
 import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
 import { QueryService } from "./application/query.ts";
 import { contract } from "./contract.ts";
@@ -144,7 +143,6 @@ export interface HandlerContext {
 interface Usecases {
   entryDelete: EntryDeleteUseCase;
   entryCreate: EntryCreateUseCase;
-  entryRetrival: EntryRetrievalUseCase;
   entryUpdate: EntryUpdateUseCase;
 }
 
@@ -164,7 +162,6 @@ export function createRestHandler(
   const usecases = {
     entryCreate: new EntryCreateUseCase(repositry),
     entryDelete: new EntryDeleteUseCase(repositry),
-    entryRetrival: new EntryRetrievalUseCase(repositry),
     entryUpdate: new EntryUpdateUseCase(repositry),
   } satisfies Usecases;
   const platformContext = {
