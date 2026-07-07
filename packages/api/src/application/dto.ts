@@ -2,6 +2,7 @@ import type {
   AssetNode,
   BooleanNode,
   DatetimeNode,
+  E as Entry,
   ListNode,
   MapNode,
   Node,
@@ -161,4 +162,15 @@ export function fromNode(node: Node): NodeJson {
       };
     }
   }
+}
+
+export function fromEntry(entry: Entry): EntryDto {
+  const dtoNode = fromNode(entry.node);
+
+  return {
+    id: entry.id.value,
+    name: entry.name.value,
+    node: dtoNode,
+    model: entry.model.value,
+  };
 }

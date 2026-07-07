@@ -4,9 +4,9 @@ import {
   EntryModel,
   EntryName,
   type EntryRepositry,
-  type Node,
 } from "@cosmos/core";
 import { Result } from "@miyauci/util";
+import { type EntryDto, fromEntry, type NodeJson, toNode } from "../../dto.ts";
 
 export class EntryCreateUseCase {
   constructor(private repositry: EntryRepositry) {}
@@ -14,8 +14,8 @@ export class EntryCreateUseCase {
   async execute(
     name: string,
     model: string,
-    node: Node,
-  ): Promise<Result<Entry, Error>> {
+    node: NodeJson,
+  ): Promise<Result<EntryDto, Error>> {
     const id = EntryId.new();
     const maybeName = EntryName.of(name);
 
@@ -25,10 +25,12 @@ export class EntryCreateUseCase {
 
     if (!maybeModel.ok) return Result.error(new Error());
 
-    const entry = Entry.of(id, maybeName.value, maybeModel.value, node);
+    const entry = Entry.of(id, maybeName.value, maybeModel.value, toNode(node));
 
     await this.repositry.save(entry);
 
-    return Result.ok(entry);
+    const dto = fromEntry(entry);
+
+    return Result.ok(dto);
   }
 }

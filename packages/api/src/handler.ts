@@ -7,7 +7,6 @@ import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
 import { EntryQueryService } from "./application/queries/enty.ts";
 import { contract } from "./contract.ts";
 import { fetchRequestHandler, tsr } from "@ts-rest/serverless/fetch";
-import { fromNode, type SummaryDTO, toNode } from "./dto.ts";
 
 const router = tsr.platformContext<
   { usecases: Usecases; service: CoreService }
@@ -15,32 +14,19 @@ const router = tsr.platformContext<
   postEntry: async (params, ctx) => {
     const { body } = params;
 
-    const node = toNode(body.node);
     const result = await ctx.usecases.entryCreate.execute(
       body.name,
       body.model,
-      node,
+      body.node,
     );
 
     if (!result.ok) {
-      return {
-        status: 400,
-        body: {},
-      };
+      return { status: 400, body: {} };
     }
 
-    const entry = result.value;
-    const dtoNode = fromNode(entry.node);
+    const dto = result.value;
 
-    return {
-      status: 201,
-      body: {
-        id: entry.id.value,
-        name: entry.name.value,
-        node: dtoNode,
-        model: entry.model.value,
-      },
-    };
+    return { status: 201, body: dto };
   },
   deleteEntry: async (args, ctx) => {
     const result = await ctx.usecases.entryDelete.execute(args.params.id);
@@ -60,7 +46,7 @@ const router = tsr.platformContext<
     const result = await ctx.usecases.entryUpdate.execute(
       params.id,
       body.name,
-      toNode(body.node),
+      body.node,
     );
 
     if (!result.ok) {
@@ -88,17 +74,9 @@ const router = tsr.platformContext<
       };
     }
 
-    const entry = option.value;
+    const dto = option.value;
 
-    return {
-      status: 200,
-      body: {
-        id: entry.id.value,
-        name: entry.name.value,
-        node: fromNode(entry.node),
-        model: entry.model.value,
-      },
-    };
+    return { status: 200, body: dto };
   },
 
   getEntry: async (args, ctx) => {
@@ -122,30 +100,15 @@ const router = tsr.platformContext<
       };
     }
 
-    const entry = option.value;
+    const dto = option.value;
 
-    return {
-      status: 200,
-      body: {
-        id: entry.id.value,
-        name: entry.name.value,
-        node: fromNode(entry.node),
-        model: entry.model.value,
-      },
-    };
+    return { status: 200, body: dto };
   },
   getSummaries: async (args, ctx) => {
     const model = args.query.model;
-    const result = await ctx.usecases.query.findAll({ model });
-    const body = result.map((entry) =>
-      ({
-        id: entry.id.value,
-        name: entry.name.value,
-        model: entry.model.value,
-      }) satisfies SummaryDTO
-    );
+    const dto = await ctx.usecases.query.findAll({ model });
 
-    return { status: 200, body };
+    return { status: 200, body: dto };
   },
   getResources: async (_, ctx) => {
     const identifies = await ctx.service.findResources();

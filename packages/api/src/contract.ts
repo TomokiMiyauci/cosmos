@@ -4,7 +4,7 @@ import type {
   EntryInputDto,
   NewEntryInputDto,
   SummaryDTO,
-} from "./dto.ts";
+} from "./application/dto.ts";
 
 const c = initContract();
 

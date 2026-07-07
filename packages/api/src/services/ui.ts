@@ -13,7 +13,7 @@ import { Option, Result } from "@miyauci/util";
 import { modelToField } from "../util.ts";
 import { contract } from "../contract.ts";
 import { initClient, type InitClientReturn } from "@ts-rest/core";
-import { fromNode, toNode } from "../dto.ts";
+import { fromNode, toNode } from "../application/dto.ts";
 
 class RestClient {
   #client: InitClientReturn<typeof contract, { baseUrl: string }>;
