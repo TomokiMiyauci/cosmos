@@ -103,7 +103,9 @@ export type {
   UnionSchema,
 } from "./types/schema.ts";
 export { EntryId } from "./domain/entry/id.ts";
-export { EntryModel } from "./domain/entry/model.ts";
 export { Entry as E } from "./domain/entry/entity.ts";
 export { EntryName } from "./domain/entry/name.ts";
 export type { EntryRepositry } from "./domain/entry/repositry.ts";
+export { Model as M } from "./domain/model/entity.ts";
+export type { ModelRepositry } from "./domain/model/repositry.ts";
+export { ModelId } from "./domain/model/id.ts";

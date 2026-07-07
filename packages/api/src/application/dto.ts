@@ -171,6 +171,6 @@ export function fromEntry(entry: Entry): EntryDto {
     id: entry.id.value,
     name: entry.name.value,
     node: dtoNode,
-    model: entry.model.value,
+    model: entry.modelId.value,
   };
 }

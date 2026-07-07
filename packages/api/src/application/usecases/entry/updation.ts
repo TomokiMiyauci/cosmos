@@ -28,7 +28,7 @@ export class EntryUpdateUseCase {
 
     if (!maybeCurrentEntry.ok) return Result.error(new Error());
 
-    const currentModel = maybeCurrentEntry.value.model;
+    const currentModel = maybeCurrentEntry.value.modelId;
 
     const entry = Entry.of(
       entryId,
