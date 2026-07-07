@@ -9,11 +9,3 @@ export interface EntryRepositry {
 
   delete(id: EntryId): Promise<void>;
 }
-
-export interface EntryReader {
-  findMany(options?: QueryOptions): Promise<Entry[]>;
-}
-
-export interface QueryOptions {
-  model?: string;
-}

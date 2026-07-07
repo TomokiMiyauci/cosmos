@@ -5,21 +5,20 @@ import {
   type EntryRepositry,
 } from "@cosmos/core";
 import { Result } from "@miyauci/util";
-import { type NodeJson, toNode } from "../../dto.ts";
+import { type EntryInputDto, toNode } from "../../dto.ts";
 
 export class EntryUpdateUseCase {
   constructor(private repositry: EntryRepositry) {}
 
   async execute(
     id: string,
-    name: string,
-    node: NodeJson,
+    input: EntryInputDto,
   ): Promise<Result<void, Error>> {
     const maybeId = EntryId.from(id);
 
     if (!maybeId.ok) return Result.error(new Error("invalid id"));
 
-    const nameResult = EntryName.of(name);
+    const nameResult = EntryName.of(input.name);
 
     if (!nameResult.ok) return Result.error(new Error());
 
@@ -35,7 +34,7 @@ export class EntryUpdateUseCase {
       entryId,
       nameResult.value,
       currentModel,
-      toNode(node),
+      toNode(input.node),
     );
 
     await this.repositry.save(entry);

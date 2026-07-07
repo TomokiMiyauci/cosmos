@@ -4,21 +4,15 @@ import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 import { EntryCreateUseCase } from "./application/usecases/entry/creation.ts";
 import { EntryRetrievalUseCase } from "./application/usecases/entry/retrieval.ts";
 import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
-import { EntryQueryService } from "./application/queries/enty.ts";
+import { QueryService } from "./application/query.ts";
 import { contract } from "./contract.ts";
 import { fetchRequestHandler, tsr } from "@ts-rest/serverless/fetch";
 
-const router = tsr.platformContext<
-  { usecases: Usecases; service: CoreService }
->().router(contract, {
+const router = tsr.platformContext<Context>().router(contract, {
   postEntry: async (params, ctx) => {
     const { body } = params;
 
-    const result = await ctx.usecases.entryCreate.execute(
-      body.name,
-      body.model,
-      body.node,
-    );
+    const result = await ctx.usecases.entryCreate.execute(body);
 
     if (!result.ok) {
       return { status: 400, body: {} };
@@ -43,11 +37,7 @@ const router = tsr.platformContext<
   putEntry: async (args, ctx) => {
     const { body, params } = args;
 
-    const result = await ctx.usecases.entryUpdate.execute(
-      params.id,
-      body.name,
-      body.node,
-    );
+    const result = await ctx.usecases.entryUpdate.execute(params.id, body);
 
     if (!result.ok) {
       return {
@@ -65,41 +55,29 @@ const router = tsr.platformContext<
   getEntry: async (args, ctx) => {
     const { params } = args;
 
-    const maybeEntry = await ctx.usecases.entryRetrival.execute(params.id);
+    const maybeDto = await ctx.queries.findById(params.id);
 
-    if (!maybeEntry.ok) {
-      return {
-        status: 400,
-        body: {},
-      };
-    }
-
-    const option = maybeEntry.value;
-
-    if (!option.ok) {
+    if (!maybeDto.ok) {
       return {
         status: 404,
         body: {},
       };
     }
 
-    const dto = option.value;
+    const dto = maybeDto.value;
 
     return { status: 200, body: dto };
   },
   getSummaries: async (args, ctx) => {
     const model = args.query.model;
-    const dto = await ctx.usecases.query.findAll({ model });
+    const dto = await ctx.queries.findSummaries({ model });
 
     return { status: 200, body: dto };
   },
   getResources: async (_, ctx) => {
     const identifies = await ctx.service.findResources();
 
-    return {
-      status: 200,
-      body: identifies,
-    };
+    return { status: 200, body: identifies };
   },
   getResource: async (args, ctx) => {
     const { params } = args;
@@ -168,7 +146,12 @@ interface Usecases {
   entryCreate: EntryCreateUseCase;
   entryRetrival: EntryRetrievalUseCase;
   entryUpdate: EntryUpdateUseCase;
-  query: EntryQueryService;
+}
+
+interface Context {
+  usecases: Usecases;
+  queries: QueryService;
+  service: CoreService;
 }
 
 export function createRestHandler(
@@ -182,9 +165,13 @@ export function createRestHandler(
     entryCreate: new EntryCreateUseCase(repositry),
     entryDelete: new EntryDeleteUseCase(repositry),
     entryRetrival: new EntryRetrievalUseCase(repositry),
-    query: new EntryQueryService(config.value.reader),
     entryUpdate: new EntryUpdateUseCase(repositry),
   } satisfies Usecases;
+  const platformContext = {
+    service,
+    usecases,
+    queries: new QueryService(config.value.reader),
+  } satisfies Context;
 
   return async (request: Request) => {
     const result = await fetchRequestHandler({
@@ -192,10 +179,7 @@ export function createRestHandler(
       options: {
         basePath: endpoint.pathname,
       },
-      platformContext: {
-        service,
-        usecases,
-      },
+      platformContext,
       request,
       router,
     });

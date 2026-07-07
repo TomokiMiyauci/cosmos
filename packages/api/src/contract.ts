@@ -14,7 +14,6 @@ export const contract = c.router({
     path: "/entries/:id",
     responses: {
       200: c.type<EntryDto>(),
-      400: c.type(),
       404: c.type(),
     },
   },

@@ -6,26 +6,32 @@ import {
   type EntryRepositry,
 } from "@cosmos/core";
 import { Result } from "@miyauci/util";
-import { type EntryDto, fromEntry, type NodeJson, toNode } from "../../dto.ts";
+import {
+  type EntryDto,
+  fromEntry,
+  type NewEntryInputDto,
+  toNode,
+} from "../../dto.ts";
 
 export class EntryCreateUseCase {
   constructor(private repositry: EntryRepositry) {}
 
-  async execute(
-    name: string,
-    model: string,
-    node: NodeJson,
-  ): Promise<Result<EntryDto, Error>> {
+  async execute(input: NewEntryInputDto): Promise<Result<EntryDto, Error>> {
     const id = EntryId.new();
-    const maybeName = EntryName.of(name);
+    const maybeName = EntryName.of(input.name);
 
     if (!maybeName.ok) return Result.error(new Error());
 
-    const maybeModel = EntryModel.of(model);
+    const maybeModel = EntryModel.of(input.model);
 
     if (!maybeModel.ok) return Result.error(new Error());
 
-    const entry = Entry.of(id, maybeName.value, maybeModel.value, toNode(node));
+    const entry = Entry.of(
+      id,
+      maybeName.value,
+      maybeModel.value,
+      toNode(input.node),
+    );
 
     await this.repositry.save(entry);
 
