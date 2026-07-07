@@ -50,6 +50,7 @@ export const contract = c.router({
     responses: {
       200: c.type<SummaryDTO[]>(),
     },
+    query: c.type<{ model?: string }>(),
   },
   getResources: {
     method: "GET",

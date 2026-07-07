@@ -115,8 +115,9 @@ const router = tsr.platformContext<
       },
     };
   },
-  getSummaries: async (_, ctx) => {
-    const result = await ctx.usecases.query.findAll();
+  getSummaries: async (args, ctx) => {
+    const model = args.query.model;
+    const result = await ctx.usecases.query.findAll({ model });
     const body = result.map((entry) =>
       ({
         id: entry.id.value,

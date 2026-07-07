@@ -1,15 +1,23 @@
 import {
   E as Entry,
-  type EntryContext,
   type EntryId,
+  EntryModel,
+  EntryName,
   type EntryRepositry,
+  type Node,
 } from "@cosmos/core";
 import { Option } from "@miyauci/util";
 
+export interface Data {
+  name: string;
+  node: Node;
+  model: string;
+}
+
 export interface Store {
-  get(url: URL): Promise<Blob | null>;
+  get(url: URL): Promise<Data | null>;
   delete(url: URL): Promise<void>;
-  put(url: URL, blob: Blob): Promise<void>;
+  put(url: URL, data: Data): Promise<void>;
 }
 
 export interface Indexer {
@@ -18,25 +26,33 @@ export interface Indexer {
 
 export class StoreEntryRespoistry implements EntryRepositry {
   constructor(private store: Store, private indexer: Indexer) {}
-  async findById(
-    id: EntryId,
-    ctx: EntryContext,
-  ): Promise<Option<Entry>> {
+  async findById(id: EntryId): Promise<Option<Entry>> {
     const url = this.indexer.resolve(id.value);
-    const blob = await this.store.get(url);
+    const data = await this.store.get(url);
 
-    if (!blob) return Option.none;
+    if (!data) return Option.none;
 
-    const node = ctx.converter.fromBlog(blob);
+    const maybeName = EntryName.of(data.name);
 
-    return Option.some(Entry.of(id, node));
+    if (!maybeName.ok) return Option.none;
+
+    const maybeModel = EntryModel.of(data.model);
+
+    if (!maybeModel.ok) return Option.none;
+
+    const entry = Entry.of(id, maybeName.value, maybeModel.value, data.node);
+
+    return Option.some(entry);
   }
 
-  save(entry: Entry, ctx: EntryContext): Promise<void> {
+  save(entry: Entry): Promise<void> {
     const url = this.indexer.resolve(entry.id.value);
-    const blob = ctx.converter.toBlob(entry.node);
 
-    return this.store.put(url, blob);
+    return this.store.put(url, {
+      name: entry.name.value,
+      node: entry.node,
+      model: entry.model.value,
+    });
   }
 
   delete(id: EntryId): Promise<void> {

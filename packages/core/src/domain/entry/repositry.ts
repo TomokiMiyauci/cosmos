@@ -1,5 +1,5 @@
 import type { EntryId } from "./id.ts";
-import type { Entry } from "./model.ts";
+import type { Entry } from "./entity.ts";
 import type { Option } from "@miyauci/util";
 
 export interface EntryRepositry {
@@ -11,5 +11,9 @@ export interface EntryRepositry {
 }
 
 export interface EntryReader {
-  findMany(): Promise<Entry[]>;
+  findMany(options?: QueryOptions): Promise<Entry[]>;
+}
+
+export interface QueryOptions {
+  model?: string;
 }

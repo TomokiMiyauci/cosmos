@@ -17,7 +17,7 @@ import { fromNode, toNode } from "../dto.ts";
 
 class RestClient {
   #client: InitClientReturn<typeof contract, { baseUrl: string }>;
-  constructor(private entpoint: URL) {
+  constructor(entpoint: URL) {
     this.#client = initClient(contract, { baseUrl: entpoint.href });
   }
 
@@ -99,7 +99,17 @@ class RestClient {
   async findContents(
     option?: { resource?: string },
   ): Promise<Summary[]> {
-    const result = await this.#client.getSummaries();
+    let model: string | undefined;
+
+    if (option?.resource) {
+      const resource = await this.findResource(option.resource);
+
+      if (!resource) return [];
+
+      model = resource.model;
+    }
+
+    const result = await this.#client.getSummaries({ query: { model } });
 
     switch (result.status) {
       case 200: {
@@ -180,11 +190,8 @@ class RestClient {
 }
 
 export class RestCmsService implements CmsService {
-  #baseUrl: URL;
   #client: RestClient;
   constructor(endpoint: URL) {
-    this.#baseUrl = endpoint;
-
     this.#client = new RestClient(endpoint);
   }
 

@@ -106,7 +106,8 @@ export { EntryId } from "./domain/entry/id.ts";
 export { EntryModel } from "./domain/entry/model.ts";
 export { Entry as E } from "./domain/entry/entity.ts";
 export { EntryName } from "./domain/entry/name.ts";
-export {
-  type EntryReader,
-  type EntryRepositry,
+export type {
+  EntryReader,
+  EntryRepositry,
+  QueryOptions,
 } from "./domain/entry/repositry.ts";
