@@ -56,27 +56,10 @@ const router = tsr.platformContext<
       };
     }
 
-    const queryResult = await ctx.usecases.entryRetrival.execute(params.id);
-
-    if (!queryResult.ok) {
-      return {
-        status: 400,
-        body: {},
-      };
-    }
-
-    const option = queryResult.value;
-
-    if (!option.ok) {
-      return {
-        status: 404,
-        body: {},
-      };
-    }
-
-    const dto = option.value;
-
-    return { status: 200, body: dto };
+    return {
+      status: 204,
+      body: null,
+    };
   },
 
   getEntry: async (args, ctx) => {

@@ -182,6 +182,14 @@ class RestClient {
       body: { name: content.name, node: fromNode(content.node) },
       params: { id: content.id },
     });
+
+    switch (result.status) {
+      case 204: {
+        return;
+      }
+    }
+
+    throw new Error("unimplemented");
   }
 
   async deleteContent(contentId: string): Promise<void> {

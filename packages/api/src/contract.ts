@@ -22,8 +22,7 @@ export const contract = c.router({
     method: "PUT",
     path: "/entries/:id",
     responses: {
-      200: c.type<EntryDto>(),
-      404: c.type(),
+      204: c.noBody(),
       400: c.type(),
     },
     body: c.type<EntryInputDto>(),
