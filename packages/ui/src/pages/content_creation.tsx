@@ -3,37 +3,24 @@
 import { type JSX, useState } from "react";
 import type { Node } from "@cosmos/core";
 import Form from "../form.tsx";
-import { Page, resolvePath } from "../router.ts";
-import type { CmsService, Summary, Template } from "../type.ts";
+import type { Summary, Template } from "../type.ts";
+import type { NodeCreateUseCase } from "~usecase/node";
 
 export interface ContentCreatePageProps {
   template: Template;
-  resourceId: string;
-  service: CmsService;
+  usecase: NodeCreateUseCase;
 }
 
 export default function ContentCreationPage(
   props: ContentCreatePageProps,
 ): JSX.Element {
-  const { template, resourceId, service } = props;
+  const { template, usecase } = props;
   const { node: init, field } = template;
 
-  async function action(node: Node | null): Promise<void> {
-    if (node) {
-      const result = await service.registerEntry(resourceId, node, summary);
-
-      if (result.ok) {
-        const path = resolvePath(Page.Content, { id: result.data.id });
-
-        globalThis.location.href = path;
-      } else {
-        console.log("error");
-      }
-    }
-  }
-
-  const [node, setState] = useState(init);
-  const [summary, setSummary] = useState<Summary>({ name: "" });
+  const { node, setState, summary, setSummary, handle } = useCreateNode({
+    init,
+    usecase,
+  });
 
   return (
     <div>
@@ -48,7 +35,23 @@ export default function ContentCreationPage(
         />
       </label>
 
-      <Form node={node} update={action} field={field} onChange={setState} />
+      <Form node={node} update={handle} field={field} onChange={setState} />
     </div>
   );
+}
+
+interface UseCreateNodeProps {
+  usecase: NodeCreateUseCase;
+  init: Node | null;
+}
+
+function useCreateNode(props: UseCreateNodeProps) {
+  const [node, setState] = useState(props.init);
+  const [summary, setSummary] = useState<Summary>({ name: "" });
+
+  async function handle(): Promise<void> {
+    await props.usecase.execute(node, summary);
+  }
+
+  return { node, setState, summary, setSummary, handle };
 }

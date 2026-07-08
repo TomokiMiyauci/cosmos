@@ -7,8 +7,9 @@ import ContentCreationPage, {
   type ContentCreatePageProps,
 } from "./content_creation.tsx";
 import { Page } from "./symbol.ts";
-import type { CmsService } from "../type.ts";
+import type { CmsService, Router } from "../type.ts";
 import AssetsPage, { type AssetsPageProps } from "./assets.tsx";
+import { NodeCreateUseCase } from "~usecase/node";
 
 export const views = {
   [Page.NotFound]: {
@@ -42,11 +43,13 @@ export const views = {
 
       const data = await service.findContent(contentId);
 
+      if (!data.ok) return null;
+
       return {
         onAction: (entry) => service.saveEntry(entry),
         onRemove: (id) => service.eraseNodeById(id),
         contentId,
-        data,
+        data: data.value,
       };
     },
     component: ContentPage,
@@ -71,10 +74,17 @@ export const views = {
 
       if (!template) return null;
 
+      const model = template.meta.model;
+
+      const usecase = new NodeCreateUseCase(
+        params.service,
+        model,
+        (...args) => params.router.redirect(...args),
+      );
+
       return {
-        resourceId,
         template,
-        service: params.service,
+        usecase,
       };
     },
     component: ContentCreationPage,
@@ -92,4 +102,5 @@ export const views = {
 interface Params {
   params: Record<string, string>;
   service: CmsService;
+  router: Router;
 }

@@ -9,9 +9,17 @@ import { views } from "./pages/view.ts";
 import type { CmsService } from "@cosmos/ui";
 import type { ContentsPageProps } from "./pages/contents.tsx";
 import type { ResourcePageProps } from "./pages/resource.tsx";
+import type { Router as R } from "./type.ts";
+
+class DefaultRouter implements R {
+  redirect(to: string): void {
+    globalThis.location.href = to;
+  }
+}
 
 export class Router {
   #routes: Record<keyof Routes, URLPattern>;
+  #router: R = new DefaultRouter();
 
   constructor(private service: CmsService) {
     this.#routes = mapValues(
@@ -37,6 +45,7 @@ export class Router {
           const data = await entry.getStaticProps({
             params: decodedParams,
             service: this.service,
+            router: this.#router,
           });
 
           if (!data) {
