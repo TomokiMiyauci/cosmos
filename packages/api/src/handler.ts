@@ -14,10 +14,14 @@ const router = tsr.platformContext<Context>().router(contract, {
     const result = await ctx.usecases.entryCreate.execute(body);
 
     if (!result.ok) {
-      return { status: 400, body: {} };
+      return { status: 400, body: undefined };
     }
 
     const dto = result.value;
+
+    // TODO improve path construction
+    const location = `${ctx.appRoute.path}/${dto.id}` as const;
+    ctx.responseHeaders.append("location", location);
 
     return { status: 201, body: dto };
   },
@@ -25,12 +29,12 @@ const router = tsr.platformContext<Context>().router(contract, {
     const result = await ctx.usecases.entryDelete.execute(args.params.id);
 
     if (!result.ok) {
-      return { status: 400, body: {} };
+      return { status: 400, body: null };
     }
 
     return {
       status: 204,
-      body: null,
+      body: undefined,
     };
   },
   putEntry: async (args, ctx) => {
@@ -41,13 +45,13 @@ const router = tsr.platformContext<Context>().router(contract, {
     if (!result.ok) {
       return {
         status: 400,
-        body: {},
+        body: null,
       };
     }
 
     return {
       status: 204,
-      body: null,
+      body: undefined,
     };
   },
 
@@ -59,7 +63,7 @@ const router = tsr.platformContext<Context>().router(contract, {
     if (!maybeDto.ok) {
       return {
         status: 404,
-        body: {},
+        body: undefined,
       };
     }
 
@@ -91,7 +95,7 @@ const router = tsr.platformContext<Context>().router(contract, {
       };
     }
 
-    return { status: 404, body: {} };
+    return { status: 404, body: undefined };
   },
   getModel: async (args, ctx) => {
     const { params } = args;

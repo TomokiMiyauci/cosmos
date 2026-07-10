@@ -1,0 +1,282 @@
+openapi: 3.0.3
+info:
+  title: Content management system API
+  version: 0.1.0
+
+paths:
+  /entries:
+    get:
+      summary: Get entry summaries
+      operationId: getSummaries
+      parameters:
+        - name: model
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SummaryDto"
+    post:
+      operationId: postEntry
+      requestBody:
+        description: OK
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewEntryInputDto"
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Identitiy"
+        400:
+          description: Fail
+
+  /entries/{id}:
+    get:
+      summary: Returns single entry
+      operationId: getEntry
+      responses:
+        200:
+          description: JSON
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntryDto"
+        404:
+          description: Not found
+
+    put:
+      summary: Replace entry
+      operationId: putEntry
+      requestBody:
+        description: OK
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntryInputDto"
+      responses:
+        204:
+          description: OK
+
+    delete:
+      summary: Delete entry
+      operationId: deleteEntry
+      responses:
+        204:
+          description: OK
+  /resources:
+    get:
+      summary: Retruns resources
+      operationId: getResources
+      responses:
+        200:
+          description: OK
+  /resources/{id}:
+    get:
+      summary: Return resource
+      operationId: getResource
+      responses:
+        200:
+          description: OK
+        404:
+          description: Not found
+  /models:
+    get:
+      summary: Return models
+      operationId: getModels
+      responses:
+        200:
+          description: OK
+  /models/{id}:
+    get:
+      summary: Return model
+      operationId: getModel
+      responses:
+        200:
+          description: OK
+
+components:
+  schemas:
+    EntryDto:
+      type: object
+      $ref: "#/components/schemas/SummaryDto"
+      properties:
+        node:
+          $ref: "#/components/schemas/NodeJson"
+      required:
+        - node
+    NodeJson:
+      oneOf:
+        - $ref: "#/components/schemas/StringNodeJson"
+        - $ref: "#/components/schemas/NumberNodeJson"
+        - $ref: "#/components/schemas/BooleanNodeJson"
+        - $ref: "#/components/schemas/DatetimeNodeJson"
+        - $ref: "#/components/schemas/ListNodeJson"
+        - $ref: "#/components/schemas/MapNodeJson"
+        - $ref: "#/components/schemas/ReferenceNodeJson"
+        - $ref: "#/components/schemas/AssetNodeJson"
+    StringNodeJson:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - string
+        value:
+          type: string
+      required:
+        - type
+        - value
+      additionalProperties: false
+    NumberNodeJson:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - number
+        value:
+          type: number
+      required:
+        - type
+        - value
+      additionalProperties: false
+    BooleanNodeJson:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - boolean
+        value:
+          type: boolean
+      required:
+        - type
+        - value
+      additionalProperties: false
+    DatetimeNodeJson:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - datetime
+        value:
+          type: string
+      required:
+        - type
+        - value
+      additionalProperties: false
+    ListNodeJson:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - list
+        value:
+          type: array
+          # items:
+          #   $ref: "#/components/schemas/NodeJson"
+      required:
+        - type
+        - value
+      additionalProperties: false
+    MapNodeJson:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - map
+        value:
+          type: object
+      required:
+        - type
+        - value
+      additionalProperties: false
+    ReferenceNodeJson:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - reference
+        value:
+          type: string
+      required:
+        - type
+        - value
+      additionalProperties: false
+    AssetNodeJson:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - asset
+        value:
+          type: string
+      required:
+        - type
+        - value
+      additionalProperties: false
+
+    EntryInputDto:
+      type: object
+      properties:
+        name:
+          type: string
+        node:
+          $ref: "#/components/schemas/NodeJson"
+      required:
+        - name
+        - node
+      additionalProperties: false
+    NewEntryInputDto:
+      type: object
+      properties:
+        name:
+          type: string
+        model:
+          type: string
+        node:
+          $ref: "#/components/schemas/NodeJson"
+      required:
+        - string
+        - model
+        - node
+    SummaryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        model:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - model
+        - name
+      additionalProperties: false
+    Identitiy:
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
+      additionalProperties: false
