@@ -44,7 +44,7 @@ export class RestCmsService implements CmsService {
   async findModel(modelId: string): Promise<Model | null> {
     const result = await this.#client.getModel(modelId);
 
-    return result.model;
+    return result;
   }
 
   async findModels(): Promise<{
@@ -53,7 +53,7 @@ export class RestCmsService implements CmsService {
   }[]> {
     const result = await this.#client.getModels();
 
-    return result;
+    return result.map((model) => ({ id: model.id, model: model }));
   }
 
   async findTemplate(resourceId: string): Promise<Template | null> {

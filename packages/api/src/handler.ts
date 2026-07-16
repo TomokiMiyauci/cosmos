@@ -106,13 +106,13 @@ const router = tsr.platformContext<Context>().router(contract, {
     if (!model) {
       return {
         status: 404,
-        body: {},
+        body: undefined,
       };
     }
 
     return {
       status: 200,
-      body: { model },
+      body: { id, ...model },
     };
   },
   getModels: async (_, ctx) => {
@@ -120,7 +120,7 @@ const router = tsr.platformContext<Context>().router(contract, {
 
     return {
       status: 200,
-      body: models,
+      body: models.map((model) => ({ id: model.id, ...model.model })),
     };
   },
 });

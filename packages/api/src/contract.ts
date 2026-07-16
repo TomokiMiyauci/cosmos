@@ -57,6 +57,15 @@ const NewEntryInputDto = z
   .object({ name: z.string().optional(), model: z.string(), node: NodeJson })
   .passthrough();
 const Identitiy = z.object({ id: z.string() });
+const Resource = z.object({ id: z.string(), model: z.string() }).passthrough();
+const Model = z
+  .object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string(),
+    schema: z.object({}).passthrough(),
+  })
+  .passthrough();
 
 export const schemas = {
   SummaryDto,
@@ -73,6 +82,8 @@ export const schemas = {
   EntryInputDto,
   NewEntryInputDto,
   Identitiy,
+  Resource,
+  Model,
 };
 
 export const contract = c.router({
@@ -115,24 +126,24 @@ export const contract = c.router({
     method: "GET",
     path: "/resources",
     summary: "Retruns resources",
-    responses: { 200: c.type() },
+    responses: { 200: z.array(Resource) },
   },
   getResource: {
     method: "GET",
     path: "/resources/:id",
     summary: "Return resource",
-    responses: { 200: c.type(), 404: c.noBody() },
+    responses: { 200: Resource, 404: c.noBody() },
   },
   getModels: {
     method: "GET",
     path: "/models",
     summary: "Return models",
-    responses: { 200: c.type() },
+    responses: { 200: z.array(Model) },
   },
   getModel: {
     method: "GET",
     path: "/models/:id",
     summary: "Return model",
-    responses: { 200: c.type() },
+    responses: { 200: Model, 404: c.noBody() },
   },
 });

@@ -83,6 +83,13 @@ paths:
       responses:
         200:
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Resource"
+
   /resources/{id}:
     get:
       summary: Return resource
@@ -90,6 +97,11 @@ paths:
       responses:
         200:
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+
         404:
           description: Not found
   /models:
@@ -99,6 +111,13 @@ paths:
       responses:
         200:
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Model"
+
   /models/{id}:
     get:
       summary: Return model
@@ -106,6 +125,12 @@ paths:
       responses:
         200:
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Model"
+        404:
+          description: Error
 
 components:
   schemas:
@@ -280,3 +305,30 @@ components:
       required:
         - id
       additionalProperties: false
+
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+        model:
+          type: string
+      required:
+        - id
+        - model
+    Model:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        schema:
+          type: object
+      required:
+        - id
+        - title
+        - description
+        - schema
