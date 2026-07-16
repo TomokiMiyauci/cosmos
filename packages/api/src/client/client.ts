@@ -1,9 +1,144 @@
 import { initClient, type InitClientReturn } from "@ts-rest/core";
 import { contract } from "../contract.ts";
+import type { components } from "../schema.d.ts";
 
-export function createClient(baseUrl: URL): Client {
-  return initClient(contract, { baseUrl: baseUrl.href });
+export class Client {
+  #client: InitClientReturn<typeof contract, { baseUrl: string }>;
+
+  constructor(baseUrl: URL) {
+    this.#client = initClient(contract, { baseUrl: baseUrl.href });
+  }
+
+  async getEntrySummaries(
+    optinos?: { model?: string },
+  ): Promise<components["schemas"]["SummaryDto"][]> {
+    const result = await this.#client.getSummaries({
+      "query": { model: optinos?.model },
+    });
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+    }
+
+    throw new ApiError();
+  }
+
+  async postEntry(
+    params: components["schemas"]["NewEntryInputDto"],
+  ): Promise<void> {
+    const result = await this.#client.postEntry({ body: params });
+
+    switch (result.status) {
+      case 201: {
+        return;
+      }
+    }
+
+    throw new ApiError();
+  }
+
+  async getEntry(id: string): Promise<components["schemas"]["EntryDto"]> {
+    const result = await this.#client.getEntry({ params: { id } });
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+    }
+
+    throw new ApiError();
+  }
+
+  async putEntry(
+    params: components["schemas"]["EntryInputDto"] & { id: string },
+  ): Promise<void> {
+    const result = await this.#client.putEntry({
+      params: { id: params.id },
+      body: { name: params.name, node: params.node },
+    });
+
+    switch (result.status) {
+      case 204: {
+        return;
+      }
+    }
+
+    throw new ApiError();
+  }
+
+  async deleteEntry(id: string): Promise<void> {
+    const result = await this.#client.deleteEntry({ params: { id } });
+
+    switch (result.status) {
+      case 204: {
+        return;
+      }
+    }
+
+    throw new ApiError();
+  }
+
+  async getResources() {
+    const result = await this.#client.getResources();
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+    }
+
+    throw new ApiError();
+  }
+
+  async getResource(id: string) {
+    const result = await this.#client.getResource({ params: { id } });
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+    }
+
+    throw new ApiError();
+  }
+
+  async getModels() {
+    const result = await this.#client.getModels();
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+    }
+
+    throw new ApiError();
+  }
+
+  async getModel(id: string) {
+    const result = await this.#client.getModel({ params: { id } });
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+    }
+
+    throw new ApiError();
+  }
 }
 
-export interface Client
-  extends InitClientReturn<typeof contract, { baseUrl: string }> {}
+export class ApiError extends Error {
+}
+
+type Problem = InvalidArgumentProblem | ValidationErrorProblem;
+
+interface InvalidArgumentProblem {
+  status: 400;
+}
+
+interface ValidationErrorProblem {
+  status: 422;
+  errors: unknown;
+}

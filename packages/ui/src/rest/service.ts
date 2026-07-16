@@ -8,7 +8,7 @@ import type {
   Summary,
   Template,
 } from "../type.ts";
-import { type Client, createClient } from "@cosmos/rest";
+import { Client } from "@cosmos/rest/client";
 import { Option, Result } from "@miyauci/util";
 import type {
   AssetNode,
@@ -32,41 +32,19 @@ import { parseToNode } from "@cosmos/parser";
 export class RestCmsService implements CmsService {
   #client: Client;
   constructor(endpoint: URL) {
-    this.#client = createClient(endpoint);
+    this.#client = new Client(endpoint);
   }
 
   async #findResource(resourceId: string): Promise<Resource | null> {
-    const result = await this.#client.getResource({
-      params: { id: resourceId },
-    });
+    const result = await this.#client.getResource(resourceId);
 
-    switch (result.status) {
-      case 200: {
-        return result.body;
-      }
-      case 404: {
-        return null;
-      }
-      default: {
-        throw new Error();
-      }
-    }
+    return result;
   }
 
   async findModel(modelId: string): Promise<Model | null> {
-    const result = await this.#client.getModel({ params: { id: modelId } });
+    const result = await this.#client.getModel(modelId);
 
-    switch (result.status) {
-      case 200: {
-        return result.body.model;
-      }
-      case 404: {
-        return null;
-      }
-      default: {
-        throw new Error();
-      }
-    }
+    return result.model;
   }
 
   async findModels(): Promise<{
@@ -75,15 +53,7 @@ export class RestCmsService implements CmsService {
   }[]> {
     const result = await this.#client.getModels();
 
-    switch (result.status) {
-      case 200: {
-        return result.body;
-      }
-
-      default: {
-        throw new Error();
-      }
-    }
+    return result;
   }
 
   async findTemplate(resourceId: string): Promise<Template | null> {
@@ -150,29 +120,9 @@ export class RestCmsService implements CmsService {
   async #findContent(
     contentId: string,
   ): Promise<{ id: string; model: string; name: string; node: Node } | null> {
-    const result = await this.#client.getEntry({ params: { id: contentId } });
+    const result = await this.#client.getEntry(contentId);
 
-    switch (result.status) {
-      case 200: {
-        const dto = result.body;
-
-        return {
-          id: dto.id,
-          model: dto.model,
-          name: dto.name,
-          node: toNode(dto.node),
-        };
-      }
-      case 400: {
-        throw new Error();
-      }
-      case 404: {
-        return null;
-      }
-      default: {
-        throw new Error();
-      }
-    }
+    return result;
   }
 
   async findContent(id: Content["id"]): Promise<Option<Content>> {
@@ -239,16 +189,9 @@ export class RestCmsService implements CmsService {
   }
 
   async findIndeies(): Promise<(Index & { id: string })[]> {
-    const result = await this.#client.getSummaries();
+    const result = await this.#client.getEntrySummaries();
 
-    switch (result.status) {
-      case 200: {
-        return result.body;
-      }
-      default: {
-        throw new Error();
-      }
-    }
+    return result;
   }
 
   async findSummaries(option?: ContentsOption): Promise<Summary[]> {
@@ -262,62 +205,31 @@ export class RestCmsService implements CmsService {
       model = resource.model;
     }
 
-    const result = await this.#client.getSummaries({ query: { model } });
+    const result = await this.#client.getEntrySummaries({ model });
 
-    switch (result.status) {
-      case 200: {
-        return result.body;
-      }
-      default: {
-        throw new Error();
-      }
-    }
+    return result;
   }
 
   async findResource(resourceId: string): Promise<Resource | null> {
-    const result = await this.#client.getResource({
-      params: { id: resourceId },
-    });
+    const result = await this.#client.getResource(resourceId);
 
-    switch (result.status) {
-      case 200: {
-        return result.body;
-      }
-      case 404: {
-        return null;
-      }
-      default: {
-        throw new Error();
-      }
-    }
+    return result;
   }
 
   async findResources(): Promise<Identity[]> {
     const result = await this.#client.getResources();
 
-    switch (result.status) {
-      case 200: {
-        return result.body;
-      }
-      default: {
-        throw new Error();
-      }
-    }
+    return result;
   }
 
   async saveEntry(entry: Entry): Promise<Result<Node, {}>> {
-    const result = await this.#client.putEntry({
-      body: { name: entry.summary.name, node: fromNode(entry.node) },
-      params: { id: entry.id },
+    await this.#client.putEntry({
+      name: entry.summary.name,
+      node: fromNode(entry.node),
+      id: entry.id,
     });
 
-    switch (result.status) {
-      case 204: {
-        return Result.ok(entry.node);
-      }
-    }
-
-    throw new Error();
+    return Result.ok(entry.node);
   }
 
   async registerEntry(
@@ -326,26 +238,18 @@ export class RestCmsService implements CmsService {
     summary: Summary,
   ): Promise<Result<Identity, {}>> {
     const result = await this.#client.postEntry({
-      body: {
-        node: fromNode(node),
-        model,
-        name: summary.name,
-      },
+      node: fromNode(node),
+      model,
+      name: summary.name,
     });
 
-    switch (result.status) {
-      case 201: {
-        return Result.ok({
-          id: result.body.id,
-        });
-      }
-    }
-
-    return Result.error(new Error());
+    return Result.ok({
+      id: result.body.id,
+    });
   }
 
   async eraseNodeById(id: string): Promise<void> {
-    await this.#client.deleteEntry({ params: { id } });
+    await this.#client.deleteEntry(id);
   }
 }
 
