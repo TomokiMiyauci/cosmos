@@ -2,6 +2,19 @@ import { initClient, type InitClientReturn } from "@ts-rest/core";
 import { contract } from "../contract.ts";
 import type { components } from "../schema.d.ts";
 
+type Result<T, E> = Success<T> | Failure<E>;
+type Success<T> = [data: T, error: null];
+type Failure<T> = [data: null, error: T];
+
+namespace Result {
+  export function ok<T>(of: T): Success<T> {
+    return [of, null];
+  }
+  export function error<T>(of: T): Failure<T> {
+    return [null, of];
+  }
+}
+
 export class Client {
   #client: InitClientReturn<typeof contract, { baseUrl: string }>;
 
@@ -27,36 +40,40 @@ export class Client {
 
   async postEntry(
     params: components["schemas"]["NewEntryInputDto"],
-  ): Promise<void> {
+  ): Promise<Result<null, ApiError<Problem>>> {
     const result = await this.#client.postEntry({ body: params });
 
     switch (result.status) {
       case 201: {
-        return;
+        return Result.ok(null);
       }
     }
 
-    throw new ApiError();
+    throw Result.error(new ApiError());
   }
 
-  async getEntry(id: string): Promise<components["schemas"]["EntryDto"]> {
+  async getEntry(
+    id: string,
+  ): Promise<
+    Result<components["schemas"]["EntryDto"], ApiError<NotFoundProblem>>
+  > {
     const result = await this.#client.getEntry({ params: { id } });
 
     switch (result.status) {
       case 200: {
-        return result.body;
+        return Result.ok(result.body);
       }
       case 404: {
-        throw new ApiError({ status: 404 });
+        throw Result.error(new ApiError({ status: 404 }));
       }
     }
 
-    throw new ApiError();
+    throw Result.error(new ApiError());
   }
 
   async putEntry(
     params: components["schemas"]["EntryInputDto"] & { id: string },
-  ): Promise<void> {
+  ): Promise<Result<null, ApiError<Problem>>> {
     const result = await this.#client.putEntry({
       params: { id: params.id },
       body: { name: params.name, node: params.node },
@@ -64,23 +81,23 @@ export class Client {
 
     switch (result.status) {
       case 204: {
-        return;
+        return Result.ok(null);
       }
     }
 
-    throw new ApiError();
+    throw Result.error(new ApiError());
   }
 
-  async deleteEntry(id: string): Promise<void> {
+  async deleteEntry(id: string): Promise<Result<null, ApiError<Problem>>> {
     const result = await this.#client.deleteEntry({ params: { id } });
 
     switch (result.status) {
       case 204: {
-        return;
+        return Result.ok(null);
       }
     }
 
-    throw new ApiError();
+    throw Result.error(new ApiError());
   }
 
   async getResources() {
@@ -132,14 +149,14 @@ export class Client {
   }
 }
 
-export class ApiError extends Error {
-  constructor(problem?: Problem) {
+export class ApiError<T extends Problem> extends Error {
+  constructor(problem: T) {
     super();
 
-    this.problem = problem ?? { status: 500 };
+    this.problem = problem;
   }
 
-  readonly problem: Problem;
+  readonly problem: T;
 }
 
 type Problem =

@@ -120,9 +120,17 @@ export class RestCmsService implements CmsService {
   async #findContent(
     contentId: string,
   ): Promise<{ id: string; model: string; name: string; node: Node } | null> {
-    const result = await this.#client.getEntry(contentId);
+    const [data, error] = await this.#client.getEntry(contentId);
 
-    return result;
+    if (error) {
+      switch (error.problem.status) {
+        case 404: {
+          return null;
+        }
+      }
+    }
+
+    return data;
   }
 
   async findContent(id: Content["id"]): Promise<Option<Content>> {
