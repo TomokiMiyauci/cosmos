@@ -8,7 +8,7 @@ import type {
   Summary,
   Template,
 } from "../type.ts";
-import { Client } from "@cosmos/rest/client";
+import { ApiError, Client } from "@cosmos/rest/client";
 import { Option, Result } from "@miyauci/util";
 import type {
   AssetNode,
@@ -126,66 +126,78 @@ export class RestCmsService implements CmsService {
   }
 
   async findContent(id: Content["id"]): Promise<Option<Content>> {
-    const content = await this.#findContent(id);
+    try {
+      const content = await this.#findContent(id);
 
-    if (!content) return Option.none;
+      if (!content) return Option.none;
 
-    const modelId = content.model;
-    const model = await this.findModel(modelId);
+      const modelId = content.model;
+      const model = await this.findModel(modelId);
 
-    if (!model) return Option.none;
+      if (!model) return Option.none;
 
-    const allModels = await this.findModels();
+      const allModels = await this.findModels();
 
-    const modelRecord = new Map(
-      allModels.map(({ id, model }) => [id, model] as const),
-    );
+      const modelRecord = new Map(
+        allModels.map(({ id, model }) => [id, model] as const),
+      );
 
-    const node = parseToNode(content.node);
+      const node = parseToNode(content.node);
 
-    const indexies = await this.findIndeies();
-    const resources = await this.findResources();
+      const indexies = await this.findIndeies();
+      const resources = await this.findResources();
 
-    const store = indexies.filter((index) => index.type === "model").map(
-      (index) => {
-        const resource = resources.find((resource) =>
-          resource.id === index.resource
-        );
+      const store = indexies.filter((index) => index.type === "model").map(
+        (index) => {
+          const resource = resources.find((resource) =>
+            resource.id === index.resource
+          );
 
-        if (!resource) return null;
+          if (!resource) return null;
 
-        return {
-          id: index.id,
-          model: resource.model,
-          resource: index.resource,
-          name: index.name,
-        };
-      },
-    ).filter((v) => !!v);
+          return {
+            id: index.id,
+            model: resource.model,
+            resource: index.resource,
+            name: index.name,
+          };
+        },
+      ).filter((v) => !!v);
 
-    const field = modelToField(model, (id) => {
-      const value = modelRecord.get(id);
+      const field = modelToField(model, (id) => {
+        const value = modelRecord.get(id);
 
-      if (!value) throw new Error();
+        if (!value) throw new Error();
 
-      return value;
-    }, (model) => {
-      const values = store.filter((value) => value.model === model);
+        return value;
+      }, (model) => {
+        const values = store.filter((value) => value.model === model);
 
-      return values;
-    }, () => []);
+        return values;
+      }, () => []);
 
-    return Option.some({
-      id: content.id,
-      field,
-      node,
-      meta: {
-        title: model.title,
-        description: model.description,
-        model: modelId,
-      },
-      name: content.name,
-    });
+      return Option.some({
+        id: content.id,
+        field,
+        node,
+        meta: {
+          title: model.title,
+          description: model.description,
+          model: modelId,
+        },
+        name: content.name,
+      });
+    } catch (e) {
+      if (e instanceof ApiError) {
+        switch (e.problem.status) {
+          case 404: {
+            return Option.none;
+          }
+        }
+      }
+
+      throw e;
+    }
   }
 
   async findIndeies(): Promise<(Index & { id: string })[]> {

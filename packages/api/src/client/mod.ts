@@ -1,1 +1,1 @@
-export { type Client, createClient } from "./client.ts";
+export { ApiError, Client } from "./client.ts";

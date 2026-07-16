@@ -46,6 +46,9 @@ export class Client {
       case 200: {
         return result.body;
       }
+      case 404: {
+        throw new ApiError({ status: 404 });
+      }
     }
 
     throw new ApiError();
@@ -130,15 +133,34 @@ export class Client {
 }
 
 export class ApiError extends Error {
+  constructor(problem?: Problem) {
+    super();
+
+    this.problem = problem ?? { status: 500 };
+  }
+
+  readonly problem: Problem;
 }
 
-type Problem = InvalidArgumentProblem | ValidationErrorProblem;
+type Problem =
+  | InvalidArgumentProblem
+  | ValidationErrorProblem
+  | NotFoundProblem
+  | InternalServerErrorProblem;
 
 interface InvalidArgumentProblem {
   status: 400;
 }
 
+interface NotFoundProblem {
+  status: 404;
+}
+
 interface ValidationErrorProblem {
   status: 422;
   errors: unknown;
+}
+
+interface InternalServerErrorProblem {
+  status: 500;
 }
