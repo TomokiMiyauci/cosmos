@@ -316,6 +316,7 @@ components:
       required:
         - id
         - model
+      additionalProperties: false
     Model:
       type: object
       properties:

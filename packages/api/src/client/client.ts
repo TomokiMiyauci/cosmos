@@ -2,15 +2,17 @@ import { initClient, type InitClientReturn } from "@ts-rest/core";
 import { contract } from "../contract.ts";
 import type { components } from "../schema.d.ts";
 
-type Result<T, E> = Success<T> | Failure<E>;
-type Success<T> = [data: T, error: null];
-type Failure<T> = [data: null, error: T];
+export type Result<T, E> = Result.Ok<T> | Result.Error<E>;
 
-namespace Result {
-  export function ok<T>(of: T): Success<T> {
+export namespace Result {
+  export type Ok<T> = [data: T, error: null];
+
+  export type Error<T> = [data: null, error: T];
+
+  export function ok<T>(of: T): Ok<T> {
     return [of, null];
   }
-  export function error<T>(of: T): Failure<T> {
+  export function error<T>(of: T): Error<T> {
     return [null, of];
   }
 }
@@ -100,52 +102,60 @@ export class Client {
     throw Result.error(new ApiError());
   }
 
-  async getResources() {
+  async getResources(): Promise<
+    Result<components["schemas"]["Resource"][], ApiError<Problem>>
+  > {
     const result = await this.#client.getResources();
 
     switch (result.status) {
       case 200: {
-        return result.body;
+        return Result.ok(result.body);
       }
     }
 
-    throw new ApiError();
+    throw Result.error(new ApiError());
   }
 
-  async getResource(id: string) {
+  async getResource(
+    id: string,
+  ): Promise<Result<components["schemas"]["Resource"], ApiError<Problem>>> {
     const result = await this.#client.getResource({ params: { id } });
 
     switch (result.status) {
       case 200: {
-        return result.body;
+        return Result.ok(result.body);
       }
     }
 
-    throw new ApiError();
+    throw Result.error(new ApiError());
   }
 
-  async getModels() {
+  async getModels(): Promise<
+    Result<components["schemas"]["Model"][], ApiError<Problem>>
+  > {
     const result = await this.#client.getModels();
 
     switch (result.status) {
       case 200: {
-        return result.body;
+        return Result.ok(result.body);
       }
     }
 
-    throw new ApiError();
+    throw Result.error(new ApiError());
   }
 
-  async getModel(id: string) {
+  async getModel(
+    id: string,
+  ): Promise<Result<components["schemas"]["Model"], ApiError<Problem>>> {
     const result = await this.#client.getModel({ params: { id } });
 
     switch (result.status) {
       case 200: {
-        return result.body;
+        return Result.ok(result.body);
       }
     }
 
-    throw new ApiError();
+    throw Result.error(new ApiError());
   }
 }
 

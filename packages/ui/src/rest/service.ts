@@ -8,7 +8,7 @@ import type {
   Summary,
   Template,
 } from "../type.ts";
-import { ApiError, Client } from "@cosmos/rest/client";
+import { Client } from "@cosmos/rest/client";
 import { Option, Result } from "@miyauci/util";
 import type {
   AssetNode,
@@ -36,24 +36,46 @@ export class RestCmsService implements CmsService {
   }
 
   async #findResource(resourceId: string): Promise<Resource | null> {
-    const result = await this.#client.getResource(resourceId);
+    const [data, error] = await this.#client.getResource(resourceId);
 
-    return result;
+    if (error) {
+      switch (error.problem.status) {
+        case 404: {
+          return null;
+        }
+      }
+
+      throw error;
+    }
+
+    return data;
   }
 
   async findModel(modelId: string): Promise<Model | null> {
-    const result = await this.#client.getModel(modelId);
+    const [data, error] = await this.#client.getModel(modelId);
 
-    return result;
+    if (error) {
+      switch (error.problem.status) {
+        case 404: {
+          return null;
+        }
+      }
+
+      throw error;
+    }
+
+    return data;
   }
 
   async findModels(): Promise<{
     id: string;
     model: Model;
   }[]> {
-    const result = await this.#client.getModels();
+    const [data, error] = await this.#client.getModels();
 
-    return result.map((model) => ({ id: model.id, model: model }));
+    if (error) throw error;
+
+    return data.map((model) => ({ id: model.id, model: model }));
   }
 
   async findTemplate(resourceId: string): Promise<Template | null> {
@@ -134,78 +156,66 @@ export class RestCmsService implements CmsService {
   }
 
   async findContent(id: Content["id"]): Promise<Option<Content>> {
-    try {
-      const content = await this.#findContent(id);
+    const content = await this.#findContent(id);
 
-      if (!content) return Option.none;
+    if (!content) return Option.none;
 
-      const modelId = content.model;
-      const model = await this.findModel(modelId);
+    const modelId = content.model;
+    const model = await this.findModel(modelId);
 
-      if (!model) return Option.none;
+    if (!model) return Option.none;
 
-      const allModels = await this.findModels();
+    const allModels = await this.findModels();
 
-      const modelRecord = new Map(
-        allModels.map(({ id, model }) => [id, model] as const),
-      );
+    const modelRecord = new Map(
+      allModels.map(({ id, model }) => [id, model] as const),
+    );
 
-      const node = parseToNode(content.node);
+    const node = parseToNode(content.node);
 
-      const indexies = await this.findIndeies();
-      const resources = await this.findResources();
+    const indexies = await this.findIndeies();
+    const resources = await this.findResources();
 
-      const store = indexies.filter((index) => index.type === "model").map(
-        (index) => {
-          const resource = resources.find((resource) =>
-            resource.id === index.resource
-          );
+    const store = indexies.filter((index) => index.type === "model").map(
+      (index) => {
+        const resource = resources.find((resource) =>
+          resource.id === index.resource
+        );
 
-          if (!resource) return null;
+        if (!resource) return null;
 
-          return {
-            id: index.id,
-            model: resource.model,
-            resource: index.resource,
-            name: index.name,
-          };
-        },
-      ).filter((v) => !!v);
+        return {
+          id: index.id,
+          model: resource.model,
+          resource: index.resource,
+          name: index.name,
+        };
+      },
+    ).filter((v) => !!v);
 
-      const field = modelToField(model, (id) => {
-        const value = modelRecord.get(id);
+    const field = modelToField(model, (id) => {
+      const value = modelRecord.get(id);
 
-        if (!value) throw new Error();
+      if (!value) throw new Error();
 
-        return value;
-      }, (model) => {
-        const values = store.filter((value) => value.model === model);
+      return value;
+    }, (model) => {
+      const values = store.filter((value) => value.model === model);
 
-        return values;
-      }, () => []);
+      return values;
+    }, () => []);
 
-      return Option.some({
-        id: content.id,
-        field,
-        node,
-        meta: {
-          title: model.title,
-          description: model.description,
-          model: modelId,
-        },
-        name: content.name,
-      });
-    } catch (e) {
-      if (e instanceof ApiError) {
-        switch (e.problem.status) {
-          case 404: {
-            return Option.none;
-          }
-        }
-      }
-
-      throw e;
-    }
+    return Option.some({
+      id: content.id,
+      field,
+      node,
+      meta: {
+        title: model.title,
+        description: model.description,
+        model: modelId,
+      },
+      name: content.name,
+    });
   }
 
   async findIndeies(): Promise<(Index & { id: string })[]> {
@@ -231,15 +241,27 @@ export class RestCmsService implements CmsService {
   }
 
   async findResource(resourceId: string): Promise<Resource | null> {
-    const result = await this.#client.getResource(resourceId);
+    const [data, error] = await this.#client.getResource(resourceId);
 
-    return result;
+    if (error) {
+      switch (error.problem.status) {
+        case 404: {
+          return null;
+        }
+      }
+
+      throw error;
+    }
+
+    return data;
   }
 
   async findResources(): Promise<Identity[]> {
-    const result = await this.#client.getResources();
+    const [data, error] = await this.#client.getResources();
 
-    return result;
+    if (error) throw error;
+
+    return data;
   }
 
   async saveEntry(entry: Entry): Promise<Result<Node, {}>> {
@@ -264,7 +286,7 @@ export class RestCmsService implements CmsService {
     });
 
     return Result.ok({
-      id: result.body.id,
+      id: result[0].body.id,
     });
   }
 

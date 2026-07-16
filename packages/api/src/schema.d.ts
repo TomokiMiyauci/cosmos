@@ -171,6 +171,16 @@ export interface components {
         Identitiy: {
             id: string;
         };
+        Resource: {
+            id: string;
+            model: string;
+        };
+        Model: {
+            id: string;
+            title: string;
+            description: string;
+            schema: Record<string, never>;
+        };
     };
     responses: never;
     parameters: never;
@@ -316,7 +326,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Resource"][];
+                };
             };
         };
     };
@@ -334,7 +346,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Resource"];
+                };
             };
             /** @description Not found */
             404: {
@@ -359,7 +373,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Model"][];
+                };
             };
         };
     };
@@ -374,6 +390,15 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Model"];
+                };
+            };
+            /** @description Error */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

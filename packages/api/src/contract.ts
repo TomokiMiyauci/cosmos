@@ -57,7 +57,7 @@ const NewEntryInputDto = z
   .object({ name: z.string().optional(), model: z.string(), node: NodeJson })
   .passthrough();
 const Identitiy = z.object({ id: z.string() });
-const Resource = z.object({ id: z.string(), model: z.string() }).passthrough();
+const Resource = z.object({ id: z.string(), model: z.string() });
 const Model = z
   .object({
     id: z.string(),
