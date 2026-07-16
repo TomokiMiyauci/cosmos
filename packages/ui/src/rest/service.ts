@@ -1,0 +1,606 @@
+import type {
+  CmsService,
+  Content,
+  ContentsOption,
+  Entry,
+  Field,
+  Identity,
+  Summary,
+  Template,
+} from "../type.ts";
+import { type Client, createClient } from "@cosmos/rest";
+import { Option, Result } from "@miyauci/util";
+import type {
+  AssetNode,
+  BooleanNode,
+  DatetimeNode,
+  Index,
+  ListNode,
+  MapNode,
+  Model,
+  Node,
+  NumberNode,
+  ReferenceNode,
+  Resource,
+  Schema,
+  StringNode,
+  UnionNode,
+} from "@cosmos/core";
+import { mapValues } from "@std/collections";
+import { parseToNode } from "@cosmos/parser";
+
+export class RestCmsService implements CmsService {
+  #client: Client;
+  constructor(endpoint: URL) {
+    this.#client = createClient(endpoint);
+  }
+
+  async #findResource(resourceId: string): Promise<Resource | null> {
+    const result = await this.#client.getResource({
+      params: { id: resourceId },
+    });
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+      case 404: {
+        return null;
+      }
+      default: {
+        throw new Error();
+      }
+    }
+  }
+
+  async findModel(modelId: string): Promise<Model | null> {
+    const result = await this.#client.getModel({ params: { id: modelId } });
+
+    switch (result.status) {
+      case 200: {
+        return result.body.model;
+      }
+      case 404: {
+        return null;
+      }
+      default: {
+        throw new Error();
+      }
+    }
+  }
+
+  async findModels(): Promise<{
+    id: string;
+    model: Model;
+  }[]> {
+    const result = await this.#client.getModels();
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+
+      default: {
+        throw new Error();
+      }
+    }
+  }
+
+  async findTemplate(resourceId: string): Promise<Template | null> {
+    const resource = await this.#findResource(resourceId);
+
+    if (!resource) return null;
+
+    const modelId = resource.model;
+    const model = await this.findModel(modelId);
+
+    if (!model) return null;
+
+    const allModels = await this.findModels();
+
+    const modelRecord = new Map(
+      allModels.map(({ id, model }) => [id, model] as const),
+    );
+
+    const indexies = await this.findIndeies();
+    const resources = await this.findResources();
+
+    const store = indexies.filter((index) => index.type === "model").map(
+      (index) => {
+        const resource = resources.find((resource) =>
+          resource.id === index.resource
+        );
+
+        if (!resource) return null;
+
+        return {
+          id: index.id,
+          model: resource.model,
+          resource: index.resource,
+          name: index.name,
+        };
+      },
+    ).filter((v) => !!v);
+
+    const field = modelToField(model, (id) => {
+      const value = modelRecord.get(id);
+
+      if (!value) throw new Error();
+
+      return value;
+    }, (model) => {
+      const values = store.filter((value) => value.model === model);
+
+      return values;
+    }, () => {
+      return [];
+    });
+
+    return {
+      field,
+      node: null,
+      meta: {
+        title: model.title,
+        description: model.description,
+        model: modelId,
+      },
+    };
+  }
+
+  async #findContent(
+    contentId: string,
+  ): Promise<{ id: string; model: string; name: string; node: Node } | null> {
+    const result = await this.#client.getEntry({ params: { id: contentId } });
+
+    switch (result.status) {
+      case 200: {
+        const dto = result.body;
+
+        return {
+          id: dto.id,
+          model: dto.model,
+          name: dto.name,
+          node: toNode(dto.node),
+        };
+      }
+      case 400: {
+        throw new Error();
+      }
+      case 404: {
+        return null;
+      }
+      default: {
+        throw new Error();
+      }
+    }
+  }
+
+  async findContent(id: Content["id"]): Promise<Option<Content>> {
+    const content = await this.#findContent(id);
+
+    if (!content) return Option.none;
+
+    const modelId = content.model;
+    const model = await this.findModel(modelId);
+
+    if (!model) return Option.none;
+
+    const allModels = await this.findModels();
+
+    const modelRecord = new Map(
+      allModels.map(({ id, model }) => [id, model] as const),
+    );
+
+    const node = parseToNode(content.node);
+
+    const indexies = await this.findIndeies();
+    const resources = await this.findResources();
+
+    const store = indexies.filter((index) => index.type === "model").map(
+      (index) => {
+        const resource = resources.find((resource) =>
+          resource.id === index.resource
+        );
+
+        if (!resource) return null;
+
+        return {
+          id: index.id,
+          model: resource.model,
+          resource: index.resource,
+          name: index.name,
+        };
+      },
+    ).filter((v) => !!v);
+
+    const field = modelToField(model, (id) => {
+      const value = modelRecord.get(id);
+
+      if (!value) throw new Error();
+
+      return value;
+    }, (model) => {
+      const values = store.filter((value) => value.model === model);
+
+      return values;
+    }, () => []);
+
+    return Option.some({
+      id: content.id,
+      field,
+      node,
+      meta: {
+        title: model.title,
+        description: model.description,
+        model: modelId,
+      },
+      name: content.name,
+    });
+  }
+
+  async findIndeies(): Promise<(Index & { id: string })[]> {
+    const result = await this.#client.getSummaries();
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+      default: {
+        throw new Error();
+      }
+    }
+  }
+
+  async findSummaries(option?: ContentsOption): Promise<Summary[]> {
+    let model: string | undefined;
+
+    if (option?.resource) {
+      const resource = await this.findResource(option.resource);
+
+      if (!resource) return [];
+
+      model = resource.model;
+    }
+
+    const result = await this.#client.getSummaries({ query: { model } });
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+      default: {
+        throw new Error();
+      }
+    }
+  }
+
+  async findResource(resourceId: string): Promise<Resource | null> {
+    const result = await this.#client.getResource({
+      params: { id: resourceId },
+    });
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+      case 404: {
+        return null;
+      }
+      default: {
+        throw new Error();
+      }
+    }
+  }
+
+  async findResources(): Promise<Identity[]> {
+    const result = await this.#client.getResources();
+
+    switch (result.status) {
+      case 200: {
+        return result.body;
+      }
+      default: {
+        throw new Error();
+      }
+    }
+  }
+
+  async saveEntry(entry: Entry): Promise<Result<Node, {}>> {
+    const result = await this.#client.putEntry({
+      body: { name: entry.summary.name, node: fromNode(entry.node) },
+      params: { id: entry.id },
+    });
+
+    switch (result.status) {
+      case 204: {
+        return Result.ok(entry.node);
+      }
+    }
+
+    throw new Error();
+  }
+
+  async registerEntry(
+    model: string,
+    node: Node,
+    summary: Summary,
+  ): Promise<Result<Identity, {}>> {
+    const result = await this.#client.postEntry({
+      body: {
+        node: fromNode(node),
+        model,
+        name: summary.name,
+      },
+    });
+
+    switch (result.status) {
+      case 201: {
+        return Result.ok({
+          id: result.body.id,
+        });
+      }
+    }
+
+    return Result.error(new Error());
+  }
+
+  async eraseNodeById(id: string): Promise<void> {
+    await this.#client.deleteEntry({ params: { id } });
+  }
+}
+
+export function fromNode(node: Node): NodeJson {
+  switch (node.type) {
+    case "string":
+    case "number":
+    case "reference":
+    case "asset":
+    case "boolean": {
+      return { ...node };
+    }
+    case "datetime": {
+      return {
+        type: "datetime",
+        value: node.value.toString(),
+      };
+    }
+    case "union": {
+      return {
+        ...node,
+        value: fromNode(node.value),
+      };
+    }
+    case "list": {
+      return {
+        type: "list",
+        value: node.value.map(fromNode),
+      };
+    }
+    case "markdown": {
+      return {
+        type: "string",
+        value: "",
+      };
+    }
+    case "map": {
+      return {
+        type: "map",
+        value: mapValues(node.value, fromNode),
+      };
+    }
+  }
+}
+
+export type NodeJson =
+  | StringNodeJson
+  | NumberNodeJson
+  | BooleanNodeJson
+  | DatetimeNodeJson
+  | ReferenceNodeJson
+  | AssetNodeJson
+  | UnionNodeJson
+  | ListNodeJson
+  | MapNodeJson;
+
+interface StringNodeJson extends StringNode, JsonObject {}
+
+interface NumberNodeJson extends NumberNode, JsonObject {}
+
+interface UnionNodeJson extends JsonObject {
+  type: UnionNode["type"];
+  key: UnionNode["key"];
+  value: NodeJson;
+}
+
+interface BooleanNodeJson extends BooleanNode, JsonObject {}
+
+interface ReferenceNodeJson extends ReferenceNode, JsonObject {}
+
+interface AssetNodeJson extends AssetNode, JsonObject {}
+
+interface DatetimeNodeJson extends JsonObject {
+  type: DatetimeNode["type"];
+  value: string;
+}
+
+interface ListNodeJson extends JsonObject {
+  type: ListNode["type"];
+  value: NodeJson[];
+}
+
+interface MapNodeJson extends JsonObject {
+  type: MapNode["type"];
+  value: Record<string, NodeJson>;
+}
+
+export type Json = JsonValue | JsonObject | Json[];
+
+export type JsonObject = { readonly [k: string]: Json };
+
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null;
+
+export function modelToField(
+  model: Model,
+  getModel: (modelId: string) => Model,
+  getIndexies: (modelId: string) => Summary[],
+  getAssets: () => Summary[],
+): Field {
+  function to(
+    schema: Schema,
+    meta?: { required: boolean; description: string; title: string },
+  ): Field {
+    const required = meta?.required ?? false;
+    const description = meta?.description ?? "";
+    const title = meta?.title ?? "";
+
+    switch (schema.type) {
+      case "string": {
+        return {
+          type: "string",
+          description,
+          required,
+          title,
+        };
+      }
+      case "number": {
+        return {
+          type: "number",
+          description,
+          required,
+          title,
+        };
+      }
+      case "boolean": {
+        return {
+          type: "boolean",
+          description,
+          required,
+          title,
+        };
+      }
+      case "datetime": {
+        return {
+          type: "datetime",
+          description,
+          required,
+          title,
+        };
+      }
+      case "map": {
+        const set = new Set(schema.required);
+        const fields = mapValues(schema.props, (childModel, key) => {
+          return to(childModel.schema, {
+            required: set.has(key),
+            description: childModel.description,
+            title: childModel.title,
+          });
+        });
+        return {
+          type: "map",
+          fields,
+          title,
+          description,
+          required,
+        };
+      }
+      case "list": {
+        return {
+          type: "list",
+          field: to(schema.item),
+          title,
+          description,
+          required,
+        };
+      }
+      case "reference": {
+        const candidates = getIndexies(schema.model);
+
+        return {
+          type: "reference",
+          candidates,
+          description,
+          title,
+          required,
+        };
+      }
+      case "instance": {
+        const childModel = getModel(schema.model);
+
+        return to(childModel.schema, {
+          description: childModel.description,
+          title: childModel.title,
+          required: false,
+        });
+      }
+      case "union": {
+        const variants = mapValues(
+          schema.variants,
+          (model) => to(model.schema),
+        );
+        return {
+          type: "union",
+          variants,
+          title,
+          description,
+          required,
+        };
+      }
+      case "asset": {
+        const candidates = getAssets();
+
+        return {
+          type: "asset",
+          title,
+          description,
+          required,
+          candidates,
+        };
+      }
+      case "markdown": {
+        throw new Error();
+      }
+    }
+  }
+
+  return to(model.schema);
+}
+
+export function toNode(dto: NodeJson): Node {
+  switch (dto.type) {
+    case "string":
+    case "number":
+    case "boolean":
+    case "reference":
+    case "asset": {
+      return dto;
+    }
+    case "datetime": {
+      return {
+        type: "datetime",
+        value: new Date(dto.value),
+      };
+    }
+    case "union": {
+      return {
+        ...dto,
+        value: toNode(dto.value),
+      };
+    }
+    case "map": {
+      return {
+        type: "map",
+        value: mapValues(dto.value, toNode),
+      };
+    }
+    case "list": {
+      return {
+        type: "list",
+        value: dto.value.map(toNode),
+      };
+    }
+  }
+}
