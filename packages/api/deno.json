@@ -1,9 +1,14 @@
 {
   "name": "@cosmos/rest",
-  "exports": "./src/mod.ts",
+  "exports": {
+    ".": "./src/mod.ts",
+    "./client": "./src/client/mod.ts"
+  },
   "imports": {
+    "@openapi-ts-rest/cli": "npm:@openapi-ts-rest/cli@^0.1.4",
     "@std/collections": "jsr:@std/collections@^1.3.0",
     "@ts-rest/core": "npm:@ts-rest/core@3.53.0-rc.1",
-    "@ts-rest/serverless": "npm:@ts-rest/serverless@3.53.0-rc.1"
+    "@ts-rest/serverless": "npm:@ts-rest/serverless@3.53.0-rc.1",
+    "zod": "npm:zod@^4.4.3"
   }
 }
