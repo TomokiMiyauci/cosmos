@@ -1,28 +1,13 @@
 import { initClient, type InitClientReturn } from "@ts-rest/core";
 import { contract } from "../contract.ts";
-import type { components } from "../schema.d.ts";
 import type {
   EntryDto,
   EntryInputDto,
   Model,
+  NewEntryInputDto,
   Resource,
   SummaryDto,
 } from "../dto.d.ts";
-
-export type Result<T, E> = Result.Ok<T> | Result.Error<E>;
-
-export namespace Result {
-  export type Ok<T> = [data: T, error: null];
-
-  export type Error<T> = [data: null, error: T];
-
-  export function ok<T>(of: T): Ok<T> {
-    return [of, null];
-  }
-  export function error<T>(of: T): Error<T> {
-    return [null, of];
-  }
-}
 
 export class Client {
   #client: InitClientReturn<typeof contract, { baseUrl: string }>;
@@ -44,11 +29,11 @@ export class Client {
       }
     }
 
-    throw new ApiError();
+    throw new Error("Unknon status");
   }
 
   async postEntry(
-    params: components["schemas"]["NewEntryInputDto"],
+    params: NewEntryInputDto,
   ): Promise<Result<null, ApiError<Problem>>> {
     const result = await this.#client.postEntry({ body: params });
 
@@ -58,7 +43,7 @@ export class Client {
       }
     }
 
-    throw Result.error(new ApiError());
+    throw new Error("Unknon status");
   }
 
   async getEntry(
@@ -75,7 +60,7 @@ export class Client {
       }
     }
 
-    throw Result.error(new ApiError());
+    throw new Error("Unknon status");
   }
 
   async putEntry(
@@ -92,7 +77,7 @@ export class Client {
       }
     }
 
-    throw Result.error(new ApiError());
+    throw new Error("Unknon status");
   }
 
   async deleteEntry(id: string): Promise<Result<null, ApiError<Problem>>> {
@@ -104,7 +89,7 @@ export class Client {
       }
     }
 
-    throw Result.error(new ApiError());
+    throw new Error("Unknon status");
   }
 
   async getResources(): Promise<
@@ -118,7 +103,7 @@ export class Client {
       }
     }
 
-    throw Result.error(new ApiError());
+    throw new Error("Unknon status");
   }
 
   async getResource(
@@ -132,7 +117,7 @@ export class Client {
       }
     }
 
-    throw Result.error(new ApiError());
+    throw new Error("Unknon status");
   }
 
   async getModels(): Promise<
@@ -146,7 +131,7 @@ export class Client {
       }
     }
 
-    throw Result.error(new ApiError());
+    throw new Error("Unknon status");
   }
 
   async getModel(
@@ -160,7 +145,7 @@ export class Client {
       }
     }
 
-    throw Result.error(new ApiError());
+    throw new Error("Unknon status");
   }
 }
 
@@ -195,4 +180,19 @@ interface ValidationErrorProblem {
 
 interface InternalServerErrorProblem {
   status: 500;
+}
+
+export type Result<T, E> = Result.Ok<T> | Result.Error<E>;
+
+export namespace Result {
+  export type Ok<T> = [data: T, error: null];
+
+  export type Error<T> = [data: null, error: T];
+
+  export function ok<T>(of: T): Ok<T> {
+    return [of, null];
+  }
+  export function error<T>(of: T): Error<T> {
+    return [null, of];
+  }
 }

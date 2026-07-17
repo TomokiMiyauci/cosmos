@@ -1,4 +1,5 @@
-openapi: 3.0.3
+# yaml-language-server: $schema=https://spec.openapis.org/oas/3.1/schema/2025-11-23
+openapi: 3.1.1
 info:
   title: Content management system API
   version: 0.1.0
@@ -15,7 +16,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        "200":
           description: OK
           content:
             application/json:
@@ -33,13 +34,13 @@ paths:
             schema:
               $ref: "#/components/schemas/NewEntryInputDto"
       responses:
-        201:
+        "201":
           description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Identitiy"
-        400:
+        "400":
           description: Fail
 
   /entries/{id}:
@@ -47,13 +48,13 @@ paths:
       summary: Returns single entry
       operationId: getEntry
       responses:
-        200:
+        "200":
           description: JSON
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/EntryDto"
-        404:
+        "404":
           description: Not found
 
     put:
@@ -67,21 +68,21 @@ paths:
             schema:
               $ref: "#/components/schemas/EntryInputDto"
       responses:
-        204:
+        "204":
           description: OK
 
     delete:
       summary: Delete entry
       operationId: deleteEntry
       responses:
-        204:
+        "204":
           description: OK
   /resources:
     get:
       summary: Retruns resources
       operationId: getResources
       responses:
-        200:
+        "200":
           description: OK
           content:
             application/json:
@@ -95,21 +96,21 @@ paths:
       summary: Return resource
       operationId: getResource
       responses:
-        200:
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Resource"
 
-        404:
+        "404":
           description: Not found
   /models:
     get:
       summary: Return models
       operationId: getModels
       responses:
-        200:
+        "200":
           description: OK
           content:
             application/json:
@@ -123,13 +124,13 @@ paths:
       summary: Return model
       operationId: getModel
       responses:
-        200:
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Model"
-        404:
+        "404":
           description: Error
 
 components:
@@ -333,3 +334,40 @@ components:
         - title
         - description
         - schema
+      additionalProperties: false
+    Entry:
+      type: object
+      properties:
+        name:
+          type: string
+        contents:
+          $ref: "#/components/schemas/Contents"
+      required:
+        - name
+        - contents
+      additionalProperties: false
+    Contents:
+      oneOf:
+        - $ref: "#/components/schemas/StringContents"
+        - $ref: "#/components/schemas/NumberContents"
+        - $ref: "#/components/schemas/BooleanContents"
+        - $ref: "#/components/schemas/DatetimeContents"
+    StringContents:
+      type: string
+    NumberContents:
+      type: number
+    BooleanContents:
+      type: boolean
+    DatetimeContents:
+      type: string
+    MapContents:
+      type: object
+    ListContents:
+      type: array
+      items:
+        $ref: "#/components/schemas/Contents"
+    UnionContents:
+      type: array
+      prefixItems:
+        - type: string
+        - $ref: "#/components/schemas/Contents"
