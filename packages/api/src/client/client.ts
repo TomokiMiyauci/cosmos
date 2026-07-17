@@ -1,6 +1,13 @@
 import { initClient, type InitClientReturn } from "@ts-rest/core";
 import { contract } from "../contract.ts";
 import type { components } from "../schema.d.ts";
+import type {
+  EntryDto,
+  EntryInputDto,
+  Model,
+  Resource,
+  SummaryDto,
+} from "../dto.d.ts";
 
 export type Result<T, E> = Result.Ok<T> | Result.Error<E>;
 
@@ -26,7 +33,7 @@ export class Client {
 
   async getEntrySummaries(
     optinos?: { model?: string },
-  ): Promise<components["schemas"]["SummaryDto"][]> {
+  ): Promise<SummaryDto[]> {
     const result = await this.#client.getSummaries({
       "query": { model: optinos?.model },
     });
@@ -56,9 +63,7 @@ export class Client {
 
   async getEntry(
     id: string,
-  ): Promise<
-    Result<components["schemas"]["EntryDto"], ApiError<NotFoundProblem>>
-  > {
+  ): Promise<Result<EntryDto, ApiError<NotFoundProblem>>> {
     const result = await this.#client.getEntry({ params: { id } });
 
     switch (result.status) {
@@ -74,7 +79,7 @@ export class Client {
   }
 
   async putEntry(
-    params: components["schemas"]["EntryInputDto"] & { id: string },
+    params: EntryInputDto & { id: string },
   ): Promise<Result<null, ApiError<Problem>>> {
     const result = await this.#client.putEntry({
       params: { id: params.id },
@@ -103,7 +108,7 @@ export class Client {
   }
 
   async getResources(): Promise<
-    Result<components["schemas"]["Resource"][], ApiError<Problem>>
+    Result<Resource[], ApiError<Problem>>
   > {
     const result = await this.#client.getResources();
 
@@ -118,7 +123,7 @@ export class Client {
 
   async getResource(
     id: string,
-  ): Promise<Result<components["schemas"]["Resource"], ApiError<Problem>>> {
+  ): Promise<Result<Resource, ApiError<Problem>>> {
     const result = await this.#client.getResource({ params: { id } });
 
     switch (result.status) {
@@ -131,7 +136,7 @@ export class Client {
   }
 
   async getModels(): Promise<
-    Result<components["schemas"]["Model"][], ApiError<Problem>>
+    Result<Model[], ApiError<Problem>>
   > {
     const result = await this.#client.getModels();
 
@@ -146,7 +151,7 @@ export class Client {
 
   async getModel(
     id: string,
-  ): Promise<Result<components["schemas"]["Model"], ApiError<Problem>>> {
+  ): Promise<Result<Model, ApiError<Problem>>> {
     const result = await this.#client.getModel({ params: { id } });
 
     switch (result.status) {
