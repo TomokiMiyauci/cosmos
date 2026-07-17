@@ -4,406 +4,427 @@
  */
 
 export interface paths {
-    "/entries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get entry summaries */
-        get: operations["getSummaries"];
-        put?: never;
-        post: operations["postEntry"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/entries": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/entries/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Returns single entry */
-        get: operations["getEntry"];
-        /** Replace entry */
-        put: operations["putEntry"];
-        post?: never;
-        /** Delete entry */
-        delete: operations["deleteEntry"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Get entry summaries */
+    get: operations["getSummaries"];
+    put?: never;
+    post: operations["postEntry"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/entries/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/resources": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Retruns resources */
-        get: operations["getResources"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Returns single entry */
+    get: operations["getEntry"];
+    /** Replace entry */
+    put: operations["putEntry"];
+    post?: never;
+    /** Delete entry */
+    delete: operations["deleteEntry"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/resources": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/resources/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Return resource */
-        get: operations["getResource"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Retruns resources */
+    get: operations["getResources"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/resources/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/models": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Return models */
-        get: operations["getModels"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Return resource */
+    get: operations["getResource"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/models": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/models/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Return model */
-        get: operations["getModel"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Return models */
+    get: operations["getModels"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/models/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    /** Return model */
+    get: operations["getModel"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        EntryDto: components["schemas"]["SummaryDto"];
-        NodeJson: components["schemas"]["StringNodeJson"] | components["schemas"]["NumberNodeJson"] | components["schemas"]["BooleanNodeJson"] | components["schemas"]["DatetimeNodeJson"] | components["schemas"]["ListNodeJson"] | components["schemas"]["MapNodeJson"] | components["schemas"]["ReferenceNodeJson"] | components["schemas"]["AssetNodeJson"];
-        StringNodeJson: {
-            /** @enum {string} */
-            type: "string";
-            value: string;
-        };
-        NumberNodeJson: {
-            /** @enum {string} */
-            type: "number";
-            value: number;
-        };
-        BooleanNodeJson: {
-            /** @enum {string} */
-            type: "boolean";
-            value: boolean;
-        };
-        DatetimeNodeJson: {
-            /** @enum {string} */
-            type: "datetime";
-            value: string;
-        };
-        ListNodeJson: {
-            /** @enum {string} */
-            type: "list";
-            value: unknown[];
-        };
-        MapNodeJson: {
-            /** @enum {string} */
-            type: "map";
-            value: Record<string, never>;
-        };
-        ReferenceNodeJson: {
-            /** @enum {string} */
-            type: "reference";
-            value: string;
-        };
-        AssetNodeJson: {
-            /** @enum {string} */
-            type: "asset";
-            value: string;
-        };
-        EntryInputDto: {
-            name: string;
-            node: components["schemas"]["NodeJson"];
-        };
-        NewEntryInputDto: {
-            name?: string;
-            model: string;
-            node: components["schemas"]["NodeJson"];
-        };
-        SummaryDto: {
-            id: string;
-            model: string;
-            name: string;
-        };
-        Identitiy: {
-            id: string;
-        };
-        Resource: {
-            id: string;
-            model: string;
-        };
-        Model: {
-            id: string;
-            title: string;
-            description: string;
-            schema: Record<string, never>;
-        };
+  schemas: {
+    EntryDto: components["schemas"]["SummaryDto"] & {
+      node: components["schemas"]["NodeJson"];
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    NodeJson: any;
+    StringNodeJson: {
+      /** @enum {string} */
+      type: "string";
+      value: string;
+    };
+    NumberNodeJson: {
+      /** @enum {string} */
+      type: "number";
+      value: number;
+    };
+    BooleanNodeJson: {
+      /** @enum {string} */
+      type: "boolean";
+      value: boolean;
+    };
+    DatetimeNodeJson: {
+      /** @enum {string} */
+      type: "datetime";
+      value: string;
+    };
+    ListNodeJson: {
+      /** @enum {string} */
+      type: "list";
+      value: unknown[];
+    };
+    MapNodeJson: {
+      /** @enum {string} */
+      type: "map";
+      value: Record<string, never>;
+    };
+    ReferenceNodeJson: {
+      /** @enum {string} */
+      type: "reference";
+      value: string;
+    };
+    AssetNodeJson: {
+      /** @enum {string} */
+      type: "asset";
+      value: string;
+    };
+    EntryInputDto: {
+      name: string;
+      node: components["schemas"]["NodeJson"];
+    };
+    NewEntryInputDto: {
+      name?: string;
+      model: string;
+      node: components["schemas"]["NodeJson"];
+    };
+    SummaryDto: {
+      id: string;
+      model: string;
+      name: string;
+    };
+    Identitiy: {
+      id: string;
+    };
+    Resource: {
+      id: string;
+      model: string;
+    };
+    Model: {
+      id: string;
+      title: string;
+      description: string;
+      schema: any;
+    };
+    Entry: {
+      name: string;
+      contents: components["schemas"]["Contents"];
+    };
+    Contents:
+      | components["schemas"]["StringContents"]
+      | components["schemas"]["NumberContents"]
+      | components["schemas"]["BooleanContents"]
+      | components["schemas"]["DatetimeContents"];
+    StringContents: string;
+    NumberContents: number;
+    BooleanContents: boolean;
+    DatetimeContents: string;
+    MapContents: Record<string, never>;
+    ListContents: components["schemas"]["Contents"][];
+    UnionContents: [
+      string,
+      components["schemas"]["Contents"],
+    ];
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    getSummaries: {
-        parameters: {
-            query?: {
-                model?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SummaryDto"][];
-                };
-            };
-        };
+  getSummaries: {
+    parameters: {
+      query?: {
+        model?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    postEntry: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        /** @description OK */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NewEntryInputDto"];
-            };
+        content: {
+          "application/json": components["schemas"]["SummaryDto"][];
         };
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Identitiy"];
-                };
-            };
-            /** @description Fail */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+      };
     };
-    getEntry: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description JSON */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntryDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  postEntry: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    putEntry: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description OK */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EntryInputDto"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+    /** @description OK */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["NewEntryInputDto"];
+      };
     };
-    deleteEntry: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description OK */
+      201: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          "application/json": components["schemas"]["Identitiy"];
         };
+      };
+      /** @description Fail */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    getResources: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resource"][];
-                };
-            };
-        };
+  };
+  getEntry: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getResource: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description JSON */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resource"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          "application/json": components["schemas"]["EntryDto"];
         };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    getModels: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Model"][];
-                };
-            };
-        };
+  };
+  putEntry: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getModel: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Model"];
-                };
-            };
-            /** @description Error */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+    /** @description OK */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EntryInputDto"];
+      };
     };
+    responses: {
+      /** @description OK */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  deleteEntry: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  getResources: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Resource"][];
+        };
+      };
+    };
+  };
+  getResource: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Resource"];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  getModels: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Model"][];
+        };
+      };
+    };
+  };
+  getModel: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Model"];
+        };
+      };
+      /** @description Error */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
 }

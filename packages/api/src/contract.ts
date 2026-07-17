@@ -8,11 +8,6 @@ const SummaryDto = z.object({
   model: z.string(),
   name: z.string(),
 });
-const EntryDto = z.object({
-  id: z.string(),
-  model: z.string(),
-  name: z.string(),
-});
 const StringNodeJson = z.object({
   type: z.literal("string"),
   value: z.string(),
@@ -52,24 +47,41 @@ const NodeJson = z.union([
   ReferenceNodeJson,
   AssetNodeJson,
 ]);
+const EntryDto = z
+  .union([
+    SummaryDto.merge(z.object({ node: NodeJson })),
+    z.object({ node: NodeJson }),
+    SummaryDto,
+  ]);
 const EntryInputDto = z.object({ name: z.string(), node: NodeJson });
 const NewEntryInputDto = z
   .object({ name: z.string().optional(), model: z.string(), node: NodeJson })
   .passthrough();
 const Identitiy = z.object({ id: z.string() });
 const Resource = z.object({ id: z.string(), model: z.string() });
-const Model = z
-  .object({
-    id: z.string(),
-    title: z.string(),
-    description: z.string(),
-    schema: z.object({}).passthrough(),
-  })
-  .passthrough();
+const Model = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  schema: z.object({}).passthrough(),
+});
+const StringContents = z.string();
+const NumberContents = z.number();
+const BooleanContents = z.boolean();
+const DatetimeContents = z.string();
+const Contents = z.union([
+  StringContents,
+  NumberContents,
+  BooleanContents,
+  DatetimeContents,
+]);
+const Entry = z.object({ name: z.string(), contents: Contents });
+const MapContents = z.object({}).passthrough();
+const ListContents = z.array(Contents);
+const UnionContents = z.array(z.any());
 
 export const schemas = {
   SummaryDto,
-  EntryDto,
   StringNodeJson,
   NumberNodeJson,
   BooleanNodeJson,
@@ -79,11 +91,21 @@ export const schemas = {
   ReferenceNodeJson,
   AssetNodeJson,
   NodeJson,
+  EntryDto,
   EntryInputDto,
   NewEntryInputDto,
   Identitiy,
   Resource,
   Model,
+  StringContents,
+  NumberContents,
+  BooleanContents,
+  DatetimeContents,
+  Contents,
+  Entry,
+  MapContents,
+  ListContents,
+  UnionContents,
 };
 
 export const contract = c.router({

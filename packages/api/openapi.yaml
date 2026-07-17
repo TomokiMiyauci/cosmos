@@ -137,12 +137,13 @@ components:
   schemas:
     EntryDto:
       type: object
-      $ref: "#/components/schemas/SummaryDto"
-      properties:
-        node:
-          $ref: "#/components/schemas/NodeJson"
-      required:
-        - node
+      allOf:
+        - $ref: "#/components/schemas/SummaryDto"
+        - properties:
+            node:
+              $ref: "#/components/schemas/NodeJson"
+          required:
+            - node
     NodeJson:
       oneOf:
         - $ref: "#/components/schemas/StringNodeJson"

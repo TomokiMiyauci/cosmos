@@ -8,20 +8,18 @@ import type {
   Summary,
   Template,
 } from "../type.ts";
-import { Client } from "@cosmos/rest/client";
+import { Client, type Resource as ResourceDto } from "@cosmos/rest/client";
 import { Option, Result } from "@miyauci/util";
 import type {
   AssetNode,
   BooleanNode,
   DatetimeNode,
-  Index,
   ListNode,
   MapNode,
   Model,
   Node,
   NumberNode,
   ReferenceNode,
-  Resource,
   Schema,
   StringNode,
   UnionNode,
@@ -35,7 +33,7 @@ export class RestCmsService implements CmsService {
     this.#client = new Client(endpoint);
   }
 
-  async #findResource(resourceId: string): Promise<Resource | null> {
+  async #findResource(resourceId: string): Promise<ResourceDto | null> {
     const [data, error] = await this.#client.getResource(resourceId);
 
     if (error) {
@@ -94,22 +92,19 @@ export class RestCmsService implements CmsService {
       allModels.map(({ id, model }) => [id, model] as const),
     );
 
-    const indexies = await this.findIndeies();
+    const indexies = await this.#findIndeies();
     const resources = await this.findResources();
 
-    const store = indexies.filter((index) => index.type === "model").map(
+    const store = indexies.map(
       (index) => {
-        const resource = resources.find((resource) =>
-          resource.id === index.resource
-        );
+        const resource = resources.find((resource) => resource.id === index.id);
 
         if (!resource) return null;
 
         return {
           id: index.id,
           model: resource.model,
-          resource: index.resource,
-          name: index.name,
+          name: index.id,
         };
       },
     ).filter((v) => !!v);
@@ -173,22 +168,19 @@ export class RestCmsService implements CmsService {
 
     const node = parseToNode(content.node);
 
-    const indexies = await this.findIndeies();
+    const indexies = await this.#findIndeies();
     const resources = await this.findResources();
 
-    const store = indexies.filter((index) => index.type === "model").map(
+    const store = indexies.map(
       (index) => {
-        const resource = resources.find((resource) =>
-          resource.id === index.resource
-        );
+        const resource = resources.find((resource) => resource.id === index.id);
 
         if (!resource) return null;
 
         return {
           id: index.id,
           model: resource.model,
-          resource: index.resource,
-          name: index.name,
+          name: index.id,
         };
       },
     ).filter((v) => !!v);
@@ -218,17 +210,21 @@ export class RestCmsService implements CmsService {
     });
   }
 
-  async findIndeies(): Promise<(Index & { id: string })[]> {
-    const result = await this.#client.getEntrySummaries();
+  async #findIndeies(): Promise<ResourceDto[]> {
+    const [data, error] = await this.#client.getResources();
 
-    return result;
+    if (error) {
+      throw error;
+    }
+
+    return data;
   }
 
   async findSummaries(option?: ContentsOption): Promise<Summary[]> {
     let model: string | undefined;
 
     if (option?.resource) {
-      const resource = await this.findResource(option.resource);
+      const resource = await this.#findResource(option.resource);
 
       if (!resource) return [];
 
@@ -240,23 +236,7 @@ export class RestCmsService implements CmsService {
     return result;
   }
 
-  async findResource(resourceId: string): Promise<Resource | null> {
-    const [data, error] = await this.#client.getResource(resourceId);
-
-    if (error) {
-      switch (error.problem.status) {
-        case 404: {
-          return null;
-        }
-      }
-
-      throw error;
-    }
-
-    return data;
-  }
-
-  async findResources(): Promise<Identity[]> {
+  async findResources(): Promise<ResourceDto[]> {
     const [data, error] = await this.#client.getResources();
 
     if (error) throw error;
