@@ -6,12 +6,17 @@ export class CmsServie implements CoreService {
   constructor(private config: ParsedConfig) {
   }
 
-  async findResource(id: string): Promise<Resource | null> {
+  async findResource(
+    id: string,
+  ): Promise<{ id: string; model: string } | null> {
     const resource = this.config.value.resources[id];
 
     if (!resource) return null;
 
-    return resource;
+    return {
+      id,
+      model: resource.model,
+    };
   }
 
   async findResources(): Promise<Resource[]> {

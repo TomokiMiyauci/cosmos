@@ -47,6 +47,12 @@ paths:
     get:
       summary: Returns single entry
       operationId: getEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: JSON
@@ -60,6 +66,12 @@ paths:
     put:
       summary: Replace entry
       operationId: putEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         description: OK
         required: true
@@ -74,6 +86,12 @@ paths:
     delete:
       summary: Delete entry
       operationId: deleteEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "204":
           description: OK
@@ -95,6 +113,12 @@ paths:
     get:
       summary: Return resource
       operationId: getResource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: OK
@@ -123,6 +147,12 @@ paths:
     get:
       summary: Return model
       operationId: getModel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: OK

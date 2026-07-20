@@ -1,5 +1,4 @@
-import { initClient, type InitClientReturn } from "@ts-rest/core";
-import { contract } from "../contract.ts";
+import { contract } from "../generated/orpc.gen.ts";
 import type {
   EntryDto,
   EntryInputDto,
@@ -8,28 +7,30 @@ import type {
   Resource,
   SummaryDto,
 } from "../dto.d.ts";
+import type { JsonifiedClient } from "@orpc/openapi-client";
+import type { ContractRouterClient } from "@orpc/contract";
+import { createORPCClient } from "@orpc/client";
+import { OpenAPILink } from "@orpc/openapi-client/fetch";
 
 export class Client {
-  #client: InitClientReturn<typeof contract, { baseUrl: string }>;
+  #client: JsonifiedClient<ContractRouterClient<typeof contract>>;
 
   constructor(baseUrl: URL) {
-    this.#client = initClient(contract, { baseUrl: baseUrl.href });
+    const link = new OpenAPILink(contract, {
+      url: baseUrl,
+    });
+
+    this.#client = createORPCClient(link);
   }
 
   async getEntrySummaries(
     optinos?: { model?: string },
   ): Promise<SummaryDto[]> {
     const result = await this.#client.getSummaries({
-      "query": { model: optinos?.model },
+      query: { model: optinos?.model },
     });
 
-    switch (result.status) {
-      case 200: {
-        return result.body;
-      }
-    }
-
-    throw new Error("Unknon status");
+    return result;
   }
 
   async postEntry(
@@ -37,13 +38,13 @@ export class Client {
   ): Promise<Result<null, ApiError<Problem>>> {
     const result = await this.#client.postEntry({ body: params });
 
-    switch (result.status) {
-      case 201: {
-        return Result.ok(null);
-      }
-    }
+    return Result.ok(null);
+    // switch (result.status) {
+    //   case 201: {
+    //   }
+    // }
 
-    throw new Error("Unknon status");
+    // throw new Error("Unknon status");
   }
 
   async getEntry(
@@ -51,16 +52,16 @@ export class Client {
   ): Promise<Result<EntryDto, ApiError<NotFoundProblem>>> {
     const result = await this.#client.getEntry({ params: { id } });
 
-    switch (result.status) {
-      case 200: {
-        return Result.ok(result.body);
-      }
-      case 404: {
-        throw Result.error(new ApiError({ status: 404 }));
-      }
-    }
+    return Result.ok(result);
+    // switch (result.status) {
+    //   case 200: {
+    //   }
+    //   case 404: {
+    //     throw Result.error(new ApiError({ status: 404 }));
+    //   }
+    // }
 
-    throw new Error("Unknon status");
+    // throw new Error("Unknon status");
   }
 
   async putEntry(
@@ -71,25 +72,25 @@ export class Client {
       body: { name: params.name, node: params.node },
     });
 
-    switch (result.status) {
-      case 204: {
-        return Result.ok(null);
-      }
-    }
+    return Result.ok(null);
+    // switch (result.status) {
+    //   case 204: {
+    //   }
+    // }
 
-    throw new Error("Unknon status");
+    // throw new Error("Unknon status");
   }
 
   async deleteEntry(id: string): Promise<Result<null, ApiError<Problem>>> {
     const result = await this.#client.deleteEntry({ params: { id } });
 
-    switch (result.status) {
-      case 204: {
-        return Result.ok(null);
-      }
-    }
+    return Result.ok(null);
+    // switch (result.status) {
+    //   case 204: {
+    //   }
+    // }
 
-    throw new Error("Unknon status");
+    // throw new Error("Unknon status");
   }
 
   async getResources(): Promise<
@@ -97,13 +98,13 @@ export class Client {
   > {
     const result = await this.#client.getResources();
 
-    switch (result.status) {
-      case 200: {
-        return Result.ok(result.body);
-      }
-    }
+    return Result.ok(result);
+    // switch (result.status) {
+    //   case 200: {
+    //   }
+    // }
 
-    throw new Error("Unknon status");
+    // throw new Error("Unknon status");
   }
 
   async getResource(
@@ -111,13 +112,13 @@ export class Client {
   ): Promise<Result<Resource, ApiError<Problem>>> {
     const result = await this.#client.getResource({ params: { id } });
 
-    switch (result.status) {
-      case 200: {
-        return Result.ok(result.body);
-      }
-    }
+    return Result.ok(result);
+    // switch (result.status) {
+    //   case 200: {
+    //   }
+    // }
 
-    throw new Error("Unknon status");
+    // throw new Error("Unknon status");
   }
 
   async getModels(): Promise<
@@ -125,13 +126,13 @@ export class Client {
   > {
     const result = await this.#client.getModels();
 
-    switch (result.status) {
-      case 200: {
-        return Result.ok(result.body);
-      }
-    }
+    return Result.ok(result);
+    // switch (result.status) {
+    //   case 200: {
+    //   }
+    // }
 
-    throw new Error("Unknon status");
+    // throw new Error("Unknon status");
   }
 
   async getModel(
@@ -139,13 +140,13 @@ export class Client {
   ): Promise<Result<Model, ApiError<Problem>>> {
     const result = await this.#client.getModel({ params: { id } });
 
-    switch (result.status) {
-      case 200: {
-        return Result.ok(result.body);
-      }
-    }
+    return Result.ok(result);
+    // switch (result.status) {
+    //   case 200: {
+    //   }
+    // }
 
-    throw new Error("Unknon status");
+    // throw new Error("Unknon status");
   }
 }
 

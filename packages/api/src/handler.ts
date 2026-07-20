@@ -4,125 +4,121 @@ import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 import { EntryCreateUseCase } from "./application/usecases/entry/creation.ts";
 import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
 import { QueryService } from "./application/query.ts";
-import { contract } from "./contract.ts";
-import { fetchRequestHandler, tsr } from "@ts-rest/serverless/fetch";
+import { implement } from "@orpc/server";
+import { contract as c } from "./generated/orpc.gen.ts";
+import { OpenAPIHandler } from "@orpc/openapi/fetch";
 
-const router = tsr.platformContext<Context>().router(contract, {
-  postEntry: async (params, ctx) => {
-    const { body } = params;
+const os = implement<typeof c, Context>(c);
 
-    const result = await ctx.usecases.entryCreate.execute(body);
+const router = os.router({
+  deleteEntry: os.deleteEntry.handler(async (options) => {
+    const { context, input } = options;
+    const { params } = input;
+    const { id } = params;
+
+    const result = await context.usecases.entryDelete.execute(id);
 
     if (!result.ok) {
-      return { status: 400, body: undefined };
+      throw new Error();
+      // return { status: 400, body: null };
+    }
+  }),
+  getEntry: os.getEntry.handler(async (options) => {
+    const { input, context } = options;
+    const { params } = input;
+    const { id } = params;
+
+    const maybeDto = await context.queries.findById(id);
+
+    if (!maybeDto.ok) {
+      throw new Error();
+    }
+
+    const dto = maybeDto.value;
+
+    return dto;
+  }),
+  postEntry: os.postEntry.handler(async (options) => {
+    const { context, input } = options;
+
+    const result = await context.usecases.entryCreate.execute(input.body);
+
+    if (!result.ok) {
+      throw new Error();
+      // return { status: 400, body: undefined };
     }
 
     const dto = result.value;
 
     // TODO improve path construction
-    const location = `${ctx.appRoute.path}/${dto.id}` as const;
-    ctx.responseHeaders.append("location", location);
+    // const location = `${ctx.appRoute.path}/${dto.id}` as const;
+    // ctx.responseHeaders.append("location", location);
 
-    return { status: 201, body: dto };
-  },
-  deleteEntry: async (args, ctx) => {
-    const result = await ctx.usecases.entryDelete.execute(args.params.id);
+    return dto;
+  }),
+  getModel: os.getModel.handler(async (options) => {
+    const { input, context } = options;
+    const { id } = input.params;
 
-    if (!result.ok) {
-      return { status: 400, body: null };
-    }
-
-    return {
-      status: 204,
-      body: undefined,
-    };
-  },
-  putEntry: async (args, ctx) => {
-    const { body, params } = args;
-
-    const result = await ctx.usecases.entryUpdate.execute(params.id, body);
-
-    if (!result.ok) {
-      return {
-        status: 400,
-        body: null,
-      };
-    }
-
-    return {
-      status: 204,
-      body: undefined,
-    };
-  },
-
-  getEntry: async (args, ctx) => {
-    const { params } = args;
-
-    const maybeDto = await ctx.queries.findById(params.id);
-
-    if (!maybeDto.ok) {
-      return {
-        status: 404,
-        body: undefined,
-      };
-    }
-
-    const dto = maybeDto.value;
-
-    return { status: 200, body: dto };
-  },
-  getSummaries: async (args, ctx) => {
-    const model = args.query.model;
-    const dto = await ctx.queries.findSummaries({ model });
-
-    return { status: 200, body: dto };
-  },
-  getResources: async (_, ctx) => {
-    const identifies = await ctx.service.findResources();
-
-    return { status: 200, body: identifies };
-  },
-  getResource: async (args, ctx) => {
-    const { params } = args;
-    const resourceId = params.id;
-
-    const identifies = await ctx.service.findResource(resourceId);
-
-    if (identifies) {
-      return {
-        status: 200,
-        body: identifies,
-      };
-    }
-
-    return { status: 404, body: undefined };
-  },
-  getModel: async (args, ctx) => {
-    const { params } = args;
-    const id = params.id;
-
-    const model = await ctx.service.findModel(id);
+    const model = await context.service.findModel(id);
 
     if (!model) {
-      return {
-        status: 404,
-        body: undefined,
-      };
+      throw new Error();
     }
 
-    return {
-      status: 200,
-      body: { id, ...model },
-    };
-  },
-  getModels: async (_, ctx) => {
-    const models = await ctx.service.findModels();
+    return { id, ...model };
+  }),
+  getModels: os.getModels.handler(async (options) => {
+    const { context } = options;
 
-    return {
-      status: 200,
-      body: models.map((model) => ({ id: model.id, ...model.model })),
-    };
-  },
+    const models = await context.service.findModels();
+
+    return models.map((model) => ({ id: model.id, ...model.model }));
+  }),
+  getResource: os.getResource.handler(async (options) => {
+    const { context, input } = options;
+    const { params } = input;
+    const { id } = params;
+
+    const identifies = await context.service.findResource(id);
+
+    if (identifies) {
+      return identifies;
+    }
+
+    throw new Error();
+
+    // return { status: 404, body: undefined };
+  }),
+  getResources: os.getResources.handler(async (options) => {
+    const { context } = options;
+    const identifies = await context.service.findResources();
+
+    return identifies;
+  }),
+  getSummaries: os.getSummaries.handler(async (options) => {
+    const { input, context } = options;
+
+    const model = input?.query?.model;
+    const dto = await context.queries.findSummaries({ model });
+
+    return dto;
+  }),
+  putEntry: os.putEntry.handler(async (options) => {
+    const { input, context } = options;
+    const { params, body } = input;
+    const { id } = params;
+
+    const result = await context.usecases.entryUpdate.execute(id, body);
+
+    if (!result.ok) {
+      throw new Error();
+      // return {
+      //   status: 400,
+      //   body: null,
+      // };
+    }
+  }),
 });
 
 export interface ParsedConfig {
@@ -131,7 +127,7 @@ export interface ParsedConfig {
 }
 
 export interface CoreService {
-  findResource(id: string): Promise<Resource | null>;
+  findResource(id: string): Promise<{ id: string; model: string } | null>;
 
   findResources(): Promise<Resource[]>;
   findModel(id: string): Promise<Model | null>;
@@ -158,8 +154,10 @@ interface Context {
 
 export function createRestHandler(
   config: ParsedConfig,
-  endpoint: URL,
+  base: `/${string}`,
 ): (request: Request) => Promise<Response> {
+  const handler = new OpenAPIHandler(router);
+
   const service = new CmsServie(config);
   const repositry = config.value.repositry;
 
@@ -175,16 +173,11 @@ export function createRestHandler(
   } satisfies Context;
 
   return async (request: Request) => {
-    const result = await fetchRequestHandler({
-      contract,
-      options: {
-        basePath: endpoint.pathname,
-      },
-      platformContext,
-      request,
-      router,
+    const result = await handler.handle(request, {
+      context: platformContext,
+      prefix: base,
     });
 
-    return result;
+    return result.response ?? new Response(null, { status: 404 });
   };
 }

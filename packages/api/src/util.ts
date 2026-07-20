@@ -1,6 +1,7 @@
 import type { Field, Summary } from "@cosmos/ui";
 import type { Model, Schema } from "@cosmos/core";
 import { mapValues } from "@std/collections/map-values";
+import type { Entry } from "./dto.d.ts";
 
 export function modelToField(
   model: Model,
@@ -126,4 +127,18 @@ export function modelToField(
   }
 
   return to(model.schema);
+}
+
+export function* validateEntry(
+  entry: Entry,
+): IterableIterator<ValidationFailure> {
+  if (!entry.name) {
+    yield {
+      paths: ["name"],
+    };
+  }
+}
+
+interface ValidationFailure {
+  paths: string[];
 }
