@@ -5,10 +5,10 @@ import { EntryCreateUseCase } from "./application/usecases/entry/creation.ts";
 import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
 import { QueryService } from "./application/query.ts";
 import { implement } from "@orpc/server";
-import { contract as c } from "./generated/orpc.gen.ts";
+import { contract } from "./generated/orpc.gen.ts";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 
-const os = implement<typeof c, Context>(c);
+const os = implement<typeof contract, Context>(contract);
 
 const router = os.router({
   deleteEntry: os.deleteEntry.handler(async (options) => {

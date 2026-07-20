@@ -1,7 +1,7 @@
 import type { Field, Summary } from "@cosmos/ui";
 import type { Model, Schema } from "@cosmos/core";
 import { mapValues } from "@std/collections/map-values";
-import type { Entry } from "./dto.d.ts";
+import type { Entry } from "./generated/types.gen.ts";
 
 export function modelToField(
   model: Model,

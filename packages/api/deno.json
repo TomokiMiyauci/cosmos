@@ -1,8 +1,7 @@
 {
   "name": "@cosmos/rest",
   "tasks": {
-    "generate": "deno x openapi-ts",
-    "generate:type": "deno x openapi-typescript openapi.yaml -o src/schema.d.ts"
+    "generate": "deno x openapi-ts"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -16,7 +15,6 @@
     "@orpc/openapi-client": "npm:@orpc/openapi-client@^1.14.8",
     "@orpc/server": "npm:@orpc/server@^1.14.8",
     "@std/collections": "jsr:@std/collections@^1.3.0",
-    "openapi-typescript": "npm:openapi-typescript@^7.13.0",
     "zod": "npm:zod@^4.4.3"
   }
 }

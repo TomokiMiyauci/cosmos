@@ -6,7 +6,7 @@ import type {
   NewEntryInputDto,
   Resource,
   SummaryDto,
-} from "../dto.d.ts";
+} from "../generated/types.gen.ts";
 import type { JsonifiedClient } from "@orpc/openapi-client";
 import type { ContractRouterClient } from "@orpc/contract";
 import { createORPCClient } from "@orpc/client";
