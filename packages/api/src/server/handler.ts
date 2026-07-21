@@ -17,9 +17,9 @@ const router = os.router({
     const { params } = input;
     const { id } = params;
 
-    const result = await context.usecases.entryDelete.execute(id);
+    const [_, error] = await context.usecases.entryDelete.execute(id);
 
-    if (!result.ok) {
+    if (error) {
       throw new Error();
       // return { status: 400, body: null };
     }
@@ -42,20 +42,20 @@ const router = os.router({
   postEntry: os.postEntry.handler(async (options) => {
     const { context, input } = options;
 
-    const result = await context.usecases.entryCreate.execute(input.body);
+    const [data, error] = await context.usecases.entryCreate.execute(
+      input.body,
+    );
 
-    if (!result.ok) {
+    if (error) {
       throw new Error();
       // return { status: 400, body: undefined };
     }
-
-    const dto = result.value;
 
     // TODO improve path construction
     // const location = `${ctx.appRoute.path}/${dto.id}` as const;
     // ctx.responseHeaders.append("location", location);
 
-    return dto;
+    return data;
   }),
   getModel: os.getModel.handler(async (options) => {
     const { input, context } = options;
@@ -110,9 +110,9 @@ const router = os.router({
     const { params, body } = input;
     const { id } = params;
 
-    const result = await context.usecases.entryUpdate.execute(id, body);
+    const [_, error] = await context.usecases.entryUpdate.execute(id, body);
 
-    if (!result.ok) {
+    if (error) {
       throw new Error();
       // return {
       //   status: 400,

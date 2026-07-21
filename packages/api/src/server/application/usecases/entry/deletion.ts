@@ -5,11 +5,11 @@ export class EntryDeleteUseCase {
   constructor(private repositry: EntryRepositry) {}
 
   async execute(id: string): Promise<Result<void, Error>> {
-    const maybeId = EntryId.from(id);
+    const [entryId, error] = EntryId.from(id);
 
-    if (!maybeId.ok) return Result.error(new Error());
+    if (error) return Result.error(new Error());
 
-    await this.repositry.delete(maybeId.value);
+    await this.repositry.delete(entryId);
 
     return Result.ok(undefined);
   }

@@ -14,15 +14,13 @@ export class EntryUpdateUseCase {
     id: string,
     input: EntryInputDto,
   ): Promise<Result<void, Error>> {
-    const maybeId = EntryId.from(id);
+    const [entryId, entryFactoryError] = EntryId.from(id);
 
-    if (!maybeId.ok) return Result.error(new Error("invalid id"));
+    if (entryFactoryError) return Result.error(new Error("invalid id"));
 
-    const nameResult = EntryName.of(input.name);
+    const [entryName, entryNameError] = EntryName.of(input.name);
 
-    if (!nameResult.ok) return Result.error(new Error());
-
-    const entryId = maybeId.value;
+    if (entryNameError) return Result.error(new Error());
 
     const maybeCurrentEntry = await this.repositry.findById(entryId);
 
@@ -32,7 +30,7 @@ export class EntryUpdateUseCase {
 
     const entry = Entry.of(
       entryId,
-      nameResult.value,
+      entryName,
       currentModel,
       toNode(input.node),
     );

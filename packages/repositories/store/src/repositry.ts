@@ -1,9 +1,9 @@
 import {
   E as Entry,
   type EntryId,
-  EntryModel,
   EntryName,
   type EntryRepositry,
+  ModelId,
   type Node,
 } from "@cosmos/core";
 import { Option } from "@miyauci/util";
@@ -32,15 +32,15 @@ export class StoreEntryRespoistry implements EntryRepositry {
 
     if (!data) return Option.none;
 
-    const maybeName = EntryName.of(data.name);
+    const [name, nameError] = EntryName.of(data.name);
 
-    if (!maybeName.ok) return Option.none;
+    if (nameError) return Option.none;
 
-    const maybeModel = EntryModel.of(data.model);
+    const [model, modelError] = ModelId.of(data.model);
 
-    if (!maybeModel.ok) return Option.none;
+    if (modelError) return Option.none;
 
-    const entry = Entry.of(id, maybeName.value, maybeModel.value, data.node);
+    const entry = Entry.of(id, name, model, data.node);
 
     return Option.some(entry);
   }
@@ -51,7 +51,7 @@ export class StoreEntryRespoistry implements EntryRepositry {
     return this.store.put(url, {
       name: entry.name.value,
       node: entry.node,
-      model: entry.model.value,
+      model: entry.modelId.value,
     });
   }
 

@@ -17,13 +17,13 @@ export class EntryCreateUseCase {
     input: NewEntryInputDto,
   ): Promise<Result<{ id: string }, Error>> {
     const id = EntryId.new();
-    const maybeName = EntryName.of(input.name);
+    const [name, error] = EntryName.of(input.name);
 
-    if (!maybeName.ok) return Result.error(new Error());
+    if (error) return Result.error(new Error());
 
-    const maybeModelId = ModelId.of(input.model);
+    const [modelId, modelConstructError] = ModelId.of(input.model);
 
-    if (!maybeModelId.ok) return Result.error(new Error());
+    if (modelConstructError) return Result.error(new Error());
 
     // const maybeModel = await this.modelRepo.findById(maybeModelId.value);
 
@@ -35,8 +35,8 @@ export class EntryCreateUseCase {
 
     const entry = Entry.of(
       id,
-      maybeName.value,
-      maybeModelId.value,
+      name,
+      modelId,
       toNode(input.node),
     );
 

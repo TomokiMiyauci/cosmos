@@ -18,15 +18,19 @@ export default function ContentPage(
   props: ContentPageProps,
 ): JSX.Element {
   const { contentId, data, onAction, onRemove } = props;
-  const { node: init, field, meta } = data;
+  const { node: init, field, meta, name } = data;
   const [node, setState] = useState(init);
 
   async function update(node: Node): Promise<void> {
-    const result = await onAction({ id: contentId, node });
+    const [data, error] = await onAction({
+      id: contentId,
+      node,
+      summary: { name },
+    });
 
-    if (result.ok) {
-      setState(result.value);
+    if (error) {
     } else {
+      setState(data);
     }
   }
 

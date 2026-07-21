@@ -10,18 +10,18 @@ export class NodeCreateUseCase {
   ) {}
   async execute(node: Node | null, summary: Summary): Promise<void> {
     if (node) {
-      const result = await this.service.registerEntry(
+      const [data, error] = await this.service.registerEntry(
         this.model,
         node,
         summary,
       );
 
-      if (result.ok) {
-        const path = resolvePath(Page.Content, { id: result.value.id });
+      if (error) {
+        console.log("error");
+      } else {
+        const path = resolvePath(Page.Content, { id: data.id });
 
         this.onRedirect(path);
-      } else {
-        console.log("error");
       }
     }
   }
