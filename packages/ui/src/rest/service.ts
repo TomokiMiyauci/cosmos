@@ -263,14 +263,18 @@ export class RestCmsService implements CmsService {
     node: Node,
     summary: Summary,
   ): Promise<Result<Identity, {}>> {
-    const result = await this.#client.postEntry({
+    const [data, error] = await this.#client.postEntry({
       node: fromNode(node),
       model,
       name: summary.name,
     });
 
+    if (error) {
+      throw new Error();
+    }
+
     return Result.ok({
-      id: result[0].body.id,
+      id: data.id,
     });
   }
 

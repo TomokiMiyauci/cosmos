@@ -40,8 +40,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Identitiy"
-        "400":
-          description: Fail
 
   /entries/{id}:
     get:
@@ -293,6 +291,7 @@ components:
         - name
         - node
       additionalProperties: false
+
     NewEntryInputDto:
       type: object
       properties:
@@ -320,7 +319,7 @@ components:
         - id
         - model
         - name
-      additionalProperties: false
+      unevaluatedProperties: false
 
     Identitiy:
       type: object
@@ -363,21 +362,14 @@ components:
 
     Entry:
       type: object
+      allOf:
+        - $ref: "#/components/schemas/EntrySummary"
       properties:
-        id:
-          type: string
-        name:
-          type: string
-        model:
-          type: string
         contents:
           $ref: "#/components/schemas/Contents"
       required:
-        - id
-        - name
-        - model
         - contents
-      additionalProperties: false
+      unevaluatedProperties: false
 
     Contents:
       oneOf:

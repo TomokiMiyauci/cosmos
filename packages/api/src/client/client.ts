@@ -3,6 +3,7 @@ import type {
   Entry,
   EntryInputDto,
   EntrySummary,
+  Identitiy,
   Model,
   NewEntryInputDto,
   Resource,
@@ -35,10 +36,10 @@ export class Client {
 
   async postEntry(
     params: NewEntryInputDto,
-  ): Promise<Result<null, ApiError<Problem>>> {
+  ): Promise<Result<Identitiy, ApiError<Problem>>> {
     const result = await this.#client.postEntry({ body: params });
 
-    return Result.ok(null);
+    return Result.ok(result);
     // switch (result.status) {
     //   case 201: {
     //   }

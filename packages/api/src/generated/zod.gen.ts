@@ -94,12 +94,9 @@ export const zBooleanContents = z.boolean();
 
 export const zDatetimeContents = z.string();
 
-export const zEntry = z.object({
-    id: z.string(),
-    name: z.string(),
-    model: z.string(),
+export const zEntry = zEntrySummary.and(z.lazy(() => z.object({
     contents: z.lazy((): any => zContents)
-});
+})));
 
 export const zContents = z.union([
     zStringContents,

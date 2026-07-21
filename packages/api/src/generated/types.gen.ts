@@ -83,10 +83,7 @@ export type Model = {
     };
 };
 
-export type Entry = {
-    id: string;
-    name: string;
-    model: string;
+export type Entry = EntrySummary & {
     contents: Contents;
 };
 
@@ -137,13 +134,6 @@ export type PostEntryData = {
     path?: never;
     query?: never;
     url: '/entries';
-};
-
-export type PostEntryErrors = {
-    /**
-     * Fail
-     */
-    400: unknown;
 };
 
 export type PostEntryResponses = {
