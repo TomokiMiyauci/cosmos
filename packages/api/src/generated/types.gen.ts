@@ -4,10 +4,6 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
-export type EntryDto = SummaryDto & {
-    node: NodeJson;
-};
-
 export type NodeJson = StringNodeJson | NumberNodeJson | BooleanNodeJson | DatetimeNodeJson | ListNodeJson | MapNodeJson | ReferenceNodeJson | AssetNodeJson;
 
 export type StringNodeJson = {
@@ -63,7 +59,7 @@ export type NewEntryInputDto = {
     node: NodeJson;
 };
 
-export type SummaryDto = {
+export type EntrySummary = {
     id: string;
     model: string;
     name: string;
@@ -128,7 +124,7 @@ export type GetSummariesResponses = {
     /**
      * OK
      */
-    200: Array<SummaryDto>;
+    200: Array<EntrySummary>;
 };
 
 export type GetSummariesResponse = GetSummariesResponses[keyof GetSummariesResponses];

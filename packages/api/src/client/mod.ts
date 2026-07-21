@@ -2,9 +2,8 @@ export { ApiError, Client } from "./client.ts";
 export type {
   Contents,
   Entry,
-  EntryDto,
   EntryInputDto,
+  EntrySummary,
   Model,
   Resource,
-  SummaryDto,
 } from "../generated/types.gen.ts";

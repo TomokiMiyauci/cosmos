@@ -64,15 +64,11 @@ export const zNewEntryInputDto = z.object({
     node: zNodeJson
 });
 
-export const zSummaryDto = z.object({
+export const zEntrySummary = z.object({
     id: z.string(),
     model: z.string(),
     name: z.string()
 });
-
-export const zEntryDto = zSummaryDto.and(z.object({
-    node: zNodeJson
-}));
 
 export const zIdentitiy = z.object({
     id: z.string()
@@ -128,7 +124,7 @@ export const zGetSummariesQuery = z.object({
 /**
  * OK
  */
-export const zGetSummariesResponse = z.array(zSummaryDto);
+export const zGetSummariesResponse = z.array(zEntrySummary);
 
 /**
  * OK

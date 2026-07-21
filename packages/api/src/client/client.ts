@@ -2,10 +2,10 @@ import { contract } from "../generated/orpc.gen.ts";
 import type {
   Entry,
   EntryInputDto,
+  EntrySummary,
   Model,
   NewEntryInputDto,
   Resource,
-  SummaryDto,
 } from "../generated/types.gen.ts";
 import type { JsonifiedClient } from "@orpc/openapi-client";
 import type { ContractRouterClient } from "@orpc/contract";
@@ -25,7 +25,7 @@ export class Client {
 
   async getEntrySummaries(
     optinos?: { model?: string },
-  ): Promise<SummaryDto[]> {
+  ): Promise<EntrySummary[]> {
     const result = await this.#client.getSummaries({
       query: { model: optinos?.model },
     });

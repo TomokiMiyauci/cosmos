@@ -23,7 +23,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/SummaryDto"
+                  $ref: "#/components/schemas/EntrySummary"
     post:
       operationId: postEntry
       requestBody:
@@ -165,15 +165,6 @@ paths:
 
 components:
   schemas:
-    EntryDto:
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/SummaryDto"
-        - properties:
-            node:
-              $ref: "#/components/schemas/NodeJson"
-          required:
-            - node
     NodeJson:
       oneOf:
         - $ref: "#/components/schemas/StringNodeJson"
@@ -315,7 +306,8 @@ components:
         - string
         - model
         - node
-    SummaryDto:
+
+    EntrySummary:
       type: object
       properties:
         id:
@@ -329,6 +321,7 @@ components:
         - model
         - name
       additionalProperties: false
+
     Identitiy:
       type: object
       properties:
