@@ -5,4 +5,4 @@ export type {
   Model,
   Resource,
   SummaryDto,
-} from "../dto.d.ts";
+} from "../generated/types.gen.ts";

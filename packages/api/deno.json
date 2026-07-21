@@ -4,7 +4,7 @@
     "generate": "deno x openapi-ts"
   },
   "exports": {
-    ".": "./src/mod.ts",
+    "./server": "./src/server/mod.ts",
     "./client": "./src/client/mod.ts"
   },
   "imports": {
