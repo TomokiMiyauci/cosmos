@@ -24,9 +24,9 @@ export class EntryUpdateUseCase {
 
     const maybeCurrentEntry = await this.repositry.findById(entryId);
 
-    if (!maybeCurrentEntry.ok) return Result.error(new Error());
+    if (!maybeCurrentEntry) return Result.error(new Error());
 
-    const currentModel = maybeCurrentEntry.value.modelId;
+    const currentModel = maybeCurrentEntry.modelId;
 
     const entry = Entry.of(
       entryId,

@@ -14,7 +14,7 @@ import {
   type Entry as EntryResponse,
   type Resource as ResourceDto,
 } from "@cosmos/rest/client";
-import { Option, Result } from "@miyauci/util";
+import { Result } from "@miyauci/util";
 import type {
   AssetNode,
   BooleanNode,
@@ -141,15 +141,15 @@ export class RestCmsService implements CmsService {
     return data;
   }
 
-  async findContent(id: Content["id"]): Promise<Option<Content>> {
+  async findContent(id: Content["id"]): Promise<Content | null> {
     const content = await this.#findContent(id);
 
-    if (!content) return Option.none;
+    if (!content) return null;
 
     const modelId = content.model;
     const model = await this.findModel(modelId);
 
-    if (!model) return Option.none;
+    if (!model) return null;
 
     const allModels = await this.findModels();
 
@@ -182,7 +182,7 @@ export class RestCmsService implements CmsService {
       return values;
     }, () => []);
 
-    return Option.some({
+    return {
       id: content.id,
       field,
       node,
@@ -192,7 +192,7 @@ export class RestCmsService implements CmsService {
         model: modelId,
       },
       name: content.name,
-    });
+    };
   }
 
   async #findIndeies(): Promise<ResourceDto[]> {

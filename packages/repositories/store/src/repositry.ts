@@ -6,7 +6,6 @@ import {
   ModelId,
   type Node,
 } from "@cosmos/core";
-import { Option } from "@miyauci/util";
 
 export interface Data {
   name: string;
@@ -26,23 +25,23 @@ export interface Indexer {
 
 export class StoreEntryRespoistry implements EntryRepositry {
   constructor(private store: Store, private indexer: Indexer) {}
-  async findById(id: EntryId): Promise<Option<Entry>> {
+  async findById(id: EntryId): Promise<Entry | null> {
     const url = this.indexer.resolve(id.value);
     const data = await this.store.get(url);
 
-    if (!data) return Option.none;
+    if (!data) return null;
 
     const [name, nameError] = EntryName.of(data.name);
 
-    if (nameError) return Option.none;
+    if (nameError) return null;
 
     const [model, modelError] = ModelId.of(data.model);
 
-    if (modelError) return Option.none;
+    if (modelError) return null;
 
     const entry = Entry.of(id, name, model, data.node);
 
-    return Option.some(entry);
+    return entry;
   }
 
   save(entry: Entry): Promise<void> {

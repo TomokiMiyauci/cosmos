@@ -43,13 +43,13 @@ export const views = {
 
       const data = await service.findContent(contentId);
 
-      if (!data.ok) return null;
+      if (!data) return null;
 
       return {
         onAction: (entry) => service.saveEntry(entry),
         onRemove: (id) => service.eraseNodeById(id),
         contentId,
-        data: data.value,
+        data,
       };
     },
     component: ContentPage,
