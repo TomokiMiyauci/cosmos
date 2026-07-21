@@ -30,7 +30,9 @@ function toContents(node: NodeJson): Contents {
     case "union": {
       return [node.key, toContents(node.value)];
     }
-    case "reference":
+    case "reference": {
+      return node.value;
+    }
     case "asset": {
       throw new Error();
     }

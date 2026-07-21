@@ -343,22 +343,133 @@ components:
       additionalProperties: false
 
     Model:
+      oneOf:
+        - $ref: "#/components/schemas/StringModel"
+        - $ref: "#/components/schemas/NumberModel"
+        - $ref: "#/components/schemas/BooleanModel"
+        - $ref: "#/components/schemas/DatetimeModel"
+        - $ref: "#/components/schemas/ReferenceModel"
+        - $ref: "#/components/schemas/MapModel"
+        - $ref: "#/components/schemas/ListModel"
+        - $ref: "#/components/schemas/UnionModel"
+
+    StringModel:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+      properties:
+        type:
+          enum: ["string"]
+      required:
+        - type
+
+    NumberModel:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+      properties:
+        type:
+          enum: ["number"]
+      required:
+        - type
+
+    BooleanModel:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+      properties:
+        type:
+          enum: ["boolean"]
+      required:
+        - type
+
+    DatetimeModel:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+      properties:
+        type:
+          enum: ["datetime"]
+      required:
+        - type
+
+    ReferenceModel:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+      properties:
+        type:
+          enum: ["reference"]
+
+        model:
+          type: string
+      required:
+        - type
+        - model
+
+    MapModel:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+      properties:
+        type:
+          enum: ["map"]
+
+        props:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Model"
+        required:
+          type: array
+          items:
+            type: string
+      required:
+        - type
+        - props
+        - required
+
+    ListModel:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+      properties:
+        type:
+          enum: ["list"]
+
+        item:
+          $ref: "#/components/schemas/Model"
+      required:
+        - type
+        - item
+
+    UnionModel:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+      properties:
+        type:
+          enum: ["union"]
+
+        variants:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Model"
+      required:
+        - type
+        - variants
+
+    BaseModel:
       type: object
       properties:
-        id:
-          type: string
         title:
           type: string
         description:
           type: string
-        schema:
-          type: object
       required:
-        - id
+        # - id
         - title
         - description
-        - schema
-      additionalProperties: false
+      unevaluatedProperties: false
 
     Entry:
       type: object
@@ -380,6 +491,7 @@ components:
         - $ref: "#/components/schemas/MapContents"
         - $ref: "#/components/schemas/ListContents"
         - $ref: "#/components/schemas/UnionContents"
+        - $ref: "#/components/schemas/ReferenceContents"
 
     StringContents:
       type: string
@@ -403,3 +515,5 @@ components:
         - type: string
         - $ref: "#/components/schemas/Contents"
       unevaluatedItems: false
+    ReferenceContents:
+      type: string

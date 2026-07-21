@@ -74,20 +74,59 @@ export type Resource = {
     model: string;
 };
 
-export type Model = {
-    id: string;
+export type Model = StringModel | NumberModel | BooleanModel | DatetimeModel | ReferenceModel | MapModel | ListModel | UnionModel;
+
+export type StringModel = BaseModel & {
+    type: 'string';
+};
+
+export type NumberModel = BaseModel & {
+    type: 'number';
+};
+
+export type BooleanModel = BaseModel & {
+    type: 'boolean';
+};
+
+export type DatetimeModel = BaseModel & {
+    type: 'datetime';
+};
+
+export type ReferenceModel = BaseModel & {
+    type: 'reference';
+    model: string;
+};
+
+export type MapModel = BaseModel & {
+    type: 'map';
+    props: {
+        [key: string]: Model;
+    };
+    required: Array<string>;
+};
+
+export type ListModel = BaseModel & {
+    type: 'list';
+    item: Model;
+};
+
+export type UnionModel = BaseModel & {
+    type: 'union';
+    variants: {
+        [key: string]: Model;
+    };
+};
+
+export type BaseModel = {
     title: string;
     description: string;
-    schema: {
-        [key: string]: unknown;
-    };
 };
 
 export type Entry = EntrySummary & {
     contents: Contents;
 };
 
-export type Contents = StringContents | NumberContents | BooleanContents | DatetimeContents | MapContents | ListContents | UnionContents;
+export type Contents = StringContents | NumberContents | BooleanContents | DatetimeContents | MapContents | ListContents | UnionContents | ReferenceContents;
 
 export type StringContents = string;
 
@@ -107,6 +146,8 @@ export type UnionContents = [
     string,
     Contents
 ];
+
+export type ReferenceContents = string;
 
 export type GetSummariesData = {
     body?: never;

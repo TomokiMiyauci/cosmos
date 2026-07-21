@@ -79,12 +79,31 @@ export const zResource = z.object({
     model: z.string()
 });
 
-export const zModel = z.object({
-    id: z.string(),
+export const zBaseModel = z.object({
     title: z.string(),
-    description: z.string(),
-    schema: z.record(z.string(), z.unknown())
+    description: z.string()
 });
+
+export const zStringModel = zBaseModel.and(z.object({
+    type: z.enum(['string'])
+}));
+
+export const zNumberModel = zBaseModel.and(z.object({
+    type: z.enum(['number'])
+}));
+
+export const zBooleanModel = zBaseModel.and(z.object({
+    type: z.enum(['boolean'])
+}));
+
+export const zDatetimeModel = zBaseModel.and(z.object({
+    type: z.enum(['datetime'])
+}));
+
+export const zReferenceModel = zBaseModel.and(z.object({
+    type: z.enum(['reference']),
+    model: z.string()
+}));
 
 export const zStringContents = z.string();
 
@@ -93,6 +112,35 @@ export const zNumberContents = z.number();
 export const zBooleanContents = z.boolean();
 
 export const zDatetimeContents = z.string();
+
+export const zReferenceContents = z.string();
+
+export const zModel = z.union([
+    zStringModel,
+    zNumberModel,
+    zBooleanModel,
+    zDatetimeModel,
+    zReferenceModel,
+    z.lazy((): any => zMapModel),
+    z.lazy((): any => zListModel),
+    z.lazy((): any => zUnionModel)
+]);
+
+export const zMapModel = zBaseModel.and(z.object({
+    type: z.enum(['map']),
+    props: z.record(z.string(), zModel),
+    required: z.array(z.string())
+}));
+
+export const zListModel = zBaseModel.and(z.object({
+    type: z.enum(['list']),
+    item: zModel
+}));
+
+export const zUnionModel = zBaseModel.and(z.object({
+    type: z.enum(['union']),
+    variants: z.record(z.string(), zModel)
+}));
 
 export const zEntry = zEntrySummary.and(z.lazy(() => z.object({
     contents: z.lazy((): any => zContents)
@@ -105,7 +153,8 @@ export const zContents = z.union([
     zDatetimeContents,
     z.lazy((): any => zMapContents),
     z.lazy((): any => zListContents),
-    z.lazy((): any => zUnionContents)
+    z.lazy((): any => zUnionContents),
+    zReferenceContents
 ]);
 
 export const zMapContents = z.record(z.string(), zContents);
@@ -170,6 +219,15 @@ export const zGetResourcePath = z.object({
  */
 export const zGetResourceResponse = zResource;
 
+export const zGetEntryPath = z.object({
+    id: z.string()
+});
+
+/**
+ * JSON
+ */
+export const zGetEntryResponse = zEntry;
+
 /**
  * OK
  */
@@ -183,12 +241,3 @@ export const zGetModelPath = z.object({
  * OK
  */
 export const zGetModelResponse = zModel;
-
-export const zGetEntryPath = z.object({
-    id: z.string()
-});
-
-/**
- * JSON
- */
-export const zGetEntryResponse = zEntry;

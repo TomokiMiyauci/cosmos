@@ -25,7 +25,6 @@ import type {
   Node,
   NumberNode,
   ReferenceNode,
-  Schema,
   StringNode,
   UnionNode,
 } from "@cosmos/core";
@@ -90,12 +89,6 @@ export class RestCmsService implements CmsService {
 
     if (!model) return null;
 
-    const allModels = await this.findModels();
-
-    const modelRecord = new Map(
-      allModels.map(({ id, model }) => [id, model] as const),
-    );
-
     const indexies = await this.#findIndeies();
     const resources = await this.findResources();
 
@@ -113,13 +106,7 @@ export class RestCmsService implements CmsService {
       },
     ).filter((v) => !!v);
 
-    const field = modelToField(model, (id) => {
-      const value = modelRecord.get(id);
-
-      if (!value) throw new Error();
-
-      return value;
-    }, (model) => {
+    const field = modelToField(model, (model) => {
       const values = store.filter((value) => value.model === model);
 
       return values;
@@ -189,13 +176,7 @@ export class RestCmsService implements CmsService {
       },
     ).filter((v) => !!v);
 
-    const field = modelToField(model, (id) => {
-      const value = modelRecord.get(id);
-
-      if (!value) throw new Error();
-
-      return value;
-    }, (model) => {
+    const field = modelToField(model, (model) => {
       const values = store.filter((value) => value.model === model);
 
       return values;
@@ -379,19 +360,18 @@ export type JsonValue =
 
 export function modelToField(
   model: Model,
-  getModel: (modelId: string) => Model,
   getIndexies: (modelId: string) => Summary[],
   getAssets: () => Summary[],
 ): Field {
   function to(
-    schema: Schema,
+    model: Model,
     meta?: { required: boolean; description: string; title: string },
   ): Field {
     const required = meta?.required ?? false;
     const description = meta?.description ?? "";
     const title = meta?.title ?? "";
 
-    switch (schema.type) {
+    switch (model.type) {
       case "string": {
         return {
           type: "string",
@@ -425,9 +405,9 @@ export function modelToField(
         };
       }
       case "map": {
-        const set = new Set(schema.required);
-        const fields = mapValues(schema.props, (childModel, key) => {
-          return to(childModel.schema, {
+        const set = new Set(model.required);
+        const fields = mapValues(model.props, (childModel, key) => {
+          return to(childModel, {
             required: set.has(key),
             description: childModel.description,
             title: childModel.title,
@@ -444,14 +424,14 @@ export function modelToField(
       case "list": {
         return {
           type: "list",
-          field: to(schema.item),
+          field: to(model.item),
           title,
           description,
           required,
         };
       }
       case "reference": {
-        const candidates = getIndexies(schema.model);
+        const candidates = getIndexies(model.model);
 
         return {
           type: "reference",
@@ -461,19 +441,10 @@ export function modelToField(
           required,
         };
       }
-      case "instance": {
-        const childModel = getModel(schema.model);
-
-        return to(childModel.schema, {
-          description: childModel.description,
-          title: childModel.title,
-          required: false,
-        });
-      }
       case "union": {
         const variants = mapValues(
-          schema.variants,
-          (model) => to(model.schema),
+          model.variants,
+          (model) => to(model),
         );
         return {
           type: "union",
@@ -500,7 +471,7 @@ export function modelToField(
     }
   }
 
-  return to(model.schema);
+  return to(model);
 }
 
 export function toNode(dto: NodeJson): Node {
@@ -544,7 +515,7 @@ function toNodeFromContents(
   model: Model,
   store: Map<string, Model>,
 ): Node {
-  switch (model.schema.type) {
+  switch (model.type) {
     case "string": {
       if (typeof contents === "string") {
         return {
@@ -587,7 +558,7 @@ function toNodeFromContents(
     }
     case "map": {
       if (typeof contents === "object" && !Array.isArray(contents)) {
-        const props = model.schema.props;
+        const props = model.props;
 
         const value = mapValues(
           contents,
@@ -603,13 +574,8 @@ function toNodeFromContents(
     }
     case "list": {
       if (Array.isArray(contents)) {
-        const childModel = {
-          schema: model.schema,
-          title: "",
-          description: "",
-        } satisfies Model;
         const value = contents.map((child) =>
-          toNodeFromContents(child, childModel, store)
+          toNodeFromContents(child, model, store)
         );
 
         return {
@@ -625,7 +591,7 @@ function toNodeFromContents(
         const [first, second] = contents;
 
         if (typeof first === "string") {
-          const variant = model.schema.variants[first];
+          const variant = model.variants[first];
 
           if (variant) {
             return {
@@ -639,14 +605,17 @@ function toNodeFromContents(
 
       throw new Error();
     }
-    case "instance": {
-      const childModel = store.get(model.schema.model);
 
-      if (!childModel) throw new Error();
+    case "reference": {
+      if (typeof contents === "string") {
+        return {
+          type: "reference",
+          value: contents,
+        };
+      }
 
-      return toNodeFromContents(contents, childModel, store);
+      throw new Error();
     }
-    case "reference":
     case "asset":
     case "markdown": {
       throw new Error();

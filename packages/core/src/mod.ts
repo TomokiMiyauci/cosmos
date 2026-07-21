@@ -95,7 +95,6 @@ export type {
   ListSchema,
   MapSchema,
   MarkdownSchema,
-  Model,
   NumberSchema,
   ReferenceSchema,
   Schema,
@@ -109,3 +108,16 @@ export type { EntryRepositry } from "./domain/entry/repositry.ts";
 export { Model as M } from "./domain/model/entity.ts";
 export type { ModelRepositry } from "./domain/model/repositry.ts";
 export { ModelId } from "./domain/model/id.ts";
+export type {
+  AssetModel,
+  BooleanModel,
+  DatetimeModel,
+  ListModel,
+  MapModel,
+  MarkdownModel,
+  Model,
+  NumberModel,
+  ReferenceModel,
+  StringModel,
+  UnionModel,
+} from "./types/model.ts";
