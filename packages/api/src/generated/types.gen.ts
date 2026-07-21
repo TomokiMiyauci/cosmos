@@ -88,11 +88,13 @@ export type Model = {
 };
 
 export type Entry = {
+    id: string;
     name: string;
+    model: string;
     contents: Contents;
 };
 
-export type Contents = StringContents | NumberContents | BooleanContents | DatetimeContents;
+export type Contents = StringContents | NumberContents | BooleanContents | DatetimeContents | MapContents | ListContents | UnionContents;
 
 export type StringContents = string;
 
@@ -103,7 +105,7 @@ export type BooleanContents = boolean;
 export type DatetimeContents = string;
 
 export type MapContents = {
-    [key: string]: unknown;
+    [key: string]: Contents;
 };
 
 export type ListContents = Array<Contents>;
@@ -195,7 +197,7 @@ export type GetEntryResponses = {
     /**
      * JSON
      */
-    200: EntryDto;
+    200: Entry;
 };
 
 export type GetEntryResponse = GetEntryResponses[keyof GetEntryResponses];

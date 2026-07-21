@@ -98,19 +98,24 @@ export const zBooleanContents = z.boolean();
 
 export const zDatetimeContents = z.string();
 
+export const zEntry = z.object({
+    id: z.string(),
+    name: z.string(),
+    model: z.string(),
+    contents: z.lazy((): any => zContents)
+});
+
 export const zContents = z.union([
     zStringContents,
     zNumberContents,
     zBooleanContents,
-    zDatetimeContents
+    zDatetimeContents,
+    z.lazy((): any => zMapContents),
+    z.lazy((): any => zListContents),
+    z.lazy((): any => zUnionContents)
 ]);
 
-export const zEntry = z.object({
-    name: z.string(),
-    contents: zContents
-});
-
-export const zMapContents = z.record(z.string(), z.unknown());
+export const zMapContents = z.record(z.string(), zContents);
 
 export const zListContents = z.array(zContents);
 
@@ -143,15 +148,6 @@ export const zDeleteEntryPath = z.object({
  * OK
  */
 export const zDeleteEntryResponse = z.void();
-
-export const zGetEntryPath = z.object({
-    id: z.string()
-});
-
-/**
- * JSON
- */
-export const zGetEntryResponse = zEntryDto;
 
 /**
  * OK
@@ -194,3 +190,12 @@ export const zGetModelPath = z.object({
  * OK
  */
 export const zGetModelResponse = zModel;
+
+export const zGetEntryPath = z.object({
+    id: z.string()
+});
+
+/**
+ * JSON
+ */
+export const zGetEntryResponse = zEntry;

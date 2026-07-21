@@ -7,6 +7,7 @@ import { QueryService } from "./application/query.ts";
 import { implement } from "@orpc/server";
 import { contract } from "../generated/orpc.gen.ts";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
+import { toEntry } from "./util.ts";
 
 const os = implement<typeof contract, Context>(contract);
 
@@ -30,13 +31,13 @@ const router = os.router({
 
     const maybeDto = await context.queries.findById(id);
 
-    if (!maybeDto.ok) {
+    if (!maybeDto) {
       throw new Error();
     }
 
-    const dto = maybeDto.value;
+    const entry = toEntry(maybeDto);
 
-    return dto;
+    return entry;
   }),
   postEntry: os.postEntry.handler(async (options) => {
     const { context, input } = options;

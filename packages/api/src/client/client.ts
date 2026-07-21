@@ -1,6 +1,6 @@
 import { contract } from "../generated/orpc.gen.ts";
 import type {
-  EntryDto,
+  Entry,
   EntryInputDto,
   Model,
   NewEntryInputDto,
@@ -49,8 +49,8 @@ export class Client {
 
   async getEntry(
     id: string,
-  ): Promise<Result<EntryDto, ApiError<NotFoundProblem>>> {
-    const result = await this.#client.getEntry({ params: { id } });
+  ): Promise<Result<Entry, ApiError<NotFoundProblem>>> {
+    const result = await this.#client.getEntry({ params: { id } }) as Entry;
 
     return Result.ok(result);
     // switch (result.status) {

@@ -1,5 +1,4 @@
 import type { EntryDto, SummaryDTO } from "./dto.ts";
-import { Option } from "@miyauci/util";
 
 export interface Reader {
   findMany(options?: QueryOptions): Promise<SummaryDTO[]>;
@@ -19,11 +18,11 @@ export class QueryService {
     return dto;
   }
 
-  async findById(id: string): Promise<Option<EntryDto>> {
+  async findById(id: string): Promise<EntryDto | null> {
     const result = await this.reader.findById(id);
 
-    if (!result) return Option.none;
+    if (!result) return null;
 
-    return Option.some(result);
+    return result;
   }
 }

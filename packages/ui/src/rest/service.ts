@@ -8,7 +8,12 @@ import type {
   Summary,
   Template,
 } from "../type.ts";
-import { Client, type Resource as ResourceDto } from "@cosmos/rest/client";
+import {
+  Client,
+  type Contents,
+  type Entry as EntryResponse,
+  type Resource as ResourceDto,
+} from "@cosmos/rest/client";
 import { Option, Result } from "@miyauci/util";
 import type {
   AssetNode,
@@ -25,7 +30,6 @@ import type {
   UnionNode,
 } from "@cosmos/core";
 import { mapValues } from "@std/collections";
-import { parseToNode } from "@cosmos/parser";
 
 export class RestCmsService implements CmsService {
   #client: Client;
@@ -136,7 +140,7 @@ export class RestCmsService implements CmsService {
 
   async #findContent(
     contentId: string,
-  ): Promise<{ id: string; model: string; name: string; node: Node } | null> {
+  ): Promise<EntryResponse | null> {
     const [data, error] = await this.#client.getEntry(contentId);
 
     if (error) {
@@ -166,7 +170,7 @@ export class RestCmsService implements CmsService {
       allModels.map(({ id, model }) => [id, model] as const),
     );
 
-    const node = parseToNode(content.node);
+    const node = toNodeFromContents(content.contents, model, modelRecord);
 
     const indexies = await this.#findIndeies();
     const resources = await this.findResources();
@@ -527,6 +531,121 @@ export function toNode(dto: NodeJson): Node {
         type: "list",
         value: dto.value.map(toNode),
       };
+    }
+  }
+}
+
+function toNodeFromContents(
+  contents: Contents,
+  model: Model,
+  store: Map<string, Model>,
+): Node {
+  switch (model.schema.type) {
+    case "string": {
+      if (typeof contents === "string") {
+        return {
+          type: "string",
+          value: contents,
+        };
+      }
+
+      throw new Error();
+    }
+    case "number": {
+      if (typeof contents === "number") {
+        return {
+          type: "number",
+          value: contents,
+        };
+      }
+
+      throw new Error();
+    }
+    case "boolean": {
+      if (typeof contents === "boolean") {
+        return {
+          type: "boolean",
+          value: contents,
+        };
+      }
+
+      throw new Error();
+    }
+    case "datetime": {
+      if (typeof contents === "string") {
+        return {
+          type: "datetime",
+          value: new Date(contents),
+        };
+      }
+
+      throw new Error();
+    }
+    case "map": {
+      if (typeof contents === "object" && !Array.isArray(contents)) {
+        const props = model.schema.props;
+
+        const value = mapValues(
+          contents,
+          (contents, key) => toNodeFromContents(contents, props[key]!, store),
+        );
+        return {
+          type: "map",
+          value,
+        };
+      }
+
+      throw new Error();
+    }
+    case "list": {
+      if (Array.isArray(contents)) {
+        const childModel = {
+          schema: model.schema,
+          title: "",
+          description: "",
+        } satisfies Model;
+        const value = contents.map((child) =>
+          toNodeFromContents(child, childModel, store)
+        );
+
+        return {
+          type: "list",
+          value,
+        };
+      }
+
+      throw new Error();
+    }
+    case "union": {
+      if (Array.isArray(contents)) {
+        const [first, second] = contents;
+
+        if (typeof first === "string") {
+          const variant = model.schema.variants[first];
+
+          if (variant) {
+            return {
+              type: "union",
+              key: first,
+              value: toNodeFromContents(second, variant, store),
+            };
+          }
+        }
+      }
+
+      throw new Error();
+    }
+    case "instance": {
+      const childModel = store.get(model.schema.model);
+
+      if (!childModel) throw new Error();
+
+      return toNodeFromContents(contents, childModel, store);
+    }
+    case "reference":
+    case "asset":
+    case "markdown": {
+      throw new Error();
     }
   }
 }

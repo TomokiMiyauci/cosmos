@@ -59,7 +59,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/EntryDto"
+                $ref: "#/components/schemas/Entry"
         "404":
           description: Not found
 
@@ -349,6 +349,7 @@ components:
         - id
         - model
       additionalProperties: false
+
     Model:
       type: object
       properties:
@@ -366,23 +367,35 @@ components:
         - description
         - schema
       additionalProperties: false
+
     Entry:
       type: object
       properties:
+        id:
+          type: string
         name:
+          type: string
+        model:
           type: string
         contents:
           $ref: "#/components/schemas/Contents"
       required:
+        - id
         - name
+        - model
         - contents
       additionalProperties: false
+
     Contents:
       oneOf:
         - $ref: "#/components/schemas/StringContents"
         - $ref: "#/components/schemas/NumberContents"
         - $ref: "#/components/schemas/BooleanContents"
         - $ref: "#/components/schemas/DatetimeContents"
+        - $ref: "#/components/schemas/MapContents"
+        - $ref: "#/components/schemas/ListContents"
+        - $ref: "#/components/schemas/UnionContents"
+
     StringContents:
       type: string
     NumberContents:
@@ -393,6 +406,8 @@ components:
       type: string
     MapContents:
       type: object
+      additionalProperties:
+        $ref: "#/components/schemas/Contents"
     ListContents:
       type: array
       items:
@@ -402,3 +417,4 @@ components:
       prefixItems:
         - type: string
         - $ref: "#/components/schemas/Contents"
+      unevaluatedItems: false
