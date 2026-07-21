@@ -12,6 +12,7 @@ import type { JsonifiedClient } from "@orpc/openapi-client";
 import type { ContractRouterClient } from "@orpc/contract";
 import { createORPCClient } from "@orpc/client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
+import { Result } from "@miyauci/util";
 
 export class Client {
   #client: JsonifiedClient<ContractRouterClient<typeof contract>>;
@@ -182,19 +183,4 @@ interface ValidationErrorProblem {
 
 interface InternalServerErrorProblem {
   status: 500;
-}
-
-export type Result<T, E> = Result.Ok<T> | Result.Error<E>;
-
-export namespace Result {
-  export type Ok<T> = [data: T, error: null];
-
-  export type Error<T> = [data: null, error: T];
-
-  export function ok<T>(of: T): Ok<T> {
-    return [of, null];
-  }
-  export function error<T>(of: T): Error<T> {
-    return [null, of];
-  }
 }
