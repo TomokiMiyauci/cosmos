@@ -5,7 +5,8 @@
     "vscode": {
       "extensions": [
         "denoland.vscode-deno",
-        "vivaxy.vscode-conventional-commits"
+        "vivaxy.vscode-conventional-commits",
+        "42crunch.vscode-openapi"
       ]
     }
   },
