@@ -83,7 +83,7 @@ const router = os.router({
 
     return { id };
   }),
-  getModel: os.getModel.handler(async (options) => {
+  getModel: os.getModel.handler(async (options): Promise<Model> => {
     const { input, context } = options;
     const { id } = input.params;
 
@@ -93,14 +93,14 @@ const router = os.router({
       throw new Error();
     }
 
-    return { id, ...model };
+    return model;
   }),
   getModels: os.getModels.handler(async (options) => {
     const { context } = options;
 
     const models = await context.service.findModels();
 
-    return models.map((model) => ({ id: model.id, ...model.model }));
+    return models;
   }),
   getResource: os.getResource.handler(async (options) => {
     const { context, input } = options;
@@ -171,7 +171,7 @@ export interface CoreService {
 
   findResources(): Promise<Resource[]>;
   findModel(id: string): Promise<Model | null>;
-  findModels(): Promise<{ id: string; model: Model }[]>;
+  findModels(): Promise<Model[]>;
 }
 
 interface Usecases {

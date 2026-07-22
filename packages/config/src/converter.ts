@@ -26,10 +26,12 @@ function toModel(
 ): Model {
   const description = modelConfig.description ?? "";
   const title = modelConfig.title ?? key;
+  const id = key;
 
   switch (modelConfig.schema.type) {
     case "string": {
       return {
+        id,
         title,
         description,
         type: "string",
@@ -37,6 +39,7 @@ function toModel(
     }
     case "number": {
       return {
+        id,
         title,
         description,
         type: "number",
@@ -44,6 +47,7 @@ function toModel(
     }
     case "boolean": {
       return {
+        id,
         title,
         description,
         type: "boolean",
@@ -51,6 +55,7 @@ function toModel(
     }
     case "datetime": {
       return {
+        id,
         title,
         description,
         type: "datetime",
@@ -62,6 +67,7 @@ function toModel(
         (model, key) => toModel(model, key, models),
       );
       return {
+        id,
         type: "union",
         title,
         description,
@@ -70,6 +76,7 @@ function toModel(
     }
     case "reference": {
       return {
+        id,
         type: "reference",
         title,
         description,
@@ -91,6 +98,7 @@ function toModel(
       );
 
       return {
+        id,
         type: "list",
         title,
         description,
@@ -104,10 +112,11 @@ function toModel(
       );
       const required = modelConfig.schema.required ?? [];
 
-      return { type: "map", title, description, props, required };
+      return { id, type: "map", title, description, props, required };
     }
     case "asset": {
       return {
+        id,
         type: "asset",
         title,
         description,

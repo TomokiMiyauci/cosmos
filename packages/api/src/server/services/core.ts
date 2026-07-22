@@ -20,16 +20,8 @@ export class CmsServie implements CoreService {
     return Object.values(this.config.value.resources);
   }
 
-  async findModels(): Promise<{
-    id: string;
-    model: Model;
-  }[]> {
-    return Object.entries(this.config.value.models).map(([id, model]) => {
-      return {
-        id,
-        model,
-      };
-    });
+  async findModels(): Promise<Model[]> {
+    return Object.values(this.config.value.models);
   }
 
   findModel(id: string): Promise<Model | null> {

@@ -10,52 +10,56 @@ export type Model =
   | UnionModel
   | MarkdownModel;
 
+export interface BaseModel extends Anotation {
+  id: string;
+}
+
 export interface Anotation {
   title: string;
   description: string;
 }
 
-export interface MapModel extends Anotation {
+export interface MapModel extends BaseModel {
   type: "map";
   props: Record<string, Model>;
   required: string[];
 }
 
-export interface StringModel extends Anotation {
+export interface StringModel extends BaseModel {
   type: "string";
 }
 
-export interface NumberModel extends Anotation {
+export interface NumberModel extends BaseModel {
   type: "number";
 }
 
-export interface BooleanModel extends Anotation {
+export interface BooleanModel extends BaseModel {
   type: "boolean";
 }
 
-export interface DatetimeModel extends Anotation {
+export interface DatetimeModel extends BaseModel {
   type: "datetime";
 }
 
-export interface ReferenceModel extends Anotation {
+export interface ReferenceModel extends BaseModel {
   type: "reference";
   model: string;
 }
 
-export interface ListModel extends Anotation {
+export interface ListModel extends BaseModel {
   type: "list";
   item: Model;
 }
 
-export interface AssetModel extends Anotation {
+export interface AssetModel extends BaseModel {
   type: "asset";
 }
 
-export interface UnionModel extends Anotation {
+export interface UnionModel extends BaseModel {
   type: "union";
   variants: Record<string, Model>;
 }
 
-export interface MarkdownModel extends Anotation {
+export interface MarkdownModel extends BaseModel {
   type: "markdown";
 }
