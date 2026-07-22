@@ -6,6 +6,7 @@ export default {
     module: {
       extension: ".ts",
     },
+    entryFile: false,
   },
   plugins: [{ name: "orpc", validator: true }, "zod", "@hey-api/typescript"],
 } satisfies UserConfig;
