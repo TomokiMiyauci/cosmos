@@ -475,42 +475,6 @@ export function modelToField(
   return to(model);
 }
 
-export function toNode(dto: NodeJson): Node {
-  switch (dto.type) {
-    case "string":
-    case "number":
-    case "boolean":
-    case "reference":
-    case "asset": {
-      return dto;
-    }
-    case "datetime": {
-      return {
-        type: "datetime",
-        value: new Date(dto.value),
-      };
-    }
-    case "union": {
-      return {
-        ...dto,
-        value: toNode(dto.value),
-      };
-    }
-    case "map": {
-      return {
-        type: "map",
-        value: mapValues(dto.value, toNode),
-      };
-    }
-    case "list": {
-      return {
-        type: "list",
-        value: dto.value.map(toNode),
-      };
-    }
-  }
-}
-
 function toNodeFromContents(
   contents: Contents,
   model: Model,
