@@ -9,60 +9,59 @@ import type {
 } from "../generated/types.gen.ts";
 import type { JsonifiedClient } from "@orpc/openapi-client";
 import type { ContractRouterClient } from "@orpc/contract";
-import { createORPCClient } from "@orpc/client";
+import {
+  createORPCClient,
+  createSafeClient,
+  type SafeClient,
+} from "@orpc/client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
 import { Result } from "@miyauci/util";
 
 export class Client {
-  #client: JsonifiedClient<ContractRouterClient<typeof contract>>;
+  #client: SafeClient<JsonifiedClient<ContractRouterClient<typeof contract>>>;
 
   constructor(baseUrl: URL) {
     const link = new OpenAPILink(contract, {
       url: baseUrl,
     });
+    const client: JsonifiedClient<ContractRouterClient<typeof contract>> =
+      createORPCClient(link);
 
-    this.#client = createORPCClient(link);
+    this.#client = createSafeClient(client);
   }
 
   async getEntrySummaries(
     optinos?: { model?: string },
   ): Promise<EntrySummary[]> {
-    const result = await this.#client.getSummaries({
+    const [error, data] = await this.#client.getSummaries({
       query: { model: optinos?.model },
     });
 
-    return result;
+    if (error) throw error;
+
+    return data;
   }
 
   async postEntry(
     params: EntryInput,
   ): Promise<Result<Identitiy, ApiError<Problem>>> {
-    const result = await this.#client.postEntry({ body: params });
+    const [error, data] = await this.#client.postEntry({ body: params });
 
-    return Result.ok(result);
-    // switch (result.status) {
-    //   case 201: {
-    //   }
-    // }
+    if (error) {
+      throw error;
+    }
 
-    // throw new Error("Unknon status");
+    return Result.ok(data);
   }
 
   async getEntry(
     id: string,
   ): Promise<Result<Entry, ApiError<NotFoundProblem>>> {
-    const result = await this.#client.getEntry({ params: { id } }) as Entry;
+    const [error, data] = await this.#client.getEntry({ params: { id } });
 
-    return Result.ok(result);
-    // switch (result.status) {
-    //   case 200: {
-    //   }
-    //   case 404: {
-    //     throw Result.error(new ApiError({ status: 404 }));
-    //   }
-    // }
+    if (error) throw error;
 
-    // throw new Error("Unknon status");
+    return Result.ok(data as Entry);
   }
 
   async putEntry(
@@ -101,57 +100,41 @@ export class Client {
   async getResources(): Promise<
     Result<Resource[], ApiError<Problem>>
   > {
-    const result = await this.#client.getResources();
+    const [error, data] = await this.#client.getResources();
 
-    return Result.ok(result);
-    // switch (result.status) {
-    //   case 200: {
-    //   }
-    // }
+    if (error) throw error;
 
-    // throw new Error("Unknon status");
+    return Result.ok(data);
   }
 
   async getResource(
     id: string,
   ): Promise<Result<Resource, ApiError<Problem>>> {
-    const result = await this.#client.getResource({ params: { id } });
+    const [error, data] = await this.#client.getResource({ params: { id } });
 
-    return Result.ok(result);
-    // switch (result.status) {
-    //   case 200: {
-    //   }
-    // }
+    if (error) throw error;
 
-    // throw new Error("Unknon status");
+    return Result.ok(data);
   }
 
   async getModels(): Promise<
     Result<Model[], ApiError<Problem>>
   > {
-    const result = await this.#client.getModels();
+    const [error, data] = await this.#client.getModels();
 
-    return Result.ok(result);
-    // switch (result.status) {
-    //   case 200: {
-    //   }
-    // }
+    if (error) throw error;
 
-    // throw new Error("Unknon status");
+    return Result.ok(data);
   }
 
   async getModel(
     id: string,
   ): Promise<Result<Model, ApiError<Problem>>> {
-    const result = await this.#client.getModel({ params: { id } });
+    const [error, data] = await this.#client.getModel({ params: { id } });
 
-    return Result.ok(result);
-    // switch (result.status) {
-    //   case 200: {
-    //   }
-    // }
+    if (error) throw error;
 
-    // throw new Error("Unknon status");
+    return Result.ok(data);
   }
 }
 
