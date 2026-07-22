@@ -5,11 +5,8 @@ export {
   type Content,
   type ContentsOption,
   type Entry,
-  type Failure,
   type Field,
   type Identity,
-  type Result,
-  type Success,
   type Summary,
   type Template,
 } from "./type.ts";
