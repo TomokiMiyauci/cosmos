@@ -337,9 +337,17 @@ components:
           type: string
         model:
           type: string
+        type:
+          enum:
+            - collection
+            - singleton
+        description:
+          type: string
       required:
         - id
         - model
+        - type
+        - description
       additionalProperties: false
 
     Model:

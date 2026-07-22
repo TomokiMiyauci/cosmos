@@ -8,23 +8,16 @@ export class CmsServie implements CoreService {
 
   async findResource(
     id: string,
-  ): Promise<{ id: string; model: string } | null> {
+  ): Promise<Resource | null> {
     const resource = this.config.value.resources[id];
 
     if (!resource) return null;
 
-    return {
-      id,
-      model: resource.model,
-    };
+    return resource;
   }
 
   async findResources(): Promise<Resource[]> {
-    return Object.entries(this.config.value.resources).map(
-      ([id, resource]) => {
-        return { id, ...resource };
-      },
-    );
+    return Object.values(this.config.value.resources);
   }
 
   async findModels(): Promise<{

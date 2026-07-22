@@ -81,11 +81,9 @@ const router = os.router({
     const { params } = input;
     const { id } = params;
 
-    const identifies = await context.service.findResource(id);
+    const resource = await context.service.findResource(id);
 
-    if (identifies) {
-      return identifies;
-    }
+    if (resource) return resource;
 
     throw new Error();
 
@@ -93,9 +91,9 @@ const router = os.router({
   }),
   getResources: os.getResources.handler(async (options) => {
     const { context } = options;
-    const identifies = await context.service.findResources();
+    const resources = await context.service.findResources();
 
-    return identifies;
+    return resources;
   }),
   getSummaries: os.getSummaries.handler(async (options) => {
     const { input, context } = options;
@@ -128,17 +126,11 @@ export interface ParsedConfig {
 }
 
 export interface CoreService {
-  findResource(id: string): Promise<{ id: string; model: string } | null>;
+  findResource(id: string): Promise<Resource | null>;
 
   findResources(): Promise<Resource[]>;
   findModel(id: string): Promise<Model | null>;
   findModels(): Promise<{ id: string; model: Model }[]>;
-}
-
-export interface HandlerContext {
-  result: URLPatternResult;
-  service: CoreService;
-  usecases: Usecases;
 }
 
 interface Usecases {

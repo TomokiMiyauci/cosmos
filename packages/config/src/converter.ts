@@ -1,5 +1,5 @@
-import type { Codec, Engine, Model } from "@cosmos/core";
-import type { Config, ModelConfig } from "./type.ts";
+import type { Codec, Engine, Model, Resource } from "@cosmos/core";
+import type { Config, ModelConfig, ResourceConfig } from "./type.ts";
 import { mapValues } from "@std/collections";
 import { type CodecMap, ParentCodec } from "./codec.ts";
 import { PoolStorage } from "./storage.ts";
@@ -11,8 +11,12 @@ export function convert(config: Config): Engine {
   );
   const codec = toCodec(config.codec);
   const storage = new PoolStorage(config.storages);
+  const resources = mapValues(
+    config.resources,
+    (resource, id) => toResource(id, resource),
+  );
 
-  return { ...config, models, codec, storage };
+  return { ...config, models, resources, codec, storage };
 }
 
 function toModel(
@@ -114,4 +118,13 @@ function toModel(
 
 function toCodec(map: CodecMap): Codec {
   return new ParentCodec(map);
+}
+
+function toResource(id: string, config: ResourceConfig): Resource {
+  return {
+    id,
+    model: config.model,
+    type: config.type,
+    description: config.description ?? "",
+  };
 }

@@ -76,7 +76,9 @@ export const zIdentitiy = z.object({
 
 export const zResource = z.object({
     id: z.string(),
-    model: z.string()
+    model: z.string(),
+    type: z.enum(['collection', 'singleton']),
+    description: z.string()
 });
 
 export const zBaseModel = z.object({

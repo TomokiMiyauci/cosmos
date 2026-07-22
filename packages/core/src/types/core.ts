@@ -1,7 +1,7 @@
 import type { EntryRepositry } from "../domain/entry/repositry.ts";
 import type { Node } from "./node.ts";
 import type { Schema } from "./schema.ts";
-import type { Model } from "./schema.ts";
+import type { Model } from "./model.ts";
 
 export interface Manifest {
   version: string;
@@ -107,10 +107,10 @@ export interface AssetHeader {
 }
 
 export interface Resource {
+  id: string;
   type: EntityType;
   model: string;
-  description?: string;
-  main?: string;
+  description: string;
 }
 
 export type EntityType = "singleton" | "collection";

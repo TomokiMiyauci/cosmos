@@ -72,6 +72,8 @@ export type Identitiy = {
 export type Resource = {
     id: string;
     model: string;
+    type: 'collection' | 'singleton';
+    description: string;
 };
 
 export type Model = StringModel | NumberModel | BooleanModel | DatetimeModel | ReferenceModel | MapModel | ListModel | UnionModel;
