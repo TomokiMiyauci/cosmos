@@ -48,17 +48,6 @@ export type AssetNodeJson = {
     value: string;
 };
 
-export type EntryInputDto = {
-    name: string;
-    node: NodeJson;
-};
-
-export type NewEntryInputDto = {
-    name: string;
-    model: string;
-    node: NodeJson;
-};
-
 export type EntryInput = {
     name: string;
     model: string;
@@ -241,7 +230,7 @@ export type PutEntryData = {
     /**
      * OK
      */
-    body: EntryInputDto;
+    body: EntryInput;
     path: {
         id: string;
     };

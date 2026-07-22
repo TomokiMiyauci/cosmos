@@ -229,11 +229,12 @@ export class RestCmsService implements CmsService {
     return data;
   }
 
-  async saveEntry(entry: Entry): Promise<Result<Node, {}>> {
+  async saveEntry(entry: Entry, model: string): Promise<Result<Node, {}>> {
     await this.#client.putEntry({
       name: entry.summary.name,
-      node: fromNode(entry.node),
+      contents: toContents(entry.node),
       id: entry.id,
+      model,
     });
 
     return Result.ok(entry.node);

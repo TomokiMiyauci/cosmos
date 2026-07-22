@@ -9,21 +9,23 @@ export interface Data {
   field: Field;
   meta: Meta;
   node: Node | null;
+  name: string;
 }
 
 export interface Meta {
   title: string;
   description: string;
+  model: string;
 }
 
 export interface CmsService {
   findTemplate(resourceId: string): Promise<Template | null>;
-  findContent(contentId: Content["id"]): Promise<Content>;
+  findContent(contentId: Content["id"]): Promise<Content | null>;
   findSummaries(option?: ContentsOption): Promise<Summary[]>;
   findResources(): Promise<Identity[]>;
-  saveEntry(entry: Entry): Promise<Result<Node, {}>>;
+  saveEntry(entry: Entry, model: string): Promise<Result<Node, {}>>;
   registerEntry(
-    resourceId: string,
+    model: string,
     node: Node,
     summary: Summary,
   ): Promise<Result<Identity, {}>>;
@@ -155,4 +157,8 @@ export interface ResourceTemplatePayload extends ResourceTemplate {
 
 export interface SummaryPayload extends Summary {
   entryId: string;
+}
+
+export interface Router {
+  redirect(to: string): void;
 }

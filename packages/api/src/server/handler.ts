@@ -5,7 +5,10 @@ import {
   type CreateCommand,
   EntryCreateUseCase,
 } from "./application/usecases/entry/creation.ts";
-import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
+import {
+  EntryUpdateUseCase,
+  type UpdateCommand,
+} from "./application/usecases/entry/updation.ts";
 import { QueryService } from "./application/query.ts";
 import { implement } from "@orpc/server";
 import { contract } from "../generated/orpc.gen.ts";
@@ -129,9 +132,24 @@ const router = os.router({
   putEntry: os.putEntry.handler(async (options) => {
     const { input, context } = options;
     const { params, body } = input;
+    const { name, model, contents } = body as EntryInput;
     const { id } = params;
 
-    const [_, error] = await context.usecases.entryUpdate.execute(id, body);
+    const maybeModel = await context.service.findModel(model);
+
+    if (!maybeModel) {
+      throw new Error();
+    }
+
+    const [node, nodeError] = toNode(contents, maybeModel);
+
+    if (nodeError) {
+      throw new Error();
+    }
+
+    const command = { id, model, name, node } satisfies UpdateCommand;
+
+    const [_, error] = await context.usecases.entryUpdate.execute(command);
 
     if (error) {
       throw new Error();

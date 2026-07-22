@@ -76,7 +76,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/EntryInputDto"
+              $ref: "#/components/schemas/EntryInput"
       responses:
         "204":
           description: OK
@@ -279,32 +279,6 @@ components:
         - type
         - value
       additionalProperties: false
-
-    EntryInputDto:
-      type: object
-      properties:
-        name:
-          type: string
-        node:
-          $ref: "#/components/schemas/NodeJson"
-      required:
-        - name
-        - node
-      additionalProperties: false
-
-    NewEntryInputDto:
-      type: object
-      properties:
-        name:
-          type: string
-        model:
-          type: string
-        node:
-          $ref: "#/components/schemas/NodeJson"
-      required:
-        - name
-        - model
-        - node
 
     EntryInput:
       type: object

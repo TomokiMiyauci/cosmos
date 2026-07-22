@@ -53,17 +53,6 @@ export const zNodeJson = z.union([
     zAssetNodeJson
 ]);
 
-export const zEntryInputDto = z.object({
-    name: z.string(),
-    node: zNodeJson
-});
-
-export const zNewEntryInputDto = z.object({
-    name: z.string(),
-    model: z.string(),
-    node: zNodeJson
-});
-
 export const zEntrySummary = z.object({
     id: z.string(),
     model: z.string(),
@@ -192,20 +181,6 @@ export const zDeleteEntryResponse = z.void();
 /**
  * OK
  */
-export const zPutEntryBody = zEntryInputDto;
-
-export const zPutEntryPath = z.object({
-    id: z.string()
-});
-
-/**
- * OK
- */
-export const zPutEntryResponse = z.void();
-
-/**
- * OK
- */
 export const zGetResourcesResponse = z.array(zResource);
 
 export const zGetResourcePath = z.object({
@@ -235,6 +210,20 @@ export const zGetEntryPath = z.object({
  * JSON
  */
 export const zGetEntryResponse = zEntry;
+
+/**
+ * OK
+ */
+export const zPutEntryBody = zEntryInput;
+
+export const zPutEntryPath = z.object({
+    id: z.string()
+});
+
+/**
+ * OK
+ */
+export const zPutEntryResponse = z.void();
 
 /**
  * OK

@@ -7,18 +7,21 @@ import {
 import { Result } from "@miyauci/util";
 import { type EntryInputDto, toNode } from "../../dto.ts";
 
+export interface UpdateCommand extends EntryInputDto {
+  id: string;
+}
+
 export class EntryUpdateUseCase {
   constructor(private repositry: EntryRepositry) {}
 
   async execute(
-    id: string,
-    input: EntryInputDto,
+    command: UpdateCommand,
   ): Promise<Result<void, Error>> {
-    const [entryId, entryFactoryError] = EntryId.from(id);
+    const [entryId, entryFactoryError] = EntryId.from(command.id);
 
     if (entryFactoryError) return Result.error(new Error("invalid id"));
 
-    const [entryName, entryNameError] = EntryName.of(input.name);
+    const [entryName, entryNameError] = EntryName.of(command.name);
 
     if (entryNameError) return Result.error(new Error());
 
@@ -32,7 +35,7 @@ export class EntryUpdateUseCase {
       entryId,
       entryName,
       currentModel,
-      toNode(input.node),
+      toNode(command.node),
     );
 
     await this.repositry.save(entry);

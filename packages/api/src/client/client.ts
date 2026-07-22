@@ -2,7 +2,6 @@ import { contract } from "../generated/orpc.gen.ts";
 import type {
   Entry,
   EntryInput,
-  EntryInputDto,
   EntrySummary,
   Identitiy,
   Model,
@@ -67,11 +66,15 @@ export class Client {
   }
 
   async putEntry(
-    params: EntryInputDto & { id: string },
+    params: EntryInput & Identitiy,
   ): Promise<Result<null, ApiError<Problem>>> {
     const result = await this.#client.putEntry({
       params: { id: params.id },
-      body: { name: params.name, node: params.node },
+      body: {
+        name: params.name,
+        contents: params.contents,
+        model: params.name,
+      },
     });
 
     return Result.ok(null);
