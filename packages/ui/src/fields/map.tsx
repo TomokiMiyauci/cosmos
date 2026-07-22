@@ -18,7 +18,7 @@ export default function MapField(props: MapFieldProps): JSX.Element {
       {field.title}
       <ul>
         {Object.entries(field.fields).map(([name, field]) => {
-          const onC: OnChange = (childNode) => {
+          const onChildChange: OnChange = (childNode) => {
             const value = childNode
               ? { ...node?.value, [name]: childNode }
               : { ...node?.value };
@@ -28,6 +28,7 @@ export default function MapField(props: MapFieldProps): JSX.Element {
             }
 
             const changed: MapNode = {
+              ...node,
               type: "map",
               value,
             };
@@ -37,7 +38,7 @@ export default function MapField(props: MapFieldProps): JSX.Element {
 
           return (
             <li key={name}>
-              {render({ onChange: onC, field, node: childNode })}
+              {render({ onChange: onChildChange, field, node: childNode })}
             </li>
           );
         })}
