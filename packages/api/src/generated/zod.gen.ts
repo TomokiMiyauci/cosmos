@@ -2,57 +2,6 @@
 
 import * as z from 'zod';
 
-export const zStringNodeJson = z.object({
-    type: z.enum(['string']),
-    value: z.string()
-});
-
-export const zNumberNodeJson = z.object({
-    type: z.enum(['number']),
-    value: z.number()
-});
-
-export const zBooleanNodeJson = z.object({
-    type: z.enum(['boolean']),
-    value: z.boolean()
-});
-
-export const zDatetimeNodeJson = z.object({
-    type: z.enum(['datetime']),
-    value: z.string()
-});
-
-export const zListNodeJson = z.object({
-    type: z.enum(['list']),
-    value: z.array(z.unknown())
-});
-
-export const zMapNodeJson = z.object({
-    type: z.enum(['map']),
-    value: z.record(z.string(), z.unknown())
-});
-
-export const zReferenceNodeJson = z.object({
-    type: z.enum(['reference']),
-    value: z.string()
-});
-
-export const zAssetNodeJson = z.object({
-    type: z.enum(['asset']),
-    value: z.string()
-});
-
-export const zNodeJson = z.union([
-    zStringNodeJson,
-    zNumberNodeJson,
-    zBooleanNodeJson,
-    zDatetimeNodeJson,
-    zListNodeJson,
-    zMapNodeJson,
-    zReferenceNodeJson,
-    zAssetNodeJson
-]);
-
 export const zEntrySummary = z.object({
     id: z.string(),
     model: z.string(),

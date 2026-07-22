@@ -4,50 +4,6 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
-export type NodeJson = StringNodeJson | NumberNodeJson | BooleanNodeJson | DatetimeNodeJson | ListNodeJson | MapNodeJson | ReferenceNodeJson | AssetNodeJson;
-
-export type StringNodeJson = {
-    type: 'string';
-    value: string;
-};
-
-export type NumberNodeJson = {
-    type: 'number';
-    value: number;
-};
-
-export type BooleanNodeJson = {
-    type: 'boolean';
-    value: boolean;
-};
-
-export type DatetimeNodeJson = {
-    type: 'datetime';
-    value: string;
-};
-
-export type ListNodeJson = {
-    type: 'list';
-    value: Array<unknown>;
-};
-
-export type MapNodeJson = {
-    type: 'map';
-    value: {
-        [key: string]: unknown;
-    };
-};
-
-export type ReferenceNodeJson = {
-    type: 'reference';
-    value: string;
-};
-
-export type AssetNodeJson = {
-    type: 'asset';
-    value: string;
-};
-
 export type EntryInput = {
     name: string;
     model: string;
