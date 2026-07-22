@@ -1,13 +1,20 @@
 import type { Engine, Model, Resource } from "@cosmos/core";
 import { CmsServie } from "./services/core.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
-import { EntryCreateUseCase } from "./application/usecases/entry/creation.ts";
+import {
+  type CreateCommand,
+  EntryCreateUseCase,
+} from "./application/usecases/entry/creation.ts";
 import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
 import { QueryService } from "./application/query.ts";
 import { implement } from "@orpc/server";
 import { contract } from "../generated/orpc.gen.ts";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { toEntry } from "./util.ts";
+import type { Contents, Entry, EntryInput } from "../generated/types.gen.ts";
+import type { NodeJson } from "./application/dto.ts";
+import { Result } from "@miyauci/util";
+import { mapValues } from "@std/collections/map-values";
 
 const os = implement<typeof contract, Context>(contract);
 
@@ -24,7 +31,7 @@ const router = os.router({
       // return { status: 400, body: null };
     }
   }),
-  getEntry: os.getEntry.handler(async (options) => {
+  getEntry: os.getEntry.handler(async (options): Promise<Entry> => {
     const { input, context } = options;
     const { params } = input;
     const { id } = params;
@@ -41,9 +48,25 @@ const router = os.router({
   }),
   postEntry: os.postEntry.handler(async (options) => {
     const { context, input } = options;
+    const { body } = input;
+    const { model, name, contents } = body as EntryInput;
 
-    const [data, error] = await context.usecases.entryCreate.execute(
-      input.body,
+    const maybeModel = await context.service.findModel(model);
+
+    if (!maybeModel) {
+      throw new Error();
+    }
+
+    const [node, nodeError] = toNode(contents, maybeModel);
+
+    if (nodeError) {
+      throw new Error();
+    }
+
+    const command = { model, name, node } satisfies CreateCommand;
+
+    const [id, error] = await context.usecases.entryCreate.execute(
+      command,
     );
 
     if (error) {
@@ -55,7 +78,7 @@ const router = os.router({
     // const location = `${ctx.appRoute.path}/${dto.id}` as const;
     // ctx.responseHeaders.append("location", location);
 
-    return data;
+    return { id };
   }),
   getModel: os.getModel.handler(async (options) => {
     const { input, context } = options;
@@ -173,4 +196,119 @@ export function createRestHandler(
 
     return result.response ?? new Response(null, { status: 404 });
   };
+}
+
+function toNode(contents: Contents, model: Model): Result<NodeJson, Error> {
+  switch (model.type) {
+    case "string": {
+      if (typeof contents === "string") {
+        return Result.ok({ type: "string", value: contents });
+      }
+
+      return Result.error(new Error());
+    }
+    case "number": {
+      if (typeof contents === "number") {
+        return Result.ok({ type: "number", value: contents });
+      }
+
+      return Result.error(new Error());
+    }
+    case "boolean": {
+      if (typeof contents === "boolean") {
+        return Result.ok({ type: "boolean", value: contents });
+      }
+
+      return Result.error(new Error());
+    }
+    case "union": {
+      if (Array.isArray(contents)) {
+        const [first, second] = contents;
+
+        if (typeof first === "string") {
+          const childModel = model.variants[first];
+
+          if (!childModel) {
+            return Result.error(new Error());
+          }
+
+          const [value, valueError] = toNode(second, childModel);
+
+          if (valueError) {
+            return Result.error(valueError);
+          }
+
+          return Result.ok({ type: "union", key: first, value: value });
+        }
+
+        return Result.error(new Error());
+      }
+
+      return Result.error(new Error());
+    }
+    case "map": {
+      if (typeof contents === "object" && !Array.isArray(contents)) {
+        const values = mapValues(
+          contents,
+          (childContents, key) => toNode(childContents, model.props[key]!),
+        );
+
+        const value: Record<string, NodeJson> = {};
+
+        for (const [key, [childNode, error]] of Object.entries(values)) {
+          if (error) {
+            return Result.error(error);
+          }
+
+          value[key] = childNode;
+        }
+
+        return Result.ok({
+          type: "map",
+          value,
+        });
+      }
+
+      return Result.error(new Error());
+    }
+    case "datetime": {
+      if (typeof contents === "string") {
+        return Result.ok({
+          type: "datetime",
+          value: contents,
+        });
+      }
+
+      return Result.error(new Error());
+    }
+    case "list": {
+      if (Array.isArray(contents)) {
+        const value: NodeJson[] = [];
+        const items = contents.map((child) => toNode(child, model.item));
+
+        for (const [node, error] of items) {
+          if (error) {
+            return Result.error(error);
+          }
+
+          value.push(node);
+        }
+
+        return Result.ok({ type: "list", value });
+      }
+
+      return Result.error(new Error());
+    }
+    case "reference": {
+      if (typeof contents === "string") {
+        return Result.ok({ type: "reference", value: contents });
+      }
+
+      return Result.error(new Error());
+    }
+    case "asset":
+    case "markdown": {
+      throw new Error();
+    }
+  }
 }

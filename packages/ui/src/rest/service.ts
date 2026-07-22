@@ -245,7 +245,7 @@ export class RestCmsService implements CmsService {
     summary: Summary,
   ): Promise<Result<Identity, {}>> {
     const [data, error] = await this.#client.postEntry({
-      node: fromNode(node),
+      contents: toContents(node),
       model,
       name: summary.name,
     });
@@ -617,6 +617,33 @@ function toNodeFromContents(
       throw new Error();
     }
     case "asset":
+    case "markdown": {
+      throw new Error();
+    }
+  }
+}
+
+function toContents(node: Node): Contents {
+  switch (node.type) {
+    case "boolean":
+    case "reference":
+    case "number":
+    case "asset":
+    case "string": {
+      return node.value;
+    }
+    case "datetime": {
+      return node.value.toISOString();
+    }
+    case "union": {
+      return [node.key, toContents(node.value)];
+    }
+    case "map": {
+      return mapValues(node.value, toContents);
+    }
+    case "list": {
+      return node.value.map(toContents);
+    }
     case "markdown": {
       throw new Error();
     }

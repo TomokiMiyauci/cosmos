@@ -1,11 +1,11 @@
 import { contract } from "../generated/orpc.gen.ts";
 import type {
   Entry,
+  EntryInput,
   EntryInputDto,
   EntrySummary,
   Identitiy,
   Model,
-  NewEntryInputDto,
   Resource,
 } from "../generated/types.gen.ts";
 import type { JsonifiedClient } from "@orpc/openapi-client";
@@ -36,7 +36,7 @@ export class Client {
   }
 
   async postEntry(
-    params: NewEntryInputDto,
+    params: EntryInput,
   ): Promise<Result<Identitiy, ApiError<Problem>>> {
     const result = await this.#client.postEntry({ body: params });
 

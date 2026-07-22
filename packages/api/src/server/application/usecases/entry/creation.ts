@@ -6,7 +6,13 @@ import {
   ModelId,
 } from "@cosmos/core";
 import { Result } from "@miyauci/util";
-import { type NewEntryInputDto, toNode } from "../../dto.ts";
+import { type NodeJson, toNode } from "../../dto.ts";
+
+export interface CreateCommand {
+  name: string;
+  model: string;
+  node: NodeJson;
+}
 
 export class EntryCreateUseCase {
   constructor(
@@ -14,14 +20,14 @@ export class EntryCreateUseCase {
   ) {}
 
   async execute(
-    input: NewEntryInputDto,
-  ): Promise<Result<{ id: string }, Error>> {
+    command: CreateCommand,
+  ): Promise<Result<string, Error>> {
     const id = EntryId.new();
-    const [name, error] = EntryName.of(input.name);
+    const [name, error] = EntryName.of(command.name);
 
     if (error) return Result.error(new Error());
 
-    const [modelId, modelConstructError] = ModelId.of(input.model);
+    const [modelId, modelConstructError] = ModelId.of(command.model);
 
     if (modelConstructError) return Result.error(new Error());
 
@@ -37,11 +43,11 @@ export class EntryCreateUseCase {
       id,
       name,
       modelId,
-      toNode(input.node),
+      toNode(command.node),
     );
 
     await this.entryRepo.save(entry);
 
-    return Result.ok({ id: id.value });
+    return Result.ok(entry.id.value);
   }
 }

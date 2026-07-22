@@ -59,7 +59,7 @@ export const zEntryInputDto = z.object({
 });
 
 export const zNewEntryInputDto = z.object({
-    name: z.string().optional(),
+    name: z.string(),
     model: z.string(),
     node: zNodeJson
 });
@@ -116,6 +116,12 @@ export const zBooleanContents = z.boolean();
 export const zDatetimeContents = z.string();
 
 export const zReferenceContents = z.string();
+
+export const zEntryInput = z.object({
+    name: z.string(),
+    model: z.string(),
+    contents: z.lazy((): any => zContents)
+});
 
 export const zModel = z.union([
     zStringModel,
@@ -174,16 +180,6 @@ export const zGetSummariesQuery = z.object({
  */
 export const zGetSummariesResponse = z.array(zEntrySummary);
 
-/**
- * OK
- */
-export const zPostEntryBody = zNewEntryInputDto;
-
-/**
- * OK
- */
-export const zPostEntryResponse = zIdentitiy;
-
 export const zDeleteEntryPath = z.object({
     id: z.string()
 });
@@ -220,6 +216,16 @@ export const zGetResourcePath = z.object({
  * OK
  */
 export const zGetResourceResponse = zResource;
+
+/**
+ * OK
+ */
+export const zPostEntryBody = zEntryInput;
+
+/**
+ * OK
+ */
+export const zPostEntryResponse = zIdentitiy;
 
 export const zGetEntryPath = z.object({
     id: z.string()

@@ -54,9 +54,15 @@ export type EntryInputDto = {
 };
 
 export type NewEntryInputDto = {
-    name?: string;
+    name: string;
     model: string;
     node: NodeJson;
+};
+
+export type EntryInput = {
+    name: string;
+    model: string;
+    contents: Contents;
 };
 
 export type EntrySummary = {
@@ -173,7 +179,7 @@ export type PostEntryData = {
     /**
      * OK
      */
-    body: NewEntryInputDto;
+    body: EntryInput;
     path?: never;
     query?: never;
     url: '/entries';

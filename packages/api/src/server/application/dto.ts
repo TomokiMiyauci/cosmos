@@ -2,7 +2,6 @@ import type {
   AssetNode,
   BooleanNode,
   DatetimeNode,
-  E as Entry,
   ListNode,
   MapNode,
   Node,
@@ -24,12 +23,6 @@ export type JsonValue =
   | null;
 
 export interface EntryDto extends SummaryDTO, JsonObject {
-  node: NodeJson;
-}
-
-export interface NewEntryInputDto extends JsonObject {
-  name: string;
-  model: string;
   node: NodeJson;
 }
 
@@ -162,15 +155,4 @@ export function fromNode(node: Node): NodeJson {
       };
     }
   }
-}
-
-export function fromEntry(entry: Entry): EntryDto {
-  const dtoNode = fromNode(entry.node);
-
-  return {
-    id: entry.id.value,
-    name: entry.name.value,
-    node: dtoNode,
-    model: entry.modelId.value,
-  };
 }
