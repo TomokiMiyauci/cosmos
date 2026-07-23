@@ -8,5 +8,9 @@ export default {
     },
     entryFile: false,
   },
-  plugins: [{ name: "orpc", validator: true }, "zod", "@hey-api/typescript"],
+  plugins: [
+    { name: "orpc", validator: true, contracts: "flat" },
+    "zod",
+    "@hey-api/typescript",
+  ],
 } satisfies UserConfig;

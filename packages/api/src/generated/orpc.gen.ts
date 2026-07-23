@@ -111,15 +111,3 @@ export const getModel = oc.route({
     summary: 'Return model',
     tags: ['default']
 }).input(z.object({ params: zGetModelPath })).output(zGetModelResponse);
-
-export const contract = {
-    getSummaries,
-    postEntry,
-    deleteEntry,
-    getEntry,
-    putEntry,
-    getResources,
-    getResource,
-    getModels,
-    getModel
-};

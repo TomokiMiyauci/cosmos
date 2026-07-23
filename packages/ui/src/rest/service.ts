@@ -45,8 +45,6 @@ export class RestCmsService implements CmsService {
           return null;
         }
       }
-
-      throw error;
     }
 
     return data;

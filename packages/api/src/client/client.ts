@@ -1,4 +1,4 @@
-import { contract } from "../generated/orpc.gen.ts";
+import { contract } from "../patch.ts";
 import type {
   Entry,
   EntryInput,
@@ -12,6 +12,7 @@ import type { ContractRouterClient } from "@orpc/contract";
 import {
   createORPCClient,
   createSafeClient,
+  isDefinedError,
   type SafeClient,
 } from "@orpc/client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
@@ -86,7 +87,21 @@ export class Client {
   }
 
   async deleteEntry(id: string): Promise<Result<null, ApiError<Problem>>> {
-    const result = await this.#client.deleteEntry({ params: { id } });
+    const [error, data, is] = await this.#client.deleteEntry({
+      params: { id },
+    });
+
+    if (isDefinedError(error)) {
+      switch (error.code) {
+        case "BAD_GATEWAY": {
+          error.data.id;
+        }
+      }
+    }
+
+    if (error) {
+      error;
+    }
 
     return Result.ok(null);
     // switch (result.status) {
@@ -107,10 +122,21 @@ export class Client {
     return Result.ok(data);
   }
 
+  /**
+   * @throws {Error}
+   */
   async getResource(
     id: string,
-  ): Promise<Result<Resource, ApiError<Problem>>> {
+  ): Promise<Result<Resource, ApiError<NotFoundProblem>>> {
     const [error, data] = await this.#client.getResource({ params: { id } });
+
+    if (isDefinedError(error)) {
+      switch (error.code) {
+        case "NOT_FOUND": {
+          return Result.error(new ApiError({ status: 404 }));
+        }
+      }
+    }
 
     if (error) throw error;
 

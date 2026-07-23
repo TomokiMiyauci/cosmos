@@ -11,7 +11,7 @@ import {
 } from "./application/usecases/entry/updation.ts";
 import { QueryService } from "./application/query.ts";
 import { implement } from "@orpc/server";
-import { contract } from "../generated/orpc.gen.ts";
+import { contract } from "../patch.ts";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { toEntry } from "./util.ts";
 import type { Contents, Entry, EntryInput } from "../generated/types.gen.ts";
@@ -103,7 +103,8 @@ const router = os.router({
     return models;
   }),
   getResource: os.getResource.handler(async (options) => {
-    const { context, input } = options;
+    const { context, input, errors } = options;
+
     const { params } = input;
     const { id } = params;
 
@@ -111,9 +112,7 @@ const router = os.router({
 
     if (resource) return resource;
 
-    throw new Error();
-
-    // return { status: 404, body: undefined };
+    throw errors.NOT_FOUND();
   }),
   getResources: os.getResources.handler(async (options) => {
     const { context } = options;
