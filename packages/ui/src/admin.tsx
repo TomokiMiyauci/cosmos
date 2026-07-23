@@ -1,8 +1,9 @@
-import { type JSX, Suspense, use } from "react";
-import { Page, resolvePath, type RouteResult } from "./router.ts";
-import type { CmsService, Identity } from "./type.ts";
-import { views } from "./pages/view.ts";
+import type { JSX } from "react";
+import type { CmsService } from "./type.ts";
 import type { TranslationService } from "./translation.ts";
+import Html from "./html.tsx";
+import { Page, type RouteResult } from "./router.ts";
+import { views } from "./pages/view.ts";
 
 export interface AdminProps {
   route: RouteResult;
@@ -11,60 +12,12 @@ export interface AdminProps {
 }
 
 export function Admin(props: AdminProps): JSX.Element {
-  const { service, translation } = props;
-
-  const resourcesPromise = service.findResources();
+  const { service, translation, route } = props;
 
   return (
-    <html>
-      <head></head>
-      <body>
-        <header>
-          <a href={resolvePath(Page.Home)}>
-            {translation.translate("page.home.title")}
-          </a>
-        </header>
-
-        <Suspense>
-          <Aside promise={resourcesPromise} translation={translation} />
-        </Suspense>
-
-        <aside>
-          <h2>
-            <a href={resolvePath(Page.Assets)}>
-              {translation.translate("page.assets.title")}
-            </a>
-          </h2>
-        </aside>
-        <main>
-          <PageMatcher {...props} />
-        </main>
-      </body>
-    </html>
-  );
-}
-
-function Aside(
-  props: { promise: Promise<Identity[]>; translation: TranslationService },
-): JSX.Element {
-  const { promise, translation } = props;
-
-  const identifies = use(promise);
-
-  return (
-    <aside>
-      <h2>{translation.translate("page.resources.title")}</h2>
-
-      <ul>
-        {identifies.map(({ id }) => {
-          return (
-            <li key={id}>
-              <a href={resolvePath(Page.Resource, { id })}>{id}</a>
-            </li>
-          );
-        })}
-      </ul>
-    </aside>
+    <Html route={route} service={service} translation={translation}>
+      <PageMatcher {...props} />
+    </Html>
   );
 }
 
