@@ -2,6 +2,14 @@
 
 import * as z from 'zod';
 
+export const zProblemDetails = z.object({
+    type: z.string(),
+    title: z.string(),
+    status: z.unknown(),
+    detail: z.string(),
+    instance: z.string()
+});
+
 export const zEntrySummary = z.object({
     id: z.string(),
     model: z.string(),

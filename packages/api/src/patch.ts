@@ -1,9 +1,9 @@
 import * as oc from "./generated/orpc.gen.ts";
-import { z } from "zod";
+import * as zod from "./generated/zod.gen.ts";
 
 const getResource = oc.getResource.errors({
   NOT_FOUND: {
-    data: z.void(),
+    data: zod.zProblemDetails,
   },
 });
 
