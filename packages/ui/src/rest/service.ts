@@ -5,6 +5,7 @@ import type {
   Entry,
   Field,
   Identity,
+  Resource,
   Summary,
   Template,
 } from "../type.ts";
@@ -64,6 +65,20 @@ export class RestCmsService implements CmsService {
     }
 
     return data;
+  }
+
+  async findResource(id: string): Promise<Resource | null> {
+    const [resource, error] = await this.#client.getResource(id);
+
+    if (error) {
+      switch (error.problem.status) {
+        case 404: {
+          return null;
+        }
+      }
+    }
+
+    return resource;
   }
 
   async findModels(): Promise<{

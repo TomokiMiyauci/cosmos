@@ -1,22 +1,24 @@
 import { type JSX, Suspense, use } from "react";
-import type { CmsService, Summary } from "../type.ts";
+import type { CmsService, Resource, Summary } from "../type.ts";
 import { Page, resolvePath } from "../router.ts";
 
 export interface ResourcePageProps {
-  resourceId: string;
+  resource: Resource;
   service: CmsService;
 }
 
 export default function ResourcePage(props: ResourcePageProps): JSX.Element {
-  const { resourceId, service } = props;
+  const { resource, service } = props;
 
-  const promise = service.findSummaries({ resource: resourceId });
+  const promise = service.findSummaries({ resource: resource.id });
 
   return (
     <div>
-      <h1>{resourceId}</h1>
+      <h1>{resource.id}</h1>
 
-      <a href={resolvePath(Page.ContentCreation, { id: resourceId })}>Create</a>
+      <a href={resolvePath(Page.ContentCreation, { id: resource.id })}>
+        Create
+      </a>
 
       <Suspense>
         <MainPage promise={promise} />

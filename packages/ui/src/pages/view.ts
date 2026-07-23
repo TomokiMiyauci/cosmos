@@ -20,13 +20,19 @@ export const views = {
   },
   [Page.Resource]: {
     component: ResourcePage,
-    getStaticProps({ params, service }: Params): ResourcePageProps | null {
+    async getStaticProps(
+      { params, service }: Params,
+    ): Promise<ResourcePageProps | null> {
       const id = params.id;
 
       if (!id) return null;
 
+      const resource = await service.findResource(id);
+
+      if (!resource) return null;
+
       return {
-        resourceId: id,
+        resource,
         service,
       };
     },

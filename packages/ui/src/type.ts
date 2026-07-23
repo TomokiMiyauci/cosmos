@@ -22,6 +22,7 @@ export interface CmsService {
   findTemplate(resourceId: string): Promise<Template | null>;
   findContent(contentId: Content["id"]): Promise<Content | null>;
   findSummaries(option?: ContentsOption): Promise<Summary[]>;
+  findResource(id: string): Promise<Resource | null>;
   findResources(): Promise<Identity[]>;
   saveEntry(entry: Entry, model: string): Promise<Result<Node, {}>>;
   registerEntry(
@@ -31,6 +32,11 @@ export interface CmsService {
   ): Promise<Result<Identity, {}>>;
   eraseNodeById(id: string): Promise<void>;
 }
+
+export interface Resource {
+  id: string;
+}
+
 export interface ContentsOption {
   resource: string;
 }

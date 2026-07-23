@@ -112,7 +112,15 @@ const router = os.router({
 
     if (resource) return resource;
 
-    throw errors.NOT_FOUND();
+    throw errors.NOT_FOUND({
+      data: {
+        type: "about:blank",
+        title: "Not Found",
+        status: 404,
+        detail: "",
+        instance: options.path.join(),
+      },
+    });
   }),
   getResources: os.getResources.handler(async (options) => {
     const { context } = options;
