@@ -81,10 +81,7 @@ export class RestCmsService implements CmsService {
     return resource;
   }
 
-  async findModels(): Promise<{
-    id: string;
-    model: Model;
-  }[]> {
+  async findModels(): Promise<{ id: string; model: Model }[]> {
     const [data, error] = await this.#client.getModels();
 
     if (error) throw error;
@@ -102,27 +99,10 @@ export class RestCmsService implements CmsService {
 
     if (!model) return null;
 
-    const indexies = await this.#findIndeies();
-    const resources = await this.findResources();
-
-    const store = indexies.map(
-      (index) => {
-        const resource = resources.find((resource) => resource.id === index.id);
-
-        if (!resource) return null;
-
-        return {
-          id: index.id,
-          model: resource.model,
-          name: index.id,
-        };
-      },
-    ).filter((v) => !!v);
+    const summaries = await this.findSummaries();
 
     const field = modelToField(model, (model) => {
-      const values = store.filter((value) => value.model === model);
-
-      return values;
+      return summaries.filter((summary) => summary.model === model);
     }, () => {
       return [];
     });
@@ -172,28 +152,13 @@ export class RestCmsService implements CmsService {
 
     const node = toNodeFromContents(content.contents, model, modelRecord);
 
-    const indexies = await this.#findIndeies();
-    const resources = await this.findResources();
-
-    const store = indexies.map(
-      (index) => {
-        const resource = resources.find((resource) => resource.id === index.id);
-
-        if (!resource) return null;
-
-        return {
-          id: index.id,
-          model: resource.model,
-          name: index.id,
-        };
-      },
-    ).filter((v) => !!v);
+    const summaries = await this.findSummaries();
 
     const field = modelToField(model, (model) => {
-      const values = store.filter((value) => value.model === model);
-
-      return values;
-    }, () => []);
+      return summaries.filter((summary) => summary.model === model);
+    }, () => {
+      return [];
+    });
 
     return {
       id: content.id,
@@ -553,7 +518,7 @@ function toNodeFromContents(
     case "list": {
       if (Array.isArray(contents)) {
         const value = contents.map((child) =>
-          toNodeFromContents(child, model, store)
+          toNodeFromContents(child, model.item, store)
         );
 
         return {
