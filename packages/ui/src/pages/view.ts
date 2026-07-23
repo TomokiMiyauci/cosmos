@@ -52,7 +52,7 @@ export const views = {
       if (!data) return null;
 
       return {
-        onAction: (entry) => service.saveEntry(entry, data.meta.model),
+        onAction: (entry) => service.saveEntry(entry),
         onRemove: (id) => service.eraseNodeById(id),
         contentId,
         data,

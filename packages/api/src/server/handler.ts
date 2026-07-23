@@ -14,7 +14,12 @@ import { implement } from "@orpc/server";
 import { contract } from "../patch.ts";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { toEntry } from "./util.ts";
-import type { Contents, Entry, EntryInput } from "../generated/types.gen.ts";
+import type {
+  Contents,
+  Entry,
+  EntryInput,
+  UpdateEntryInput,
+} from "../generated/types.gen.ts";
 import type { NodeJson } from "./application/dto.ts";
 import { Result } from "@miyauci/util";
 import { mapValues } from "@std/collections/map-values";
@@ -139,10 +144,16 @@ const router = os.router({
   putEntry: os.putEntry.handler(async (options) => {
     const { input, context } = options;
     const { params, body } = input;
-    const { name, model, contents } = body as EntryInput;
+    const { name, contents } = body as UpdateEntryInput;
     const { id } = params;
 
-    const maybeModel = await context.service.findModel(model);
+    const dto = await context.queries.findById(id);
+
+    if (!dto) {
+      throw new Error();
+    }
+
+    const maybeModel = await context.service.findModel(dto.model);
 
     if (!maybeModel) {
       throw new Error();
@@ -154,7 +165,12 @@ const router = os.router({
       throw new Error();
     }
 
-    const command = { id, model, name, node } satisfies UpdateCommand;
+    const command = {
+      id,
+      model: dto.model,
+      name,
+      node,
+    } satisfies UpdateCommand;
 
     const [_, error] = await context.usecases.entryUpdate.execute(command);
 

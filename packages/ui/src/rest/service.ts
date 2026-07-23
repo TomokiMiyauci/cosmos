@@ -13,6 +13,7 @@ import {
   Client,
   type Contents,
   type Entry as EntryResponse,
+  type Model,
   type Resource as ResourceDto,
 } from "@cosmos/rest/client";
 import { Result } from "@miyauci/util";
@@ -22,7 +23,6 @@ import type {
   DatetimeNode,
   ListNode,
   MapNode,
-  Model,
   Node,
   NumberNode,
   ReferenceNode,
@@ -51,7 +51,7 @@ export class RestCmsService implements CmsService {
     return data;
   }
 
-  async findModel(modelId: string): Promise<Model | null> {
+  async #findModel(modelId: string): Promise<Model | null> {
     const [data, error] = await this.#client.getModel(modelId);
 
     if (error) {
@@ -81,21 +81,13 @@ export class RestCmsService implements CmsService {
     return resource;
   }
 
-  async findModels(): Promise<{ id: string; model: Model }[]> {
-    const [data, error] = await this.#client.getModels();
-
-    if (error) throw error;
-
-    return data.map((model) => ({ id: model.id, model: model }));
-  }
-
   async findTemplate(resourceId: string): Promise<Template | null> {
     const resource = await this.#findResource(resourceId);
 
     if (!resource) return null;
 
     const modelId = resource.model;
-    const model = await this.findModel(modelId);
+    const model = await this.#findModel(modelId);
 
     if (!model) return null;
 
@@ -140,17 +132,11 @@ export class RestCmsService implements CmsService {
     if (!content) return null;
 
     const modelId = content.model;
-    const model = await this.findModel(modelId);
+    const model = await this.#findModel(modelId);
 
     if (!model) return null;
 
-    const allModels = await this.findModels();
-
-    const modelRecord = new Map(
-      allModels.map(({ id, model }) => [id, model] as const),
-    );
-
-    const node = toNodeFromContents(content.contents, model, modelRecord);
+    const node = toNodeFromContents(content.contents, model);
 
     const summaries = await this.findSummaries();
 
@@ -171,16 +157,6 @@ export class RestCmsService implements CmsService {
       },
       name: content.name,
     };
-  }
-
-  async #findIndeies(): Promise<ResourceDto[]> {
-    const [data, error] = await this.#client.getResources();
-
-    if (error) {
-      throw error;
-    }
-
-    return data;
   }
 
   async findSummaries(option?: ContentsOption): Promise<Summary[]> {
@@ -207,12 +183,11 @@ export class RestCmsService implements CmsService {
     return data;
   }
 
-  async saveEntry(entry: Entry, model: string): Promise<Result<Node, {}>> {
+  async saveEntry(entry: Entry): Promise<Result<Node, {}>> {
     await this.#client.putEntry({
       name: entry.summary.name,
       contents: toContents(entry.node),
       id: entry.id,
-      model,
     });
 
     return Result.ok(entry.node);
@@ -456,7 +431,6 @@ export function modelToField(
 function toNodeFromContents(
   contents: Contents,
   model: Model,
-  store: Map<string, Model>,
 ): Node {
   switch (model.type) {
     case "string": {
@@ -505,7 +479,7 @@ function toNodeFromContents(
 
         const value = mapValues(
           contents,
-          (contents, key) => toNodeFromContents(contents, props[key]!, store),
+          (contents, key) => toNodeFromContents(contents, props[key]!),
         );
         return {
           type: "map",
@@ -518,7 +492,7 @@ function toNodeFromContents(
     case "list": {
       if (Array.isArray(contents)) {
         const value = contents.map((child) =>
-          toNodeFromContents(child, model.item, store)
+          toNodeFromContents(child, model.item)
         );
 
         return {
@@ -540,7 +514,7 @@ function toNodeFromContents(
             return {
               type: "union",
               key: first,
-              value: toNodeFromContents(second, variant, store),
+              value: toNodeFromContents(second, variant),
             };
           }
         }

@@ -24,11 +24,11 @@ export interface CmsService {
   findSummaries(option?: ContentsOption): Promise<Summary[]>;
   findResource(id: string): Promise<Resource | null>;
   findResources(): Promise<Identity[]>;
-  saveEntry(entry: Entry, model: string): Promise<Result<Node, {}>>;
+  saveEntry(entry: Entry): Promise<Result<Node, {}>>;
   registerEntry(
     model: string,
     node: Node,
-    summary: Summary,
+    summary: SummaryInput,
   ): Promise<Result<Identity, {}>>;
   eraseNodeById(id: string): Promise<void>;
 }
@@ -138,14 +138,12 @@ export interface ResourceTemplate {
   node: Node | null;
 }
 
-export interface Document {
-  title: string;
-  description: string;
-  field: Field;
-  entry: DraftEntry;
+export interface Summary extends SummaryInput {
+  id: string;
+  model: string;
 }
 
-export interface Summary {
+export interface SummaryInput {
   name: string;
 }
 

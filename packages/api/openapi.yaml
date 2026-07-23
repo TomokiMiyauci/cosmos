@@ -80,7 +80,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/EntryInput"
+              $ref: "#/components/schemas/UpdateEntryInput"
       responses:
         "204":
           description: OK
@@ -196,6 +196,17 @@ components:
         - status
         - detail
         - instance
+
+    UpdateEntryInput:
+      type: object
+      properties:
+        name:
+          type: string
+        contents:
+          $ref: "#/components/schemas/Contents"
+      required:
+        - name
+        - contents
 
     EntryInput:
       type: object

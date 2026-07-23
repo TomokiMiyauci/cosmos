@@ -63,6 +63,11 @@ export const zDatetimeContents = z.string();
 
 export const zReferenceContents = z.string();
 
+export const zUpdateEntryInput = z.object({
+    name: z.string(),
+    contents: z.lazy((): any => zContents)
+});
+
 export const zEntryInput = z.object({
     name: z.string(),
     model: z.string(),
@@ -171,7 +176,7 @@ export const zGetEntryResponse = zEntry;
 /**
  * OK
  */
-export const zPutEntryBody = zEntryInput;
+export const zPutEntryBody = zUpdateEntryInput;
 
 export const zPutEntryPath = z.object({
     id: z.string()

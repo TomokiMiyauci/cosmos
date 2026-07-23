@@ -27,6 +27,11 @@ export type ProblemDetails = {
     instance: string;
 };
 
+export type UpdateEntryInput = {
+    name: string;
+    contents: Contents;
+};
+
 export type EntryInput = {
     name: string;
     model: string;
@@ -211,7 +216,7 @@ export type PutEntryData = {
     /**
      * OK
      */
-    body: EntryInput;
+    body: UpdateEntryInput;
     path: {
         id: string;
     };

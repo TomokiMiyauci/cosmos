@@ -6,6 +6,7 @@ import type {
   Identitiy,
   Model,
   Resource,
+  UpdateEntryInput,
 } from "../generated/types.gen.ts";
 import type { JsonifiedClient } from "@orpc/openapi-client";
 import type { ContractRouterClient } from "@orpc/contract";
@@ -66,14 +67,13 @@ export class Client {
   }
 
   async putEntry(
-    params: EntryInput & Identitiy,
+    params: UpdateEntryInput & Identitiy,
   ): Promise<Result<null, ApiError<Problem>>> {
     const result = await this.#client.putEntry({
       params: { id: params.id },
       body: {
         name: params.name,
         contents: params.contents,
-        model: params.model,
       },
     });
 
@@ -90,14 +90,6 @@ export class Client {
     const [error, data, is] = await this.#client.deleteEntry({
       params: { id },
     });
-
-    if (isDefinedError(error)) {
-      switch (error.code) {
-        case "BAD_GATEWAY": {
-          error.data.id;
-        }
-      }
-    }
 
     if (error) {
       error;
