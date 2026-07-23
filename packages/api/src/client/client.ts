@@ -73,7 +73,7 @@ export class Client {
       body: {
         name: params.name,
         contents: params.contents,
-        model: params.name,
+        model: params.model,
       },
     });
 
