@@ -1,22 +1,8 @@
-import type { Node } from "@cosmos/core";
-import type { Field } from "../type.ts";
-import type { JSX } from "react";
-
 export interface OnChange {
   (fn: (store: Store) => Store): void;
 }
 
-export interface FieldProps {
-  node: Node | null;
-  onChange: OnChange;
-  field: Field;
-}
-
-export interface RenderField {
-  (props: FieldProps): JSX.Element;
-}
-
-export type N = StringNode | NumberNode | MapNode | ListNode;
+export type Node = StringNode | NumberNode | MapNode | ListNode | BooleanNode;
 
 interface StringNode {
   type: "string";
@@ -26,13 +12,19 @@ interface NumberNode {
   type: "number";
   value: number;
 }
+
+interface BooleanNode {
+  type: "boolean";
+  value: boolean;
+}
+
 interface MapNode {
   type: "map";
-  value: Record<string, N>;
+  value: Record<string, Node>;
 }
 interface ListNode {
   type: "list";
-  value: N[];
+  value: Node[];
 }
 
 export type Id = string;
@@ -43,6 +35,11 @@ export interface StringFieldDefinition {
 }
 export interface NumberFieldDefinition {
   type: "number";
+  placeholder?: string;
+}
+
+export interface BooleanFieldDefinition {
+  type: "boolean";
   placeholder?: string;
 }
 export interface MapFieldDefinition {
@@ -56,6 +53,7 @@ export interface ListFieldDefinition {
 export type FieldDefinition =
   | StringFieldDefinition
   | NumberFieldDefinition
+  | BooleanFieldDefinition
   | MapFieldDefinition
   | ListFieldDefinition;
 
@@ -67,11 +65,16 @@ interface EditNumber {
   type: "number";
   value: number;
 }
+interface EditBoolean {
+  type: "boolean";
+  value: boolean;
+}
+
 interface EditLink {
   type: "link";
   value: Record<string, Id>;
 }
-type EditPrimitive = EditString | EditNumber;
+type EditPrimitive = EditString | EditNumber | EditBoolean;
 interface EditList {
   type: "list";
   value: Id[];

@@ -4,7 +4,7 @@ import type { JSX } from "react";
 // import DatetimeField from "./datetime.tsx";
 import StringField from "./string.tsx";
 import NumberField from "./number.tsx";
-// import BooleanField from "./boolean.tsx";
+import BooleanField from "./boolean.tsx";
 import ListField from "./list.tsx";
 // import AssetField from "./asset.tsx";
 // import ReferenceField from "./reference.tsx";
@@ -41,6 +41,16 @@ export default function Field(
     case "number": {
       return (
         <NumberField
+          store={store}
+          onChange={changeStore}
+          field={definition}
+          id={id}
+        />
+      );
+    }
+    case "boolean": {
+      return (
+        <BooleanField
           store={store}
           onChange={changeStore}
           field={definition}

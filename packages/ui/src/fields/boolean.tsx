@@ -1,36 +1,35 @@
 "use client";
 
 import type { JSX } from "react";
-import type { BooleanNode } from "@cosmos/core";
-import type { BooleanField } from "../type.ts";
-import type { OnChange } from "./type.ts";
+import type { BooleanFieldDefinition, OnChange, Store } from "./type.ts";
 
 export interface BooleanFieldProps {
-  field: BooleanField;
-  node: BooleanNode | null;
+  field: BooleanFieldDefinition;
   onChange: OnChange;
+  error?: string;
+  store: Store;
+  id: string;
 }
 
 export default function BooleanField(
   props: BooleanFieldProps,
 ): JSX.Element {
-  const { node, onChange, field } = props;
+  const { onChange, store, id } = props;
+  const maybeNode = store[id];
+  const currentValue = maybeNode?.type === "boolean" ? maybeNode.value : false;
 
   return (
-    <label>
-      {field.title}
+    <input
+      type="checkbox"
+      onChange={(ev) => {
+        const value = ev.target.checked;
 
-      <p>{field.description}</p>
-
-      <input
-        type="checkbox"
-        onChange={(ev) => {
-          const value = ev.target.checked;
-
-          onChange({ type: "boolean", value });
-        }}
-        checked={node?.value ?? false}
-      />
-    </label>
+        onChange((prev) => ({
+          ...prev,
+          [id]: { type: "boolean", value },
+        }));
+      }}
+      checked={currentValue}
+    />
   );
 }

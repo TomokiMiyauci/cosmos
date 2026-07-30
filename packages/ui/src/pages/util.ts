@@ -41,7 +41,9 @@ export function node2Store(node: NodeWithId): Store {
         ...store,
       };
     }
-    case "boolean":
+    case "boolean": {
+      return { [node.id]: toStoreElement(node) };
+    }
     case "datetime":
     case "reference":
     case "union":
@@ -80,7 +82,12 @@ function toStoreElement(node: NodeWithId): StoreElement {
         value,
       };
     }
-    case "boolean":
+    case "boolean": {
+      return {
+        type: "boolean",
+        value: node.value,
+      };
+    }
     case "reference":
     case "datetime":
     case "asset":
