@@ -1,5 +1,6 @@
 import { mapValues } from "@std/collections/map-values";
-import type { Store, StoreElement } from "../fields/type.ts";
+import type { FieldDefinition, Store, StoreElement } from "../fields/type.ts";
+import type { Field } from "../type.ts";
 
 export function node2Store(node: NodeWithId): Store {
   switch (node.type) {
@@ -169,4 +170,50 @@ export interface UnionNode extends BaseNode {
   type: "union";
   key: string;
   value: NodeWithId;
+}
+
+export function toFieldDefinition(field: Field): FieldDefinition {
+  switch (field.type) {
+    case "string": {
+      return {
+        type: "string",
+      };
+    }
+    case "number": {
+      return {
+        type: "number",
+      };
+    }
+    case "map": {
+      const properties = mapValues(field.fields, toFieldDefinition);
+
+      return {
+        type: "map",
+        properties,
+      };
+    }
+    case "list": {
+      return {
+        type: "list",
+        item: toFieldDefinition(field.field),
+      };
+    }
+    case "boolean": {
+      return {
+        type: "boolean",
+      };
+    }
+    case "datetime": {
+      return {
+        type: "datetime",
+      };
+    }
+    case "reference":
+    case "asset":
+    case "union": {
+      return {
+        type: "string",
+      };
+    }
+  }
 }

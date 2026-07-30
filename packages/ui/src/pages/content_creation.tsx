@@ -3,10 +3,10 @@
 import { type JSX, useState } from "react";
 import type { Node } from "@cosmos/core";
 import Form from "../form.tsx";
-import type { Field, SummaryInput, Template } from "../type.ts";
+import type { SummaryInput, Template } from "../type.ts";
 import type { NodeCreateUseCase } from "~usecase/node";
-import { FieldDefinition, Store } from "../fields/type.ts";
-import { mapValues } from "@std/collections/map-values";
+import type { Store } from "../fields/type.ts";
+import { toFieldDefinition } from "./util.ts";
 
 export interface ContentCreatePageProps {
   template: Template;
@@ -59,47 +59,9 @@ function useCreateNode(props: UseCreateNodeProps) {
   const [node, setState] = useState<Store>({});
   const [summary, setSummary] = useState<SummaryInput>({ name: "" });
 
-  async function handle(): Promise<void> {
+  async function handle(node: Node | null): Promise<void> {
     await props.usecase.execute(node, summary);
   }
 
   return { node, setState, summary, setSummary, handle };
-}
-
-function toFieldDefinition(field: Field): FieldDefinition {
-  switch (field.type) {
-    case "string": {
-      return {
-        type: "string",
-      };
-    }
-    case "number": {
-      return {
-        type: "number",
-      };
-    }
-    case "map": {
-      const properties = mapValues(field.fields, toFieldDefinition);
-
-      return {
-        type: "map",
-        properties,
-      };
-    }
-    case "list": {
-      return {
-        type: "list",
-        item: toFieldDefinition(field.field),
-      };
-    }
-    case "boolean":
-    case "reference":
-    case "datetime":
-    case "asset":
-    case "union": {
-      return {
-        type: "string",
-      };
-    }
-  }
 }

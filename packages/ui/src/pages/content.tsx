@@ -1,14 +1,14 @@
 "use client";
 
 import { type JSX, useState } from "react";
-import type { Data, Entry, Field } from "../type.ts";
+import type { Data, Entry } from "../type.ts";
 import type { Node } from "@cosmos/core";
 import { Page, resolvePath } from "../router.ts";
 import Form from "../form.tsx";
 import type { Result } from "@miyauci/util";
-import type { FieldDefinition, Store } from "../fields/type.ts";
+import type { Store } from "../fields/type.ts";
 import { mapValues } from "@std/collections/map-values";
-import { node2Store } from "./util.ts";
+import { node2Store, toFieldDefinition } from "./util.ts";
 
 export interface ContentPageProps {
   contentId: string;
@@ -80,52 +80,6 @@ export default function ContentPage(
       </button>
     </div>
   );
-}
-
-function toFieldDefinition(field: Field): FieldDefinition {
-  switch (field.type) {
-    case "string": {
-      return {
-        type: "string",
-      };
-    }
-    case "number": {
-      return {
-        type: "number",
-      };
-    }
-    case "map": {
-      const properties = mapValues(field.fields, toFieldDefinition);
-
-      return {
-        type: "map",
-        properties,
-      };
-    }
-    case "list": {
-      return {
-        type: "list",
-        item: toFieldDefinition(field.field),
-      };
-    }
-    case "boolean": {
-      return {
-        type: "boolean",
-      };
-    }
-    case "datetime": {
-      return {
-        type: "datetime",
-      };
-    }
-    case "reference":
-    case "asset":
-    case "union": {
-      return {
-        type: "string",
-      };
-    }
-  }
 }
 
 function withId(node: Node, id?: string): NodeWithId {
