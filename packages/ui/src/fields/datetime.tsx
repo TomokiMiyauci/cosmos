@@ -1,40 +1,36 @@
 "use client";
 
 import type { JSX } from "react";
-import type { DatetimeNode } from "@cosmos/core";
-import type { DatetimeField } from "../type.ts";
-import type { OnChange } from "./type.ts";
+import type { DatetimeFieldDefinition, OnChange, Store } from "./type.ts";
 
 export interface DatatimeFieldProps {
-  field: DatetimeField;
-  node: DatetimeNode | null;
+  field: DatetimeFieldDefinition;
   onChange: OnChange;
+  error?: string;
+  store: Store;
+  id: string;
 }
 
 export default function DatetimeField(props: DatatimeFieldProps): JSX.Element {
-  const { node, onChange, field } = props;
+  const { onChange, store, id } = props;
+  const maybeNode = store[id];
+  const currentValue = maybeNode?.type === "datetime"
+    ? formatYYMMDD(maybeNode.value)
+    : "";
 
   return (
-    <>
-      <label>
-        {field.title}
+    <input
+      type="date"
+      onChange={(ev) => {
+        const value = new Date(ev.target.value);
 
-        <p>{field.description}</p>
-        <input
-          type="date"
-          onChange={(ev) => {
-            if (ev.target.value) {
-              const value = new Date(ev.target.value);
-
-              onChange({ type: "datetime", value });
-            } else {
-              onChange(null);
-            }
-          }}
-          value={node?.value ? formatYYMMDD(node.value) : ""}
-        />
-      </label>
-    </>
+        onChange((prev) => ({
+          ...prev,
+          [id]: { type: "datetime", value },
+        }));
+      }}
+      value={currentValue}
+    />
   );
 }
 

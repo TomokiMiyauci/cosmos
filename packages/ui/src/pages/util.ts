@@ -44,7 +44,12 @@ export function node2Store(node: NodeWithId): Store {
     case "boolean": {
       return { [node.id]: toStoreElement(node) };
     }
-    case "datetime":
+    case "datetime": {
+      return {
+        [node.id]: toStoreElement(node),
+      };
+    }
+
     case "reference":
     case "union":
     case "asset": {
@@ -88,8 +93,13 @@ function toStoreElement(node: NodeWithId): StoreElement {
         value: node.value,
       };
     }
+    case "datetime": {
+      return {
+        type: "datetime",
+        value: node.value,
+      };
+    }
     case "reference":
-    case "datetime":
     case "asset":
     case "union": {
       return {

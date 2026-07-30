@@ -2,7 +2,13 @@ export interface OnChange {
   (fn: (store: Store) => Store): void;
 }
 
-export type Node = StringNode | NumberNode | MapNode | ListNode | BooleanNode;
+export type Node =
+  | StringNode
+  | NumberNode
+  | MapNode
+  | ListNode
+  | BooleanNode
+  | DatetimeNode;
 
 interface StringNode {
   type: "string";
@@ -16,6 +22,11 @@ interface NumberNode {
 interface BooleanNode {
   type: "boolean";
   value: boolean;
+}
+
+interface DatetimeNode {
+  type: "datetime";
+  value: Date;
 }
 
 interface MapNode {
@@ -42,6 +53,11 @@ export interface BooleanFieldDefinition {
   type: "boolean";
   placeholder?: string;
 }
+
+export interface DatetimeFieldDefinition {
+  type: "datetime";
+  placeholder?: string;
+}
 export interface MapFieldDefinition {
   type: "map";
   properties: Record<string, FieldDefinition>;
@@ -55,7 +71,8 @@ export type FieldDefinition =
   | NumberFieldDefinition
   | BooleanFieldDefinition
   | MapFieldDefinition
-  | ListFieldDefinition;
+  | ListFieldDefinition
+  | DatetimeFieldDefinition;
 
 interface EditString {
   type: "string";
@@ -70,11 +87,16 @@ interface EditBoolean {
   value: boolean;
 }
 
+interface EditDatetime {
+  type: "datetime";
+  value: Date;
+}
+
 interface EditLink {
   type: "link";
   value: Record<string, Id>;
 }
-type EditPrimitive = EditString | EditNumber | EditBoolean;
+type EditPrimitive = EditString | EditNumber | EditBoolean | EditDatetime;
 interface EditList {
   type: "list";
   value: Id[];

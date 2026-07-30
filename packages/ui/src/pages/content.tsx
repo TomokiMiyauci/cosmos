@@ -108,9 +108,17 @@ function toFieldDefinition(field: Field): FieldDefinition {
         item: toFieldDefinition(field.field),
       };
     }
-    case "boolean":
+    case "boolean": {
+      return {
+        type: "boolean",
+      };
+    }
+    case "datetime": {
+      return {
+        type: "datetime",
+      };
+    }
     case "reference":
-    case "datetime":
     case "asset":
     case "union": {
       return {

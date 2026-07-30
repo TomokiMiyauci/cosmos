@@ -1,7 +1,7 @@
 "use client";
 
 import type { JSX } from "react";
-// import DatetimeField from "./datetime.tsx";
+import DatetimeField from "./datetime.tsx";
 import StringField from "./string.tsx";
 import NumberField from "./number.tsx";
 import BooleanField from "./boolean.tsx";
@@ -51,6 +51,16 @@ export default function Field(
     case "boolean": {
       return (
         <BooleanField
+          store={store}
+          onChange={changeStore}
+          field={definition}
+          id={id}
+        />
+      );
+    }
+    case "datetime": {
+      return (
+        <DatetimeField
           store={store}
           onChange={changeStore}
           field={definition}

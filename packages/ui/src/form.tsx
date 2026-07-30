@@ -19,7 +19,7 @@ export default function Form(props: FormProps): JSX.Element {
     <form
       action={async () => {
         "use server";
-        const node = toNode(store, "x");
+        const node = toNode(store, id);
         await update(node);
       }}
     >
@@ -32,7 +32,7 @@ export default function Form(props: FormProps): JSX.Element {
 
       <button type="submit">Save</button>
 
-      {JSON.stringify(toNode(store, "x"))}
+      {JSON.stringify(toNode(store, id))}
     </form>
   );
 }
@@ -51,6 +51,14 @@ function toNode(store: Store, id: string): Node | null {
 
     case "number": {
       return { type: "number", value: element.value };
+    }
+
+    case "boolean": {
+      return { type: "boolean", value: element.value };
+    }
+
+    case "datetime": {
+      return { type: "datetime", value: element.value };
     }
 
     case "link": {
