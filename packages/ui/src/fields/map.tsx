@@ -1,48 +1,57 @@
 import type { JSX } from "react";
-import type { MapNode } from "@cosmos/core";
-import type { MapField } from "../type.ts";
-import type { OnChange, RenderField } from "./type.ts";
+import type { MapFieldDefinition, OnChange, Store } from "./type.ts";
+import Field from "./field.tsx";
 
 export interface MapFieldProps {
-  render: RenderField;
+  // render: RenderField;
   onChange: OnChange;
-  field: MapField;
-  node: MapNode | null;
+  field: MapFieldDefinition;
+  store: Store;
+  id: string;
 }
 
 export default function MapField(props: MapFieldProps): JSX.Element {
-  const { render, field, onChange, node } = props;
+  const { field, onChange, store, id } = props;
+  const maybeNode = store[id];
+  const currentLink = maybeNode?.type === "link" ? maybeNode.value : {};
 
   return (
-    <>
-      {field.title}
-      <ul>
-        {Object.entries(field.fields).map(([name, field]) => {
-          const onChildChange: OnChange = (childNode) => {
-            const value = childNode
-              ? { ...node?.value, [name]: childNode }
-              : { ...node?.value };
-
-            if (!childNode) {
-              delete value[name];
-            }
-
-            const changed: MapNode = {
-              ...node,
-              type: "map",
-              value,
-            };
-            onChange(changed);
-          };
-          const childNode = node?.value[name] ?? null;
-
-          return (
-            <li key={name}>
-              {render({ onChange: onChildChange, field, node: childNode })}
-            </li>
-          );
-        })}
-      </ul>
-    </>
+    <fieldset
+      style={{
+        border: "1px solid #ccc",
+        padding: "10px",
+        margin: "10px 0",
+      }}
+    >
+      <legend>Map Field</legend>
+      {Object.entries(field.properties).map(([key, propDef]) => {
+        const childId = currentLink[key] ?? `${id}-${key}`;
+        return (
+          <div key={key} style={{ marginBottom: "10px" }}>
+            <label style={{ marginRight: "8px", fontWeight: "bold" }}>
+              {key}:
+            </label>
+            <Field
+              store={store}
+              definition={propDef}
+              id={childId}
+              changeStore={(childFn) => {
+                onChange((prev) => {
+                  const updatedStore = childFn(prev);
+                  const nextNodes = { ...updatedStore };
+                  const myNode = nextNodes[id];
+                  const baseLinkMap = myNode?.type === "link"
+                    ? { ...myNode.value }
+                    : {};
+                  baseLinkMap[key] = childId;
+                  nextNodes[id] = { type: "link", value: baseLinkMap };
+                  return nextNodes;
+                });
+              }}
+            />
+          </div>
+        );
+      })}
+    </fieldset>
   );
 }

@@ -1,37 +1,35 @@
 "use client";
 
 import type { JSX } from "react";
-import type { NumberNode } from "@cosmos/core";
-import type { NumberField } from "../type.ts";
-import type { OnChange } from "./type.ts";
+import type { NumberFieldDefinition, OnChange, Store } from "./type.ts";
 
 export interface NumberFieldProps {
-  field: NumberField;
-  node: NumberNode | null;
+  field: NumberFieldDefinition;
   onChange: OnChange;
+  error?: string;
+  store: Store;
+  id: string;
 }
 
 export default function NumberField(props: NumberFieldProps): JSX.Element {
-  const { onChange, node, field } = props;
+  const { onChange, field, store, id } = props;
+  const maybeNode = store[id];
+  const currentValue = maybeNode?.type === "number" ? maybeNode.value : "";
 
   return (
-    <label>
-      {field.title}
-
-      <p>{field.description}</p>
-      <input
-        type="number"
-        onChange={(ev) => {
-          const value = Number(ev.target.value);
-
-          if (Number.isNaN(value)) {
-            onChange(null);
-          } else {
-            onChange({ type: "number", value });
-          }
-        }}
-        value={node?.value ?? ""}
-      />
-    </label>
+    <input
+      type="number"
+      placeholder={field.placeholder}
+      value={currentValue}
+      onChange={(ev) => {
+        const rawValue = ev.target.value;
+        onChange((prev) => ({
+          ...prev,
+          [id]: rawValue !== ""
+            ? { type: "number", value: Number(rawValue) }
+            : null,
+        }));
+      }}
+    />
   );
 }

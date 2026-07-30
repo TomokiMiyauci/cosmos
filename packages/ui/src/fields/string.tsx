@@ -3,38 +3,32 @@
 "use client";
 
 import type { JSX } from "react";
-import type { StringNode } from "@cosmos/core";
-import type { StringField } from "../type.ts";
-import type { OnChange } from "./type.ts";
+import type { OnChange, Store, StringFieldDefinition } from "./type.ts";
 
 export interface StringFieldProps {
-  field: StringField;
-  node: StringNode | null;
+  field: StringFieldDefinition;
   onChange: OnChange;
+  error?: string;
+  store: Store;
+  id: string;
 }
 
 export default function StringField(props: StringFieldProps): JSX.Element {
-  const { onChange, node, field } = props;
+  const { onChange, field, store, id } = props;
+  const maybeNode = store[id];
 
   return (
-    <label>
-      {field.title}
-
-      <p>{field.description}</p>
-      <input
-        type="text"
-        value={node?.value ?? ""}
-        onChange={(ev) => {
-          const value = ev.target.value;
-
-          if (value) {
-            onChange({ type: "string", value });
-          } else {
-            onChange(null);
-          }
-        }}
-        required={field.required}
-      />
-    </label>
+    <input
+      type="text"
+      placeholder={field.placeholder}
+      value={maybeNode?.type === "string" ? maybeNode.value : ""}
+      onChange={(ev) => {
+        const value = ev.target.value;
+        onChange((prev) => ({
+          ...prev,
+          [id]: value ? { type: "string", value } : null,
+        }));
+      }}
+    />
   );
 }
