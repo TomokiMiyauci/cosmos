@@ -6,8 +6,9 @@ import type { Node } from "@cosmos/core";
 import { Page, resolvePath } from "../router.ts";
 import Form from "../form.tsx";
 import type { Result } from "@miyauci/util";
-import type { FieldDefinition, Store, StoreElement } from "../fields/type.ts";
+import type { FieldDefinition, Store } from "../fields/type.ts";
 import { mapValues } from "@std/collections/map-values";
+import { node2Store } from "./util.ts";
 
 export interface ContentPageProps {
   contentId: string;
@@ -114,86 +115,6 @@ function toFieldDefinition(field: Field): FieldDefinition {
     case "union": {
       return {
         type: "string",
-      };
-    }
-  }
-}
-
-function node2Store(node: NodeWithId): Store {
-  switch (node.type) {
-    case "number":
-    case "string": {
-      return {
-        [node.id]: node,
-      };
-    }
-    case "map": {
-      const keyed = mapValues(
-        node.value,
-        (childNode) => ({ node: childNode, id: childNode.id }),
-      );
-
-      const h = Object.values(keyed).map((x) =>
-        [x.id, toStoreElement(x.node)] as const
-      );
-
-      const store = Object.fromEntries(h);
-
-      return {
-        [node.id]: toStoreElement(node),
-        ...store,
-      };
-    }
-    case "list": {
-      return {};
-    }
-    case "boolean":
-    case "datetime":
-    case "reference":
-    case "union":
-    case "asset": {
-      return {
-        [node.id]: toStoreElement(node),
-      };
-    }
-  }
-}
-
-function toStoreElement(node: NodeWithId): StoreElement {
-  switch (node.type) {
-    case "string": {
-      return { type: "string", value: node.value };
-    }
-    case "number": {
-      return {
-        type: "number",
-        value: node.value,
-      };
-    }
-    case "map": {
-      const value = mapValues(node.value, (node) => node.id);
-
-      return {
-        type: "link",
-        value,
-      };
-    }
-    case "list": {
-      const value = node.value.map((node) => node.id);
-
-      return {
-        type: "list",
-        value,
-      };
-    }
-    case "boolean":
-    case "reference":
-    case "datetime":
-    case "asset":
-    case "union": {
-      return {
-        type: "string",
-        value: "unklwon",
       };
     }
   }

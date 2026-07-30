@@ -72,7 +72,7 @@ export default function Field(
             margin: "10px 0",
           }}
         >
-          <legend>Map Field ({id})</legend>
+          <legend>Map Field</legend>
           {Object.entries(definition.properties).map(([key, propDef]) => {
             const childId = currentLink[key] ?? `${id}-${key}`;
             return (
@@ -114,7 +114,7 @@ export default function Field(
             margin: "10px 0",
           }}
         >
-          <legend>List Field ({id})</legend>{" "}
+          <legend>List Field</legend>
           <div
             style={{ display: "flex", flexDirection: "column", gap: "10px" }}
           >
