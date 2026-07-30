@@ -3,8 +3,10 @@
 import { type JSX, useState } from "react";
 import type { Node } from "@cosmos/core";
 import Form from "../form.tsx";
-import type { Summary, Template } from "../type.ts";
+import type { Field, SummaryInput, Template } from "../type.ts";
 import type { NodeCreateUseCase } from "~usecase/node";
+import { FieldDefinition, Store } from "../fields/type.ts";
+import { mapValues } from "@std/collections/map-values";
 
 export interface ContentCreatePageProps {
   template: Template;
@@ -22,12 +24,14 @@ export default function ContentCreationPage(
     usecase,
   });
 
+  const definition = toFieldDefinition(field);
+
   return (
     <div>
       <h1>Content</h1>
 
       <label>
-        Name
+        <p>Name</p>
 
         <input
           value={summary.name}
@@ -35,7 +39,13 @@ export default function ContentCreationPage(
         />
       </label>
 
-      <Form node={node} update={handle} field={field} onChange={setState} />
+      <Form
+        store={node}
+        update={handle}
+        field={definition}
+        onChange={setState}
+        id=""
+      />
     </div>
   );
 }
@@ -46,12 +56,50 @@ interface UseCreateNodeProps {
 }
 
 function useCreateNode(props: UseCreateNodeProps) {
-  const [node, setState] = useState(props.init);
-  const [summary, setSummary] = useState<Summary>({ name: "" });
+  const [node, setState] = useState<Store>({});
+  const [summary, setSummary] = useState<SummaryInput>({ name: "" });
 
   async function handle(): Promise<void> {
     await props.usecase.execute(node, summary);
   }
 
   return { node, setState, summary, setSummary, handle };
+}
+
+function toFieldDefinition(field: Field): FieldDefinition {
+  switch (field.type) {
+    case "string": {
+      return {
+        type: "string",
+      };
+    }
+    case "number": {
+      return {
+        type: "number",
+      };
+    }
+    case "map": {
+      const properties = mapValues(field.fields, toFieldDefinition);
+
+      return {
+        type: "map",
+        properties,
+      };
+    }
+    case "list": {
+      return {
+        type: "list",
+        item: toFieldDefinition(field.field),
+      };
+    }
+    case "boolean":
+    case "reference":
+    case "datetime":
+    case "asset":
+    case "union": {
+      return {
+        type: "string",
+      };
+    }
+  }
 }

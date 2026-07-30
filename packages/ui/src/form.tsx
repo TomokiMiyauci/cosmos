@@ -1,31 +1,94 @@
 import type { JSX } from "react";
 import type { Node } from "@cosmos/core";
 import FieldComponent from "./fields/field.tsx";
-import type { Field } from "./type.ts";
+import type { FieldDefinition, Store } from "./fields/type.ts";
 import type { OnChange } from "./fields/type.ts";
 
 export interface FormProps {
-  node: Node | null;
+  store: Store;
   update: (node: Node | null) => Promise<void>;
-  field: Field;
+  field: FieldDefinition;
   onChange: OnChange;
+  id: string;
 }
 
 export default function Form(props: FormProps): JSX.Element {
-  const { node, update, field, onChange } = props;
+  const { store, update, field, onChange, id } = props;
 
   return (
     <form
       action={async () => {
         "use server";
+        const node = toNode(store, "x");
         await update(node);
       }}
     >
-      <FieldComponent node={node} onChange={onChange} field={field} />
+      <FieldComponent
+        store={store}
+        changeStore={onChange}
+        definition={field}
+        id={id}
+      />
 
       <button type="submit">Save</button>
 
-      {JSON.stringify(node)}
+      {JSON.stringify(toNode(store, "x"))}
     </form>
   );
+}
+
+function toNode(store: Store, id: string): Node | null {
+  const element = store[id];
+
+  if (!element) {
+    return null;
+  }
+
+  switch (element.type) {
+    case "string": {
+      return { type: "string", value: element.value };
+    }
+
+    case "number": {
+      return { type: "number", value: element.value };
+    }
+
+    case "link": {
+      const finalMapValue: Record<string, Node> = {};
+      let hasAnyValue = false;
+
+      for (const [prop, childId] of Object.entries(element.value)) {
+        const childNode = toNode(store, childId);
+
+        if (childNode) {
+          finalMapValue[prop] = childNode;
+          hasAnyValue = true;
+        }
+      }
+
+      if (!hasAnyValue) {
+        return null;
+      }
+
+      return {
+        type: "map",
+        value: finalMapValue,
+      };
+    }
+
+    case "list": {
+      const finalListValue: Node[] = element.value
+        .map((childId) => toNode(store, childId))
+        .filter((childNode): childNode is Node => childNode !== null);
+
+      if (finalListValue.length === 0) {
+        return null;
+      }
+
+      return {
+        type: "list",
+        value: finalListValue,
+      };
+    }
+  }
 }
