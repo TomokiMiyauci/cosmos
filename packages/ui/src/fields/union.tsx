@@ -68,17 +68,7 @@ export default function UnionField(props: UnionFieldProps): JSX.Element {
       {maybeField && childId && (
         <Field
           definition={maybeField}
-          changeStore={(childFn) => {
-            onChange((prev) => {
-              const updatedStore = childFn(prev);
-
-              if (current) {
-                updatedStore[id] = current;
-              }
-
-              return updatedStore;
-            });
-          }}
+          changeStore={onChange}
           store={store}
           id={childId}
         />
