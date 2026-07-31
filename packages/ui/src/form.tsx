@@ -110,5 +110,11 @@ function toNode(store: Store, id: string): Node | null {
         value: childNode,
       };
     }
+    case "reference": {
+      return {
+        type: "reference",
+        value: element.value,
+      };
+    }
   }
 }

@@ -107,7 +107,12 @@ function toStoreElement(node: NodeWithId): StoreElement {
         value: node.value.id,
       };
     }
-    case "reference":
+    case "reference": {
+      return {
+        type: "reference",
+        value: node.value,
+      };
+    }
     case "asset": {
       return {
         type: "string",
@@ -222,7 +227,18 @@ export function toFieldDefinition(field: Field): FieldDefinition {
         variants,
       };
     }
-    case "reference":
+    case "reference": {
+      const options = field.candidates.map((summary) => {
+        return {
+          id: summary.id,
+          name: summary.name,
+        };
+      });
+      return {
+        type: "reference",
+        options,
+      };
+    }
     case "asset": {
       return {
         type: "string",

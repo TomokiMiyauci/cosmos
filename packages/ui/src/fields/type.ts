@@ -8,7 +8,8 @@ export type Node =
   | MapNode
   | ListNode
   | BooleanNode
-  | DatetimeNode;
+  | DatetimeNode
+  | ReferenceNode;
 
 export interface StringNode {
   type: "string";
@@ -36,6 +37,11 @@ interface MapNode {
 interface ListNode {
   type: "list";
   value: Node[];
+}
+
+interface ReferenceNode {
+  type: "reference";
+  value: string;
 }
 
 export type Id = string;
@@ -72,6 +78,16 @@ export interface UnionFieldDefinition {
   variants: Record<string, FieldDefinition>;
 }
 
+export interface ReferenceFieldDefinition {
+  type: "reference";
+  options: FieldOption[];
+}
+
+export interface FieldOption {
+  id: string;
+  name: string;
+}
+
 export type FieldDefinition =
   | StringFieldDefinition
   | NumberFieldDefinition
@@ -79,7 +95,8 @@ export type FieldDefinition =
   | MapFieldDefinition
   | ListFieldDefinition
   | DatetimeFieldDefinition
-  | UnionFieldDefinition;
+  | UnionFieldDefinition
+  | ReferenceFieldDefinition;
 
 export interface EditString {
   type: "string";
@@ -110,6 +127,11 @@ export interface EditUnion {
   value: string;
 }
 
+export interface EditReference {
+  type: "reference";
+  value: string;
+}
+
 type EditPrimitive =
   | EditString
   | EditNumber
@@ -120,5 +142,10 @@ interface EditList {
   type: "list";
   value: Id[];
 }
-export type StoreElement = EditPrimitive | EditLink | EditList | EditUnion;
+export type StoreElement =
+  | EditPrimitive
+  | EditLink
+  | EditList
+  | EditUnion
+  | EditReference;
 export type Store = Record<Id, StoreElement>;

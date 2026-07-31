@@ -1,48 +1,46 @@
 "use client";
 
 import type { JSX } from "react";
-import type { ReferenceField } from "../type.ts";
-import type { ReferenceNode } from "@cosmos/core";
-import type { OnChange } from "./type.ts";
+import type { OnChange, ReferenceFieldDefinition, Store } from "./type.ts";
 
 export interface ReferenceFieldProps {
-  field: ReferenceField;
-  node: ReferenceNode | null;
+  field: ReferenceFieldDefinition;
   onChange: OnChange;
+  store: Store;
+  id: string;
 }
 
 export default function ReferenceField(
   props: ReferenceFieldProps,
 ): JSX.Element {
-  const { field, node, onChange } = props;
+  const { field, store, onChange, id } = props;
+  const current = store[id];
+
+  if (current && current.type !== "reference") throw new Error();
+
+  const value = current?.value;
 
   return (
-    <label>
-      {field.title}
+    <select
+      onChange={(ev) => {
+        const value = ev.target.value;
 
-      <p>{field.description}</p>
+        onChange((store) => {
+          store[id] = { type: "reference", value };
 
-      <select
-        onChange={(ev) => {
-          const value = ev.target.value;
-
-          if (value) {
-            onChange({ type: "reference", value });
-          } else {
-            onChange(null);
-          }
-        }}
-        value={node?.value ?? ""}
-      >
-        <option></option>
-        {field.candidates.map((candidate) => {
-          return (
-            <option key={candidate.id} value={candidate.id}>
-              {candidate.name}
-            </option>
-          );
-        })}
-      </select>
-    </label>
+          return store;
+        });
+      }}
+      value={value}
+    >
+      <option></option>
+      {field.options.map((option) => {
+        return (
+          <option key={option.id} value={option.id}>
+            {option.name}
+          </option>
+        );
+      })}
+    </select>
   );
 }
