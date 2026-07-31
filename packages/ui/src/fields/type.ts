@@ -10,16 +10,16 @@ export type Node =
   | BooleanNode
   | DatetimeNode;
 
-interface StringNode {
+export interface StringNode {
   type: "string";
   value: string;
 }
-interface NumberNode {
+export interface NumberNode {
   type: "number";
   value: number;
 }
 
-interface BooleanNode {
+export interface BooleanNode {
   type: "boolean";
   value: boolean;
 }
@@ -81,30 +81,30 @@ export type FieldDefinition =
   | DatetimeFieldDefinition
   | UnionFieldDefinition;
 
-interface EditString {
+export interface EditString {
   type: "string";
   value: string;
 }
-interface EditNumber {
+export interface EditNumber {
   type: "number";
   value: number;
 }
-interface EditBoolean {
+export interface EditBoolean {
   type: "boolean";
   value: boolean;
 }
 
-interface EditDatetime {
+export interface EditDatetime {
   type: "datetime";
   value: Date;
 }
 
-interface EditLink {
+export interface EditLink {
   type: "link";
   value: Record<string, Id>;
 }
 
-interface EditUnion {
+export interface EditUnion {
   type: "union";
   key: string;
   value: string;
@@ -121,4 +121,4 @@ interface EditList {
   value: Id[];
 }
 export type StoreElement = EditPrimitive | EditLink | EditList | EditUnion;
-export type Store = Record<Id, StoreElement | null>;
+export type Store = Record<Id, StoreElement>;

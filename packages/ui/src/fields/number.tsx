@@ -1,7 +1,12 @@
 "use client";
 
 import type { JSX } from "react";
-import type { NumberFieldDefinition, OnChange, Store } from "./type.ts";
+import type {
+  EditNumber,
+  NumberFieldDefinition,
+  OnChange,
+  Store,
+} from "./type.ts";
 
 export interface NumberFieldProps {
   field: NumberFieldDefinition;
@@ -23,12 +28,24 @@ export default function NumberField(props: NumberFieldProps): JSX.Element {
       value={currentValue}
       onChange={(ev) => {
         const rawValue = ev.target.value;
-        onChange((prev) => ({
-          ...prev,
-          [id]: rawValue !== ""
-            ? { type: "number", value: Number(rawValue) }
-            : null,
-        }));
+        const maybeNode = rawValue !== ""
+          ? { type: "number", value: Number(rawValue) } satisfies EditNumber
+          : null;
+
+        onChange((prev) => {
+          const newStore = { ...prev };
+
+          if (maybeNode) {
+            return {
+              ...newStore,
+              [id]: maybeNode,
+            };
+          } else {
+            delete newStore[id];
+
+            return newStore;
+          }
+        });
       }}
     />
   );

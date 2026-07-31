@@ -34,7 +34,7 @@ export default function ListField(props: ListFieldProps): JSX.Element {
               key={childId}
               style={{ display: "flex", alignItems: "center", gap: "10px" }}
             >
-              <span style={{ color: "#666" }}>[{index}]</span>{" "}
+              <span style={{ color: "#666" }}>[{index}]</span>
               <div style={{ flex: 1 }}>
                 <Field
                   store={store}
@@ -47,7 +47,7 @@ export default function ListField(props: ListFieldProps): JSX.Element {
                     });
                   }}
                 />
-              </div>{" "}
+              </div>
               <button
                 type="button"
                 style={{ color: "red" }}
@@ -77,7 +77,7 @@ export default function ListField(props: ListFieldProps): JSX.Element {
             const newChildId = crypto.randomUUID();
             const nextList = currentList.concat(newChildId);
             const nextValues = { ...prev };
-            nextValues[newChildId] = null;
+            delete nextValues[newChildId];
             nextValues[id] = { type: "list", value: nextList };
             return nextValues;
           });

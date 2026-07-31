@@ -3,7 +3,12 @@
 "use client";
 
 import type { JSX } from "react";
-import type { OnChange, Store, StringFieldDefinition } from "./type.ts";
+import type {
+  EditString,
+  OnChange,
+  Store,
+  StringFieldDefinition,
+} from "./type.ts";
 
 export interface StringFieldProps {
   field: StringFieldDefinition;
@@ -24,10 +29,25 @@ export default function StringField(props: StringFieldProps): JSX.Element {
       value={maybeNode?.type === "string" ? maybeNode.value : ""}
       onChange={(ev) => {
         const value = ev.target.value;
-        onChange((prev) => ({
-          ...prev,
-          [id]: value ? { type: "string", value } : null,
-        }));
+        const maybeNode = value
+          ? {
+            type: "string",
+            value,
+          } satisfies EditString
+          : null;
+        onChange((prev) => {
+          const newStore = { ...prev };
+
+          if (maybeNode) {
+            return {
+              ...newStore,
+              [id]: maybeNode,
+            };
+          } else {
+            delete newStore[id];
+            return newStore;
+          }
+        });
       }}
     />
   );
