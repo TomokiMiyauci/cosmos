@@ -25,54 +25,54 @@ export default function UnionField(props: UnionFieldProps): JSX.Element {
     : null;
 
   return (
-    <div>
-      <fieldset>
-        <legend>Select</legend>
+    <fieldset>
+      <legend>Union Field</legend>
 
-        {Object.entries(field.variants).map(([name]) => {
-          return (
-            <label key={name}>
-              <input
-                type="radio"
-                checked={current?.key === name}
-                value={name}
-                onChange={(ev) => {
-                  const selectedKey = ev.target.value;
+      {Object.entries(field.variants).map(([name]) => {
+        return (
+          <label key={name}>
+            <input
+              type="radio"
+              checked={current?.key === name}
+              value={name}
+              onChange={(ev) => {
+                const selectedKey = ev.target.value;
 
-                  onChange((prev) => {
-                    const nextStore = { ...prev };
-                    const myNode = nextStore[id];
+                onChange((prev) => {
+                  const nextStore = { ...prev };
+                  const myNode = nextStore[id];
 
-                    const nextChildId = myNode?.type === "union"
-                      ? myNode.value
-                      : crypto.randomUUID();
+                  const nextChildId = myNode?.type === "union"
+                    ? myNode.value
+                    : crypto.randomUUID();
 
-                    nextStore[id] = {
-                      type: "union",
-                      key: selectedKey,
-                      value: nextChildId,
-                    };
+                  nextStore[id] = {
+                    type: "union",
+                    key: selectedKey,
+                    value: nextChildId,
+                  };
 
-                    delete nextStore[nextChildId];
+                  delete nextStore[nextChildId];
 
-                    return nextStore;
-                  });
-                }}
-              />
-              {name}
-            </label>
-          );
-        })}
-      </fieldset>
+                  return nextStore;
+                });
+              }}
+            />
+            {name}
+          </label>
+        );
+      })}
 
       {maybeField && childId && (
-        <Field
-          definition={maybeField}
-          changeStore={onChange}
-          store={store}
-          id={childId}
-        />
+        <div>
+          <Field
+            definition={maybeField}
+            changeStore={onChange}
+            store={store}
+            id={childId}
+          />
+        </div>
       )}
-    </div>
+    </fieldset>
   );
 }
