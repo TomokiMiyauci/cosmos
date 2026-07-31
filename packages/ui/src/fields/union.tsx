@@ -43,30 +43,17 @@ export default function UnionField(props: UnionFieldProps): JSX.Element {
                     const nextStore = { ...prev };
                     const myNode = nextStore[id];
 
-                    const baseVariants = myNode?.type === "union"
-                      ? { ...myNode.variants }
-                      : Object.keys(field.variants).reduce<
-                        Record<string, string>
-                      >(
-                        (acc, variantName) => {
-                          acc[variantName] = crypto.randomUUID();
-                          return acc;
-                        },
-                        {},
-                      );
-
-                    const nextChildId = baseVariants[selectedKey]!;
+                    const nextChildId = myNode?.type === "union"
+                      ? myNode.value
+                      : crypto.randomUUID();
 
                     nextStore[id] = {
                       type: "union",
                       key: selectedKey,
                       value: nextChildId,
-                      variants: baseVariants,
                     };
 
-                    if (nextStore[nextChildId] === undefined) {
-                      nextStore[nextChildId] = null;
-                    }
+                    delete nextStore[nextChildId];
 
                     return nextStore;
                   });

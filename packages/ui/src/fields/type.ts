@@ -108,7 +108,6 @@ interface EditUnion {
   type: "union";
   key: string;
   value: string;
-  variants: Record<string, string>
 }
 
 type EditPrimitive =
