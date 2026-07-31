@@ -98,5 +98,17 @@ function toNode(store: Store, id: string): Node | null {
         value: finalListValue,
       };
     }
+
+    case "union": {
+      const childNode = toNode(store, element.value);
+
+      if (!childNode) return null;
+
+      return {
+        type: "union",
+        key: element.key,
+        value: childNode,
+      };
+    }
   }
 }

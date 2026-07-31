@@ -100,9 +100,15 @@ function toStoreElement(node: NodeWithId): StoreElement {
         value: node.value,
       };
     }
-    case "reference":
-    case "asset":
     case "union": {
+      return {
+        type: "union",
+        key: node.key,
+        value: node.value.id,
+      };
+    }
+    case "reference":
+    case "asset": {
       return {
         type: "string",
         value: "unklwon",
@@ -208,9 +214,16 @@ export function toFieldDefinition(field: Field): FieldDefinition {
         type: "datetime",
       };
     }
-    case "reference":
-    case "asset":
     case "union": {
+      const variants = mapValues(field.variants, toFieldDefinition);
+
+      return {
+        type: "union",
+        variants,
+      };
+    }
+    case "reference":
+    case "asset": {
       return {
         type: "string",
       };

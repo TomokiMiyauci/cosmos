@@ -8,7 +8,7 @@ import BooleanField from "./boolean.tsx";
 import ListField from "./list.tsx";
 // import AssetField from "./asset.tsx";
 // import ReferenceField from "./reference.tsx";
-// import UnionField from "./union.tsx";
+import UnionField from "./union.tsx";
 import MapField from "./map.tsx";
 // import MarkdownField from "./markdown.tsx";
 // import type { Node } from "@cosmos/core";
@@ -81,6 +81,16 @@ export default function Field(
     case "list": {
       return (
         <ListField
+          store={store}
+          onChange={changeStore}
+          field={definition}
+          id={id}
+        />
+      );
+    }
+    case "union": {
+      return (
+        <UnionField
           store={store}
           onChange={changeStore}
           field={definition}

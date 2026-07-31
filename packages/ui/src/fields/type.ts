@@ -66,13 +66,20 @@ export interface ListFieldDefinition {
   type: "list";
   item: FieldDefinition;
 }
+
+export interface UnionFieldDefinition {
+  type: "union";
+  variants: Record<string, FieldDefinition>;
+}
+
 export type FieldDefinition =
   | StringFieldDefinition
   | NumberFieldDefinition
   | BooleanFieldDefinition
   | MapFieldDefinition
   | ListFieldDefinition
-  | DatetimeFieldDefinition;
+  | DatetimeFieldDefinition
+  | UnionFieldDefinition;
 
 interface EditString {
   type: "string";
@@ -96,10 +103,23 @@ interface EditLink {
   type: "link";
   value: Record<string, Id>;
 }
-type EditPrimitive = EditString | EditNumber | EditBoolean | EditDatetime;
+
+interface EditUnion {
+  type: "union";
+  key: string;
+  value: string;
+  variants: Record<string, string>
+}
+
+type EditPrimitive =
+  | EditString
+  | EditNumber
+  | EditBoolean
+  | EditDatetime;
+
 interface EditList {
   type: "list";
   value: Id[];
 }
-export type StoreElement = EditPrimitive | EditLink | EditList;
+export type StoreElement = EditPrimitive | EditLink | EditList | EditUnion;
 export type Store = Record<Id, StoreElement | null>;
