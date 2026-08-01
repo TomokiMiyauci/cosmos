@@ -12,19 +12,20 @@ import UnionField from "./union.tsx";
 import MapField from "./map.tsx";
 // import MarkdownField from "./markdown.tsx";
 // import type { Node } from "@cosmos/core";
-import type { FieldDefinition, Store } from "./type.ts";
+import type { ErrorMap, FieldDefinition, Store } from "./type.ts";
 
 export interface FieldProps {
   store: Store;
   changeStore: (fn: (store: Store) => Store) => void;
   id: string;
   definition: FieldDefinition;
+  errors: ErrorMap;
 }
 
 export default function Field(
   props: FieldProps,
 ): JSX.Element {
-  const { store, changeStore, definition } = props;
+  const { store, changeStore, definition, errors } = props;
   const id = props.id;
 
   switch (definition.type) {
@@ -35,6 +36,7 @@ export default function Field(
           onChange={changeStore}
           field={definition}
           id={id}
+          errors={errors}
         />
       );
     }
@@ -45,6 +47,7 @@ export default function Field(
           onChange={changeStore}
           field={definition}
           id={id}
+          errors={errors}
         />
       );
     }
@@ -75,6 +78,7 @@ export default function Field(
           onChange={changeStore}
           field={definition}
           id={id}
+          errors={errors}
         />
       );
     }
@@ -85,6 +89,7 @@ export default function Field(
           onChange={changeStore}
           field={definition}
           id={id}
+          errors={errors}
         />
       );
     }
@@ -95,6 +100,7 @@ export default function Field(
           onChange={changeStore}
           field={definition}
           id={id}
+          errors={errors}
         />
       );
     }

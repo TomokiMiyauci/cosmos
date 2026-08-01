@@ -5,6 +5,7 @@
 import type { JSX } from "react";
 import type {
   EditString,
+  ErrorMap,
   OnChange,
   Store,
   StringFieldDefinition,
@@ -16,39 +17,44 @@ export interface StringFieldProps {
   error?: string;
   store: Store;
   id: string;
+  errors: ErrorMap;
 }
 
 export default function StringField(props: StringFieldProps): JSX.Element {
-  const { onChange, field, store, id } = props;
+  const { onChange, field, store, id, errors } = props;
   const maybeNode = store[id];
+  const error = errors[id];
 
   return (
-    <input
-      type="text"
-      placeholder={field.placeholder}
-      value={maybeNode?.type === "string" ? maybeNode.value : ""}
-      onChange={(ev) => {
-        const value = ev.target.value;
-        const maybeNode = value
-          ? {
-            type: "string",
-            value,
-          } satisfies EditString
-          : null;
-        onChange((prev) => {
-          const newStore = { ...prev };
+    <>
+      <input
+        type="text"
+        placeholder={field.placeholder}
+        value={maybeNode?.type === "string" ? maybeNode.value : ""}
+        onChange={(ev) => {
+          const value = ev.target.value;
+          const maybeNode = value
+            ? {
+              type: "string",
+              value,
+            } satisfies EditString
+            : null;
+          onChange((prev) => {
+            const newStore = { ...prev };
 
-          if (maybeNode) {
-            return {
-              ...newStore,
-              [id]: maybeNode,
-            };
-          } else {
-            delete newStore[id];
-            return newStore;
-          }
-        });
-      }}
-    />
+            if (maybeNode) {
+              return {
+                ...newStore,
+                [id]: maybeNode,
+              };
+            } else {
+              delete newStore[id];
+              return newStore;
+            }
+          });
+        }}
+      />
+      {error && <p>{error}</p>}
+    </>
   );
 }

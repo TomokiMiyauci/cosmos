@@ -1,5 +1,5 @@
 import type { JSX } from "react";
-import type { ListFieldDefinition, OnChange, Store } from "./type.ts";
+import type { ErrorMap, ListFieldDefinition, OnChange, Store } from "./type.ts";
 import Field from "./field.tsx";
 
 export interface ListFieldProps {
@@ -8,10 +8,11 @@ export interface ListFieldProps {
   field: ListFieldDefinition;
   store: Store;
   id: string;
+  errors: ErrorMap;
 }
 
 export default function ListField(props: ListFieldProps): JSX.Element {
-  const { onChange, field, store, id } = props;
+  const { onChange, field, store, id, errors } = props;
 
   const maybeNode = store[id];
   const currentList = maybeNode?.type === "list" ? maybeNode.value : [];
@@ -46,6 +47,7 @@ export default function ListField(props: ListFieldProps): JSX.Element {
                       return updatedStore;
                     });
                   }}
+                  errors={errors}
                 />
               </div>
               <button

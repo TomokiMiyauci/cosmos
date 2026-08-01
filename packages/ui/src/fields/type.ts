@@ -149,3 +149,5 @@ export type StoreElement =
   | EditUnion
   | EditReference;
 export type Store = Record<Id, StoreElement>;
+
+export type ErrorMap = Record<string, string>;

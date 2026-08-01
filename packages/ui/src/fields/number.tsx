@@ -3,6 +3,7 @@
 import type { JSX } from "react";
 import type {
   EditNumber,
+  ErrorMap,
   NumberFieldDefinition,
   OnChange,
   Store,
@@ -14,39 +15,44 @@ export interface NumberFieldProps {
   error?: string;
   store: Store;
   id: string;
+  errors: ErrorMap;
 }
 
 export default function NumberField(props: NumberFieldProps): JSX.Element {
-  const { onChange, field, store, id } = props;
+  const { onChange, field, store, id, errors } = props;
   const maybeNode = store[id];
+  const error = errors[id];
   const currentValue = maybeNode?.type === "number" ? maybeNode.value : "";
 
   return (
-    <input
-      type="number"
-      placeholder={field.placeholder}
-      value={currentValue}
-      onChange={(ev) => {
-        const rawValue = ev.target.value;
-        const maybeNode = rawValue !== ""
-          ? { type: "number", value: Number(rawValue) } satisfies EditNumber
-          : null;
+    <>
+      <input
+        type="number"
+        placeholder={field.placeholder}
+        value={currentValue}
+        onChange={(ev) => {
+          const rawValue = ev.target.value;
+          const maybeNode = rawValue !== ""
+            ? { type: "number", value: Number(rawValue) } satisfies EditNumber
+            : null;
 
-        onChange((prev) => {
-          const newStore = { ...prev };
+          onChange((prev) => {
+            const newStore = { ...prev };
 
-          if (maybeNode) {
-            return {
-              ...newStore,
-              [id]: maybeNode,
-            };
-          } else {
-            delete newStore[id];
+            if (maybeNode) {
+              return {
+                ...newStore,
+                [id]: maybeNode,
+              };
+            } else {
+              delete newStore[id];
 
-            return newStore;
-          }
-        });
-      }}
-    />
+              return newStore;
+            }
+          });
+        }}
+      />
+      {error && <p>{error}</p>}
+    </>
   );
 }

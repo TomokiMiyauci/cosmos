@@ -1,7 +1,12 @@
 "use client";
 
 import type { JSX } from "react";
-import type { OnChange, Store, UnionFieldDefinition } from "./type.ts";
+import type {
+  ErrorMap,
+  OnChange,
+  Store,
+  UnionFieldDefinition,
+} from "./type.ts";
 import Field from "./field.tsx";
 
 export interface UnionFieldProps {
@@ -10,10 +15,11 @@ export interface UnionFieldProps {
   onChange: OnChange;
   store: Store;
   id: string;
+  errors: ErrorMap;
 }
 
 export default function UnionField(props: UnionFieldProps): JSX.Element {
-  const { field, onChange, store, id } = props;
+  const { field, onChange, store, id, errors } = props;
 
   const current = store[id];
 
@@ -70,6 +76,7 @@ export default function UnionField(props: UnionFieldProps): JSX.Element {
             changeStore={onChange}
             store={store}
             id={childId}
+            errors={errors}
           />
         </div>
       )}

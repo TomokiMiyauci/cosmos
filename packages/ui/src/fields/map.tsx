@@ -1,5 +1,5 @@
 import type { JSX } from "react";
-import type { MapFieldDefinition, OnChange, Store } from "./type.ts";
+import type { ErrorMap, MapFieldDefinition, OnChange, Store } from "./type.ts";
 import Field from "./field.tsx";
 
 export interface MapFieldProps {
@@ -8,10 +8,11 @@ export interface MapFieldProps {
   field: MapFieldDefinition;
   store: Store;
   id: string;
+  errors: ErrorMap;
 }
 
 export default function MapField(props: MapFieldProps): JSX.Element {
-  const { field, onChange, store, id } = props;
+  const { field, onChange, store, id, errors } = props;
   const maybeNode = store[id];
   const currentLink = maybeNode?.type === "link" ? maybeNode.value : {};
 
@@ -48,6 +49,7 @@ export default function MapField(props: MapFieldProps): JSX.Element {
                   return nextNodes;
                 });
               }}
+              errors={errors}
             />
           </div>
         );
