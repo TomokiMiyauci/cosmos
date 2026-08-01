@@ -2,11 +2,11 @@
 
 import { type JSX, useState } from "react";
 import type { Node } from "@cosmos/core";
-import Form from "../form.tsx";
+import Field from "../fields/field.tsx";
 import type { SummaryInput, Template } from "../type.ts";
 import type { NodeCreateUseCase } from "~usecase/node";
-import type { Store } from "../fields/type.ts";
-import { toFieldDefinition } from "./util.ts";
+import type { ErrorMap, Store } from "../fields/type.ts";
+import { toFieldDefinition, toNode } from "./util.ts";
 
 export interface ContentCreatePageProps {
   template: Template;
@@ -19,10 +19,13 @@ export default function ContentCreationPage(
   const { template, usecase } = props;
   const { node: init, field } = template;
 
-  const { node, setState, summary, setSummary, handle } = useCreateNode({
+  const { node: store, setState, summary, setSummary, handle } = useCreateNode({
     init,
     usecase,
   });
+  const [errors] = useState<ErrorMap>({});
+
+  const id = "";
 
   const definition = toFieldDefinition(field);
 
@@ -39,13 +42,23 @@ export default function ContentCreationPage(
         />
       </label>
 
-      <Form
-        store={node}
-        update={handle}
-        field={definition}
-        onChange={setState}
-        id=""
-      />
+      <form
+        action={async () => {
+          "use server";
+          const node = toNode(store, id);
+
+          const result = await handle(node);
+        }}
+      >
+        <Field
+          store={store}
+          definition={definition}
+          changeStore={setState}
+          errors={errors}
+          id={id}
+        />
+        <button type="submit">Create</button>
+      </form>
     </div>
   );
 }

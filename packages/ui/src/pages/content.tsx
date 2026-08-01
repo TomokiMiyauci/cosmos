@@ -4,11 +4,11 @@ import { type JSX, useState } from "react";
 import type { Data, Entry } from "../type.ts";
 import type { Node } from "@cosmos/core";
 import { Page, resolvePath } from "../router.ts";
-import Form from "../form.tsx";
+import Field from "../fields/field.tsx";
 import type { Result } from "@miyauci/util";
-import type { Store } from "../fields/type.ts";
+import type { ErrorMap, Store } from "../fields/type.ts";
 import { mapValues } from "@std/collections/map-values";
-import { node2Store, toFieldDefinition } from "./util.ts";
+import { node2Store, toFieldDefinition, toNode } from "./util.ts";
 
 export interface ContentPageProps {
   contentId: string;
@@ -26,6 +26,7 @@ export default function ContentPage(
   const idNode = init ? withId(init, id) : null;
   const initStore = idNode ? node2Store(idNode) : {};
   const [store, setState] = useState<Store>(initStore);
+  const [errors] = useState<ErrorMap>({});
   const definition = toFieldDefinition(field);
 
   async function update(node: Node): Promise<void> {
@@ -62,13 +63,24 @@ export default function ContentPage(
 
       <h2>{meta.title}</h2>
       <p>{meta.description}</p>
-      <Form
-        store={store}
-        update={handleAction}
-        field={definition}
-        id={id}
-        onChange={setState}
-      />
+
+      <form
+        action={async () => {
+          "use server";
+          const node = toNode(store, id);
+
+          const result = await handleAction(node);
+        }}
+      >
+        <Field
+          store={store}
+          changeStore={setState}
+          definition={definition}
+          id={id}
+          errors={errors}
+        />
+        <button type="submit">Update</button>
+      </form>
 
       <button
         type="button"
