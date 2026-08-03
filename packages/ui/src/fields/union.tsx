@@ -43,25 +43,22 @@ export default function UnionField(props: UnionFieldProps): JSX.Element {
               value={name}
               onChange={(ev) => {
                 const selectedKey = ev.target.value;
+                const nextStore = { ...store };
+                const myNode = nextStore[id];
 
-                onChange((prev) => {
-                  const nextStore = { ...prev };
-                  const myNode = nextStore[id];
+                const nextChildId = myNode?.type === "union"
+                  ? myNode.value
+                  : crypto.randomUUID();
 
-                  const nextChildId = myNode?.type === "union"
-                    ? myNode.value
-                    : crypto.randomUUID();
+                nextStore[id] = {
+                  type: "union",
+                  key: selectedKey,
+                  value: nextChildId,
+                };
 
-                  nextStore[id] = {
-                    type: "union",
-                    key: selectedKey,
-                    value: nextChildId,
-                  };
+                delete nextStore[nextChildId];
 
-                  delete nextStore[nextChildId];
-
-                  return nextStore;
-                });
+                onChange(nextStore);
               }}
             />
             {name}
