@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import { type JSX, useId } from "react";
 import type { ErrorMap, MapFieldDefinition, OnChange, Store } from "./type.ts";
 import Field from "./field.tsx";
 
@@ -23,25 +23,24 @@ export default function MapField(props: MapFieldProps): JSX.Element {
         <legend>Map Field</legend>
 
         {Object.entries(field.properties).map(([key, propDef]) => {
-          const childId = currentLink[key] ?? `${id}-${key}`;
+          const child = useId();
+          const childId = currentLink[key] ?? child;
           return (
             <div key={key}>
               <Field
                 store={store}
                 definition={propDef}
                 id={childId}
-                changeStore={(childFn) => {
-                  onChange((prev) => {
-                    const updatedStore = childFn(prev);
-                    const nextNodes = { ...updatedStore };
-                    const myNode = nextNodes[id];
-                    const baseLinkMap = myNode?.type === "link"
-                      ? { ...myNode.value }
-                      : {};
-                    baseLinkMap[key] = childId;
-                    nextNodes[id] = { type: "link", value: baseLinkMap };
-                    return nextNodes;
-                  });
+                changeStore={(store) => {
+                  const nextStore = { ...store };
+                  const myNode = nextStore[id];
+                  const baseLinkMap = myNode?.type === "link"
+                    ? { ...myNode.value }
+                    : {};
+                  baseLinkMap[key] = childId;
+                  nextStore[id] = { type: "link", value: baseLinkMap };
+
+                  onChange(nextStore);
                 }}
                 errors={errors}
               />

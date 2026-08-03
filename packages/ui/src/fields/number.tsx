@@ -36,20 +36,19 @@ export default function NumberField(props: NumberFieldProps): JSX.Element {
             ? { type: "number", value: Number(rawValue) } satisfies EditNumber
             : null;
 
-          onChange((prev) => {
-            const newStore = { ...prev };
+          const newStore = { ...store };
 
-            if (maybeNode) {
-              return {
-                ...newStore,
-                [id]: maybeNode,
-              };
-            } else {
-              delete newStore[id];
+          if (maybeNode) {
+            const newValue = {
+              ...newStore,
+              [id]: maybeNode,
+            };
+            onChange(newValue);
+          } else {
+            delete newStore[id];
 
-              return newStore;
-            }
-          });
+            onChange(newStore);
+          }
         }}
       />
       {error && <p>{error}</p>}

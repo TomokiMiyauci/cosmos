@@ -25,11 +25,9 @@ export default function ReferenceField(
       onChange={(ev) => {
         const value = ev.target.value;
 
-        onChange((store) => {
-          store[id] = { type: "reference", value };
+        store[id] = { type: "reference", value };
 
-          return store;
-        });
+        onChange(store);
       }}
       value={value}
     >

@@ -23,11 +23,12 @@ export default function DatetimeField(props: DatatimeFieldProps): JSX.Element {
       type="date"
       onChange={(ev) => {
         const value = new Date(ev.target.value);
+        const nextStore = {
+          ...store,
+          [id]: { type: "datetime" as const, value },
+        };
 
-        onChange((prev) => ({
-          ...prev,
-          [id]: { type: "datetime", value },
-        }));
+        onChange(nextStore);
       }}
       value={currentValue}
     />

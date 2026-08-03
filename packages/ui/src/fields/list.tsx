@@ -41,12 +41,7 @@ export default function ListField(props: ListFieldProps): JSX.Element {
                   store={store}
                   definition={field.item}
                   id={childId}
-                  changeStore={(childFn) => {
-                    onChange((prev) => {
-                      const updatedStore = childFn(prev);
-                      return updatedStore;
-                    });
-                  }}
+                  changeStore={onChange}
                   errors={errors}
                 />
               </div>
@@ -54,15 +49,13 @@ export default function ListField(props: ListFieldProps): JSX.Element {
                 type="button"
                 style={{ color: "red" }}
                 onClick={() => {
-                  onChange((prev) => {
-                    const nextList = currentList.filter((tid) =>
-                      tid !== childId
-                    );
-                    const nextValues = { ...prev };
-                    delete nextValues[childId];
-                    nextValues[id] = { type: "list", value: nextList };
-                    return nextValues;
-                  });
+                  const nextList = currentList.filter((tid) => tid !== childId);
+                  const nextValues = { ...store };
+                  delete nextValues[childId];
+                  nextValues[id] = { type: "list", value: nextList };
+                  nextValues;
+
+                  onChange(nextValues);
                 }}
               >
                 Delete
@@ -75,14 +68,13 @@ export default function ListField(props: ListFieldProps): JSX.Element {
         type="button"
         style={{ marginTop: "10px", padding: "5px 10px" }}
         onClick={() => {
-          onChange((prev) => {
-            const newChildId = crypto.randomUUID();
-            const nextList = currentList.concat(newChildId);
-            const nextValues = { ...prev };
-            delete nextValues[newChildId];
-            nextValues[id] = { type: "list", value: nextList };
-            return nextValues;
-          });
+          const newChildId = crypto.randomUUID();
+          const nextList = currentList.concat(newChildId);
+          const nextValues = { ...store };
+          delete nextValues[newChildId];
+          nextValues[id] = { type: "list", value: nextList };
+
+          onChange(nextValues);
         }}
       >
         + Add Item

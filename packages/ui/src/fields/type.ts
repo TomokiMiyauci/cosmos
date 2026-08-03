@@ -1,5 +1,5 @@
 export interface OnChange {
-  (fn: (store: Store) => Store): void;
+  (store: Store): void;
 }
 
 export type Node =

@@ -39,19 +39,16 @@ export default function StringField(props: StringFieldProps): JSX.Element {
               value,
             } satisfies EditString
             : null;
-          onChange((prev) => {
-            const newStore = { ...prev };
 
-            if (maybeNode) {
-              return {
-                ...newStore,
-                [id]: maybeNode,
-              };
-            } else {
-              delete newStore[id];
-              return newStore;
-            }
-          });
+          const newStore = { ...store };
+
+          if (maybeNode) {
+            newStore[id] = maybeNode;
+            onChange(newStore);
+          } else {
+            delete newStore[id];
+            onChange(newStore);
+          }
         }}
       />
       {error && <p>{error}</p>}

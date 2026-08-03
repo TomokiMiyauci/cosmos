@@ -16,7 +16,7 @@ import type { ErrorMap, FieldDefinition, Store } from "./type.ts";
 
 export interface FieldProps {
   store: Store;
-  changeStore: (fn: (store: Store) => Store) => void;
+  changeStore: (store: Store) => void;
   id: string;
   definition: FieldDefinition;
   errors: ErrorMap;

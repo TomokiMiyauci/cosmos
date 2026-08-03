@@ -24,10 +24,12 @@ export default function BooleanField(
       onChange={(ev) => {
         const value = ev.target.checked;
 
-        onChange((prev) => ({
-          ...prev,
-          [id]: { type: "boolean", value },
-        }));
+        const newStore = {
+          ...store,
+          [id]: { type: "boolean" as const, value },
+        };
+
+        onChange(newStore);
       }}
       checked={currentValue}
     />
