@@ -1,7 +1,7 @@
 "use client";
 
 import { type JSX, useState } from "react";
-import type { Data, Entry } from "../type.ts";
+import type { Data, Entry, NodeWithId } from "../type.ts";
 import type { Node } from "@cosmos/core";
 import { Page, resolvePath } from "../router.ts";
 import Field from "../fields/field.tsx";
@@ -138,65 +138,4 @@ function withId(node: Node, id?: string): NodeWithId {
       throw new Error();
     }
   }
-}
-
-export type NodeWithId =
-  | ReferenceNode
-  | StringNode
-  | NumberNode
-  | BooleanNode
-  | DatetimeNode
-  | AssetNode
-  | UnionNode
-  | ListNode
-  | MapNode;
-
-interface BaseNode {
-  id: string;
-}
-
-export interface ReferenceNode extends BaseNode {
-  type: "reference";
-  value: string;
-}
-
-export interface StringNode extends BaseNode {
-  type: "string";
-  value: string;
-}
-
-export interface NumberNode extends BaseNode {
-  type: "number";
-  value: number;
-}
-
-export interface BooleanNode extends BaseNode {
-  type: "boolean";
-  value: boolean;
-}
-
-export interface DatetimeNode extends BaseNode {
-  type: "datetime";
-  value: Date;
-}
-
-export interface AssetNode extends BaseNode {
-  type: "asset";
-  value: string;
-}
-
-export interface ListNode extends BaseNode {
-  type: "list";
-  value: NodeWithId[];
-}
-
-export interface MapNode extends BaseNode {
-  type: "map";
-  value: Record<string, NodeWithId>;
-}
-
-export interface UnionNode extends BaseNode {
-  type: "union";
-  key: string;
-  value: NodeWithId;
 }

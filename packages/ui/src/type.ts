@@ -31,6 +31,29 @@ export interface CmsService {
     summary: SummaryInput,
   ): Promise<Result<Identity, {}>>;
   eraseNodeById(id: string): Promise<void>;
+  createEntry(entry: EntryInput): Promise<Result<void, EntryCreationFailure>>;
+}
+
+export interface EntryInput {
+  name: string;
+  node: NodeWithId;
+  model: string;
+}
+
+export interface ErrorDetail {
+  code: ErrorCode;
+  message: string;
+}
+
+export interface EntryCreationFailure {
+  name?: ErrorDetail;
+  node?: Errors;
+}
+
+export type ErrorCode = "Required";
+
+export interface Errors {
+  [k: string]: ErrorDetail;
 }
 
 export interface Resource {
@@ -165,4 +188,65 @@ export interface SummaryPayload extends Summary {
 
 export interface Router {
   redirect(to: string): void;
+}
+
+export type NodeWithId =
+  | ReferenceNode
+  | StringNode
+  | NumberNode
+  | BooleanNode
+  | DatetimeNode
+  | AssetNode
+  | UnionNode
+  | ListNode
+  | MapNode;
+
+interface BaseNode {
+  id: string;
+}
+
+export interface ReferenceNode extends BaseNode {
+  type: "reference";
+  value: string;
+}
+
+export interface StringNode extends BaseNode {
+  type: "string";
+  value: string;
+}
+
+export interface NumberNode extends BaseNode {
+  type: "number";
+  value: number;
+}
+
+export interface BooleanNode extends BaseNode {
+  type: "boolean";
+  value: boolean;
+}
+
+export interface DatetimeNode extends BaseNode {
+  type: "datetime";
+  value: Date;
+}
+
+export interface AssetNode extends BaseNode {
+  type: "asset";
+  value: string;
+}
+
+export interface ListNode extends BaseNode {
+  type: "list";
+  value: NodeWithId[];
+}
+
+export interface MapNode extends BaseNode {
+  type: "map";
+  value: Record<string, NodeWithId>;
+}
+
+export interface UnionNode extends BaseNode {
+  type: "union";
+  key: string;
+  value: NodeWithId;
 }

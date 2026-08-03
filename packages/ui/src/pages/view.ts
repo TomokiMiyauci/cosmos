@@ -91,6 +91,7 @@ export const views = {
       return {
         template,
         usecase,
+        service: params.service,
       };
     },
     component: ContentCreationPage,

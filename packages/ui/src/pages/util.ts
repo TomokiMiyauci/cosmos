@@ -1,7 +1,6 @@
 import { mapValues } from "@std/collections/map-values";
 import type { FieldDefinition, Store, StoreElement } from "../fields/type.ts";
-import type { Field } from "../type.ts";
-import type { Node } from "@cosmos/core";
+import type { Field, NodeWithId } from "../type.ts";
 
 export function node2Store(node: NodeWithId): Store {
   switch (node.type) {
@@ -123,67 +122,6 @@ function toStoreElement(node: NodeWithId): StoreElement {
   }
 }
 
-export type NodeWithId =
-  | ReferenceNode
-  | StringNode
-  | NumberNode
-  | BooleanNode
-  | DatetimeNode
-  | AssetNode
-  | UnionNode
-  | ListNode
-  | MapNode;
-
-interface BaseNode {
-  id: string;
-}
-
-export interface ReferenceNode extends BaseNode {
-  type: "reference";
-  value: string;
-}
-
-export interface StringNode extends BaseNode {
-  type: "string";
-  value: string;
-}
-
-export interface NumberNode extends BaseNode {
-  type: "number";
-  value: number;
-}
-
-export interface BooleanNode extends BaseNode {
-  type: "boolean";
-  value: boolean;
-}
-
-export interface DatetimeNode extends BaseNode {
-  type: "datetime";
-  value: Date;
-}
-
-export interface AssetNode extends BaseNode {
-  type: "asset";
-  value: string;
-}
-
-export interface ListNode extends BaseNode {
-  type: "list";
-  value: NodeWithId[];
-}
-
-export interface MapNode extends BaseNode {
-  type: "map";
-  value: Record<string, NodeWithId>;
-}
-
-export interface UnionNode extends BaseNode {
-  type: "union";
-  key: string;
-  value: NodeWithId;
-}
-
 export function toFieldDefinition(field: Field): FieldDefinition {
   switch (field.type) {
     case "string": {
@@ -248,7 +186,7 @@ export function toFieldDefinition(field: Field): FieldDefinition {
   }
 }
 
-export function toNode(store: Store, id: string): Node | null {
+export function toNode(store: Store, id: string): NodeWithId | null {
   const element = store[id];
 
   if (!element) {
@@ -257,23 +195,23 @@ export function toNode(store: Store, id: string): Node | null {
 
   switch (element.type) {
     case "string": {
-      return { type: "string", value: element.value };
+      return { type: "string", value: element.value, id };
     }
 
     case "number": {
-      return { type: "number", value: element.value };
+      return { type: "number", value: element.value, id };
     }
 
     case "boolean": {
-      return { type: "boolean", value: element.value };
+      return { type: "boolean", value: element.value, id };
     }
 
     case "datetime": {
-      return { type: "datetime", value: element.value };
+      return { type: "datetime", value: element.value, id };
     }
 
     case "link": {
-      const finalMapValue: Record<string, Node> = {};
+      const finalMapValue: Record<string, NodeWithId> = {};
       let hasAnyValue = false;
 
       for (const [prop, childId] of Object.entries(element.value)) {
@@ -292,13 +230,14 @@ export function toNode(store: Store, id: string): Node | null {
       return {
         type: "map",
         value: finalMapValue,
+        id,
       };
     }
 
     case "list": {
-      const finalListValue: Node[] = element.value
+      const finalListValue: NodeWithId[] = element.value
         .map((childId) => toNode(store, childId))
-        .filter((childNode): childNode is Node => childNode !== null);
+        .filter((childNode): childNode is NodeWithId => childNode !== null);
 
       if (finalListValue.length === 0) {
         return null;
@@ -307,6 +246,7 @@ export function toNode(store: Store, id: string): Node | null {
       return {
         type: "list",
         value: finalListValue,
+        id,
       };
     }
 
@@ -319,12 +259,14 @@ export function toNode(store: Store, id: string): Node | null {
         type: "union",
         key: element.key,
         value: childNode,
+        id,
       };
     }
     case "reference": {
       return {
         type: "reference",
         value: element.value,
+        id,
       };
     }
   }
