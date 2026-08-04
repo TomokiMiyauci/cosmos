@@ -46,23 +46,24 @@ interface ReferenceNode {
 
 export type Id = string;
 
-export interface StringFieldDefinition {
+interface BaseFieldDefinition {
+  title: string;
+}
+
+export interface StringFieldDefinition extends BaseFieldDefinition {
   type: "string";
-  placeholder?: string;
 }
-export interface NumberFieldDefinition {
+
+export interface NumberFieldDefinition extends BaseFieldDefinition {
   type: "number";
-  placeholder?: string;
 }
 
-export interface BooleanFieldDefinition {
+export interface BooleanFieldDefinition extends BaseFieldDefinition {
   type: "boolean";
-  placeholder?: string;
 }
 
-export interface DatetimeFieldDefinition {
+export interface DatetimeFieldDefinition extends BaseFieldDefinition {
   type: "datetime";
-  placeholder?: string;
 }
 export interface MapFieldDefinition {
   type: "map";

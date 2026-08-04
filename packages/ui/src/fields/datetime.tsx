@@ -12,26 +12,32 @@ export interface DatatimeFieldProps {
 }
 
 export default function DatetimeField(props: DatatimeFieldProps): JSX.Element {
-  const { onChange, store, id } = props;
+  const { onChange, store, id, field } = props;
   const maybeNode = store[id];
   const currentValue = maybeNode?.type === "datetime"
     ? formatYYMMDD(maybeNode.value)
     : "";
 
   return (
-    <input
-      type="date"
-      onChange={(ev) => {
-        const value = new Date(ev.target.value);
-        const nextStore = {
-          ...store,
-          [id]: { type: "datetime" as const, value },
-        };
+    <>
+      <label>
+        <p>{field.title}</p>
 
-        onChange(nextStore);
-      }}
-      value={currentValue}
-    />
+        <input
+          type="date"
+          onChange={(ev) => {
+            const value = new Date(ev.target.value);
+            const nextStore = {
+              ...store,
+              [id]: { type: "datetime" as const, value },
+            };
+
+            onChange(nextStore);
+          }}
+          value={currentValue}
+        />
+      </label>
+    </>
   );
 }
 

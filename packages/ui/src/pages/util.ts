@@ -127,11 +127,13 @@ export function toFieldDefinition(field: Field): FieldDefinition {
     case "string": {
       return {
         type: "string",
+        title: field.title,
       };
     }
     case "number": {
       return {
         type: "number",
+        title: field.title,
       };
     }
     case "map": {
@@ -151,11 +153,13 @@ export function toFieldDefinition(field: Field): FieldDefinition {
     case "boolean": {
       return {
         type: "boolean",
+        title: field.title,
       };
     }
     case "datetime": {
       return {
         type: "datetime",
+        title: field.title,
       };
     }
     case "union": {
@@ -181,6 +185,7 @@ export function toFieldDefinition(field: Field): FieldDefinition {
     case "asset": {
       return {
         type: "string",
+        title: field.title,
       };
     }
   }

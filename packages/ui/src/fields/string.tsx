@@ -14,7 +14,6 @@ import type {
 export interface StringFieldProps {
   field: StringFieldDefinition;
   onChange: OnChange;
-  error?: string;
   store: Store;
   id: string;
   errors: ErrorMap;
@@ -22,35 +21,39 @@ export interface StringFieldProps {
 
 export default function StringField(props: StringFieldProps): JSX.Element {
   const { onChange, field, store, id, errors } = props;
+
   const maybeNode = store[id];
   const error = errors[id];
 
   return (
     <>
-      <input
-        type="text"
-        placeholder={field.placeholder}
-        value={maybeNode?.type === "string" ? maybeNode.value : ""}
-        onChange={(ev) => {
-          const value = ev.target.value;
-          const maybeNode = value
-            ? {
-              type: "string",
-              value,
-            } satisfies EditString
-            : null;
+      <label>
+        <p>{field.title}</p>
+        <input
+          type="text"
+          value={maybeNode?.type === "string" ? maybeNode.value : ""}
+          onChange={(ev) => {
+            const value = ev.target.value;
+            const maybeNode = value
+              ? {
+                type: "string",
+                value,
+              } satisfies EditString
+              : null;
 
-          const newStore = { ...store };
+            const newStore = { ...store };
 
-          if (maybeNode) {
-            newStore[id] = maybeNode;
-            onChange(newStore);
-          } else {
-            delete newStore[id];
-            onChange(newStore);
-          }
-        }}
-      />
+            if (maybeNode) {
+              newStore[id] = maybeNode;
+              onChange(newStore);
+            } else {
+              delete newStore[id];
+              onChange(newStore);
+            }
+          }}
+        />
+      </label>
+
       {error && <p>{error}</p>}
     </>
   );

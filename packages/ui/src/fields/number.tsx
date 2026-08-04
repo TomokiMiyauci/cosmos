@@ -26,9 +26,11 @@ export default function NumberField(props: NumberFieldProps): JSX.Element {
 
   return (
     <>
+      <label>
+        {field.title}
+      </label>
       <input
         type="number"
-        placeholder={field.placeholder}
         value={currentValue}
         onChange={(ev) => {
           const rawValue = ev.target.value;
