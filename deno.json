@@ -13,6 +13,8 @@
     "packages/node/*",
     "packages/graphql/*",
     "packages/converters/*",
+    "packages/indexers/*",
+    "packages/repositories/*",
     "examples/*"
   ],
   "lint": {
@@ -40,13 +42,11 @@
     }
   },
   "imports": {
-    "@deno/dnt": "jsr:@deno/dnt@^0.42.3",
     "@miyauci/graphql-builder": "jsr:@miyauci/graphql-builder@^1.0.0-beta.2",
     "@std/expect": "jsr:@std/expect@^1.0.19",
     "@std/testing": "jsr:@std/testing@^1.0.18"
   },
   "compilerOptions": {
     "noUncheckedIndexedAccess": true
-  },
-  "exclude": ["./**/*/npm", "./**/*/scripts"]
+  }
 }
