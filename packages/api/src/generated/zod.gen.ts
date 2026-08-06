@@ -5,7 +5,7 @@ import * as z from 'zod';
 export const zProblemDetails = z.object({
     type: z.string(),
     title: z.string(),
-    status: z.unknown(),
+    status: z.int().gte(100).lte(599),
     detail: z.string(),
     instance: z.string()
 });

@@ -7,7 +7,14 @@ const getResource = oc.getResource.errors({
   },
 });
 
+const postEntry = oc.postEntry.errors({
+  UNPROCESSABLE_CONTENT: {
+    data: zod.zProblemDetails,
+  },
+});
+
 export const contract = {
   ...oc,
+  postEntry,
   getResource,
 };
