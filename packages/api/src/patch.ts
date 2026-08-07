@@ -11,6 +11,12 @@ const postEntry = oc.postEntry.errors({
   UNPROCESSABLE_CONTENT: {
     data: zod.zProblemDetails,
   },
+  CONFLICT: {
+    data: zod.zProblemDetails,
+  },
+  INTERNAL_SERVER_ERROR: {
+    data: zod.zProblemDetails,
+  },
 });
 
 export const contract = {

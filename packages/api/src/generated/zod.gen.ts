@@ -69,8 +69,8 @@ export const zUpdateEntryInput = z.object({
 });
 
 export const zEntryInput = z.object({
-    name: z.string(),
-    model: z.string(),
+    name: z.string().min(1),
+    model: z.string().min(1),
     contents: z.lazy((): any => zContents)
 });
 

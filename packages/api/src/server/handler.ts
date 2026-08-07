@@ -2,6 +2,7 @@ import type { Engine, Model, Resource } from "@cosmos/core";
 import { CmsServie } from "./services/core.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 import {
+  Contents,
   type CreateCommand,
   EntryCreateUseCase,
 } from "./application/usecases/entry/creation.ts";
@@ -15,16 +16,25 @@ import { contract } from "../patch.ts";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { toEntry } from "./util.ts";
 import type {
-  Contents,
+  Contents as JsonContents,
   Entry,
   EntryInput,
+  ProblemDetails,
   UpdateEntryInput,
 } from "../generated/types.gen.ts";
 import type { NodeJson } from "./application/dto.ts";
 import { Result } from "@miyauci/util";
 import { mapValues } from "@std/collections/map-values";
+import { onError, ORPCError, ValidationError } from "@orpc/server";
+import {
+  ResponseHeadersPlugin,
+  type ResponseHeadersPluginContext,
+} from "@orpc/server/plugins";
+import z from "zod";
 
-const os = implement<typeof contract, Context>(contract);
+const os = implement<typeof contract, Context & ResponseHeadersPluginContext>(
+  contract,
+);
 
 const router = os.router({
   deleteEntry: os.deleteEntry.handler(async (options) => {
@@ -54,37 +64,82 @@ const router = os.router({
 
     return entry;
   }),
-  postEntry: os.postEntry.handler(async (options) => {
-    const { context, input } = options;
+  postEntry: os.use(onError((error) => {
+    if (
+      error instanceof ORPCError &&
+      error.code === "BAD_REQUEST" &&
+      error.cause instanceof ValidationError
+    ) {
+      const zodError = new z.ZodError(error.cause.issues as z.core.$ZodIssue[]);
+
+      if (zodError.issues.some((issue) => issue.code === "invalid_type")) {
+        throw new ORPCError("BAD_REQUEST", {
+          data: {},
+        });
+      }
+
+      throw new ORPCError("UNPROCESSABLE_CONTENT", {
+        data: {
+          status: 422,
+          detail: "",
+          instance: "/",
+          type: "about:blank",
+          title: "Validation Failure",
+        },
+      });
+    }
+  })).postEntry.handler(async (options) => {
+    const { context, input, errors, path } = options;
     const { body } = input;
-    const { model, name, contents } = body as EntryInput;
+    const { model, name, contents: raw } = body as EntryInput;
+    const contents = toContents(raw);
+    const command = { model, name, contents } satisfies CreateCommand;
 
-    const maybeModel = await context.service.findModel(model);
-
-    if (!maybeModel) {
-      throw new Error();
-    }
-
-    const [node, nodeError] = toNode(contents, maybeModel);
-
-    if (nodeError) {
-      throw new Error();
-    }
-
-    const command = { model, name, node } satisfies CreateCommand;
-
-    const [id, error] = await context.usecases.entryCreate.execute(
-      command,
-    );
+    const [id, error] = await context.usecases.entryCreate.execute(command);
 
     if (error) {
-      throw new Error();
-      // return { status: 400, body: undefined };
+      switch (error.type) {
+        case "MODEL_NOT_FOUND": {
+          throw errors.CONFLICT({
+            data: {
+              status: 409,
+              detail: "Model not found",
+              instance: "/",
+              type: "about:blank",
+              title: "Model not found",
+            },
+          });
+        }
+
+        case "INVALID_NAME":
+        case "INVALID_MODEL": {
+          throw errors.INTERNAL_SERVER_ERROR({
+            data: {
+              status: 500,
+              detail: "",
+              instance: "/",
+              type: "about:blank",
+              title: "",
+            },
+          });
+        }
+        case "INVALID_CONTENT": {
+          throw errors.UNPROCESSABLE_CONTENT({
+            data: {
+              status: 422,
+              detail: "",
+              instance: "/",
+              type: "about:blank",
+              title: "Validation failure",
+            },
+          });
+        }
+      }
     }
 
     // TODO improve path construction
-    // const location = `${ctx.appRoute.path}/${dto.id}` as const;
-    // ctx.responseHeaders.append("location", location);
+    const location = `${path}/${id}` as const;
+    context.resHeaders?.set("location", location);
 
     return { id };
   }),
@@ -213,15 +268,18 @@ export function createRestHandler(
   config: ParsedConfig,
   base: `/${string}`,
 ): (request: Request) => Promise<Response> {
-  const handler = new OpenAPIHandler(router);
+  const handler = new OpenAPIHandler(router, {
+    plugins: [new ResponseHeadersPlugin()],
+  });
 
   const service = new CmsServie(config);
-  const repositry = config.value.repositry;
+  const entryRepositry = config.value.repositories.entry;
+  const modelRepositry = config.value.repositories.model;
 
   const usecases = {
-    entryCreate: new EntryCreateUseCase(repositry),
-    entryDelete: new EntryDeleteUseCase(repositry),
-    entryUpdate: new EntryUpdateUseCase(repositry),
+    entryCreate: new EntryCreateUseCase(entryRepositry, modelRepositry),
+    entryDelete: new EntryDeleteUseCase(entryRepositry),
+    entryUpdate: new EntryUpdateUseCase(entryRepositry),
   } satisfies Usecases;
   const platformContext = {
     service,
@@ -352,4 +410,39 @@ function toNode(contents: Contents, model: Model): Result<NodeJson, Error> {
       throw new Error();
     }
   }
+}
+
+function toContents(contents: JsonContents): Contents {
+  if (typeof contents === "string") {
+    return { type: "string", value: contents };
+  }
+  if (typeof contents === "number") {
+    return { type: "number", value: contents };
+  }
+
+  if (typeof contents === "boolean") {
+    return { type: "boolean", value: contents };
+  }
+
+  if (!Array.isArray(contents)) {
+    const value = mapValues(contents, toContents);
+
+    return { type: "record", value };
+  }
+
+  if (contents.length === 2 && typeof contents[0] === "string") {
+    const child = contents[1];
+    return {
+      type: "keyed",
+      key: contents[0],
+      value: toContents(child),
+    };
+  }
+
+  const value = contents.map(toContents);
+
+  return {
+    type: "list",
+    value,
+  };
 }

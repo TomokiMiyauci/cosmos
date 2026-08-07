@@ -40,12 +40,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Identitiy"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+
         "422":
           description: Validation failure
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
 
   /entries/{id}:
     get:
@@ -223,8 +230,10 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
         model:
           type: string
+          minLength: 1
         contents:
           $ref: "#/components/schemas/Contents"
       required:
@@ -451,3 +460,11 @@ components:
       unevaluatedItems: false
     ReferenceContents:
       type: string
+
+  responses:
+    ErrorResponse:
+      description: Error
+      content:
+        application:json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"

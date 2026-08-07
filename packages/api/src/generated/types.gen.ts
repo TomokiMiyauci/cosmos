@@ -160,9 +160,21 @@ export type PostEntryData = {
 
 export type PostEntryErrors = {
     /**
+     * Error
+     */
+    400: ProblemDetails;
+    /**
+     * Error
+     */
+    409: ProblemDetails;
+    /**
      * Validation failure
      */
     422: ProblemDetails;
+    /**
+     * Error
+     */
+    500: ProblemDetails;
 };
 
 export type PostEntryError = PostEntryErrors[keyof PostEntryErrors];
