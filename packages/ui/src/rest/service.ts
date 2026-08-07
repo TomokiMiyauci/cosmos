@@ -3,8 +3,9 @@ import type {
   Content,
   ContentsOption,
   Entry,
+  EntryCreationError,
+  EntryInput,
   Field,
-  Identity,
   Resource,
   Summary,
   Template,
@@ -35,6 +36,40 @@ export class RestCmsService implements CmsService {
   #client: Client;
   constructor(endpoint: URL) {
     this.#client = new Client(endpoint);
+  }
+
+  async createEntry(
+    entry: EntryInput,
+  ): Promise<Result<void, EntryCreationError>> {
+    const contents = toContents(entry.node);
+    const result = await this.#client.postEntry({
+      contents,
+      model: entry.model,
+      name: entry.name,
+    });
+
+    switch (result.status) {
+      case 201: {
+        return Result.ok(undefined);
+      }
+      case 409: {
+        return Result.error({
+          type: "OPERATION_ERROR",
+          message: result.body.detail,
+        });
+      }
+      case 422: {
+        return Result.error({
+          type: "VALIDATION_ERROR",
+        });
+      }
+      case 500: {
+        return Result.error({
+          type: "SYSTEM_ERROR",
+          message: result.body.detail,
+        });
+      }
+    }
   }
 
   async #findResource(resourceId: string): Promise<ResourceDto | null> {
@@ -191,26 +226,6 @@ export class RestCmsService implements CmsService {
     });
 
     return Result.ok(entry.node);
-  }
-
-  async registerEntry(
-    model: string,
-    node: Node,
-    summary: Summary,
-  ): Promise<Result<Identity, {}>> {
-    const [data, error] = await this.#client.postEntry({
-      contents: toContents(node),
-      model,
-      name: summary.name,
-    });
-
-    if (error) {
-      throw new Error();
-    }
-
-    return Result.ok({
-      id: data.id,
-    });
   }
 
   async eraseNodeById(id: string): Promise<void> {

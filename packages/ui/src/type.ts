@@ -25,13 +25,8 @@ export interface CmsService {
   findResource(id: string): Promise<Resource | null>;
   findResources(): Promise<Identity[]>;
   saveEntry(entry: Entry): Promise<Result<Node, {}>>;
-  registerEntry(
-    model: string,
-    node: Node,
-    summary: SummaryInput,
-  ): Promise<Result<Identity, {}>>;
   eraseNodeById(id: string): Promise<void>;
-  createEntry(entry: EntryInput): Promise<Result<void, EntryCreationFailure>>;
+  createEntry(entry: EntryInput): Promise<Result<void, EntryCreationError>>;
 }
 
 export interface EntryInput {
@@ -48,6 +43,25 @@ export interface ErrorDetail {
 export interface EntryCreationFailure {
   name?: ErrorDetail;
   node?: Errors;
+}
+
+export type EntryCreationError =
+  | EntryCreationValidationError
+  | EntryCreationOperationError
+  | EntryCreationSystemError;
+
+interface EntryCreationValidationError {
+  type: "VALIDATION_ERROR";
+}
+
+interface EntryCreationOperationError {
+  type: "OPERATION_ERROR";
+  message: string;
+}
+
+interface EntryCreationSystemError {
+  type: "SYSTEM_ERROR";
+  message: string;
 }
 
 export type ErrorCode = "Required";
