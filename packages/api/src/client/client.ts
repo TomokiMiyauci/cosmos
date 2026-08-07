@@ -5,6 +5,7 @@ import type {
   EntrySummary,
   Identitiy,
   Model,
+  ProblemDetails,
   Resource,
   UpdateEntryInput,
 } from "../generated/types.gen.ts";
@@ -18,6 +19,32 @@ import {
 } from "@orpc/client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
 import { Result } from "@miyauci/util";
+
+export type PostEntryResult =
+  | PostEntryResult201
+  | PostEntryResult409
+  | PostEntryResult422
+  | PostEntryResult500;
+
+export interface PostEntryResult201 {
+  status: 201;
+  body: Identitiy;
+}
+
+export interface PostEntryResult409 {
+  status: 409;
+  body: ProblemDetails;
+}
+
+export interface PostEntryResult422 {
+  status: 422;
+  body: ProblemDetails;
+}
+
+export interface PostEntryResult500 {
+  status: 500;
+  body: ProblemDetails;
+}
 
 export class Client {
   #client: SafeClient<JsonifiedClient<ContractRouterClient<typeof contract>>>;
@@ -44,16 +71,31 @@ export class Client {
     return data;
   }
 
-  async postEntry(
-    params: EntryInput,
-  ): Promise<Result<Identitiy, ApiError<Problem>>> {
+  /**
+   * @throws
+   */
+  async postEntry(params: EntryInput): Promise<PostEntryResult> {
     const [error, data] = await this.#client.postEntry({ body: params });
 
     if (error) {
+      if (isDefinedError(error)) {
+        switch (error.code) {
+          case "CONFLICT": {
+            return { status: 409, body: error.data };
+          }
+          case "UNPROCESSABLE_CONTENT": {
+            return { status: 422, body: error.data };
+          }
+          case "INTERNAL_SERVER_ERROR": {
+            return { status: 500, body: error.data };
+          }
+        }
+      }
+
       throw error;
     }
 
-    return Result.ok(data);
+    return { status: 201, body: data };
   }
 
   async getEntry(
@@ -170,6 +212,7 @@ type Problem =
   | InvalidArgumentProblem
   | ValidationErrorProblem
   | NotFoundProblem
+  | ConflictProblem
   | InternalServerErrorProblem;
 
 interface InvalidArgumentProblem {
@@ -178,6 +221,10 @@ interface InvalidArgumentProblem {
 
 interface NotFoundProblem {
   status: 404;
+}
+
+interface ConflictProblem {
+  status: 409;
 }
 
 interface ValidationErrorProblem {
