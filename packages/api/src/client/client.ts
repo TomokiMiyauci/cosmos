@@ -5,7 +5,6 @@ import type {
   EntrySummary,
   Identitiy,
   Model,
-  ProblemDetails,
   Resource,
   UpdateEntryInput,
 } from "../generated/types.gen.ts";
@@ -20,31 +19,7 @@ import {
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
 import { Result } from "@miyauci/util";
 
-export type PostEntryResult =
-  | PostEntryResult201
-  | PostEntryResult409
-  | PostEntryResult422
-  | PostEntryResult500;
-
-export interface PostEntryResult201 {
-  status: 201;
-  body: Identitiy;
-}
-
-export interface PostEntryResult409 {
-  status: 409;
-  body: ProblemDetails;
-}
-
-export interface PostEntryResult422 {
-  status: 422;
-  body: ProblemDetails;
-}
-
-export interface PostEntryResult500 {
-  status: 500;
-  body: ProblemDetails;
-}
+export type PostEntryError = ValidationError;
 
 export class Client {
   #client: SafeClient<JsonifiedClient<ContractRouterClient<typeof contract>>>;
@@ -74,20 +49,32 @@ export class Client {
   /**
    * @throws
    */
-  async postEntry(params: EntryInput): Promise<PostEntryResult> {
-    const [error, data] = await this.#client.postEntry({ body: params });
+  async postEntry(params: EntryInput): Promise<Result<void, PostEntryError>> {
+    const [error] = await this.#client.postEntry({ body: params });
 
     if (error) {
       if (isDefinedError(error)) {
         switch (error.code) {
           case "CONFLICT": {
-            return { status: 409, body: error.data };
+            throw new Error();
           }
           case "UNPROCESSABLE_CONTENT": {
-            return { status: 422, body: error.data };
+            const errors = error.data.errors.map((error) => {
+              const failure = error.pointer === "/name"
+                ? { instance: params, key: "name" }
+                : null;
+
+              if (!failure) {
+                throw new Error();
+              }
+
+              return failure;
+            });
+
+            return Result.error({ type: "VALIDATION", errors });
           }
           case "INTERNAL_SERVER_ERROR": {
-            return { status: 500, body: error.data };
+            throw new Error();
           }
         }
       }
@@ -95,7 +82,7 @@ export class Client {
       throw error;
     }
 
-    return { status: 201, body: data };
+    return Result.ok(undefined);
   }
 
   async getEntry(
@@ -234,4 +221,14 @@ interface ValidationErrorProblem {
 
 interface InternalServerErrorProblem {
   status: 500;
+}
+
+interface ValidationError {
+  type: "VALIDATION";
+  errors: ValidationFailure[];
+}
+
+interface ValidationFailure {
+  instance: object;
+  key: string | null;
 }

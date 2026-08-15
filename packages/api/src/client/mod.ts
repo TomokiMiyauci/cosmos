@@ -1,8 +1,7 @@
-export { ApiError, Client } from "./client.ts";
+export { ApiError, Client, type PostEntryError } from "./client.ts";
 export type {
   Contents,
   Entry,
-  EntryInputDto,
   EntrySummary,
   Model,
   Resource,

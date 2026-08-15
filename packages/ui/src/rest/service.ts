@@ -42,34 +42,23 @@ export class RestCmsService implements CmsService {
     entry: EntryInput,
   ): Promise<Result<void, EntryCreationError>> {
     const contents = toContents(entry.node);
-    const result = await this.#client.postEntry({
+    const [_, error] = await this.#client.postEntry({
       contents,
       model: entry.model,
       name: entry.name,
     });
 
-    switch (result.status) {
-      case 201: {
-        return Result.ok(undefined);
-      }
-      case 409: {
-        return Result.error({
-          type: "OPERATION_ERROR",
-          message: result.body.detail,
-        });
-      }
-      case 422: {
-        return Result.error({
-          type: "VALIDATION_ERROR",
-        });
-      }
-      case 500: {
-        return Result.error({
-          type: "SYSTEM_ERROR",
-          message: result.body.detail,
-        });
+    if (error) {
+      switch (error.type) {
+        case "VALIDATION": {
+          return Result.error({
+            type: "VALIDATION_ERROR",
+          });
+        }
       }
     }
+
+    return Result.ok(undefined);
   }
 
   async #findResource(resourceId: string): Promise<ResourceDto | null> {

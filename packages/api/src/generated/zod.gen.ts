@@ -10,6 +10,15 @@ export const zProblemDetails = z.object({
     instance: z.string()
 });
 
+export const zValidationError = z.object({
+    pointer: z.string(),
+    title: z.string()
+});
+
+export const zValidationProblemDetails = zProblemDetails.and(z.object({
+    errors: z.array(zValidationError)
+}));
+
 export const zEntrySummary = z.object({
     id: z.string(),
     model: z.string(),

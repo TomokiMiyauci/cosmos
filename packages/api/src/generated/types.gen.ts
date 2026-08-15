@@ -27,6 +27,15 @@ export type ProblemDetails = {
     instance: string;
 };
 
+export type ValidationProblemDetails = ProblemDetails & {
+    errors: Array<ValidationError>;
+};
+
+export type ValidationError = {
+    pointer: string;
+    title: string;
+};
+
 export type UpdateEntryInput = {
     name: string;
     contents: Contents;
@@ -170,7 +179,7 @@ export type PostEntryErrors = {
     /**
      * Validation failure
      */
-    422: ProblemDetails;
+    422: ValidationProblemDetails;
     /**
      * Error
      */

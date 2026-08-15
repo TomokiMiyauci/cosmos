@@ -2,7 +2,7 @@ import type { Engine, Model, Resource } from "@cosmos/core";
 import { CmsServie } from "./services/core.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 import {
-  Contents,
+  type Contents,
   type CreateCommand,
   EntryCreateUseCase,
 } from "./application/usecases/entry/creation.ts";
@@ -19,7 +19,6 @@ import type {
   Contents as JsonContents,
   Entry,
   EntryInput,
-  ProblemDetails,
   UpdateEntryInput,
 } from "../generated/types.gen.ts";
 import type { NodeJson } from "./application/dto.ts";
@@ -85,6 +84,7 @@ const router = os.router({
           instance: "/",
           type: "about:blank",
           title: "Validation Failure",
+          errors: [],
         },
       });
     }
@@ -131,6 +131,7 @@ const router = os.router({
               instance: "/",
               type: "about:blank",
               title: "Validation failure",
+              errors: [],
             },
           });
         }
