@@ -9,7 +9,7 @@ const getResource = oc.getResource.errors({
 
 const postEntry = oc.postEntry.errors({
   UNPROCESSABLE_CONTENT: {
-    data: zod.zProblemDetails,
+    data: zod.zValidationProblemDetails,
   },
   CONFLICT: {
     data: zod.zProblemDetails,

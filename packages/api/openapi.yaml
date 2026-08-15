@@ -50,7 +50,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "#/components/schemas/ValidationProblemDetails"
         "500":
           $ref: "#/components/responses/ErrorResponse"
 
@@ -213,6 +213,28 @@ components:
         - status
         - detail
         - instance
+
+    ValidationProblemDetails:
+      allOf:
+        - $ref: "#/components/schemas/ProblemDetails"
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
+      required:
+        - errors
+
+    ValidationError:
+      type: object
+      properties:
+        pointer:
+          type: string
+        title:
+          type: string
+      required:
+        - pointer
+        - title
 
     UpdateEntryInput:
       type: object

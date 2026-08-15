@@ -35,6 +35,94 @@ const os = implement<typeof contract, Context & ResponseHeadersPluginContext>(
   contract,
 );
 
+interface PostEntryHandlerContext extends ResponseHeadersPluginContext {
+  usecase: EntryCreateUseCase;
+}
+
+export const postEntry = os.$context<PostEntryHandlerContext>().use(
+  onError((error) => {
+    if (
+      error instanceof ORPCError &&
+      error.code === "BAD_REQUEST" &&
+      error.cause instanceof ValidationError
+    ) {
+      const zodError = new z.ZodError(error.cause.issues as z.core.$ZodIssue[]);
+
+      if (zodError.issues.some((issue) => issue.code === "invalid_type")) {
+        throw new ORPCError("BAD_REQUEST", {
+          data: {},
+        });
+      }
+
+      throw new ORPCError("UNPROCESSABLE_CONTENT", {
+        data: {
+          status: 422,
+          detail: "",
+          instance: "/",
+          type: "about:blank",
+          title: "Validation Failure",
+          errors: [],
+        },
+      });
+    }
+  }),
+).postEntry.handler(async (options) => {
+  const { context, input, errors, path } = options;
+  const { body } = input;
+  const { model, name, contents: raw } = body as EntryInput;
+  const contents = toContents(raw);
+  const command = { model, name, contents } satisfies CreateCommand;
+
+  const [id, error] = await context.usecase.execute(command);
+
+  if (error) {
+    switch (error.type) {
+      case "MODEL_NOT_FOUND": {
+        throw errors.CONFLICT({
+          data: {
+            status: 409,
+            detail: "Model not found",
+            instance: "/",
+            type: "about:blank",
+            title: "Model not found",
+          },
+        });
+      }
+
+      case "INVALID_NAME":
+      case "INVALID_MODEL": {
+        throw errors.INTERNAL_SERVER_ERROR({
+          data: {
+            status: 500,
+            detail: "",
+            instance: "/",
+            type: "about:blank",
+            title: "",
+          },
+        });
+      }
+      case "INVALID_CONTENT": {
+        throw errors.UNPROCESSABLE_CONTENT({
+          data: {
+            status: 422,
+            detail: "",
+            instance: "/",
+            type: "about:blank",
+            title: "Validation failure",
+            errors: [],
+          },
+        });
+      }
+    }
+  }
+
+  // TODO improve path construction
+  const location = `${path}/${id}` as const;
+  context.resHeaders?.set("location", location);
+
+  return { id };
+});
+
 const router = os.router({
   deleteEntry: os.deleteEntry.handler(async (options) => {
     const { context, input } = options;
@@ -63,86 +151,13 @@ const router = os.router({
 
     return entry;
   }),
-  postEntry: os.use(onError((error) => {
-    if (
-      error instanceof ORPCError &&
-      error.code === "BAD_REQUEST" &&
-      error.cause instanceof ValidationError
-    ) {
-      const zodError = new z.ZodError(error.cause.issues as z.core.$ZodIssue[]);
+  postEntry: os.postEntry.handler(async (params) => {
+    const context = { usecase: params.context.usecases.entryCreate };
+    const result = await postEntry.callable({ context })({
+      body: params.input.body,
+    });
 
-      if (zodError.issues.some((issue) => issue.code === "invalid_type")) {
-        throw new ORPCError("BAD_REQUEST", {
-          data: {},
-        });
-      }
-
-      throw new ORPCError("UNPROCESSABLE_CONTENT", {
-        data: {
-          status: 422,
-          detail: "",
-          instance: "/",
-          type: "about:blank",
-          title: "Validation Failure",
-          errors: [],
-        },
-      });
-    }
-  })).postEntry.handler(async (options) => {
-    const { context, input, errors, path } = options;
-    const { body } = input;
-    const { model, name, contents: raw } = body as EntryInput;
-    const contents = toContents(raw);
-    const command = { model, name, contents } satisfies CreateCommand;
-
-    const [id, error] = await context.usecases.entryCreate.execute(command);
-
-    if (error) {
-      switch (error.type) {
-        case "MODEL_NOT_FOUND": {
-          throw errors.CONFLICT({
-            data: {
-              status: 409,
-              detail: "Model not found",
-              instance: "/",
-              type: "about:blank",
-              title: "Model not found",
-            },
-          });
-        }
-
-        case "INVALID_NAME":
-        case "INVALID_MODEL": {
-          throw errors.INTERNAL_SERVER_ERROR({
-            data: {
-              status: 500,
-              detail: "",
-              instance: "/",
-              type: "about:blank",
-              title: "",
-            },
-          });
-        }
-        case "INVALID_CONTENT": {
-          throw errors.UNPROCESSABLE_CONTENT({
-            data: {
-              status: 422,
-              detail: "",
-              instance: "/",
-              type: "about:blank",
-              title: "Validation failure",
-              errors: [],
-            },
-          });
-        }
-      }
-    }
-
-    // TODO improve path construction
-    const location = `${path}/${id}` as const;
-    context.resHeaders?.set("location", location);
-
-    return { id };
+    return result;
   }),
   getModel: os.getModel.handler(async (options): Promise<Model> => {
     const { input, context } = options;
