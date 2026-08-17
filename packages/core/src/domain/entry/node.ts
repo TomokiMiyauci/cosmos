@@ -1,4 +1,5 @@
 import { Result } from "@miyauci/util";
+import type { EntryId } from "./id.ts";
 
 export type Node =
   | StringNode
@@ -116,23 +117,19 @@ export class UnionNode {
 }
 
 export class ReferenceNode {
-  #value: string;
+  #value: EntryId;
 
-  private constructor(value: string) {
+  private constructor(value: EntryId) {
     this.#value = value;
   }
 
-  static of(value: string): Result<ReferenceNode, SyntaxError> {
-    if (!value) {
-      return Result.error(new SyntaxError());
-    }
-
-    return Result.ok(new ReferenceNode(value));
+  static of(value: EntryId): ReferenceNode {
+    return new ReferenceNode(value);
   }
 
   readonly type = "reference";
 
-  get value(): string {
+  get value(): EntryId {
     return this.#value;
   }
 }
@@ -156,5 +153,36 @@ export class DatetimeNode {
 
   get value(): Date {
     return this.#value;
+  }
+}
+
+export function* collectReferences(node: Node): Generator<EntryId> {
+  switch (node.type) {
+    case "string":
+    case "number":
+    case "boolean":
+    case "datetime": {
+      break;
+    }
+    case "map": {
+      for (const childNode of Object.values(node.value)) {
+        yield* collectReferences(childNode);
+      }
+      break;
+    }
+    case "list": {
+      for (const childNode of node.value) {
+        yield* collectReferences(childNode);
+      }
+      break;
+    }
+    case "union": {
+      yield* collectReferences(node.value);
+      break;
+    }
+    case "reference": {
+      yield node.value;
+      break;
+    }
   }
 }

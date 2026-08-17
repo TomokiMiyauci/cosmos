@@ -9,8 +9,9 @@ import {
   ReferenceNode,
   StringNode,
   UnionNode,
-} from "./node.ts";
+} from "./entry/node.ts";
 import { Result } from "@miyauci/util";
+import { EntryId } from "@cosmos/core";
 
 export function parse(
   content: Content,
@@ -250,7 +251,7 @@ export function parse(
       }
       case "reference": {
         if (typeof content === "string") {
-          const [data, error] = ReferenceNode.of(content);
+          const [data, error] = EntryId.from(content);
 
           if (error) {
             return Result.error([
@@ -258,7 +259,9 @@ export function parse(
             ]);
           }
 
-          return Result.ok(data);
+          const node = ReferenceNode.of(data);
+
+          return Result.ok(node);
         }
 
         return Result.error(

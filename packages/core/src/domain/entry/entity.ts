@@ -1,4 +1,4 @@
-import type { Node } from "../../types/node.ts";
+import type { Node } from "./node.ts";
 import type { EntryId } from "./id.ts";
 import type { EntryName } from "./name.ts";
 import type { ModelId } from "../model/id.ts";

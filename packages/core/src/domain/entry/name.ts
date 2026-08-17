@@ -7,9 +7,9 @@ export class EntryName {
 
   #value: string;
 
-  static of(name: string): Result<EntryName, Error> {
+  static of(name: string): Result<EntryName, SyntaxError> {
     if (!name) {
-      return Result.error(new Error("name is empty"));
+      return Result.error(new SyntaxError("name is empty"));
     }
 
     return Result.ok(new EntryName(name));
