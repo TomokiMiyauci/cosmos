@@ -64,7 +64,6 @@ export type {
   LiteralNodeValue,
   MapNode,
   MarkdownNode,
-  Node,
   NodeValue,
   NumberNode,
   ParagraphMapNode,
@@ -105,9 +104,11 @@ export { EntryId } from "./domain/entry/id.ts";
 export { Entry as E } from "./domain/entry/entity.ts";
 export { EntryName } from "./domain/entry/name.ts";
 export type { EntryRepositry } from "./domain/entry/repositry.ts";
+export { type Node } from "./domain/entry/node.ts";
 export { Model as M } from "./domain/model/entity.ts";
 export type { ModelRepositry } from "./domain/model/repositry.ts";
 export { ModelId } from "./domain/model/id.ts";
+export { type Schema as S } from "./domain/model/schema.ts";
 export type {
   AssetModel,
   BooleanModel,

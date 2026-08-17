@@ -1,5 +1,10 @@
-import type { Codec, Engine, Model, Resource } from "@cosmos/core";
-import type { Config, ModelConfig, ResourceConfig } from "./type.ts";
+import { Codec, Engine, M, Model, ModelId, Resource, S } from "@cosmos/core";
+import type {
+  Config,
+  ModelConfig,
+  ResourceConfig,
+  SchemaConfig,
+} from "./type.ts";
 import { mapValues } from "@std/collections";
 import { type CodecMap, ParentCodec } from "./codec.ts";
 import { PoolStorage } from "./storage.ts";
@@ -16,7 +21,89 @@ export function convert(config: Config): Engine {
     (resource, id) => toResource(id, resource),
   );
 
-  return { ...config, models, resources, codec, storage };
+  const modelRecords = mapValues(
+    config.models,
+    (model, key) => toM(key, model),
+  );
+
+  return {
+    ...config,
+    models,
+    resources,
+    codec,
+    storage,
+    repositories: {
+      entry: config.repositry,
+      model: {
+        findById(modelId): Promise<M | null> {
+          const model = modelRecords[modelId.value];
+
+          return Promise.resolve(model ?? null);
+        },
+      },
+    },
+  };
+}
+
+function toM(
+  key: string,
+  model: ModelConfig,
+): M {
+  const [modelId, modelIdError] = ModelId.of(key);
+
+  if (modelIdError) throw new Error();
+
+  const schema = toSchema(model.schema);
+
+  return M.of(modelId, schema);
+}
+
+function toSchema(schema: SchemaConfig): S {
+  switch (schema.type) {
+    case "string": {
+      return { type: "string" };
+    }
+    case "number": {
+      return { type: "number" };
+    }
+    case "boolean": {
+      return { type: "boolean" };
+    }
+    case "datetime": {
+      return {
+        type: "datetime",
+      };
+    }
+    case "union": {
+      const variants = mapValues(
+        schema.variants,
+        (model) => toSchema(model.schema),
+      );
+
+      return { type: "union", variants };
+    }
+    case "reference": {
+      return { type: "reference" };
+    }
+    case "instance": {
+      throw new Error();
+    }
+    case "list": {
+      return { type: "list", item: toSchema(schema.item) };
+    }
+    case "map": {
+      const requiredSet = new Set(schema.required);
+      const props = mapValues(schema.props, (model, key) => {
+        const required = requiredSet.has(key);
+        return { required, schema: toSchema(model.schema) };
+      });
+
+      return { type: "map", props };
+    }
+    case "asset": {
+      throw new Error();
+    }
+  }
 }
 
 function toModel(
