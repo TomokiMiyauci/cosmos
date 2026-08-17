@@ -312,7 +312,7 @@ export function createRestHandler(
   };
 }
 
-function toNode(contents: Contents, model: Model): Result<NodeJson, Error> {
+function toNode(contents: Content, model: Model): Result<NodeJson, Error> {
   switch (model.type) {
     case "string": {
       if (typeof contents === "string") {
@@ -428,36 +428,5 @@ function toNode(contents: Contents, model: Model): Result<NodeJson, Error> {
 }
 
 function toContents(contents: JsonContents): Content {
-  if (typeof contents === "string") {
-    return { type: "string", value: contents };
-  }
-  if (typeof contents === "number") {
-    return { type: "number", value: contents };
-  }
-
-  if (typeof contents === "boolean") {
-    return { type: "boolean", value: contents };
-  }
-
-  if (!Array.isArray(contents)) {
-    const value = mapValues(contents, toContents);
-
-    return { type: "record", value };
-  }
-
-  if (contents.length === 2 && typeof contents[0] === "string") {
-    const child = contents[1];
-    return {
-      type: "keyed",
-      key: contents[0],
-      value: toContents(child),
-    };
-  }
-
-  const value = contents.map(toContents);
-
-  return {
-    type: "list",
-    value,
-  };
+  return contents;
 }
