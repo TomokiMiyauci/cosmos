@@ -82,8 +82,11 @@ export function parse(
         );
       }
       case "datetime": {
-        if (content instanceof Date) {
-          const [data, error] = DatetimeNode.of(content);
+        if (typeof content === "string") {
+          const num = Date.parse(content);
+          const date = new Date(num);
+
+          const [data, error] = DatetimeNode.of(date);
 
           if (error) {
             return Result.error([{
@@ -102,7 +105,7 @@ export function parse(
             path,
             reason: {
               type: "invalid_type",
-              expected: "object",
+              expected: "string",
               actual: typeof content,
             },
           }],
@@ -285,7 +288,6 @@ export type Content =
   | string
   | number
   | boolean
-  | Date
   | {
     [k: string]: Content;
   }
