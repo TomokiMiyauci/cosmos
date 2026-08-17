@@ -10,19 +10,13 @@ export interface Manifest {
 }
 
 export interface Engine {
-  formats: Record<string, Formatter>;
-  codec: Codec;
   resources: Record<string, Resource>;
-  sources: Source[];
-  storage: Storage;
-  indexer: Indexer;
   models: Record<string, Model>;
-  converters?: Partial<ConvertMap>;
-  assets?: Record<string, Asset>;
   repositories: {
     entry: EntryRepositry;
     model: ModelRepositry;
   };
+  reader: any;
 }
 
 export interface Asset {

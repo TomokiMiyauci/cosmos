@@ -1,4 +1,11 @@
-import { Codec, Engine, M, Model, ModelId, Resource, S } from "@cosmos/core";
+import {
+  type Engine,
+  M,
+  type Model,
+  ModelId,
+  type Resource,
+  type S,
+} from "@cosmos/core";
 import type {
   Config,
   ModelConfig,
@@ -6,16 +13,12 @@ import type {
   SchemaConfig,
 } from "./type.ts";
 import { mapValues } from "@std/collections";
-import { type CodecMap, ParentCodec } from "./codec.ts";
-import { PoolStorage } from "./storage.ts";
 
 export function convert(config: Config): Engine {
   const models = mapValues(
     config.models,
     (model, key) => toModel(model, key, config.models),
   );
-  const codec = toCodec(config.codec);
-  const storage = new PoolStorage(config.storages);
   const resources = mapValues(
     config.resources,
     (resource, id) => toResource(id, resource),
@@ -27,11 +30,9 @@ export function convert(config: Config): Engine {
   );
 
   return {
-    ...config,
+    reader: config.reader,
     models,
     resources,
-    codec,
-    storage,
     repositories: {
       entry: config.repositry,
       model: {
@@ -210,10 +211,6 @@ function toModel(
       };
     }
   }
-}
-
-function toCodec(map: CodecMap): Codec {
-  return new ParentCodec(map);
 }
 
 function toResource(id: string, config: ResourceConfig): Resource {

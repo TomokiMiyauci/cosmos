@@ -1,21 +1,14 @@
 import type {
-  Asset,
   AssetSchema,
   BooleanSchema,
-  ConvertMap,
   DatetimeSchema,
   EntityType,
   EntryRepositry,
-  Formatter,
-  Indexer,
   InstanceSchema,
   NumberSchema,
   ReferenceSchema,
-  Source,
-  Storage,
   StringSchema,
 } from "@cosmos/core";
-import type { CodecMap } from "./codec.ts";
 
 export interface ModelConfig {
   title?: string;
@@ -52,16 +45,10 @@ export interface ListSchemaConfig {
 }
 
 export interface Config {
-  formats: Record<string, Formatter>;
-  codec: CodecMap;
   resources: Record<string, ResourceConfig>;
-  sources: Source[];
-  storages: Record<string, Storage>;
-  indexer: Indexer;
   models: Record<string, ModelConfig>;
-  converters?: Partial<ConvertMap>;
-  assets?: Record<string, Asset>;
   repositry: EntryRepositry;
+  reader: EntryReader;
 }
 
 export interface ResourceConfig {
