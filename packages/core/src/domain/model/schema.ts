@@ -1,63 +1,49 @@
-class StringSchema {
-  constructor() {}
+export type Schema =
+  | StringSchema
+  | NumberSchema
+  | BooleanSchema
+  | MapSchema
+  | ListSchema
+  | UnionSchema
+  | ReferenceSchema
+  | DatetimeSchema;
 
-  // deno-lint-ignore no-misused-new
-  static new(): StringSchema {
-    return new StringSchema();
-  }
-
-  validate(dto: NodeJson): boolean {
-    return dto.type === "string";
-  }
-}
-
-class NumberSchema {
-  constructor() {}
-
-  // deno-lint-ignore no-misused-new
-  static new(): NumberSchema {
-    return new NumberSchema();
-  }
-
-  validate(dto: NodeJson): boolean {
-    return dto.type === "number";
-  }
-}
-
-// deno-lint-ignore no-namespace
-namespace Schema {
-  export function of(dto: SchemaJson): Schema {
-    switch (dto.type) {
-      case "string": {
-        return StringSchema.new();
-      }
-      case "number": {
-        return NumberSchema.new();
-      }
-    }
-  }
-}
-
-export type Schema = StringSchema | NumberSchema;
-
-type SchemaJson = StringSchemaJson | NumberSchemaJson;
-
-interface StringSchemaJson {
+export interface StringSchema {
   type: "string";
 }
 
-interface NumberSchemaJson {
+export interface NumberSchema {
   type: "number";
 }
 
-export type NodeJson = StringNodeJson | NumberNodeJson;
-
-interface StringNodeJson {
-  type: "string";
-  value: string;
+export interface BooleanSchema {
+  type: "boolean";
 }
 
-interface NumberNodeJson {
-  type: "number";
-  value: number;
+export interface DatetimeSchema {
+  type: "datetime";
+}
+
+export interface MapSchema {
+  type: "map";
+  props: Record<string, PropertyDefinition>;
+}
+
+export interface ListSchema {
+  type: "list";
+  item: Schema;
+}
+
+export interface PropertyDefinition {
+  required: boolean;
+  schema: Schema;
+}
+
+export interface UnionSchema {
+  type: "union";
+  variants: Record<string, Schema>;
+}
+
+export interface ReferenceSchema {
+  type: "reference";
 }

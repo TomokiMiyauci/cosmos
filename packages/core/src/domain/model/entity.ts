@@ -1,5 +1,5 @@
 import type { ModelId } from "./id.ts";
-import type { NodeJson, Schema } from "./schema.ts";
+import type { Schema } from "./schema.ts";
 
 export class Model {
   readonly #id: ModelId;
@@ -12,10 +12,6 @@ export class Model {
 
   static of(id: ModelId, schema: Schema): Model {
     return new Model(id, schema);
-  }
-
-  validateNode(dto: NodeJson): boolean {
-    return this.#schema.validate(dto);
   }
 
   get id(): ModelId {

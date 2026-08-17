@@ -1,20 +1,19 @@
 import {
+  type Content,
   E as Entry,
   EntryId,
   EntryName,
   type EntryRepositry,
-  type M as Model,
   ModelId,
   type ModelRepositry,
-  type Node,
+  parse,
 } from "@cosmos/core";
 import { Result } from "@miyauci/util";
 
 export interface CreateCommand {
   name: string;
   model: string;
-  // node: NodeJson;
-  contents: Contents;
+  contents: Content;
 }
 
 export type CreationError =
@@ -33,10 +32,6 @@ interface InvalidModelError {
 
 interface InvalidNameError {
   type: "INVALID_NAME";
-}
-
-enum Violation {
-  Empty,
 }
 
 interface ContentViolationError {
@@ -69,10 +64,9 @@ export class EntryCreateUseCase {
 
     if (!model) return Result.error({ type: "MODEL_NOT_FOUND" });
 
-    const validator = new Validator();
-    const [node, nodeError] = await validator.parse(
-      model,
+    const [node, nodeError] = parse(
       command.contents,
+      model.schema,
     );
 
     if (nodeError) {
@@ -84,68 +78,5 @@ export class EntryCreateUseCase {
     await this.entryRepo.save(entry);
 
     return Result.ok(entry.id.value);
-  }
-}
-
-class Validator {
-  async parse(model: Model, contents: Contents): Promise<Result<Node, Error>> {
-    return to(contents, model);
-  }
-}
-
-export type Contents =
-  | StringContents
-  | NumberContents
-  | BooleanContents
-  | RecordContents
-  | ListContents
-  | KeyedContens;
-
-interface StringContents {
-  type: "string";
-  value: string;
-}
-
-interface NumberContents {
-  type: "number";
-  value: number;
-}
-
-interface BooleanContents {
-  type: "boolean";
-  value: boolean;
-}
-
-interface RecordContents {
-  type: "record";
-  value: Record<string, Contents>;
-}
-
-interface ListContents {
-  type: "list";
-  value: Contents[];
-}
-
-interface KeyedContens {
-  type: "keyed";
-  key: string;
-  value: Contents;
-}
-
-function to(contents: Contents, model: Model): Result<Node, Error> {
-  switch (model.schema.type) {
-    case "string": {
-      if (contents.type !== "string") return Result.error(Error());
-
-      return Result.ok({ type: "string", value: contents.value });
-    }
-    case "number": {
-      if (contents.type !== "number") return Result.error(Error());
-
-      return Result.ok({
-        type: "number",
-        value: contents.value,
-      });
-    }
   }
 }

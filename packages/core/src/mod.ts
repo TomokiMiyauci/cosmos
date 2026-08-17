@@ -121,3 +121,4 @@ export type {
   StringModel,
   UnionModel,
 } from "./types/model.ts";
+export { type Content, parse } from "./domain/parser.ts";

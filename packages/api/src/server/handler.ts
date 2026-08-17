@@ -1,8 +1,7 @@
-import type { Engine, Model, Resource } from "@cosmos/core";
+import type { Content, Engine, Model, Resource } from "@cosmos/core";
 import { CmsServie } from "./services/core.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 import {
-  type Contents,
   type CreateCommand,
   EntryCreateUseCase,
 } from "./application/usecases/entry/creation.ts";
@@ -428,7 +427,7 @@ function toNode(contents: Contents, model: Model): Result<NodeJson, Error> {
   }
 }
 
-function toContents(contents: JsonContents): Contents {
+function toContents(contents: JsonContents): Content {
   if (typeof contents === "string") {
     return { type: "string", value: contents };
   }

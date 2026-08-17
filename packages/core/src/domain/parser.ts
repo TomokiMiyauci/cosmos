@@ -1,4 +1,4 @@
-import type { Schema } from "./schema.ts";
+import type { Schema } from "./model/schema.ts";
 import {
   BooleanNode,
   DatetimeNode,
