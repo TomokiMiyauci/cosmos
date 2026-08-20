@@ -29,6 +29,7 @@ import {
   type ResponseHeadersPluginContext,
 } from "@orpc/server/plugins";
 import z from "zod";
+import location from "./middleware/location.ts";
 
 const os = implement<typeof contract, Context & ResponseHeadersPluginContext>(
   contract,
@@ -115,12 +116,8 @@ export const postEntry = os.$context<PostEntryHandlerContext>().use(
     }
   }
 
-  // TODO improve path construction
-  const location = `${path}/${id}` as const;
-  context.resHeaders?.set("location", location);
-
   return { id };
-});
+}).use(location);
 
 const router = os.router({
   deleteEntry: os.deleteEntry.handler(async (options) => {
