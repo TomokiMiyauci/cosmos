@@ -30,16 +30,13 @@ import {
 } from "@orpc/server/plugins";
 import z from "zod";
 import location from "./middleware/location.ts";
+import { EntryController } from "./controllers/entry.ts";
 
 const os = implement<typeof contract, Context & ResponseHeadersPluginContext>(
   contract,
 );
 
-interface PostEntryHandlerContext extends ResponseHeadersPluginContext {
-  usecase: EntryCreateUseCase;
-}
-
-export const postEntry = os.$context<PostEntryHandlerContext>().use(
+export const postEntry = os.use(
   onError((error) => {
     if (
       error instanceof ORPCError &&
@@ -66,58 +63,7 @@ export const postEntry = os.$context<PostEntryHandlerContext>().use(
       });
     }
   }),
-).postEntry.handler(async (options) => {
-  const { context, input, errors, path } = options;
-  const { body } = input;
-  const { model, name, contents: raw } = body as EntryInput;
-  const contents = toContents(raw);
-  const command = { model, name, contents } satisfies CreateCommand;
-
-  const [id, error] = await context.usecase.execute(command);
-
-  if (error) {
-    switch (error.type) {
-      case "MODEL_NOT_FOUND": {
-        throw errors.CONFLICT({
-          data: {
-            status: 409,
-            detail: "Model not found",
-            instance: "/",
-            type: "about:blank",
-            title: "Model not found",
-          },
-        });
-      }
-
-      case "INVALID_NAME":
-      case "INVALID_MODEL": {
-        throw errors.INTERNAL_SERVER_ERROR({
-          data: {
-            status: 500,
-            detail: "",
-            instance: "/",
-            type: "about:blank",
-            title: "",
-          },
-        });
-      }
-      case "INVALID_CONTENT": {
-        throw errors.UNPROCESSABLE_CONTENT({
-          data: {
-            status: 422,
-            detail: "",
-            instance: "/",
-            type: "about:blank",
-            title: "Validation failure",
-            errors: [],
-          },
-        });
-      }
-    }
-  }
-
-  return { id };
-}).use(location);
+);
 
 const router = os.router({
   deleteEntry: os.deleteEntry.handler(async (options) => {
@@ -147,14 +93,58 @@ const router = os.router({
 
     return entry;
   }),
-  postEntry: os.postEntry.handler(async (params) => {
-    const context = { usecase: params.context.usecases.entryCreate };
-    const result = await postEntry.callable({ context })({
-      body: params.input.body,
-    });
+  postEntry: os.postEntry.handler(async (options) => {
+    const { context, input, errors } = options;
+    const { body } = input;
+    const { model, name, contents: raw } = body as EntryInput;
+    const contents = toContents(raw);
+    const command = { model, name, contents } satisfies CreateCommand;
 
-    return result;
-  }),
+    const [id, error] = await context.controllers.entry.create(command);
+
+    if (error) {
+      switch (error.type) {
+        case "MODEL_NOT_FOUND": {
+          throw errors.CONFLICT({
+            data: {
+              status: 409,
+              detail: "Model not found",
+              instance: "/",
+              type: "about:blank",
+              title: "Model not found",
+            },
+          });
+        }
+
+        case "INVALID_NAME":
+        case "INVALID_MODEL": {
+          throw errors.INTERNAL_SERVER_ERROR({
+            data: {
+              status: 500,
+              detail: "",
+              instance: "/",
+              type: "about:blank",
+              title: "",
+            },
+          });
+        }
+        case "INVALID_CONTENT": {
+          throw errors.UNPROCESSABLE_CONTENT({
+            data: {
+              status: 422,
+              detail: "",
+              instance: "/",
+              type: "about:blank",
+              title: "Validation failure",
+              errors: [],
+            },
+          });
+        }
+      }
+    }
+
+    return { id };
+  }).use(location),
   getModel: os.getModel.handler(async (options): Promise<Model> => {
     const { input, context } = options;
     const { id } = input.params;
@@ -274,6 +264,9 @@ interface Context {
   usecases: Usecases;
   queries: QueryService;
   service: CoreService;
+  controllers: {
+    entry: EntryController;
+  };
 }
 
 export function createRestHandler(
@@ -297,6 +290,11 @@ export function createRestHandler(
     service,
     usecases,
     queries: new QueryService(config.value.reader),
+    controllers: {
+      entry: new EntryController(
+        new EntryCreateUseCase(entryRepositry, modelRepositry),
+      ),
+    },
   } satisfies Context;
 
   return async (request: Request) => {
