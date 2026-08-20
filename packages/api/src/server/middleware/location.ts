@@ -10,7 +10,7 @@ const locationMiddleware: Middleware<
   object,
   unknown,
   Identity,
-  {},
+  Record<PropertyKey, never>,
   object
 > = async (
   options,
