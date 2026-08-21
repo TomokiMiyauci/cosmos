@@ -1,0 +1,65 @@
+import type { SchemaId } from "./id.ts";
+
+export type Schema = PrimitiveSchema | CompositeSchema | ReferenceSchema;
+
+export interface BaseSchema {
+  id: SchemaId;
+}
+
+export type PrimitiveSchema =
+  | LiteralSchema
+  | StringSchema
+  | NumberSchema
+  | BooleanSchema
+  | TemporalSchema;
+
+export type CompositeSchema = MapSchema | ListSchema | UnionSchema;
+
+export interface LiteralSchema extends BaseSchema {
+  type: "literal";
+  value: string;
+}
+
+export interface StringSchema extends BaseSchema {
+  readonly type: "string";
+  readonly format: StringFormat | null;
+}
+
+export type StringFormat = "url" | "email";
+
+export interface NumberSchema extends BaseSchema {
+  type: "number";
+}
+
+export interface BooleanSchema extends BaseSchema {
+  type: "boolean";
+}
+
+export interface MapSchema extends BaseSchema {
+  type: "map";
+  properties: Record<string, MapProperty>;
+}
+
+export interface MapProperty extends BaseSchema {
+  required: boolean;
+  schemaId: SchemaId;
+}
+
+export interface ListSchema extends BaseSchema {
+  type: "list";
+  schemaId: SchemaId;
+}
+
+export interface ReferenceSchema extends BaseSchema {
+  type: "reference";
+  schemaId: SchemaId;
+}
+
+export interface UnionSchema extends BaseSchema {
+  type: "union";
+  members: SchemaId[];
+}
+
+export interface TemporalSchema extends BaseSchema {
+  type: "temporal";
+}
