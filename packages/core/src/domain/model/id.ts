@@ -7,8 +7,8 @@ export class ModelId {
   }
 
   static of(value: string): Result<ModelId, Error> {
-    if (!value) {
-      return Result.error(new Error("invalid model"));
+    if (value === "") {
+      return Result.error(new Error("invalid model id"));
     }
 
     return Result.ok(new ModelId(value));

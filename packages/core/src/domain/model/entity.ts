@@ -1,24 +1,30 @@
 import type { ModelId } from "./id.ts";
-import type { Schema } from "./schema.ts";
+import type { SchemaId } from "@cosmos/core/schema";
+
+export type ModelType = "collection" | "singleton";
 
 export class Model {
   readonly #id: ModelId;
-  readonly #schema: Schema;
+  readonly #schemaId: SchemaId;
 
-  private constructor(id: ModelId, schema: Schema) {
+  private constructor(
+    id: ModelId,
+    schemaId: SchemaId,
+    readonly type: ModelType,
+  ) {
     this.#id = id;
-    this.#schema = schema;
+    this.#schemaId = schemaId;
   }
 
-  static of(id: ModelId, schema: Schema): Model {
-    return new Model(id, schema);
+  static of(id: ModelId, schemaId: SchemaId, type: ModelType): Model {
+    return new Model(id, schemaId, type);
   }
 
   get id(): ModelId {
     return this.#id;
   }
 
-  get schema(): Schema {
-    return this.#schema;
+  get schemaId(): SchemaId {
+    return this.#schemaId;
   }
 }

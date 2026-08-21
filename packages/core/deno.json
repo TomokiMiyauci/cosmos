@@ -2,7 +2,8 @@
   "name": "@cosmos/core",
   "exports": {
     ".": "./src/mod.ts",
-    "./schema": "./src/domain/schema/mod.ts"
+    "./schema": "./src/domain/schema/mod.ts",
+    "./model": "./src/domain/model/mod.ts"
   },
   "tasks": {
     "build": "deno run -A ./scripts/build.ts",
