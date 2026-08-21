@@ -2,6 +2,7 @@ import { Result } from "@miyauci/util";
 import type { EntryId } from "./id.ts";
 
 export type Node =
+  | LiteralNode
   | StringNode
   | NumberNode
   | BooleanNode
@@ -9,7 +10,23 @@ export type Node =
   | ListNode
   | UnionNode
   | ReferenceNode
-  | DatetimeNode;
+  | TemporalNode;
+
+export class LiteralNode {
+  #value: string;
+
+  type = "literal" as const;
+  private constructor(value: string) {
+    this.#value = value;
+  }
+  static of(value: string): LiteralNode {
+    return new LiteralNode(value);
+  }
+
+  get value(): string {
+    return this.#value;
+  }
+}
 
 export class StringNode {
   #value: string;
@@ -99,18 +116,13 @@ export class ListNode {
 
 export class UnionNode {
   #value: Node;
-  #key: string;
 
-  constructor(key: string, value: Node) {
+  constructor(value: Node) {
     this.#value = value;
-    this.#key = key;
   }
 
   readonly type = "union";
 
-  get key(): string {
-    return this.#key;
-  }
   get value(): Node {
     return this.#value;
   }
@@ -134,22 +146,22 @@ export class ReferenceNode {
   }
 }
 
-export class DatetimeNode {
+export class TemporalNode {
   #value: Date;
 
   private constructor(value: Date) {
     this.#value = value;
   }
 
-  static of(value: Date): Result<DatetimeNode, SyntaxError> {
+  static of(value: Date): Result<TemporalNode, SyntaxError> {
     if (isNaN(value.getDate())) {
       return Result.error(new SyntaxError());
     }
 
-    return Result.ok(new DatetimeNode(value));
+    return Result.ok(new TemporalNode(value));
   }
 
-  readonly type = "datetime";
+  readonly type = "temporal";
 
   get value(): Date {
     return this.#value;
@@ -161,7 +173,8 @@ export function* collectReferences(node: Node): Generator<EntryId> {
     case "string":
     case "number":
     case "boolean":
-    case "datetime": {
+    case "temporal":
+    case "literal": {
       break;
     }
     case "map": {

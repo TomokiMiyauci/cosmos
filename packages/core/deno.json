@@ -3,7 +3,8 @@
   "exports": {
     ".": "./src/mod.ts",
     "./schema": "./src/domain/schema/mod.ts",
-    "./model": "./src/domain/model/mod.ts"
+    "./model": "./src/domain/model/mod.ts",
+    "./entry": "./src/domain/entry/mod.ts"
   },
   "tasks": {
     "build": "deno run -A ./scripts/build.ts",

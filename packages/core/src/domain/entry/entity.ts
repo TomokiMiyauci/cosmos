@@ -1,40 +1,31 @@
 import type { Node } from "./node.ts";
 import type { EntryId } from "./id.ts";
-import type { EntryName } from "./name.ts";
 import type { ModelId } from "../model/id.ts";
 
 export class Entry {
   private constructor(
     id: EntryId,
-    name: EntryName,
-    model: ModelId,
+    modelId: ModelId,
     node: Node,
   ) {
     this.#id = id;
     this.#node = node;
-    this.#name = name;
-    this.#model = model;
+    this.#modelId = modelId;
   }
   readonly #id: EntryId;
   readonly #node: Node;
-  readonly #name: EntryName;
-  readonly #model: ModelId;
+  readonly #modelId: ModelId;
 
   static of(
     id: EntryId,
-    name: EntryName,
-    model: ModelId,
+    modelId: ModelId,
     node: Node,
   ): Entry {
-    return new Entry(id, name, model, node);
+    return new Entry(id, modelId, node);
   }
 
   get id(): EntryId {
     return this.#id;
-  }
-
-  get name(): EntryName {
-    return this.#name;
   }
 
   get node(): Node {
@@ -42,6 +33,6 @@ export class Entry {
   }
 
   get modelId(): ModelId {
-    return this.#model;
+    return this.#modelId;
   }
 }
