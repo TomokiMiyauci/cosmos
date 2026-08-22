@@ -121,7 +121,7 @@ export type {
   UnionModel,
 } from "./types/model.ts";
 export { type Content } from "./domain/parser.ts";
-import { SchemaInterpreter } from "./domain/interpreter/mod.ts";
+import { SchemaInterpreter } from "./domain/schema/interpreter.ts";
 import { SchemaId } from "./domain/schema/id.ts";
 import type { SchemaRepository } from "./domain/schema/repository.ts";
 

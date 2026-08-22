@@ -1,4 +1,4 @@
-import type { Schema } from "@cosmos/core/schema";
+import type { Schema } from "./entity.ts";
 import {
   BooleanNode,
   EntryId,
