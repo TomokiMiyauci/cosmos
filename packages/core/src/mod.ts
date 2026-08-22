@@ -13,7 +13,6 @@ export type {
   Datalayer,
   Engine,
   EntityType,
-  Entry,
   EntryFilter,
   FormatDefinition,
   Formatter,
@@ -100,14 +99,7 @@ export type {
   StringSchema,
   UnionSchema,
 } from "./types/schema.ts";
-export { EntryId } from "./domain/entry/id.ts";
-export { Entry as E } from "./domain/entry/entity.ts";
-export type { EntryRepositry } from "./domain/entry/repositry.ts";
 export { type Node } from "./domain/entry/node.ts";
-export { Model as M } from "./domain/model/entity.ts";
-export type { ModelRepositry } from "./domain/model/repositry.ts";
-export { ModelId } from "./domain/model/id.ts";
-export { type Schema as S } from "./domain/model/schema.ts";
 export type {
   AssetModel,
   BooleanModel,
@@ -128,6 +120,8 @@ import type { SchemaRepository } from "./domain/schema/repository.ts";
 import { ModelId } from "./domain/model/id.ts";
 import type { ModelRepositry } from "./domain/model/repositry.ts";
 import type { ModelType } from "./domain/model/entity.ts";
+import { EntryId } from "./domain/entry/id.ts";
+import type { EntryRepositry } from "./domain/entry/repositry.ts";
 
 export namespace Schema {
   export const Id = SchemaId;
@@ -142,3 +136,12 @@ export namespace Model {
   export type Repositry = ModelRepositry;
   export type Type = ModelType;
 }
+
+export namespace Entry {
+  export const Id = EntryId;
+  export type Repositry = EntryRepositry;
+
+  export const of = EntryConstructor.of;
+}
+
+import { Entry as EntryConstructor } from "./domain/entry/entity.ts";
