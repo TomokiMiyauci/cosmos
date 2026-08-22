@@ -15,4 +15,4 @@ export type {
   UnionSchema,
 } from "./entity.ts";
 export { SchemaId } from "./id.ts";
-export type { SchemaRepositry } from "./repositry.ts";
+export type { SchemaRepositry } from "./repository.ts";

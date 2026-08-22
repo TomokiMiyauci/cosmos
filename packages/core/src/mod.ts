@@ -96,13 +96,11 @@ export type {
   MarkdownSchema,
   NumberSchema,
   ReferenceSchema,
-  Schema,
   StringSchema,
   UnionSchema,
 } from "./types/schema.ts";
 export { EntryId } from "./domain/entry/id.ts";
 export { Entry as E } from "./domain/entry/entity.ts";
-export { EntryName } from "./domain/entry/name.ts";
 export type { EntryRepositry } from "./domain/entry/repositry.ts";
 export { type Node } from "./domain/entry/node.ts";
 export { Model as M } from "./domain/model/entity.ts";
@@ -122,4 +120,16 @@ export type {
   StringModel,
   UnionModel,
 } from "./types/model.ts";
-export { type Content, parse } from "./domain/parser.ts";
+export { type Content } from "./domain/parser.ts";
+import { SchemaInterpreter } from "./domain/interpreter/mod.ts";
+import { SchemaId } from "./domain/schema/id.ts";
+import type { SchemaRepository } from "./domain/schema/repository.ts";
+
+// deno-lint-ignore no-namespace
+export namespace Schema {
+  export const Id = SchemaId;
+
+  export type Repository = SchemaRepository;
+
+  export const Interpreter = SchemaInterpreter;
+}
