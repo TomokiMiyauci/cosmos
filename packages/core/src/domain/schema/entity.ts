@@ -42,22 +42,22 @@ export interface MapSchema extends BaseSchema {
 
 export interface MapProperty extends BaseSchema {
   required: boolean;
-  schemaId: SchemaId;
+  schema: Schema;
 }
 
 export interface ListSchema extends BaseSchema {
   type: "list";
-  schemaId: SchemaId;
+  schema: Schema;
 }
 
 export interface ReferenceSchema extends BaseSchema {
   type: "reference";
-  schemaId: SchemaId;
+  schema: Schema;
 }
 
 export interface UnionSchema extends BaseSchema {
   type: "union";
-  members: SchemaId[];
+  members: Schema[];
 }
 
 export interface TemporalSchema extends BaseSchema {
