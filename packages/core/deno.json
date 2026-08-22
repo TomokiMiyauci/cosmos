@@ -2,7 +2,6 @@
   "name": "@cosmos/core",
   "exports": {
     ".": "./src/mod.ts",
-    "./model": "./src/domain/model/mod.ts",
     "./entry": "./src/domain/entry/mod.ts"
   },
   "tasks": {

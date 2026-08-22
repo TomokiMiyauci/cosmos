@@ -1,5 +1,5 @@
 import type { ModelId } from "./id.ts";
-import type { SchemaId } from "@cosmos/core/schema";
+import type { SchemaId } from "../schema/id.ts";
 
 export type ModelType = "collection" | "singleton";
 

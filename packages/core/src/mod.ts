@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-namespace
 export type {
   Asset,
   AssetEntry,
@@ -124,12 +125,20 @@ export { type Content } from "./domain/parser.ts";
 import { SchemaInterpreter } from "./domain/schema/interpreter.ts";
 import { SchemaId } from "./domain/schema/id.ts";
 import type { SchemaRepository } from "./domain/schema/repository.ts";
+import { ModelId } from "./domain/model/id.ts";
+import type { ModelRepositry } from "./domain/model/repositry.ts";
+import type { ModelType } from "./domain/model/entity.ts";
 
-// deno-lint-ignore no-namespace
 export namespace Schema {
   export const Id = SchemaId;
 
   export type Repository = SchemaRepository;
 
   export const Interpreter = SchemaInterpreter;
+}
+
+export namespace Model {
+  export const Id = ModelId;
+  export type Repositry = ModelRepositry;
+  export type Type = ModelType;
 }
