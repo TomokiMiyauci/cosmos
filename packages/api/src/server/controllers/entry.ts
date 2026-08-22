@@ -8,7 +8,6 @@ import type { Result } from "@miyauci/util";
 
 export interface CreateInput {
   model: string;
-  name: string;
   contents: Content;
 }
 
@@ -18,7 +17,6 @@ export class EntryController {
     const command = {
       contents: input.contents,
       model: input.model,
-      name: input.name,
     } satisfies CreateCommand;
     const result = await this.creationUsecase.execute(command);
 

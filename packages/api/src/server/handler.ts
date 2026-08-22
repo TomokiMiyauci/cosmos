@@ -96,15 +96,16 @@ const router = os.router({
   postEntry: os.postEntry.handler(async (options) => {
     const { context, input, errors } = options;
     const { body } = input;
-    const { model, name, contents: raw } = body as EntryInput;
+    const { model, contents: raw } = body as EntryInput;
     const contents = toContents(raw);
-    const command = { model, name, contents } satisfies CreateCommand;
+    const command = { model, contents } satisfies CreateCommand;
 
     const [id, error] = await context.controllers.entry.create(command);
 
     if (error) {
       switch (error.type) {
-        case "MODEL_NOT_FOUND": {
+        case "MODEL_NOT_FOUND":
+        case "SCHEMA_NOT_FOUND": {
           throw errors.CONFLICT({
             data: {
               status: 409,
@@ -280,9 +281,14 @@ export function createRestHandler(
   const service = new CmsServie(config);
   const entryRepositry = config.value.repositories.entry;
   const modelRepositry = config.value.repositories.model;
+  const schemaRepositry = config.value.repositories.schema;
 
   const usecases = {
-    entryCreate: new EntryCreateUseCase(entryRepositry, modelRepositry),
+    entryCreate: new EntryCreateUseCase(
+      entryRepositry,
+      modelRepositry,
+      schemaRepositry,
+    ),
     entryDelete: new EntryDeleteUseCase(entryRepositry),
     entryUpdate: new EntryUpdateUseCase(entryRepositry),
   } satisfies Usecases;
@@ -291,9 +297,7 @@ export function createRestHandler(
     usecases,
     queries: new QueryService(config.value.reader),
     controllers: {
-      entry: new EntryController(
-        new EntryCreateUseCase(entryRepositry, modelRepositry),
-      ),
+      entry: new EntryController(usecases.entryCreate),
     },
   } satisfies Context;
 

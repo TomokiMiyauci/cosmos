@@ -1,7 +1,5 @@
-import type { EntryRepositry } from "../domain/entry/repositry.ts";
 import type { Node } from "./node.ts";
-import type { Schema } from "./schema.ts";
-import type { Model, ModelRepositry } from "@cosmos/core";
+import type { Entry, Model, Schema } from "@cosmos/core";
 
 export interface Manifest {
   version: string;
@@ -13,8 +11,9 @@ export interface Engine {
   resources: Record<string, Resource>;
   models: Record<string, Model>;
   repositories: {
-    entry: EntryRepositry;
-    model: ModelRepositry;
+    entry: Entry.Repositry;
+    model: Model.Repositry;
+    schema: Schema.Repository;
   };
   reader: any;
 }
