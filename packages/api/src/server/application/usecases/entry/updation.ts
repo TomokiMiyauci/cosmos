@@ -1,9 +1,4 @@
-import {
-  E as Entry,
-  EntryId,
-  EntryName,
-  type EntryRepositry,
-} from "@cosmos/core";
+import { Entry } from "@cosmos/core";
 import { Result } from "@miyauci/util";
 import { type EntryInputDto, toNode } from "../../dto.ts";
 
@@ -12,18 +7,14 @@ export interface UpdateCommand extends EntryInputDto {
 }
 
 export class EntryUpdateUseCase {
-  constructor(private repositry: EntryRepositry) {}
+  constructor(private repositry: Entry.Repositry) {}
 
   async execute(
     command: UpdateCommand,
   ): Promise<Result<void, Error>> {
-    const [entryId, entryFactoryError] = EntryId.from(command.id);
+    const [entryId, entryFactoryError] = Entry.Id.from(command.id);
 
     if (entryFactoryError) return Result.error(new Error("invalid id"));
-
-    const [entryName, entryNameError] = EntryName.of(command.name);
-
-    if (entryNameError) return Result.error(new Error());
 
     const maybeCurrentEntry = await this.repositry.findById(entryId);
 
@@ -33,7 +24,6 @@ export class EntryUpdateUseCase {
 
     const entry = Entry.of(
       entryId,
-      entryName,
       currentModel,
       toNode(command.node),
     );
