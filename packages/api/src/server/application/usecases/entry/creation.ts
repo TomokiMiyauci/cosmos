@@ -1,29 +1,24 @@
-import {
-  type Content,
-  E as Entry,
-  EntryId,
-  EntryName,
-  type EntryRepositry,
-  ModelId,
-  type ModelRepositry,
-  parse,
-} from "@cosmos/core";
+import { Entry, Model, Schema } from "@cosmos/core";
 import { Result } from "@miyauci/util";
 
 export interface CreateCommand {
-  name: string;
   model: string;
-  contents: Content;
+  contents: unknown;
 }
 
 export type CreationError =
   | ModelNotFoundError
+  | SchemaNotFoundError
   | ContentViolationError
   | InvalidModelError
   | InvalidNameError;
 
 interface ModelNotFoundError {
   type: "MODEL_NOT_FOUND";
+}
+
+interface SchemaNotFoundError {
+  type: "SCHEMA_NOT_FOUND";
 }
 
 interface InvalidModelError {
@@ -40,40 +35,44 @@ interface ContentViolationError {
 
 export class EntryCreateUseCase {
   constructor(
-    private entryRepo: EntryRepositry,
-    private modelRepo: ModelRepositry,
+    private entryRepo: Entry.Repositry,
+    private modelRepo: Model.Repositry,
+    private schemaRepo: Schema.Repository,
   ) {}
+
+  #interpreter = new Schema.Interpreter();
 
   async execute(
     command: CreateCommand,
   ): Promise<Result<string, CreationError>> {
-    const id = EntryId.new();
+    const id = Entry.Id.new();
 
-    const [modelId, modelConstructError] = ModelId.of(command.model);
+    const [modelId, modelConstructError] = Model.Id.of(command.model);
 
     if (modelConstructError) {
       return Result.error({ type: "INVALID_MODEL" });
-    }
-    const [name, nameError] = EntryName.of(command.name);
-
-    if (nameError) {
-      return Result.error({ type: "INVALID_NAME" });
     }
 
     const model = await this.modelRepo.findById(modelId);
 
     if (!model) return Result.error({ type: "MODEL_NOT_FOUND" });
 
-    const [node, nodeError] = parse(
+    const schema = await this.schemaRepo.findById(model.schemaId);
+
+    if (!schema) {
+      return Result.error({ type: "SCHEMA_NOT_FOUND" });
+    }
+
+    const [node, nodeError] = this.#interpreter.interpret(
       command.contents,
-      model.schema,
+      schema,
     );
 
     if (nodeError) {
       return Result.error({ type: "INVALID_CONTENT" });
     }
 
-    const entry = Entry.of(id, name, modelId, node);
+    const entry = Entry.of(id, modelId, node);
 
     await this.entryRepo.save(entry);
 
