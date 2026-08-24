@@ -1,1 +1,1 @@
-export { RestProtocol } from "./protocol.ts";
+export { RestProtocol, type RestProtocolPorts } from "./protocol.ts";
