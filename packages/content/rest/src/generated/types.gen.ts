@@ -64,6 +64,13 @@ export type Resource = {
     description: string;
 };
 
+export type ModelResponse = {
+    id: string;
+    schema: {
+        id: string;
+    };
+};
+
 export type Model = StringModel | NumberModel | BooleanModel | DatetimeModel | ReferenceModel | MapModel | ListModel | UnionModel;
 
 export type StringModel = BaseModel & {
@@ -315,7 +322,7 @@ export type GetModelsResponses = {
     /**
      * OK
      */
-    200: Array<Model>;
+    200: Array<ModelResponse>;
 };
 
 export type GetModelsResponse = GetModelsResponses[keyof GetModelsResponses];
@@ -333,14 +340,16 @@ export type GetModelErrors = {
     /**
      * Error
      */
-    404: unknown;
+    404: ProblemDetails;
 };
+
+export type GetModelError = GetModelErrors[keyof GetModelErrors];
 
 export type GetModelResponses = {
     /**
      * OK
      */
-    200: Model;
+    200: ModelResponse;
 };
 
 export type GetModelResponse = GetModelResponses[keyof GetModelResponses];

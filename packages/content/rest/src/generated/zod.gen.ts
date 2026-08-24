@@ -36,6 +36,13 @@ export const zResource = z.object({
     description: z.string()
 });
 
+export const zModelResponse = z.object({
+    id: z.string(),
+    schema: z.object({
+        id: z.string()
+    })
+});
+
 export const zBaseModel = z.object({
     title: z.string(),
     description: z.string()
@@ -166,6 +173,20 @@ export const zGetResourceResponse = zResource;
 /**
  * OK
  */
+export const zGetModelsResponse = z.array(zModelResponse);
+
+export const zGetModelPath = z.object({
+    id: z.string()
+});
+
+/**
+ * OK
+ */
+export const zGetModelResponse = zModelResponse;
+
+/**
+ * OK
+ */
 export const zPostEntryBody = zEntryInput;
 
 /**
@@ -195,17 +216,3 @@ export const zPutEntryPath = z.object({
  * OK
  */
 export const zPutEntryResponse = z.void();
-
-/**
- * OK
- */
-export const zGetModelsResponse = z.array(zModel);
-
-export const zGetModelPath = z.object({
-    id: z.string()
-});
-
-/**
- * OK
- */
-export const zGetModelResponse = zModel;

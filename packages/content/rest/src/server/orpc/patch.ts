@@ -23,8 +23,15 @@ const postEntry = oc.postEntry.errors({
   },
 });
 
+const getModel = oc.getModel.errors({
+  NOT_FOUND: {
+    data: zod.zProblemDetails,
+  },
+});
+
 export const contract = {
   ...oc,
   postEntry,
   getResource,
+  getModel,
 };

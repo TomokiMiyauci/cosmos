@@ -156,7 +156,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Model"
+                  $ref: "#/components/schemas/ModelResponse"
 
   /models/{id}:
     get:
@@ -174,9 +174,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Model"
+                $ref: "#/components/schemas/ModelResponse"
         "404":
-          description: Error
+          $ref: "#/components/responses/ErrorResponse"
 
 components:
   schemas:
@@ -306,6 +306,22 @@ components:
         - type
         - description
       additionalProperties: false
+
+    ModelResponse:
+      type: "object"
+      properties:
+        id:
+          type: string
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+          required:
+            - id
+      required:
+        - id
+        - schema
 
     Model:
       oneOf:
