@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-namespace
 export type {
   Asset,
   AssetEntry,
@@ -100,48 +99,8 @@ export type {
   UnionSchema,
 } from "./types/schema.ts";
 export { type Node } from "./domain/entry/node.ts";
-export type {
-  AssetModel,
-  BooleanModel,
-  DatetimeModel,
-  ListModel,
-  MapModel,
-  MarkdownModel,
-  Model,
-  NumberModel,
-  ReferenceModel,
-  StringModel,
-  UnionModel,
-} from "./types/model.ts";
 export { type Content } from "./domain/parser.ts";
-import { SchemaInterpreter } from "./domain/schema/interpreter.ts";
-import { SchemaId } from "./domain/schema/id.ts";
-import type { SchemaRepository } from "./domain/schema/repository.ts";
-import { ModelId } from "./domain/model/id.ts";
-import type { ModelRepositry } from "./domain/model/repositry.ts";
-import type { ModelType } from "./domain/model/entity.ts";
-import { EntryId } from "./domain/entry/id.ts";
-import type { EntryRepositry } from "./domain/entry/repositry.ts";
 
-export namespace Schema {
-  export const Id = SchemaId;
-
-  export type Repository = SchemaRepository;
-
-  export const Interpreter = SchemaInterpreter;
-}
-
-export namespace Model {
-  export const Id = ModelId;
-  export type Repositry = ModelRepositry;
-  export type Type = ModelType;
-}
-
-export namespace Entry {
-  export const Id = EntryId;
-  export type Repositry = EntryRepositry;
-
-  export const of = EntryConstructor.of;
-}
-
-import { Entry as EntryConstructor } from "./domain/entry/entity.ts";
+export { Model } from "./domain/model/entity.ts";
+export { Schema } from "./domain/schema/entity.ts";
+export { Entry } from "./domain/entry/entity.ts";

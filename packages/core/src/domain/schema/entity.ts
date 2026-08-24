@@ -1,4 +1,6 @@
-import type { SchemaId } from "./id.ts";
+import { SchemaId } from "./id.ts";
+import type { SchemaRepository } from "./repository.ts";
+import { SchemaInterpreter } from "./interpreter.ts";
 
 export type Schema = PrimitiveSchema | CompositeSchema | ReferenceSchema;
 
@@ -62,4 +64,13 @@ export interface UnionSchema extends BaseSchema {
 
 export interface TemporalSchema extends BaseSchema {
   type: "temporal";
+}
+
+// deno-lint-ignore no-namespace
+export namespace Schema {
+  export const Id = SchemaId;
+
+  export type Repository = SchemaRepository;
+
+  export const Interpreter = SchemaInterpreter;
 }

@@ -1,5 +1,6 @@
-import type { ModelId } from "./id.ts";
+import { ModelId } from "./id.ts";
 import type { SchemaId } from "../schema/id.ts";
+import type { ModelRepositry } from "./repositry.ts";
 
 export type ModelType = "collection" | "singleton";
 
@@ -27,4 +28,11 @@ export class Model {
   get schemaId(): SchemaId {
     return this.#schemaId;
   }
+}
+
+// deno-lint-ignore no-namespace
+export namespace Model {
+  export const Id = ModelId;
+  export type Repositry = ModelRepositry;
+  export type Type = ModelType;
 }

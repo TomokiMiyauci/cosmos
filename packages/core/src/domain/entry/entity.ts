@@ -1,5 +1,6 @@
 import type { Node } from "./node.ts";
-import type { EntryId } from "./id.ts";
+import { EntryId } from "./id.ts";
+import type { EntryRepositry } from "./repositry.ts";
 import type { ModelId } from "../model/id.ts";
 
 export class Entry {
@@ -35,4 +36,10 @@ export class Entry {
   get modelId(): ModelId {
     return this.#modelId;
   }
+}
+
+// deno-lint-ignore no-namespace
+export namespace Entry {
+  export const Id = EntryId;
+  export type Repositry = EntryRepositry;
 }
