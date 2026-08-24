@@ -1,5 +1,5 @@
 import type { Entry, Model, Schema } from "@cosmos/core";
-import type { EntryUsecase, Protocol, Queries, Usecases } from "./protocol.ts";
+import type { EntryUsecase, Protocol, Usecases } from "./protocol.ts";
 import { EntryCreateUseCase } from "./application/usecases/entry/creation.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
@@ -7,7 +7,10 @@ import { EntryUpdateUseCase } from "./application/usecases/entry/updation.ts";
 export interface Config {
   protocol: Protocol;
   repositories: Repositories;
-  queries: Queries;
+}
+
+export interface Ports {
+  repositories: Repositories;
 }
 
 export interface Repositories {
@@ -16,8 +19,8 @@ export interface Repositories {
   schema: Schema.Repository;
 }
 
-export function createHandler(config: Config): Handler {
-  const { repositories, queries } = config;
+export function createHandler(ports: Ports, protocol: Protocol): Handler {
+  const { repositories } = ports;
   const entry = {
     create: new EntryCreateUseCase(
       repositories.entry,
@@ -34,7 +37,7 @@ export function createHandler(config: Config): Handler {
   const usecases = { entry } satisfies Usecases;
 
   return async (request) => {
-    return await config.protocol.handle({ request, usecases, queries });
+    return await protocol.handle({ request, usecases });
   };
 }
 
