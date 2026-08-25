@@ -91,7 +91,7 @@ export type TemporalSchemaResponse = BaseSchemaResponse & {
 
 export type ReferenceSchemaResponse = BaseSchemaResponse & {
     type: 'reference';
-    schema: unknown;
+    schema: SchemaReference;
 };
 
 export type MapSchemaResponse = BaseSchemaResponse & {
@@ -111,7 +111,7 @@ export type ListSchemaResponse = BaseSchemaResponse & {
 
 export type UnionSchemaResponse = BaseSchemaResponse & {
     type: 'union';
-    schemas: Array<unknown>;
+    schemas: Array<SchemaReference>;
 };
 
 export type BaseSchemaResponse = {

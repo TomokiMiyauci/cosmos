@@ -65,7 +65,7 @@ export const zTemporalSchemaResponse = zBaseSchemaResponse.and(z.object({
 
 export const zReferenceSchemaResponse = zBaseSchemaResponse.and(z.object({
     type: z.enum(['reference']),
-    schema: z.unknown()
+    schema: zSchemaReference
 }));
 
 export const zMapSchemaResponse = zBaseSchemaResponse.and(z.object({
@@ -83,7 +83,7 @@ export const zListSchemaResponse = zBaseSchemaResponse.and(z.object({
 
 export const zUnionSchemaResponse = zBaseSchemaResponse.and(z.object({
     type: z.enum(['union']),
-    schemas: z.array(z.unknown())
+    schemas: z.array(zSchemaReference)
 }));
 
 export const zSchemaResponse = z.union([
