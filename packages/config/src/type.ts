@@ -8,13 +8,50 @@ export interface Config {
   schemas: Record<string, SchemaConfig>;
 }
 
-export type SchemaConfig = StringSchemaDefinition | MapSchemaDefiinition;
+export type SchemaConfig =
+  | StringSchemaDefinition
+  | NumberSchemaDefinition
+  | BooleanSchemaDefinition
+  | TemporalSchemaDefinition
+  | ListSchemaDefinition
+  | MapSchemaDefiinition
+  | UnionSchemaDefinition
+  | ReferenceSchemaDefintion;
 
-interface StringSchemaDefinition {
+export interface StringSchemaDefinition {
   type: "string";
 }
 
-interface MapSchemaDefiinition {
+export interface NumberSchemaDefinition {
+  type: "number";
+}
+
+export interface BooleanSchemaDefinition {
+  type: "boolean";
+}
+
+export interface TemporalSchemaDefinition {
+  type: "temporal";
+}
+
+export interface ListSchemaDefinition {
+  type: "list";
+  item: SchemaId;
+}
+
+type SchemaId = string;
+
+export interface MapSchemaDefiinition {
   type: "map";
-  props: Record<string, { required?: boolean; to: string }>;
+  props: Record<string, { required?: boolean; to: SchemaId }>;
+}
+
+export interface UnionSchemaDefinition {
+  type: "union";
+  schemas: SchemaId[];
+}
+
+export interface ReferenceSchemaDefintion {
+  type: "reference";
+  to: SchemaId;
 }
