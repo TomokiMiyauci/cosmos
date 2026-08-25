@@ -31,45 +31,71 @@ export const zIdentitiy = z.object({
     id: z.string()
 });
 
-export const zResource = z.object({
-    id: z.string(),
-    model: z.string(),
-    type: z.enum(['collection', 'singleton']),
-    description: z.string()
-});
-
 export const zModelResponse = z.object({
     id: z.string(),
     schema: z.object({
         id: z.string()
-    })
+    }),
+    type: z.enum(['collection', 'singleton'])
 });
 
-export const zBaseModel = z.object({
-    title: z.string(),
-    description: z.string()
+export const zSchemaReference = z.object({
+    id: z.string()
 });
 
-export const zStringModel = zBaseModel.and(z.object({
+export const zBaseSchemaResponse = z.object({
+    id: z.string()
+});
+
+export const zStringSchemaResponse = zBaseSchemaResponse.and(z.object({
     type: z.enum(['string'])
 }));
 
-export const zNumberModel = zBaseModel.and(z.object({
+export const zNumberSchemaResponse = zBaseSchemaResponse.and(z.object({
     type: z.enum(['number'])
 }));
 
-export const zBooleanModel = zBaseModel.and(z.object({
+export const zBooleanSchemaResponse = zBaseSchemaResponse.and(z.object({
     type: z.enum(['boolean'])
 }));
 
-export const zDatetimeModel = zBaseModel.and(z.object({
-    type: z.enum(['datetime'])
+export const zTemporalSchemaResponse = zBaseSchemaResponse.and(z.object({
+    type: z.enum(['temporal'])
 }));
 
-export const zReferenceModel = zBaseModel.and(z.object({
+export const zReferenceSchemaResponse = zBaseSchemaResponse.and(z.object({
     type: z.enum(['reference']),
-    model: z.string()
+    schema: z.unknown()
 }));
+
+export const zMapSchemaResponse = zBaseSchemaResponse.and(z.object({
+    type: z.enum(['map']),
+    properties: z.record(z.string(), z.object({
+        required: z.boolean(),
+        schema: zSchemaReference
+    }))
+}));
+
+export const zListSchemaResponse = zBaseSchemaResponse.and(z.object({
+    type: z.enum(['list']),
+    item: zSchemaReference
+}));
+
+export const zUnionSchemaResponse = zBaseSchemaResponse.and(z.object({
+    type: z.enum(['union']),
+    schemas: z.array(z.unknown())
+}));
+
+export const zSchemaResponse = z.union([
+    zStringSchemaResponse,
+    zNumberSchemaResponse,
+    zBooleanSchemaResponse,
+    zTemporalSchemaResponse,
+    zReferenceSchemaResponse,
+    zMapSchemaResponse,
+    zListSchemaResponse,
+    zUnionSchemaResponse
+]);
 
 export const zStringContents = z.string();
 
@@ -91,44 +117,6 @@ export const zEntryInput = z.object({
     model: z.string().min(1),
     contents: z.lazy((): any => zContents)
 });
-
-export const zSchemaResponse = z.union([
-    zStringModel,
-    zNumberModel,
-    zBooleanModel,
-    zDatetimeModel,
-    zReferenceModel,
-    z.lazy((): any => zMapModel),
-    z.lazy((): any => zListModel),
-    z.lazy((): any => zUnionModel)
-]);
-
-export const zModel = z.union([
-    zStringModel,
-    zNumberModel,
-    zBooleanModel,
-    zDatetimeModel,
-    zReferenceModel,
-    z.lazy((): any => zMapModel),
-    z.lazy((): any => zListModel),
-    z.lazy((): any => zUnionModel)
-]);
-
-export const zMapModel = zBaseModel.and(z.object({
-    type: z.enum(['map']),
-    props: z.record(z.string(), zModel),
-    required: z.array(z.string())
-}));
-
-export const zListModel = zBaseModel.and(z.object({
-    type: z.enum(['list']),
-    item: zModel
-}));
-
-export const zUnionModel = zBaseModel.and(z.object({
-    type: z.enum(['union']),
-    variants: z.record(z.string(), zModel)
-}));
 
 export const zEntryResponse = zEntrySummaryResponse.and(z.lazy(() => z.object({
     contents: z.lazy((): any => zContents)
@@ -168,6 +156,20 @@ export const zDeleteEntryPath = z.object({
  * OK
  */
 export const zDeleteEntryResponse = z.void();
+
+/**
+ * OK
+ */
+export const zGetSchemasResponse = z.array(zSchemaResponse);
+
+export const zGetSchemaPath = z.object({
+    id: z.string()
+});
+
+/**
+ * OK
+ */
+export const zGetSchemaResponse = zSchemaResponse;
 
 /**
  * OK
@@ -215,17 +217,3 @@ export const zPutEntryPath = z.object({
  * OK
  */
 export const zPutEntryResponse = z.void();
-
-/**
- * OK
- */
-export const zGetSchemasResponse = z.array(zSchemaResponse);
-
-export const zGetSchemaPath = z.object({
-    id: z.string()
-});
-
-/**
- * OK
- */
-export const zGetSchemaResponse = zSchemaResponse;

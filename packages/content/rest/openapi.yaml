@@ -288,26 +288,6 @@ components:
         - id
       additionalProperties: false
 
-    Resource:
-      type: object
-      properties:
-        id:
-          type: string
-        model:
-          type: string
-        type:
-          enum:
-            - collection
-            - singleton
-        description:
-          type: string
-      required:
-        - id
-        - model
-        - type
-        - description
-      additionalProperties: false
-
     ModelResponse:
       type: "object"
       properties:
@@ -320,148 +300,150 @@ components:
               type: string
           required:
             - id
+        type:
+          enum: [collection, singleton]
       required:
         - id
         - schema
+        - type
+
+    SchemaReference:
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
 
     SchemaResponse:
       oneOf:
-        - $ref: "#/components/schemas/StringModel"
-        - $ref: "#/components/schemas/NumberModel"
-        - $ref: "#/components/schemas/BooleanModel"
-        - $ref: "#/components/schemas/DatetimeModel"
-        - $ref: "#/components/schemas/ReferenceModel"
-        - $ref: "#/components/schemas/MapModel"
-        - $ref: "#/components/schemas/ListModel"
-        - $ref: "#/components/schemas/UnionModel"
+        - $ref: "#/components/schemas/StringSchemaResponse"
+        - $ref: "#/components/schemas/NumberSchemaResponse"
+        - $ref: "#/components/schemas/BooleanSchemaResponse"
+        - $ref: "#/components/schemas/TemporalSchemaResponse"
+        - $ref: "#/components/schemas/ReferenceSchemaResponse"
+        - $ref: "#/components/schemas/MapSchemaResponse"
+        - $ref: "#/components/schemas/ListSchemaResponse"
+        - $ref: "#/components/schemas/UnionSchemaResponse"
 
-    Model:
-      oneOf:
-        - $ref: "#/components/schemas/StringModel"
-        - $ref: "#/components/schemas/NumberModel"
-        - $ref: "#/components/schemas/BooleanModel"
-        - $ref: "#/components/schemas/DatetimeModel"
-        - $ref: "#/components/schemas/ReferenceModel"
-        - $ref: "#/components/schemas/MapModel"
-        - $ref: "#/components/schemas/ListModel"
-        - $ref: "#/components/schemas/UnionModel"
-
-    StringModel:
+    StringSchemaResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/BaseModel"
+        - $ref: "#/components/schemas/BaseSchemaResponse"
       properties:
         type:
           enum: ["string"]
       required:
         - type
 
-    NumberModel:
+    NumberSchemaResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/BaseModel"
+        - $ref: "#/components/schemas/BaseSchemaResponse"
       properties:
         type:
           enum: ["number"]
       required:
         - type
 
-    BooleanModel:
+    BooleanSchemaResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/BaseModel"
+        - $ref: "#/components/schemas/BaseSchemaResponse"
       properties:
         type:
           enum: ["boolean"]
       required:
         - type
 
-    DatetimeModel:
+    TemporalSchemaResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/BaseModel"
+        - $ref: "#/components/schemas/BaseSchemaResponse"
       properties:
         type:
-          enum: ["datetime"]
+          enum: ["temporal"]
       required:
         - type
 
-    ReferenceModel:
+    ReferenceSchemaResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/BaseModel"
+        - $ref: "#/components/schemas/BaseSchemaResponse"
       properties:
         type:
           enum: ["reference"]
 
-        model:
-          type: string
+        schema:
+          - $ref: "#/components/schemas/SchemaReference"
       required:
         - type
-        - model
+        - schema
 
-    MapModel:
+    MapSchemaResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/BaseModel"
+        - $ref: "#/components/schemas/BaseSchemaResponse"
       properties:
         type:
           enum: ["map"]
 
-        props:
+        properties:
           type: object
+
           additionalProperties:
-            $ref: "#/components/schemas/Model"
-        required:
-          type: array
-          items:
-            type: string
+            type: object
+            properties:
+              required:
+                type: boolean
+              schema:
+                $ref: "#/components/schemas/SchemaReference"
+
+            required:
+              - required
+              - schema
+
       required:
         - type
-        - props
-        - required
+        - properties
 
-    ListModel:
+    ListSchemaResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/BaseModel"
+        - $ref: "#/components/schemas/BaseSchemaResponse"
       properties:
         type:
           enum: ["list"]
-
         item:
-          $ref: "#/components/schemas/Model"
+          $ref: "#/components/schemas/SchemaReference"
+
       required:
         - type
         - item
 
-    UnionModel:
+    UnionSchemaResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/BaseModel"
+        - $ref: "#/components/schemas/BaseSchemaResponse"
       properties:
         type:
           enum: ["union"]
+        schemas:
+          type: array
+          item:
+            - $ref: "#/components/schemas/SchemaReference"
 
-        variants:
-          type: object
-          additionalProperties:
-            $ref: "#/components/schemas/Model"
       required:
         - type
-        - variants
+        - schemas
 
-    BaseModel:
+    BaseSchemaResponse:
       type: object
       properties:
-        title:
-          type: string
-        description:
+        id:
           type: string
       required:
-        # - id
-        - title
-        - description
+        - id
       unevaluatedProperties: false
 
     EntryResponse:

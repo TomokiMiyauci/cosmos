@@ -59,68 +59,63 @@ export type Identitiy = {
     id: string;
 };
 
-export type Resource = {
-    id: string;
-    model: string;
-    type: 'collection' | 'singleton';
-    description: string;
-};
-
 export type ModelResponse = {
     id: string;
     schema: {
         id: string;
     };
+    type: 'collection' | 'singleton';
 };
 
-export type SchemaResponse = StringModel | NumberModel | BooleanModel | DatetimeModel | ReferenceModel | MapModel | ListModel | UnionModel;
+export type SchemaReference = {
+    id: string;
+};
 
-export type Model = StringModel | NumberModel | BooleanModel | DatetimeModel | ReferenceModel | MapModel | ListModel | UnionModel;
+export type SchemaResponse = StringSchemaResponse | NumberSchemaResponse | BooleanSchemaResponse | TemporalSchemaResponse | ReferenceSchemaResponse | MapSchemaResponse | ListSchemaResponse | UnionSchemaResponse;
 
-export type StringModel = BaseModel & {
+export type StringSchemaResponse = BaseSchemaResponse & {
     type: 'string';
 };
 
-export type NumberModel = BaseModel & {
+export type NumberSchemaResponse = BaseSchemaResponse & {
     type: 'number';
 };
 
-export type BooleanModel = BaseModel & {
+export type BooleanSchemaResponse = BaseSchemaResponse & {
     type: 'boolean';
 };
 
-export type DatetimeModel = BaseModel & {
-    type: 'datetime';
+export type TemporalSchemaResponse = BaseSchemaResponse & {
+    type: 'temporal';
 };
 
-export type ReferenceModel = BaseModel & {
+export type ReferenceSchemaResponse = BaseSchemaResponse & {
     type: 'reference';
-    model: string;
+    schema: unknown;
 };
 
-export type MapModel = BaseModel & {
+export type MapSchemaResponse = BaseSchemaResponse & {
     type: 'map';
-    props: {
-        [key: string]: Model;
+    properties: {
+        [key: string]: {
+            required: boolean;
+            schema: SchemaReference;
+        };
     };
-    required: Array<string>;
 };
 
-export type ListModel = BaseModel & {
+export type ListSchemaResponse = BaseSchemaResponse & {
     type: 'list';
-    item: Model;
+    item: SchemaReference;
 };
 
-export type UnionModel = BaseModel & {
+export type UnionSchemaResponse = BaseSchemaResponse & {
     type: 'union';
-    variants: {
-        [key: string]: Model;
-    };
+    schemas: Array<unknown>;
 };
 
-export type BaseModel = {
-    title: string;
-    description: string;
+export type BaseSchemaResponse = {
+    id: string;
 };
 
 export type EntryResponse = EntrySummaryResponse & {
