@@ -23,7 +23,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/EntrySummary"
+                  $ref: "#/components/schemas/EntrySummaryResponse"
     post:
       operationId: postEntry
       requestBody:
@@ -70,13 +70,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Entry"
+                $ref: "#/components/schemas/EntryResponse"
         "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetails"
+          $ref: "#/components/responses/ErrorResponse"
 
     put:
       summary: Replace entry
@@ -110,10 +106,10 @@ paths:
       responses:
         "204":
           description: OK
-  /resources:
+  /schemas:
     get:
-      summary: Retruns resources
-      operationId: getResources
+      summary: Retruns schemas
+      operationId: getSchemas
       responses:
         "200":
           description: OK
@@ -122,12 +118,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Resource"
+                  $ref: "#/components/schemas/SchemaResponse"
 
-  /resources/{id}:
+  /schemas/{id}:
     get:
-      summary: Return resource
-      operationId: getResource
+      summary: Return schema
+      operationId: getSchema
       parameters:
         - name: id
           in: path
@@ -140,10 +136,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Resource"
+                $ref: "#/components/schemas/SchemaResponse"
 
         "404":
-          description: Not found
+          $ref: "#/components/responses/ErrorResponse"
   /models:
     get:
       summary: Return models
@@ -263,13 +259,18 @@ components:
         - model
         - contents
 
-    EntrySummary:
+    EntrySummaryResponse:
       type: object
       properties:
         id:
           type: string
         model:
-          type: string
+          type: object
+          properties:
+            id:
+              type: string
+          required:
+            - id
         name:
           type: string
       required:
@@ -322,6 +323,17 @@ components:
       required:
         - id
         - schema
+
+    SchemaResponse:
+      oneOf:
+        - $ref: "#/components/schemas/StringModel"
+        - $ref: "#/components/schemas/NumberModel"
+        - $ref: "#/components/schemas/BooleanModel"
+        - $ref: "#/components/schemas/DatetimeModel"
+        - $ref: "#/components/schemas/ReferenceModel"
+        - $ref: "#/components/schemas/MapModel"
+        - $ref: "#/components/schemas/ListModel"
+        - $ref: "#/components/schemas/UnionModel"
 
     Model:
       oneOf:
@@ -452,10 +464,10 @@ components:
         - description
       unevaluatedProperties: false
 
-    Entry:
+    EntryResponse:
       type: object
       allOf:
-        - $ref: "#/components/schemas/EntrySummary"
+        - $ref: "#/components/schemas/EntrySummaryResponse"
       properties:
         contents:
           $ref: "#/components/schemas/Contents"

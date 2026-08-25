@@ -3,10 +3,12 @@ import { onError, ORPCError, ValidationError } from "@orpc/server";
 import z from "zod";
 import location from "../middleware/location.ts";
 import type {
-  Entry,
   EntryInput,
+  EntryResponse,
+  EntrySummaryResponse,
   UpdateEntryInput,
 } from "../../../generated/types.gen.ts";
+import type { EntryView } from "../../application/query.ts";
 
 export const postEntry = os.use(
   onError((error) => {
@@ -104,21 +106,40 @@ export const deleteEntry = os.deleteEntry.handler(async (options) => {
   }
 });
 
-export const getEntry = os.getEntry.handler(async (options): Promise<Entry> => {
-  const { input, context } = options;
-  const { params } = input;
-  const { id } = params;
+export const getEntry = os.getEntry.handler(
+  async (options): Promise<EntryResponse> => {
+    const { input, context, errors } = options;
+    const { params } = input;
+    const { id } = params;
 
-  const maybeDto = await context.queries.entry.findById(id);
+    const entry = await context.queries.entry.findById(id);
 
-  if (!maybeDto) {
-    throw new Error();
-  }
+    if (!entry) {
+      throw errors.NOT_FOUND({
+        data: {
+          status: 404,
+          detail: "",
+          instance: "/",
+          type: "about:blank",
+          title: "Not Found",
+        },
+      });
+    }
 
-  const entry = toEntry(maybeDto);
+    return toEntryResponse(entry);
+  },
+);
 
-  return entry;
-});
+function toEntryResponse(view: EntryView): EntryResponse {
+  return {
+    id: view.id,
+    model: {
+      id: view.modelId,
+    },
+    contents: "",
+    name: "",
+  };
+}
 
 export const putEntry = os.putEntry.handler(async (options) => {
   const { input, context } = options;
@@ -137,7 +158,17 @@ export const getSummaries = os.getSummaries.handler(async (options) => {
   const { input, context } = options;
 
   const model = input?.query?.model;
-  const dto = await context.queries.findSummaries({ model });
+  const dto = await context.queries.entry.findAll({ model });
 
-  return dto;
+  return dto.map(toSummaryResponse);
 });
+
+function toSummaryResponse(view: EntryView): EntrySummaryResponse {
+  return {
+    id: view.id,
+    model: {
+      id: view.modelId,
+    },
+    name: "hoge",
+  };
+}

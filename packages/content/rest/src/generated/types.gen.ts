@@ -47,9 +47,11 @@ export type EntryInput = {
     contents: Contents;
 };
 
-export type EntrySummary = {
+export type EntrySummaryResponse = {
     id: string;
-    model: string;
+    model: {
+        id: string;
+    };
     name: string;
 };
 
@@ -70,6 +72,8 @@ export type ModelResponse = {
         id: string;
     };
 };
+
+export type SchemaResponse = StringModel | NumberModel | BooleanModel | DatetimeModel | ReferenceModel | MapModel | ListModel | UnionModel;
 
 export type Model = StringModel | NumberModel | BooleanModel | DatetimeModel | ReferenceModel | MapModel | ListModel | UnionModel;
 
@@ -119,7 +123,7 @@ export type BaseModel = {
     description: string;
 };
 
-export type Entry = EntrySummary & {
+export type EntryResponse = EntrySummaryResponse & {
     contents: Contents;
 };
 
@@ -159,7 +163,7 @@ export type GetSummariesResponses = {
     /**
      * OK
      */
-    200: Array<EntrySummary>;
+    200: Array<EntrySummaryResponse>;
 };
 
 export type GetSummariesResponse = GetSummariesResponses[keyof GetSummariesResponses];
@@ -233,7 +237,7 @@ export type GetEntryData = {
 
 export type GetEntryErrors = {
     /**
-     * Not found
+     * Error
      */
     404: ProblemDetails;
 };
@@ -244,7 +248,7 @@ export type GetEntryResponses = {
     /**
      * JSON
      */
-    200: Entry;
+    200: EntryResponse;
 };
 
 export type GetEntryResponse = GetEntryResponses[keyof GetEntryResponses];
@@ -270,46 +274,48 @@ export type PutEntryResponses = {
 
 export type PutEntryResponse = PutEntryResponses[keyof PutEntryResponses];
 
-export type GetResourcesData = {
+export type GetSchemasData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/resources';
+    url: '/schemas';
 };
 
-export type GetResourcesResponses = {
+export type GetSchemasResponses = {
     /**
      * OK
      */
-    200: Array<Resource>;
+    200: Array<SchemaResponse>;
 };
 
-export type GetResourcesResponse = GetResourcesResponses[keyof GetResourcesResponses];
+export type GetSchemasResponse = GetSchemasResponses[keyof GetSchemasResponses];
 
-export type GetResourceData = {
+export type GetSchemaData = {
     body?: never;
     path: {
         id: string;
     };
     query?: never;
-    url: '/resources/{id}';
+    url: '/schemas/{id}';
 };
 
-export type GetResourceErrors = {
+export type GetSchemaErrors = {
     /**
-     * Not found
+     * Error
      */
-    404: unknown;
+    404: ProblemDetails;
 };
 
-export type GetResourceResponses = {
+export type GetSchemaError = GetSchemaErrors[keyof GetSchemaErrors];
+
+export type GetSchemaResponses = {
     /**
      * OK
      */
-    200: Resource;
+    200: SchemaResponse;
 };
 
-export type GetResourceResponse = GetResourceResponses[keyof GetResourceResponses];
+export type GetSchemaResponse = GetSchemaResponses[keyof GetSchemaResponses];
 
 export type GetModelsData = {
     body?: never;

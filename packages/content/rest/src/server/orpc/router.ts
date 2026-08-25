@@ -15,8 +15,8 @@ export const router = os.router({
   postEntry,
   getModel,
   getModels,
-  getResource: getSchema,
-  getResources: getSchemas,
+  getSchema,
+  getSchemas,
   getSummaries,
   putEntry,
 });

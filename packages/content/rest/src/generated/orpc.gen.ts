@@ -3,7 +3,7 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 
-import { zDeleteEntryPath, zDeleteEntryResponse, zGetEntryPath, zGetEntryResponse, zGetModelPath, zGetModelResponse, zGetModelsResponse, zGetResourcePath, zGetResourceResponse, zGetResourcesResponse, zGetSummariesQuery, zGetSummariesResponse, zPostEntryBody, zPostEntryResponse, zPutEntryBody, zPutEntryPath, zPutEntryResponse } from './zod.gen.ts';
+import { zDeleteEntryPath, zDeleteEntryResponse, zGetEntryPath, zGetEntryResponse, zGetModelPath, zGetModelResponse, zGetModelsResponse, zGetSchemaPath, zGetSchemaResponse, zGetSchemasResponse, zGetSummariesQuery, zGetSummariesResponse, zPostEntryBody, zPostEntryResponse, zPutEntryBody, zPutEntryPath, zPutEntryResponse } from './zod.gen.ts';
 
 /**
  * Get entry summaries
@@ -65,28 +65,28 @@ export const putEntry = oc.route({
 }).input(z.object({ body: zPutEntryBody, params: zPutEntryPath })).output(zPutEntryResponse);
 
 /**
- * Retruns resources
+ * Retruns schemas
  */
-export const getResources = oc.route({
+export const getSchemas = oc.route({
     inputStructure: 'detailed',
     method: 'GET',
-    operationId: 'getResources',
-    path: '/resources',
-    summary: 'Retruns resources',
+    operationId: 'getSchemas',
+    path: '/schemas',
+    summary: 'Retruns schemas',
     tags: ['default']
-}).output(zGetResourcesResponse);
+}).output(zGetSchemasResponse);
 
 /**
- * Return resource
+ * Return schema
  */
-export const getResource = oc.route({
+export const getSchema = oc.route({
     inputStructure: 'detailed',
     method: 'GET',
-    operationId: 'getResource',
-    path: '/resources/{id}',
-    summary: 'Return resource',
+    operationId: 'getSchema',
+    path: '/schemas/{id}',
+    summary: 'Return schema',
     tags: ['default']
-}).input(z.object({ params: zGetResourcePath })).output(zGetResourceResponse);
+}).input(z.object({ params: zGetSchemaPath })).output(zGetSchemaResponse);
 
 /**
  * Return models

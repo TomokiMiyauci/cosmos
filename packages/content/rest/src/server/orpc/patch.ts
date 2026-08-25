@@ -5,7 +5,13 @@
 import * as oc from "../../generated/orpc.gen.ts";
 import * as zod from "../../generated/zod.gen.ts";
 
-const getResource = oc.getResource.errors({
+const getSchema = oc.getSchema.errors({
+  NOT_FOUND: {
+    data: zod.zProblemDetails,
+  },
+});
+
+const getEntry = oc.getEntry.errors({
   NOT_FOUND: {
     data: zod.zProblemDetails,
   },
@@ -32,6 +38,7 @@ const getModel = oc.getModel.errors({
 export const contract = {
   ...oc,
   postEntry,
-  getResource,
+  getEntry,
+  getSchema,
   getModel,
 };

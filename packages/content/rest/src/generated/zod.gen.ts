@@ -19,9 +19,11 @@ export const zValidationProblemDetails = zProblemDetails.and(z.object({
     errors: z.array(zValidationError)
 }));
 
-export const zEntrySummary = z.object({
+export const zEntrySummaryResponse = z.object({
     id: z.string(),
-    model: z.string(),
+    model: z.object({
+        id: z.string()
+    }),
     name: z.string()
 });
 
@@ -90,6 +92,17 @@ export const zEntryInput = z.object({
     contents: z.lazy((): any => zContents)
 });
 
+export const zSchemaResponse = z.union([
+    zStringModel,
+    zNumberModel,
+    zBooleanModel,
+    zDatetimeModel,
+    zReferenceModel,
+    z.lazy((): any => zMapModel),
+    z.lazy((): any => zListModel),
+    z.lazy((): any => zUnionModel)
+]);
+
 export const zModel = z.union([
     zStringModel,
     zNumberModel,
@@ -117,7 +130,7 @@ export const zUnionModel = zBaseModel.and(z.object({
     variants: z.record(z.string(), zModel)
 }));
 
-export const zEntry = zEntrySummary.and(z.lazy(() => z.object({
+export const zEntryResponse = zEntrySummaryResponse.and(z.lazy(() => z.object({
     contents: z.lazy((): any => zContents)
 })));
 
@@ -145,7 +158,7 @@ export const zGetSummariesQuery = z.object({
 /**
  * OK
  */
-export const zGetSummariesResponse = z.array(zEntrySummary);
+export const zGetSummariesResponse = z.array(zEntrySummaryResponse);
 
 export const zDeleteEntryPath = z.object({
     id: z.string()
@@ -155,20 +168,6 @@ export const zDeleteEntryPath = z.object({
  * OK
  */
 export const zDeleteEntryResponse = z.void();
-
-/**
- * OK
- */
-export const zGetResourcesResponse = z.array(zResource);
-
-export const zGetResourcePath = z.object({
-    id: z.string()
-});
-
-/**
- * OK
- */
-export const zGetResourceResponse = zResource;
 
 /**
  * OK
@@ -201,7 +200,7 @@ export const zGetEntryPath = z.object({
 /**
  * JSON
  */
-export const zGetEntryResponse = zEntry;
+export const zGetEntryResponse = zEntryResponse;
 
 /**
  * OK
@@ -216,3 +215,17 @@ export const zPutEntryPath = z.object({
  * OK
  */
 export const zPutEntryResponse = z.void();
+
+/**
+ * OK
+ */
+export const zGetSchemasResponse = z.array(zSchemaResponse);
+
+export const zGetSchemaPath = z.object({
+    id: z.string()
+});
+
+/**
+ * OK
+ */
+export const zGetSchemaResponse = zSchemaResponse;
