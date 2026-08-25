@@ -1,11 +1,11 @@
 import { contract } from "../server/orpc/contract.ts";
 import type {
-  Entry,
   EntryInput,
-  EntrySummary,
+  EntryResponse,
+  EntrySummaryResponse,
   Identitiy,
-  Model,
-  Resource,
+  ModelResponse,
+  SchemaResponse,
   UpdateEntryInput,
 } from "../generated/types.gen.ts";
 import type { JsonifiedClient } from "@orpc/openapi-client";
@@ -36,7 +36,7 @@ export class Client {
 
   async getEntrySummaries(
     optinos?: { model?: string },
-  ): Promise<EntrySummary[]> {
+  ): Promise<EntrySummaryResponse[]> {
     const [error, data] = await this.#client.getSummaries({
       query: { model: optinos?.model },
     });
@@ -87,12 +87,12 @@ export class Client {
 
   async getEntry(
     id: string,
-  ): Promise<Result<Entry, ApiError<NotFoundProblem>>> {
+  ): Promise<Result<EntryResponse, ApiError<NotFoundProblem>>> {
     const [error, data] = await this.#client.getEntry({ params: { id } });
 
     if (error) throw error;
 
-    return Result.ok(data as Entry);
+    return Result.ok(data as EntryResponse);
   }
 
   async putEntry(
@@ -133,10 +133,10 @@ export class Client {
     // throw new Error("Unknon status");
   }
 
-  async getResources(): Promise<
-    Result<Resource[], ApiError<Problem>>
+  async getSchemas(): Promise<
+    Result<SchemaResponse[], ApiError<Problem>>
   > {
-    const [error, data] = await this.#client.getResources();
+    const [error, data] = await this.#client.getSchemas();
 
     if (error) throw error;
 
@@ -146,10 +146,10 @@ export class Client {
   /**
    * @throws {Error}
    */
-  async getResource(
+  async getSchema(
     id: string,
-  ): Promise<Result<Resource, ApiError<NotFoundProblem>>> {
-    const [error, data] = await this.#client.getResource({ params: { id } });
+  ): Promise<Result<SchemaResponse, ApiError<NotFoundProblem>>> {
+    const [error, data] = await this.#client.getSchema({ params: { id } });
 
     if (isDefinedError(error)) {
       switch (error.code) {
@@ -165,7 +165,7 @@ export class Client {
   }
 
   async getModels(): Promise<
-    Result<Model[], ApiError<Problem>>
+    Result<ModelResponse[], ApiError<Problem>>
   > {
     const [error, data] = await this.#client.getModels();
 
@@ -176,7 +176,7 @@ export class Client {
 
   async getModel(
     id: string,
-  ): Promise<Result<Model, ApiError<Problem>>> {
+  ): Promise<Result<ModelResponse, ApiError<Problem>>> {
     const [error, data] = await this.#client.getModel({ params: { id } });
 
     if (error) throw error;

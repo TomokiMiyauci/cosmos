@@ -1,8 +1,8 @@
 export { ApiError, Client, type PostEntryError } from "./client.ts";
 export type {
   Contents,
-  Entry,
-  EntrySummary,
-  Model,
-  Resource,
+  EntryResponse,
+  EntrySummaryResponse,
+  ModelResponse,
+  SchemaResponse,
 } from "../generated/types.gen.ts";
