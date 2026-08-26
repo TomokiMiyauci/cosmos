@@ -33,6 +33,7 @@ export class Model {
 // deno-lint-ignore no-namespace
 export namespace Model {
   export const Id = ModelId;
+  export type Id = ModelId;
   export type Repositry = ModelRepositry;
   export type Type = ModelType;
 }

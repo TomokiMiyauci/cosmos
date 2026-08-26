@@ -37,6 +37,8 @@ export class Entry {
 // deno-lint-ignore no-namespace
 export namespace Entry {
   export const Id = EntryId;
+  export type Id = EntryId;
   export type Repositry = EntryRepositry;
   export const Content = EntryContent;
+  export type Content = EntryContent;
 }

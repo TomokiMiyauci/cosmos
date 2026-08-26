@@ -69,6 +69,7 @@ export interface TemporalSchema extends BaseSchema {
 // deno-lint-ignore no-namespace
 export namespace Schema {
   export const Id = SchemaId;
+  export type Id = SchemaId;
 
   export type Repository = SchemaRepository;
 
