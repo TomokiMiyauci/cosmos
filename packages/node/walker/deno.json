@@ -1,8 +1,0 @@
-{
-  "name": "@cosmos/node-walker",
-  "exports": "./src/mod.ts",
-  "tasks": {
-    "build": "deno run -A ./scripts/build.ts",
-    "prepublish": "npm publish ./npm"
-  }
-}
