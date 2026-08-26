@@ -31,5 +31,6 @@ function toModelResponse(model: ModelView): ModelResponse {
     schema: {
       id: model.schemaId,
     },
+    type: model.type,
   };
 }

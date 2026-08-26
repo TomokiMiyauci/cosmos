@@ -462,11 +462,8 @@ components:
         - $ref: "#/components/schemas/StringContents"
         - $ref: "#/components/schemas/NumberContents"
         - $ref: "#/components/schemas/BooleanContents"
-        - $ref: "#/components/schemas/DatetimeContents"
         - $ref: "#/components/schemas/MapContents"
         - $ref: "#/components/schemas/ListContents"
-        - $ref: "#/components/schemas/UnionContents"
-        - $ref: "#/components/schemas/ReferenceContents"
 
     StringContents:
       type: string
@@ -484,14 +481,6 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/Contents"
-    UnionContents:
-      type: array
-      prefixItems:
-        - type: string
-        - $ref: "#/components/schemas/Contents"
-      unevaluatedItems: false
-    ReferenceContents:
-      type: string
 
   responses:
     ErrorResponse:

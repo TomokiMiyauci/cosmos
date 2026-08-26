@@ -122,7 +122,7 @@ export type EntryResponse = EntrySummaryResponse & {
     contents: Contents;
 };
 
-export type Contents = StringContents | NumberContents | BooleanContents | DatetimeContents | MapContents | ListContents | UnionContents | ReferenceContents;
+export type Contents = StringContents | NumberContents | BooleanContents | MapContents | ListContents;
 
 export type StringContents = string;
 
@@ -137,13 +137,6 @@ export type MapContents = {
 };
 
 export type ListContents = Array<Contents>;
-
-export type UnionContents = [
-    string,
-    Contents
-];
-
-export type ReferenceContents = string;
 
 export type GetSummariesData = {
     body?: never;

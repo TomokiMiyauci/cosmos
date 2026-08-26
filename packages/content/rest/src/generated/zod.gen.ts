@@ -105,8 +105,6 @@ export const zBooleanContents = z.boolean();
 
 export const zDatetimeContents = z.string();
 
-export const zReferenceContents = z.string();
-
 export const zUpdateEntryInput = z.object({
     name: z.string(),
     contents: z.lazy((): any => zContents)
@@ -126,18 +124,13 @@ export const zContents = z.union([
     zStringContents,
     zNumberContents,
     zBooleanContents,
-    zDatetimeContents,
     z.lazy((): any => zMapContents),
-    z.lazy((): any => zListContents),
-    z.lazy((): any => zUnionContents),
-    zReferenceContents
+    z.lazy((): any => zListContents)
 ]);
 
 export const zMapContents = z.record(z.string(), zContents);
 
 export const zListContents = z.array(zContents);
-
-export const zUnionContents = z.tuple([z.string(), zContents]);
 
 export const zGetSummariesQuery = z.object({
     model: z.string().optional()

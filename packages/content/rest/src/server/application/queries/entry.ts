@@ -6,4 +6,5 @@ export interface EntryQuery {
 export interface EntryView {
   id: string;
   modelId: string;
+  content: any;
 }

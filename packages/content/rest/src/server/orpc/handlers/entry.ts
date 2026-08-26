@@ -40,8 +40,7 @@ export const postEntry = os.use(
 ).postEntry.handler(async (options) => {
   const { context, input, errors } = options;
   const { body } = input;
-  const { model, contents: raw } = body as EntryInput;
-  const contents = raw;
+  const { model, contents } = body as EntryInput;
 
   const [id, error] = await context.usecases.entry.create.execute({
     model,
@@ -136,7 +135,7 @@ function toEntryResponse(view: EntryView): EntryResponse {
     model: {
       id: view.modelId,
     },
-    contents: "",
+    contents: view.content,
     name: "",
   };
 }
@@ -169,6 +168,6 @@ function toSummaryResponse(view: EntryView): EntrySummaryResponse {
     model: {
       id: view.modelId,
     },
-    name: "hoge",
+    name: "",
   };
 }
