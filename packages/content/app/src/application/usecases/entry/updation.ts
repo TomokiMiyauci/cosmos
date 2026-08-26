@@ -1,10 +1,12 @@
-import { Entry, type Model, Schema } from "@cosmos/core";
+import { Entry, type Model, type Schema } from "@cosmos/core";
 import { Result } from "@miyauci/util";
 
 export interface UpdateCommand {
   id: string;
-  contents: unknown;
+  contents: Input;
 }
+
+type Input = string | number | boolean | Input[] | { [k: string]: Input };
 
 export class EntryUpdateUseCase {
   constructor(
@@ -12,8 +14,6 @@ export class EntryUpdateUseCase {
     private modelRepo: Model.Repositry,
     private schemaRepo: Schema.Repository,
   ) {}
-
-  #interpreter = new Schema.Interpreter();
 
   async execute(
     command: UpdateCommand,
@@ -36,17 +36,12 @@ export class EntryUpdateUseCase {
 
     if (!schema) throw new Error();
 
-    const [node, nodeError] = this.#interpreter.interpret(
-      command.contents,
-      schema,
-    );
-
-    if (nodeError) throw new Error();
+    const content = Entry.Content.of(command.contents);
 
     const entry = Entry.of(
       entryId,
       modelId,
-      node,
+      content,
     );
 
     await this.entryRepo.save(entry);

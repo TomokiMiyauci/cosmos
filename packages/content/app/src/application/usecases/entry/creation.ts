@@ -1,10 +1,12 @@
-import { Entry, Model, Schema } from "@cosmos/core";
+import { Entry, Model, type Schema } from "@cosmos/core";
 import { Result } from "@miyauci/util";
 
 export interface CreateCommand {
   model: string;
-  contents: unknown;
+  contents: Input;
 }
+
+type Input = string | number | boolean | Input[] | { [k: string]: Input };
 
 export type CreationError =
   | ModelNotFoundError
@@ -40,8 +42,6 @@ export class EntryCreateUseCase {
     private schemaRepo: Schema.Repository,
   ) {}
 
-  #interpreter = new Schema.Interpreter();
-
   async execute(
     command: CreateCommand,
   ): Promise<Result<string, CreationError>> {
@@ -63,16 +63,18 @@ export class EntryCreateUseCase {
       return Result.error({ type: "SCHEMA_NOT_FOUND" });
     }
 
-    const [node, nodeError] = this.#interpreter.interpret(
-      command.contents,
-      schema,
-    );
+    // const [_, nodeError] = this.#interpreter.interpret(
+    //   command.contents,
+    //   schema,
+    // );
 
-    if (nodeError) {
-      return Result.error({ type: "INVALID_CONTENT" });
-    }
+    // if (nodeError) {
+    //   return Result.error({ type: "INVALID_CONTENT" });
+    // }
 
-    const entry = Entry.of(id, modelId, node);
+    const content = Entry.Content.of(command.contents);
+
+    const entry = Entry.of(id, modelId, content);
 
     await this.entryRepo.save(entry);
 

@@ -1,6 +1,5 @@
 import { SchemaId } from "./id.ts";
 import type { SchemaRepository } from "./repository.ts";
-import { SchemaInterpreter } from "./interpreter.ts";
 
 export type Schema = PrimitiveSchema | CompositeSchema | ReferenceSchema;
 
@@ -42,7 +41,7 @@ export interface MapSchema extends BaseSchema {
   properties: Record<string, MapProperty>;
 }
 
-export interface MapProperty extends BaseSchema {
+export interface MapProperty {
   required: boolean;
   schema: Schema;
 }
@@ -72,6 +71,4 @@ export namespace Schema {
   export type Id = SchemaId;
 
   export type Repository = SchemaRepository;
-
-  export const Interpreter = SchemaInterpreter;
 }
