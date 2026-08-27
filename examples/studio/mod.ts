@@ -2,11 +2,47 @@ import { Admin, en, I18n, Page, Router } from "@cosmos/ui";
 import { RestCmsService } from "@cosmos/ui/rest";
 import { renderToReadableStream } from "react-dom/server";
 import { createElement } from "react";
-import config from "./config.ts";
-import { createRestHandler } from "@cosmos/rest/server";
 import { API_ENDPOINT } from "./constant.ts";
-import { convert } from "@cosmos/config";
 import { Route, route } from "@std/http/unstable-route";
+import { default as config } from "./config.ts";
+import { createHandler } from "@cosmos/content";
+import { RestProtocol } from "@cosmos/content-rest/server";
+import {
+  ConfigModelQuery,
+  ConfigSchemaQuery,
+  ConfigSchemaRepository,
+  createModelRepository,
+} from "@cosmos/content-memory";
+import {
+  BaseLocator,
+  DenoReader,
+  DenoStore,
+  ReaderEntryQuery,
+  StoreEntryRepository,
+} from "@cosmos/content-fs";
+import { queries } from "./query.ts";
+
+const locator = new BaseLocator(
+  new URL(import.meta.resolve("./contents/posts/")),
+);
+
+export const contentHandler = createHandler(
+  {
+    repositories: {
+      model: createModelRepository(config.models),
+      schema: new ConfigSchemaRepository(config.schemas),
+      entry: new StoreEntryRepository(new DenoStore(locator)),
+    },
+  },
+  new RestProtocol({
+    queries: {
+      model: new ConfigModelQuery(config.models),
+      schema: new ConfigSchemaQuery(config.schemas),
+      entry: new ReaderEntryQuery(new DenoReader(locator)),
+    },
+    prefix: "/api",
+  }),
+);
 
 const entry = "/main.js";
 
@@ -29,7 +65,7 @@ const routes = [
   {
     pattern: new URLPattern({ pathname: "/api/*" }),
     handler: (request) => {
-      return api(request);
+      return contentHandler(request);
     },
   },
   {
@@ -75,12 +111,7 @@ const bundleResult = await Deno.bundle({
 
 const endpoint = new URL(API_ENDPOINT);
 const service = new RestCmsService(endpoint);
-const router = new Router(service);
-
-const api = createRestHandler({
-  value: convert(config),
-  location: new URL("./config.ts", import.meta.url),
-}, "/api");
+const router = new Router(service, queries);
 const i18n = new I18n(en);
 
 export default {
