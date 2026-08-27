@@ -1,0 +1,4 @@
+{
+  "name": "@cosmos/content-fs",
+  "exports": "./src/mod.ts"
+}
