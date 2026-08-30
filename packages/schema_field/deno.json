@@ -1,0 +1,12 @@
+{
+  "name": "@cosmos/schema-field",
+  "imports": {
+    "@types/react": "npm:@types/react@^19.2.18",
+    "react": "npm:react@^19.2.8",
+    "react-hook-form": "npm:react-hook-form@^7.86.0"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  },
+  "exports": "./src/mod.ts"
+}
