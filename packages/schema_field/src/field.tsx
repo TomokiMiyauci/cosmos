@@ -7,11 +7,15 @@ import BooleanField from "./fields/boolean.tsx";
 import MapField from "./fields/map.tsx";
 import UnionField from "./fields/union.tsx";
 import SequenseField from "./fields/sequence.tsx";
+import type { FieldLayoutProps, FieldProps } from "./fields/type.ts";
 
 export interface UseFieldsReturn {
   getValues(): Value | null;
+  setError(error: FieldError): void;
   form: UseFormReturn<FormValues, unknown, FormValues>;
 }
+
+export type Path = (string | number)[];
 
 export function useFields(): UseFieldsReturn {
   const form = useForm<FormValues>();
@@ -21,8 +25,17 @@ export function useFields(): UseFieldsReturn {
       return normalize(form.getValues());
     },
 
+    setError(error: FieldError): void {
+      form.setError(`content`, { message: error.message });
+    },
+
     form,
   };
+}
+
+export interface FieldError {
+  path: Path;
+  message: string;
 }
 
 function normalize(value: FormValues): Value | null {
@@ -68,14 +81,14 @@ type NativeFormValue = NativeFormPrimitiveValue | {
   [k: string]: NativeFormValue | undefined;
 } | NativeFormValue[];
 
-type Value = Value[] | Primitive | {
+export type Value = Value[] | Primitive | {
   [k: string]: Value;
 };
 
 export function Fields(props: FieldsProps): JSX.Element {
   return (
     <FormProvider {...props.form}>
-      <Field
+      <_Field
         definition={props.definition}
         name="content"
       />
@@ -83,40 +96,55 @@ export function Fields(props: FieldsProps): JSX.Element {
   );
 }
 
-export interface FieldProps {
+interface _FieldProps {
   definition: Definition;
   name: string;
 }
 
-function Field(props: FieldProps): JSX.Element {
+function FieldLayout(props: FieldLayoutProps): JSX.Element {
+  const { title, control, error } = props;
+
+  return (
+    <>
+      <label>
+        <p>{title}</p>
+
+        {control}
+      </label>
+
+      {error && <p>{error}</p>}
+    </>
+  );
+}
+
+function _Field(props: _FieldProps): JSX.Element {
   const { definition, name } = props;
+
+  const fieldProps = {
+    name,
+    definition,
+    render: _Field,
+    layout: FieldLayout,
+  } satisfies FieldProps;
 
   switch (definition.type) {
     case "string": {
-      return <StringField name={name} definition={definition} render={Field} />;
+      return <StringField {...fieldProps} />;
     }
     case "number": {
-      return <NumberField name={name} definition={definition} render={Field} />;
+      return <NumberField {...fieldProps} />;
     }
     case "boolean": {
-      return (
-        <BooleanField
-          name={name}
-          definition={definition}
-          render={Field}
-        />
-      );
+      return <BooleanField {...fieldProps} />;
     }
     case "list": {
-      return (
-        <SequenseField name={name} definition={definition} render={Field} />
-      );
+      return <SequenseField {...fieldProps} />;
     }
     case "map": {
-      return <MapField name={name} definition={definition} render={Field} />;
+      return <MapField {...fieldProps} />;
     }
     case "union": {
-      return <UnionField name={name} definition={definition} render={Field} />;
+      return <UnionField {...fieldProps} />;
     }
   }
 }

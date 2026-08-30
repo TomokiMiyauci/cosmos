@@ -4,8 +4,9 @@ import { createUseList } from "./util.ts";
 import { useController } from "react-hook-form";
 
 export default function MapField(props: FieldProps): JSX.Element {
-  const { name, definition: def, render } = props;
+  const { name, definition: def, render, layout: Layout } = props;
   const useList = createUseList(name);
+  const { fieldState: { error } } = useController({ name });
 
   const api = {
     useList,
@@ -24,19 +25,22 @@ export default function MapField(props: FieldProps): JSX.Element {
   };
 
   return (
-    <label>
-      <p>{def.presentation.title}</p>
-
-      <def.presentation.widget
-        definition={def}
-        render={(def, group) => (
-          render({
-            definition: def,
-            name: `${name}.${group}`,
-          })
-        )}
-        api={api}
-      />
-    </label>
+    <Layout
+      title={def.presentation.title}
+      control={
+        <def.presentation.widget
+          definition={def}
+          render={(def, group) => (
+            render({
+              definition: def,
+              name: `${name}.${group}`,
+            })
+          )}
+          api={api}
+        />
+      }
+      error={error?.message ?? null}
+    >
+    </Layout>
   );
 }
