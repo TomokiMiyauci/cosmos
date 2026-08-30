@@ -18,11 +18,37 @@ export function useFields(): UseFieldsReturn {
 
   return {
     getValues(): Value | null {
-      return form.getValues().content ?? null;
+      return normalize(form.getValues());
     },
 
     form,
   };
+}
+
+function normalize(value: FormValues): Value | null {
+  const { content } = value;
+
+  if (content === undefined) return null;
+
+  return normalizeNativeFormValue(content);
+}
+
+function normalizeNativeFormValue(value: NativeFormValue): Value {
+  if (Array.isArray(value)) {
+    return value.map(normalizeNativeFormValue);
+  } else if (typeof value === "object") {
+    const result: Record<string, Value> = {};
+
+    for (const [key, val] of Object.entries(value)) {
+      if (val !== undefined) {
+        result[key] = normalizeNativeFormValue(val);
+      }
+    }
+
+    return result;
+  } else {
+    return value;
+  }
 }
 
 export interface FieldsProps {
@@ -33,8 +59,14 @@ export interface FieldsProps {
 type Primitive = string | number | boolean;
 
 interface FormValues {
-  content: undefined | Value;
+  content: undefined | NativeFormValue;
 }
+
+type NativeFormPrimitiveValue = Primitive;
+
+type NativeFormValue = NativeFormPrimitiveValue | {
+  [k: string]: NativeFormValue | undefined;
+} | NativeFormValue[];
 
 type Value = Value[] | Primitive | {
   [k: string]: Value;
