@@ -4,12 +4,17 @@ import NotFoundPage from "./not_found.tsx";
 import ContentPage, { type ContentPageProps } from "./content.tsx";
 import ContentsPage, { type ContentsPageProps } from "./contents.tsx";
 import ContentCreationPage, {
+  type Content,
   type ContentCreatePageProps,
+  type ContentService,
+  type ValidationError,
 } from "./content_creation.tsx";
 import { Page } from "./symbol.ts";
 import type { CmsService, Router } from "../type.ts";
 import AssetsPage, { type AssetsPageProps } from "./assets.tsx";
-import { NodeCreateUseCase } from "~usecase/node";
+import type { Queries } from "../application/query.ts";
+import type { EntryService, Services } from "../application/service.ts";
+import { Result } from "@miyauci/util";
 
 export const views = {
   [Page.NotFound]: {
@@ -72,27 +77,17 @@ export const views = {
     async getStaticProps(
       params: Params,
     ): Promise<ContentCreatePageProps | null> {
-      const resourceId = params.params.id;
+      const modelId = params.params.id;
 
-      if (!resourceId) return null;
+      if (!modelId) return null;
 
-      const template = await params.service.findTemplate(resourceId);
+      const definition = await params.queries.definition.findFor(modelId);
 
-      if (!template) return null;
+      if (!definition) return null;
 
-      const model = template.meta.model;
+      const service = new EntryContentService(modelId, params.services.entry);
 
-      const usecase = new NodeCreateUseCase(
-        params.service,
-        model,
-        (...args) => params.router.redirect(...args),
-      );
-
-      return {
-        template,
-        usecase,
-        service: params.service,
-      };
+      return { definition, service };
     },
     component: ContentCreationPage,
   },
@@ -110,4 +105,25 @@ interface Params {
   params: Record<string, string>;
   service: CmsService;
   router: Router;
+  queries: Queries;
+  services: Services;
+}
+
+class EntryContentService implements ContentService {
+  constructor(private modelId: string, private service: EntryService) {}
+  async create(content: Content): Promise<Result<void, ValidationError[]>> {
+    const entry = { modelId: this.modelId, content };
+    const [_, failure] = await this.service.create(entry);
+
+    if (failure) {
+      const errors = failure.errors.map((error) => ({
+        path: error.path,
+        message: error.message,
+      }));
+
+      return Result.error(errors);
+    }
+
+    return Result.ok(undefined);
+  }
 }

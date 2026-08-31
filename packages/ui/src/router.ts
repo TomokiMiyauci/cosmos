@@ -10,6 +10,8 @@ import type { CmsService } from "@cosmos/ui";
 import type { ContentsPageProps } from "./pages/contents.tsx";
 import type { ResourcePageProps } from "./pages/resource.tsx";
 import type { Router as R } from "./type.ts";
+import type { Queries } from "./application/query.ts";
+import type { Services } from "./application/service.ts";
 
 class DefaultRouter implements R {
   redirect(to: string): void {
@@ -21,7 +23,11 @@ export class Router {
   #routes: Record<keyof Routes, URLPattern>;
   #router: R = new DefaultRouter();
 
-  constructor(private service: CmsService) {
+  constructor(
+    private service: CmsService,
+    private queries: Queries,
+    private services: Services,
+  ) {
     this.#routes = mapValues(
       routes,
       (init) => new URLPattern({ pathname: init }),
@@ -46,6 +52,8 @@ export class Router {
             params: decodedParams,
             service: this.service,
             router: this.#router,
+            queries: this.queries,
+            services: this.services,
           });
 
           if (!data) {

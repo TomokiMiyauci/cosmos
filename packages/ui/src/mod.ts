@@ -11,6 +11,12 @@ export {
   type Template,
 } from "./type.ts";
 export { I18n } from "./translation.ts";
+export { type Queries } from "./application/query.ts";
+export { type Services } from "./application/service.ts";
 import en from "./locales/en.json" with { type: "json" };
+
+import TextControl from "./widgets/text.tsx";
+
+export { TextControl };
 
 export { en };

@@ -14,13 +14,13 @@ export interface ContentCreatePageProps {
   service: ContentService;
 }
 
-type Content = Value;
+export type Content = Value;
 
 export interface ContentService {
   create(content: Content): Promise<Result<void, ValidationError[]>>;
 }
 
-interface ValidationError {
+export interface ValidationError {
   path: string[];
   message: string;
 }
