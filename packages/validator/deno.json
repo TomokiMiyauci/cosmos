@@ -1,0 +1,4 @@
+{
+  "name": "@cosmos/validator",
+  "exports": "./src/mod.ts"
+}
