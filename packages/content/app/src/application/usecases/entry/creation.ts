@@ -1,12 +1,11 @@
 import { Entry, Model, type Schema } from "@cosmos/core";
 import { Result } from "@miyauci/util";
+import { type Input, validate } from "@cosmos/validator";
 
 export interface CreateCommand {
   model: string;
   contents: Input;
 }
-
-type Input = string | number | boolean | Input[] | { [k: string]: Input };
 
 export type CreationError =
   | ModelNotFoundError
@@ -63,14 +62,11 @@ export class EntryCreateUseCase {
       return Result.error({ type: "SCHEMA_NOT_FOUND" });
     }
 
-    // const [_, nodeError] = this.#interpreter.interpret(
-    //   command.contents,
-    //   schema,
-    // );
+    const [_, errors] = validate(command.contents, schema.definition);
 
-    // if (nodeError) {
-    //   return Result.error({ type: "INVALID_CONTENT" });
-    // }
+    if (errors) {
+      return Result.error({ type: "INVALID_CONTENT" });
+    }
 
     const content = Entry.Content.of(command.contents);
 
