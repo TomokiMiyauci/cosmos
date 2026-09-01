@@ -23,8 +23,7 @@ export const zEntrySummaryResponse = z.object({
     id: z.string(),
     model: z.object({
         id: z.string()
-    }),
-    name: z.string()
+    })
 });
 
 export const zIdentitiy = z.object({
@@ -106,12 +105,10 @@ export const zBooleanContents = z.boolean();
 export const zDatetimeContents = z.string();
 
 export const zUpdateEntryInput = z.object({
-    name: z.string(),
     contents: z.lazy((): any => zContents)
 });
 
 export const zEntryInput = z.object({
-    name: z.string().min(1),
     model: z.string().min(1),
     contents: z.lazy((): any => zContents)
 });

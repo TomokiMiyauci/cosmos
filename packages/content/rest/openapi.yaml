@@ -235,27 +235,20 @@ components:
     UpdateEntryInput:
       type: object
       properties:
-        name:
-          type: string
         contents:
           $ref: "#/components/schemas/Contents"
       required:
-        - name
         - contents
 
     EntryInput:
       type: object
       properties:
-        name:
-          type: string
-          minLength: 1
         model:
           type: string
           minLength: 1
         contents:
           $ref: "#/components/schemas/Contents"
       required:
-        - name
         - model
         - contents
 
@@ -271,12 +264,9 @@ components:
               type: string
           required:
             - id
-        name:
-          type: string
       required:
         - id
         - model
-        - name
       unevaluatedProperties: false
 
     Identitiy:

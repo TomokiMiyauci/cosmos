@@ -136,7 +136,6 @@ function toEntryResponse(view: EntryView): EntryResponse {
       id: view.modelId,
     },
     contents: view.content,
-    name: "",
   };
 }
 
@@ -165,9 +164,6 @@ export const getSummaries = os.getSummaries.handler(async (options) => {
 function toSummaryResponse(view: EntryView): EntrySummaryResponse {
   return {
     id: view.id,
-    model: {
-      id: view.modelId,
-    },
-    name: "",
+    model: { id: view.modelId },
   };
 }

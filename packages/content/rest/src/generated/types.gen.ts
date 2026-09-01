@@ -37,12 +37,10 @@ export type ValidationError = {
 };
 
 export type UpdateEntryInput = {
-    name: string;
     contents: Contents;
 };
 
 export type EntryInput = {
-    name: string;
     model: string;
     contents: Contents;
 };
@@ -52,7 +50,6 @@ export type EntrySummaryResponse = {
     model: {
         id: string;
     };
-    name: string;
 };
 
 export type Identitiy = {
