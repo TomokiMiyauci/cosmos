@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import { type JSX, useState } from "react";
 import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
 import type { Definition } from "./type.ts";
 import StringField from "./fields/string.tsx";
@@ -26,11 +26,17 @@ export function useFields(): UseFieldsReturn {
     },
 
     setError(error: FieldError): void {
-      form.setError(`content`, { message: error.message });
+      const name = path2Name([`content`, ...error.path]) as `content`;
+
+      form.setError(name, { message: error.message });
     },
 
     form,
   };
+}
+
+function path2Name(path: Path): string {
+  return path.join(".");
 }
 
 export interface FieldError {
@@ -91,6 +97,7 @@ export function Fields(props: FieldsProps): JSX.Element {
       <_Field
         definition={props.definition}
         name="content"
+        ancestors={new Set()}
       />
     </FormProvider>
   );
@@ -99,6 +106,7 @@ export function Fields(props: FieldsProps): JSX.Element {
 interface _FieldProps {
   definition: Definition;
   name: string;
+  ancestors: Set<Definition>;
 }
 
 function FieldLayout(props: FieldLayoutProps): JSX.Element {
@@ -117,14 +125,45 @@ function FieldLayout(props: FieldLayoutProps): JSX.Element {
   );
 }
 
+function RecursiveField(props: FieldProps): JSX.Element {
+  const { name, definition, render: Render } = props;
+  const [expanded, setExpanded] = useState(false);
+
+  if (!expanded) {
+    return (
+      <button type="button" onClick={() => setExpanded(true)}>
+        Open
+      </button>
+    );
+  }
+
+  return <Render name={name} definition={definition} />;
+}
+
 function _Field(props: _FieldProps): JSX.Element {
-  const { definition, name } = props;
+  const { definition, name, ancestors } = props;
+
+  const baseFieldProps = { name, definition, layout: FieldLayout };
+
+  if (ancestors.has(definition)) {
+    return (
+      <RecursiveField
+        {...baseFieldProps}
+        render={({ name, definition }) => (
+          <_Field ancestors={new Set()} name={name} definition={definition} />
+        )}
+      />
+    );
+  }
+
+  const nextAncestors = new Set(ancestors);
+  nextAncestors.add(definition);
 
   const fieldProps = {
-    name,
-    definition,
-    render: _Field,
-    layout: FieldLayout,
+    ...baseFieldProps,
+    render: ({ name, definition }) => (
+      <_Field ancestors={nextAncestors} name={name} definition={definition} />
+    ),
   } satisfies FieldProps;
 
   switch (definition.type) {
