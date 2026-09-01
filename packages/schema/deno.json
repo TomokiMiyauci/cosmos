@@ -1,0 +1,4 @@
+{
+  "name": "@cosmos/schema",
+  "exports": "./src/mod.ts"
+}
