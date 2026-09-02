@@ -3,6 +3,7 @@ import type {
   EntryQuery,
   EntryView as ServerEntryView,
 } from "@cosmos/content-rest/server";
+import { mapValues } from "@std/collections/map-values";
 
 export class StoreEntryRepository implements Entry.Repositry {
   constructor(private store: Store) {}
@@ -23,14 +24,9 @@ export class StoreEntryRepository implements Entry.Repositry {
   }
 
   #toView(entry: Entry): EntryView {
-    // TODO
-    const content = "";
+    const content = to(entry.content);
 
-    return {
-      id: entry.id.value,
-      modelId: entry.modelId.value,
-      content,
-    };
+    return { id: entry.id.value, modelId: entry.modelId.value, content };
   }
 
   #fromView(view: EntryView): Entry {
@@ -47,6 +43,23 @@ export class StoreEntryRepository implements Entry.Repositry {
   }
 }
 
+function to(
+  content: Entry.Content,
+): EntryViewContent {
+  if (Array.isArray(content)) {
+    return content.map(to);
+  }
+
+  if (typeof content === "string") return content;
+  if (typeof content === "boolean") return content;
+
+  if (content instanceof Entry.Content.FiniteNumber) {
+    return content.value;
+  }
+
+  return mapValues(content, to);
+}
+
 export interface Store {
   get(id: string): Promise<EntryView | null>;
   set(id: string, view: EntryView): Promise<void>;
@@ -56,9 +69,17 @@ export interface Store {
 interface EntryView {
   id: string;
   modelId: string;
-  // TODO
-  content: string;
+  content: EntryViewContent;
 }
+
+export type EntryViewContent =
+  | string
+  | number
+  | boolean
+  | EntryViewContent[]
+  | {
+    [k: string]: EntryViewContent;
+  };
 
 export class DenoStore implements Store {
   constructor(private locator: Locator) {}
@@ -187,8 +208,8 @@ export class DenoReader implements Reader {
     const result = JSON.parse(value);
 
     return {
-      model: result.model,
-      contents: result.contents,
+      model: result.modelId,
+      contents: result.content,
     };
   }
 }
