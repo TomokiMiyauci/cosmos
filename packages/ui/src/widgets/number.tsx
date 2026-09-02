@@ -1,14 +1,16 @@
 "use client";
 import type { JSX } from "react";
-import type { WidgetProps } from "./type.ts";
+import type { WidgetProps } from "@cosmos/schema-field";
 
 export default function NumberWidget(props: WidgetProps): JSX.Element {
+  const [value, onChange] = props.api.useValue();
+
   return (
     <input
       type="number"
-      defaultValue={props.value ?? ""}
+      value={value ?? ""}
       onChange={(ev) => {
-        props.onChange(ev.target.value);
+        onChange(ev.target.value);
       }}
     />
   );

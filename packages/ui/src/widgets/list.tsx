@@ -1,10 +1,10 @@
 import type { JSX } from "react";
-import type { WidgetProps } from "./type.ts";
+import type { WidgetProps } from "@cosmos/schema-field";
 
 export default function ListControl(props: WidgetProps): JSX.Element {
   const { definition, render, api } = props;
 
-  if (definition.type !== "list") throw new Error();
+  if (definition.type !== "sequence") throw new Error();
 
   const list = api.useList();
 

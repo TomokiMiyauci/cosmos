@@ -1,14 +1,16 @@
 "use client";
 import type { JSX } from "react";
-import type { WidgetProps } from "./type.ts";
+import type { WidgetProps } from "@cosmos/schema-field";
 
 export default function DateWidget(props: WidgetProps): JSX.Element {
+  const [value, setValue] = props.api.useValue();
+
   return (
     <input
       type="date"
-      defaultValue={props.value ?? ""}
+      value={value ?? ""}
       onChange={(ev) => {
-        props.onChange(ev.target.value);
+        setValue(ev.target.value);
       }}
     />
   );
