@@ -1,7 +1,8 @@
+// deno-lint-ignore-file no-namespace
 import { EntryId } from "./id.ts";
 import type { EntryRepositry } from "./repositry.ts";
 import type { ModelId } from "../model/id.ts";
-import { EntryContent } from "./content.ts";
+import { EntryContent, FiniteNumber as _FiniteNumber } from "./content.ts";
 
 export class Entry {
   private constructor(id: EntryId, modelId: ModelId, content: EntryContent) {
@@ -34,11 +35,14 @@ export class Entry {
   }
 }
 
-// deno-lint-ignore no-namespace
 export namespace Entry {
   export const Id = EntryId;
   export type Id = EntryId;
   export type Repositry = EntryRepositry;
-  export const Content = EntryContent;
   export type Content = EntryContent;
+
+  export namespace Content {
+    export const of = EntryContent.of;
+    export const FiniteNumber = _FiniteNumber;
+  }
 }
