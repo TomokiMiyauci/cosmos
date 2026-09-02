@@ -1,1 +1,6 @@
-export { type Path, validate, type ValidationError } from "./validator.ts";
+export {
+  type Input,
+  type Path,
+  validate,
+  type ValidationError,
+} from "./validator.ts";
