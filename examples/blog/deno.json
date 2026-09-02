@@ -1,9 +1,0 @@
-{
-  "tasks": {
-    "dev": "deno serve -A mod.ts"
-  },
-  "publish": false,
-  "imports": {
-    "graphql": "npm:graphql@^16.14.0"
-  }
-}
