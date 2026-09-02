@@ -2,7 +2,6 @@ import ResourcePage, { type ResourcePageProps } from "./resource.tsx";
 import HomePage from "./home.tsx";
 import NotFoundPage from "./not_found.tsx";
 import ContentPage, { type ContentPageProps } from "./content.tsx";
-import ContentsPage, { type ContentsPageProps } from "./contents.tsx";
 import ContentCreationPage, {
   type Content,
   type ContentCreatePageProps,
@@ -52,26 +51,18 @@ export const views = {
 
       const contentId = id;
 
-      const data = await service.findContent(contentId);
+      // const data = await service.findContent(contentId);
 
-      if (!data) return null;
+      // if (!data) return null;
 
       return {
-        onAction: (entry) => service.saveEntry(entry),
+        // onAction: (entry) => service.saveEntry(entry),
         onRemove: (id) => service.eraseNodeById(id),
         contentId,
-        data,
+        // data,
       };
     },
     component: ContentPage,
-  },
-  [Page.Contents]: {
-    component: ContentsPage,
-    getStaticProps(params: Params): ContentsPageProps {
-      return {
-        service: params.service,
-      };
-    },
   },
   [Page.ContentCreation]: {
     async getStaticProps(

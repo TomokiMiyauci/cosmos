@@ -7,7 +7,6 @@ import type { ContentCreatePageProps } from "./pages/content_creation.tsx";
 import type { ContentPageProps } from "./pages/content.tsx";
 import { views } from "./pages/view.ts";
 import type { CmsService } from "@cosmos/ui";
-import type { ContentsPageProps } from "./pages/contents.tsx";
 import type { ResourcePageProps } from "./pages/resource.tsx";
 import type { Router as R } from "./type.ts";
 import type { Queries } from "./application/query.ts";
@@ -120,9 +119,6 @@ export type RouteResult = {
 } | {
   type: Page.Content;
   data: ContentPageProps;
-} | {
-  type: Page.Contents;
-  data: ContentsPageProps;
 } | {
   type: Page.Resource;
   data: ResourcePageProps;

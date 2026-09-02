@@ -31,9 +31,6 @@ function PageMatcher(props: AdminProps): JSX.Element {
     case Page.Content: {
       return views[route.type].component(route.data);
     }
-    case Page.Contents: {
-      return views[route.type].component(route.data);
-    }
     case Page.Resource: {
       return views[route.type].component(route.data);
     }
