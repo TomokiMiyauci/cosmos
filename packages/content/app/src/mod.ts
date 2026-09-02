@@ -11,3 +11,7 @@ export type {
   ProtocolArgs,
   Usecases,
 } from "./protocol.ts";
+export {
+  type ContentViolation,
+  type Violation,
+} from "./application/usecases/entry/creation.ts";

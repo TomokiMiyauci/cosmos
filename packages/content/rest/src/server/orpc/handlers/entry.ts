@@ -1,43 +1,45 @@
 import { os } from "../contract.ts";
-import { onError, ORPCError, ValidationError } from "@orpc/server";
-import z from "zod";
+// import { onError, ORPCError, ValidationError } from "@orpc/server";
+// import z from "zod";
 import location from "../middleware/location.ts";
 import type {
   EntryInput,
   EntryResponse,
   EntrySummaryResponse,
   UpdateEntryInput,
+  ValidationError as EntryValicationError,
 } from "../../../generated/types.gen.ts";
 import type { EntryView } from "../../application/query.ts";
+import type { ContentViolation, Violation } from "@cosmos/content";
 
-export const postEntry = os.use(
-  onError((error) => {
-    if (
-      error instanceof ORPCError &&
-      error.code === "BAD_REQUEST" &&
-      error.cause instanceof ValidationError
-    ) {
-      const zodError = new z.ZodError(error.cause.issues as z.core.$ZodIssue[]);
+// const e = onError((error) => {
+//   if (
+//     error instanceof ORPCError &&
+//     error.code === "BAD_REQUEST" &&
+//     error.cause instanceof ValidationError
+//   ) {
+//     const zodError = new z.ZodError(error.cause.issues as z.core.$ZodIssue[]);
 
-      if (zodError.issues.some((issue) => issue.code === "invalid_type")) {
-        throw new ORPCError("BAD_REQUEST", {
-          data: {},
-        });
-      }
+//     if (zodError.issues.some((issue) => issue.code === "invalid_type")) {
+//       throw new ORPCError("BAD_REQUEST", {
+//         data: {},
+//       });
+//     }
 
-      throw new ORPCError("UNPROCESSABLE_CONTENT", {
-        data: {
-          status: 422,
-          detail: "",
-          instance: "/",
-          type: "about:blank",
-          title: "Validation Failure",
-          errors: [],
-        },
-      });
-    }
-  }),
-).postEntry.handler(async (options) => {
+//     throw new ORPCError("UNPROCESSABLE_CONTENT", {
+//       data: {
+//         status: 422,
+//         detail: "",
+//         instance: "/",
+//         type: "about:blank",
+//         title: "Validation Failure",
+//         errors: [],
+//       },
+//     });
+//   }
+// });
+
+export const postEntry = os.postEntry.handler(async (options) => {
   const { context, input, errors } = options;
   const { body } = input;
   const { model, contents } = body as EntryInput;
@@ -62,7 +64,6 @@ export const postEntry = os.use(
         });
       }
 
-      case "INVALID_NAME":
       case "INVALID_MODEL": {
         throw errors.INTERNAL_SERVER_ERROR({
           data: {
@@ -75,6 +76,8 @@ export const postEntry = os.use(
         });
       }
       case "INVALID_CONTENT": {
+        const e = error.violations.map(violation2ValidationError);
+
         throw errors.UNPROCESSABLE_CONTENT({
           data: {
             status: 422,
@@ -82,7 +85,7 @@ export const postEntry = os.use(
             instance: "/",
             type: "about:blank",
             title: "Validation failure",
-            errors: [],
+            errors: e,
           },
         });
       }
@@ -91,6 +94,32 @@ export const postEntry = os.use(
 
   return { id };
 }).use(location);
+
+function violation2ValidationError(
+  violation: Violation,
+): EntryValicationError {
+  const rootPath: (string | number)[] = ["", "contents"];
+
+  const pointer = rootPath.concat(violation.path).join("/");
+
+  return { pointer, ...getErrorMessage(violation.kind) };
+}
+
+function getErrorMessage(kind: ContentViolation): {
+  code: ErrorCode;
+  detail: string;
+} {
+  switch (kind) {
+    case "INVALID_TYPE": {
+      return { code: ErrorCode.InvalidType, detail: "Invalid type" };
+    }
+  }
+}
+
+enum ErrorCode {
+  InvalidType = "1",
+  Required = "2",
+}
 
 export const deleteEntry = os.deleteEntry.handler(async (options) => {
   const { context, input } = options;

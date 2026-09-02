@@ -226,11 +226,22 @@ components:
       properties:
         pointer:
           type: string
-        title:
+        code:
+          type: string
+          description: |
+            Application-specific error code.
+
+            | Code | Meaning |
+            | ---- | ------- |
+            | `1` | Invalid format |
+            | `2` | Required value |
+
+        detail:
           type: string
       required:
         - pointer
-        - title
+        - detail
+        - code
 
     UpdateEntryInput:
       type: object

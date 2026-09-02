@@ -12,7 +12,8 @@ export const zProblemDetails = z.object({
 
 export const zValidationError = z.object({
     pointer: z.string(),
-    title: z.string()
+    code: z.string(),
+    detail: z.string()
 });
 
 export const zValidationProblemDetails = zProblemDetails.and(z.object({

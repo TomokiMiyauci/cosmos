@@ -33,7 +33,17 @@ export type ValidationProblemDetails = ProblemDetails & {
 
 export type ValidationError = {
     pointer: string;
-    title: string;
+    /**
+     * Application-specific error code.
+     *
+     * | Code | Meaning |
+     * | ---- | ------- |
+     * | `1` | Invalid format |
+     * | `2` | Required value |
+     *
+     */
+    code: string;
+    detail: string;
 };
 
 export type UpdateEntryInput = {

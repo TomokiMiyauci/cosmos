@@ -53,33 +53,21 @@ export class Client {
     const [error] = await this.#client.postEntry({ body: params });
 
     if (error) {
-      if (isDefinedError(error)) {
-        switch (error.code) {
-          case "CONFLICT": {
-            throw new Error();
-          }
-          case "UNPROCESSABLE_CONTENT": {
-            const errors = error.data.errors.map((error) => {
-              const failure = error.pointer === "/name"
-                ? { instance: params, key: "name" }
-                : null;
+      if (!isDefinedError(error)) throw error;
 
-              if (!failure) {
-                throw new Error();
-              }
+      switch (error.code) {
+        case "CONFLICT": {
+          throw new Error();
+        }
+        case "UNPROCESSABLE_CONTENT": {
+          const errors = error.data.errors;
 
-              return failure;
-            });
-
-            return Result.error({ type: "VALIDATION", errors });
-          }
-          case "INTERNAL_SERVER_ERROR": {
-            throw new Error();
-          }
+          return Result.error({ type: "VALIDATION", errors });
+        }
+        case "INTERNAL_SERVER_ERROR": {
+          throw new Error();
         }
       }
-
-      throw error;
     }
 
     return Result.ok(undefined);
@@ -101,7 +89,6 @@ export class Client {
     const result = await this.#client.putEntry({
       params: { id: params.id },
       body: {
-        name: params.name,
         contents: params.contents,
       },
     });
@@ -133,14 +120,12 @@ export class Client {
     // throw new Error("Unknon status");
   }
 
-  async getSchemas(): Promise<
-    Result<SchemaResponse[], ApiError<Problem>>
-  > {
+  async getSchemas(): Promise<SchemaResponse[]> {
     const [error, data] = await this.#client.getSchemas();
 
     if (error) throw error;
 
-    return Result.ok(data);
+    return data;
   }
 
   /**
@@ -165,13 +150,13 @@ export class Client {
   }
 
   async getModels(): Promise<
-    Result<ModelResponse[], ApiError<Problem>>
+    ModelResponse[]
   > {
     const [error, data] = await this.#client.getModels();
 
     if (error) throw error;
 
-    return Result.ok(data);
+    return data;
   }
 
   async getModel(
@@ -229,6 +214,7 @@ interface ValidationError {
 }
 
 interface ValidationFailure {
-  instance: object;
-  key: string | null;
+  pointer: string;
+  code: string;
+  detail: string;
 }

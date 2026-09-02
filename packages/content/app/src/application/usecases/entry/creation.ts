@@ -41,7 +41,7 @@ export interface Violation {
 
 export type Path = (string | number)[];
 
-type ContentViolation = "INVALID_TYPE";
+export type ContentViolation = "INVALID_TYPE";
 
 export class EntryCreateUseCase {
   constructor(
