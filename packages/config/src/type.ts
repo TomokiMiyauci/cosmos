@@ -5,8 +5,10 @@ export interface ModelConfig {
 
 export interface Config {
   models: Record<string, ModelConfig>;
-  schemas: Record<string, SchemaConfig>;
+  schemas: SchemaConfigMap;
 }
+
+export type SchemaConfigMap = Record<string, SchemaConfig>;
 
 export type SchemaConfig =
   | StringSchemaDefinition
