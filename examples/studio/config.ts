@@ -7,6 +7,8 @@ const config = {
   },
   schemas: {
     post,
+    "post.title": { type: "string" },
+    "post.authors": { type: "list", item: "string" },
     author,
     setting,
     string: { type: "string" },

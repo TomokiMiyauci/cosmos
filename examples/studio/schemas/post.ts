@@ -3,8 +3,12 @@ import type { SchemaConfig } from "@cosmos/config";
 export default {
   type: "map",
   props: {
-    name: {
-      to: "string",
+    title: {
+      required: true,
+      to: "post.title",
+    },
+    authors: {
+      to: "post.authors",
     },
   },
 } satisfies SchemaConfig;
