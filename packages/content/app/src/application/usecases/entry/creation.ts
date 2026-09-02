@@ -1,38 +1,47 @@
 import { Entry, Model, type Schema } from "@cosmos/core";
 import { Result } from "@miyauci/util";
-import { type Input, validate } from "@cosmos/validator";
+import { validate, type ValidationError } from "@cosmos/validator";
 
 export interface CreateCommand {
   model: string;
-  contents: Input;
+  contents: InputContent;
 }
+
+export type InputContent = string | number | boolean | InputContent[] | {
+  [k: string]: InputContent;
+};
 
 export type CreationError =
   | ModelNotFoundError
   | SchemaNotFoundError
   | ContentViolationError
-  | InvalidModelError
-  | InvalidNameError;
+  | InvalidModelError;
 
-interface ModelNotFoundError {
+export interface ModelNotFoundError {
   type: "MODEL_NOT_FOUND";
 }
 
-interface SchemaNotFoundError {
+export interface SchemaNotFoundError {
   type: "SCHEMA_NOT_FOUND";
 }
 
-interface InvalidModelError {
+export interface InvalidModelError {
   type: "INVALID_MODEL";
 }
 
-interface InvalidNameError {
-  type: "INVALID_NAME";
+export interface ContentViolationError {
+  type: "INVALID_CONTENT";
+  violations: Violation[];
 }
 
-interface ContentViolationError {
-  type: "INVALID_CONTENT";
+export interface Violation {
+  kind: ContentViolation;
+  path: Path;
 }
+
+export type Path = (string | number)[];
+
+type ContentViolation = "INVALID_TYPE";
 
 export class EntryCreateUseCase {
   constructor(
@@ -65,7 +74,9 @@ export class EntryCreateUseCase {
     const [_, errors] = validate(command.contents, schema.definition);
 
     if (errors) {
-      return Result.error({ type: "INVALID_CONTENT" });
+      const violations = errors.map(vilidationError2Violation);
+
+      return Result.error({ type: "INVALID_CONTENT", violations });
     }
 
     const content = Entry.Content.of(command.contents);
@@ -76,4 +87,11 @@ export class EntryCreateUseCase {
 
     return Result.ok(entry.id.value);
   }
+}
+
+function vilidationError2Violation(error: ValidationError): Violation {
+  return {
+    kind: "INVALID_TYPE",
+    path: error.path,
+  };
 }
