@@ -38,10 +38,10 @@ export interface SchemaDefinitionMap {
   [k: string]: SchemaDefinition;
 }
 export class ConfigSchemaRepository implements Schema.Repository {
-  constructor(private config: SchemaConfigMap) {
+  constructor(config: SchemaConfigMap) {
     const resolved = resolveSchemaConfig(config);
 
-    this.#store = mapValues(resolved, schemaDefinition2Schema);
+    this.#store = resolved;
   }
 
   #store: Record<string, Schema>;
@@ -53,72 +53,124 @@ export class ConfigSchemaRepository implements Schema.Repository {
 
 function resolveSchemaConfig(
   store: Record<string, SchemaConfig>,
-): Record<string, SchemaDefinition> {
-  function to(
+): Record<string, Schema> {
+  const definitions = new Map<string, Schema>();
+
+  for (const [id, schema] of Object.entries(store)) {
+    definitions.set(id, createContainerSchema(schema, id));
+  }
+
+  for (const [id, config] of Object.entries(store)) {
+    linkSchema(config, id);
+  }
+
+  return Object.fromEntries(definitions);
+
+  function linkSchema(
     config: SchemaConfig,
     id: string,
-    resolve: (id: string) => SchemaDefinition,
-  ): SchemaDefinition {
-    switch (config.type) {
+  ): void {
+    const schema = definitions.get(id);
+
+    if (!schema) throw new Error();
+
+    const definition = schema.definition;
+
+    switch (definition.type) {
       case "string":
       case "number":
       case "boolean":
       case "temporal": {
-        return { id, ...config };
+        break;
       }
       case "map": {
-        const props = mapValues(config.props, (prop) => {
-          return {
-            required: prop.required ?? false,
-            schema: resolve(prop.to),
-          };
+        if (config.type !== "map") throw new Error();
+
+        const properties = mapValues(config.props, (prop) => {
+          return getSchema(prop.to);
         });
 
-        return { id, type: "map", props };
-      }
-      case "list": {
-        const item = resolve(config.item);
+        definition.properties = properties;
 
-        return { id, type: "list", item };
+        break;
+      }
+      case "sequence": {
+        if (config.type !== "list") throw new Error();
+
+        const item = getSchema(config.item);
+
+        definition.item = item;
+
+        break;
       }
       case "union": {
-        const schemas = config.schemas.map((schemaId) => resolve(schemaId));
+        if (config.type !== "union") throw new Error();
 
-        return { id, type: "union", schemas };
+        const members = config.schemas.map(getSchema);
+
+        definition.members = members;
+
+        break;
       }
       case "reference": {
-        const schema = resolve(config.to);
+        if (config.type !== "reference") throw new Error();
 
-        return { id, type: "reference", schema };
+        const schema = getSchema(config.to);
+
+        definition.target = schema;
+
+        break;
       }
     }
   }
 
-  const map = new Map<string, SchemaDefinition>();
+  function getSchema(id: string): Schema.Definition {
+    const definition = definitions.get(id);
 
-  function resolve(id: string): SchemaDefinition {
-    const def = map.get(id);
+    if (!definition) throw new Error();
 
-    if (def) return def;
-
-    const config = store[id];
-
-    if (!config) throw new Error();
-
-    return to(config, id, resolve);
+    return definition.definition;
   }
+}
 
-  const result = Object.entries(store).reduce<Record<string, SchemaDefinition>>(
-    (acc, [key, config]) => {
-      return {
-        ...acc,
-        [key]: to(config, key, resolve),
-      };
-    },
-    {},
-  );
+function createContainerSchema(
+  config: SchemaConfig,
+  rawId: string,
+): Schema {
+  const [id, idError] = Schema.Id.of(rawId);
 
-  return result;
+  if (idError) throw new Error();
+
+  switch (config.type) {
+    case "string": {
+      return Schema.of(id, { type: "string" });
+    }
+    case "number": {
+      return Schema.of(id, { type: "number" });
+    }
+    case "boolean": {
+      return Schema.of(id, { type: "boolean" });
+    }
+    case "temporal": {
+      throw new Error();
+    }
+    case "map": {
+      const required = Object.entries(config.props).map(([key, prop]) =>
+        prop.required ? key : null
+      ).filter(isNonNullable);
+
+      return Schema.of(id, { type: "map", properties: {}, required });
+    }
+    case "list": {
+      return Schema.of(id, { type: "sequence", item: PLACEHOLDER });
+    }
+    case "union": {
+      return Schema.of(id, { type: "union", members: [] });
+    }
+    case "reference": {
+      return Schema.of(id, { type: "reference", target: PLACEHOLDER });
+    }
+  }
 }
 
 export type SchemaDefinition =
@@ -171,68 +223,6 @@ export interface ReferenceSchemaDefintion extends BaseSchemaDefinition {
   schema: SchemaDefinition;
 }
 
-// (
-//   definitions: SchemaConfigMap,
-// ): Schema.Repository {
-//   const records = mapValues(definitions, schemaDefinition2Schema);
-
-//   return {
-//     findById: (id) => {
-//       const schema = records[id.value];
-
-//       return Promise.resolve(schema ?? null);
-//     },
-//   };
-// }
-
-function schemaDefinition2Schema(
-  definition: SchemaDefinition,
-): Schema {
-  const [id, idError] = Schema.Id.of(definition.id);
-
-  if (idError) throw idError;
-
-  switch (definition.type) {
-    case "string": {
-      return { type: "string", id, format: null };
-    }
-    case "number": {
-      return { type: "number", id };
-    }
-    case "map": {
-      const properties = mapValues(definition.props, (prop) => {
-        return {
-          required: prop.required,
-          schema: schemaDefinition2Schema(prop.schema),
-        };
-      });
-
-      return { id, type: "map", properties };
-    }
-    case "boolean": {
-      return { id, type: "boolean" };
-    }
-    case "temporal": {
-      return { id, type: "temporal" };
-    }
-    case "reference": {
-      const schema = schemaDefinition2Schema(definition.schema);
-
-      return { id, type: "reference", schema };
-    }
-    case "list": {
-      const schema = schemaDefinition2Schema(definition.item);
-
-      return { id, type: "list", schema };
-    }
-    case "union": {
-      const members = definition.schemas.map(schemaDefinition2Schema);
-
-      return { id, type: "union", members };
-    }
-  }
-}
-
 function modelDefinition2Model(
   definition: ModelDefinition,
   key: string,
@@ -265,9 +255,9 @@ export class ConfigModelQuery implements ModelQuery {
 
 export class ConfigSchemaQuery implements SchemaQuery {
   constructor(definition: Config["schemas"]) {
-    const resolved = resolveSchemaConfig(definition);
+    const resolved = resolveConfig2SchemaView(definition);
 
-    this.store = mapValues(resolved, schemaDefinitionToSchemaView);
+    this.store = resolved;
   }
 
   store: Record<string, SchemaView>;
@@ -291,12 +281,94 @@ function modelDefinitionToModelView(
   };
 }
 
-function schemaDefinitionToSchemaView(
-  definition: SchemaDefinition,
-): SchemaView {
-  const id = definition.id;
+function resolveConfig2SchemaView(
+  store: Record<string, SchemaConfig>,
+): Record<string, SchemaView> {
+  const definitions = new Map<string, SchemaView>();
 
-  switch (definition.type) {
+  for (const [id, schema] of Object.entries(store)) {
+    definitions.set(id, createContainerSchemaView(schema, id));
+  }
+
+  for (const [id, config] of Object.entries(store)) {
+    linkSchema(config, id);
+  }
+
+  return Object.fromEntries(definitions);
+
+  function linkSchema(
+    config: SchemaConfig,
+    id: string,
+  ): void {
+    const definition = definitions.get(id);
+
+    if (!definition) throw new Error();
+
+    switch (definition.type) {
+      case "string":
+      case "number":
+      case "boolean":
+      case "temporal": {
+        break;
+      }
+      case "map": {
+        if (config.type !== "map") throw new Error();
+
+        const properties = mapValues(config.props, (prop) => {
+          return {
+            required: prop.required ?? false,
+            schema: getSchema(prop.to),
+          };
+        });
+
+        definition.properties = properties;
+
+        break;
+      }
+      case "list": {
+        if (config.type !== "list") throw new Error();
+
+        const item = getSchema(config.item);
+
+        definition.item = item;
+
+        break;
+      }
+      case "union": {
+        if (config.type !== "union") throw new Error();
+
+        const members = config.schemas.map(getSchema);
+
+        definition.schemas = members;
+
+        break;
+      }
+      case "reference": {
+        if (config.type !== "reference") throw new Error();
+
+        const schema = getSchema(config.to);
+
+        definition.schema = schema;
+
+        break;
+      }
+    }
+  }
+
+  function getSchema(id: string): SchemaView {
+    const definition = definitions.get(id);
+
+    if (!definition) throw new Error();
+
+    return definition;
+  }
+}
+
+function createContainerSchemaView(
+  config: SchemaConfig,
+  id: string,
+): SchemaView {
+  switch (config.type) {
     case "string": {
       return { id, type: "string" };
     }
@@ -309,31 +381,23 @@ function schemaDefinitionToSchemaView(
     case "temporal": {
       return { id, type: "temporal" };
     }
-    case "list": {
-      const item = schemaDefinitionToSchemaView(definition.item);
-
-      return { id, type: "list", item };
-    }
     case "map": {
-      const properties = mapValues(definition.props, (child) => {
-        const schema = schemaDefinitionToSchemaView(child.schema);
-
-        return {
-          required: child.required,
-          schema,
-        };
-      });
-      return { id, type: "map", properties };
+      return { id, type: "map", properties: {} };
+    }
+    case "list": {
+      return { id, type: "list", item: PLACEHOLDER };
     }
     case "union": {
-      const schemas = definition.schemas.map(schemaDefinitionToSchemaView);
-
-      return { id, type: "union", schemas };
+      return { id, type: "union", schemas: [] };
     }
     case "reference": {
-      const schema = schemaDefinitionToSchemaView(definition.schema);
-
-      return { id, type: "reference", schema };
+      return { id, type: "reference", schema: PLACEHOLDER };
     }
   }
+}
+
+const PLACEHOLDER = undefined as any;
+
+function isNonNullable<T>(value: T): value is NonNullable<T> {
+  return !!value;
 }
