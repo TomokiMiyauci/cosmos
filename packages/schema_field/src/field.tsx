@@ -176,7 +176,7 @@ function _Field(props: _FieldProps): JSX.Element {
     case "boolean": {
       return <BooleanField {...fieldProps} />;
     }
-    case "list": {
+    case "sequence": {
       return <SequenseField {...fieldProps} />;
     }
     case "map": {

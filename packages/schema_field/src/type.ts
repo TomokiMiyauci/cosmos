@@ -1,4 +1,12 @@
 import type { ReactNode } from "react";
+import type {
+  BooleanSchema,
+  MapSchema,
+  NumberSchema,
+  SequenceSchema,
+  StringSchema,
+  UnionSchema,
+} from "@cosmos/schema";
 
 export interface WidgetProps {
   render(def: Definition, group?: string): ReactNode;
@@ -36,7 +44,7 @@ export type Definition =
   | MapDefinition
   | UnionDefinition;
 
-interface ListDefinition extends Schema.List, BaseDefinition {
+interface ListDefinition extends SequenceSchema, BaseDefinition {
   item: Definition;
 }
 
@@ -44,66 +52,21 @@ interface BaseDefinition {
   presentation: Presentation;
 }
 
-interface StringDefinition extends Schema.String, BaseDefinition {}
+interface StringDefinition extends StringSchema, BaseDefinition {}
 
-interface NumberDefinition extends Schema.Number, BaseDefinition {}
+interface NumberDefinition extends NumberSchema, BaseDefinition {}
 
-interface BooleanDefinition extends Schema.Boolean, BaseDefinition {}
+interface BooleanDefinition extends BooleanSchema, BaseDefinition {}
 
-interface MapDefinition extends Schema.Map, BaseDefinition {
-  props: Record<string, { field: Definition }>;
+interface MapDefinition extends MapSchema, BaseDefinition {
+  properties: Record<string, Definition>;
 }
 
-interface UnionDefinition extends Schema.Union, BaseDefinition {
-  fields: Definition[];
+interface UnionDefinition extends UnionSchema, BaseDefinition {
+  members: Definition[];
 }
 
 export interface Presentation {
   title: string;
   widget: Widget;
-}
-
-export type Schema =
-  | StringSchema
-  | NumberSchema
-  | BooleanSchema
-  | ListSchema
-  | MapSchema
-  | UnionSchema;
-
-export interface StringSchema {
-  type: "string";
-}
-
-export interface NumberSchema {
-  type: "number";
-}
-
-export interface BooleanSchema {
-  type: "boolean";
-}
-
-export interface ListSchema {
-  type: "list";
-  item: Schema;
-}
-
-export interface MapSchema {
-  type: "map";
-  props: Record<string, { field: Schema }>;
-}
-
-export interface UnionSchema {
-  type: "union";
-  fields: Schema[];
-}
-
-// deno-lint-ignore no-namespace
-export namespace Schema {
-  export type String = StringSchema;
-  export type Number = NumberSchema;
-  export type Boolean = BooleanSchema;
-  export type List = ListSchema;
-  export type Map = MapSchema;
-  export type Union = UnionSchema;
 }
