@@ -1,70 +1,59 @@
 "use client";
 
-import { type JSX } from "react";
-import { Page, resolvePath } from "../router.ts";
+import type { JSX } from "react";
 import type { Result } from "@miyauci/util";
+import {
+  type Definition,
+  Fields,
+  useFields,
+  type Value,
+} from "@cosmos/schema-field";
 
-export interface ContentPageProps {
-  contentId: string;
-  // data: Data;
-  // onAction: (entry: Entry) => Promise<Result<void, {}>>;
-  onRemove: (id: string) => Promise<void>;
+export interface EntryPageProps {
+  definition: Definition;
+  service: ContentService;
+  formData: Content;
 }
 
-export default function ContentPage(
-  props: ContentPageProps,
+export default function EntryPage(
+  props: EntryPageProps,
 ): JSX.Element {
-  const { contentId, onRemove } = props;
-  // const idNode = init ? withId(init, id) : null;
-  // const initStore = idNode ? node2Store(idNode) : {};
-  // const definition = toFieldDefinition(field);
+  const { definition, service, formData } = props;
 
-  // async function update(node: Node): Promise<void> {
-  //   const [data, error] = await onAction({
-  //     id: contentId,
-  //     node,
-  //   });
+  const fields = useFields(formData);
 
-  //   // if (error) {
-  //   // } else {
-  //   //   setState(data);
-  //   //   alert("success");
-  //   // }
-  // }
+  async function handleSubmit(): Promise<void> {
+    const content = fields.getValues();
 
-  async function remove(): Promise<void> {
-    await onRemove(contentId);
+    if (!content) return;
 
-    location.href = resolvePath(Page.Contents);
+    const [_, errors] = await service.save(content);
+
+    if (errors) {
+      for (const error of errors) {
+        fields.setError({ path: error.path, message: error.message });
+      }
+    }
   }
 
   return (
     <div>
-      <h1>Content</h1>
+      <form action={handleSubmit}>
+        <Fields definition={definition} form={fields.form} />
 
-      {
-        /* <h2>{meta.title}</h2>
-      <p>{meta.description}</p> */
-      }
-
-      <form
-        action={async () => {
-          "use server";
-
-          // const result = await handleAction(node);
-        }}
-      >
         <button type="submit">Update</button>
       </form>
-
-      <button
-        type="button"
-        onClick={() => {
-          remove();
-        }}
-      >
-        Delete
-      </button>
     </div>
   );
+}
+
+export type Content = Value;
+
+export interface ContentService {
+  save(content: Content): Promise<Result<void, ValidationError[]>>;
+}
+
+export interface ValidationError {
+  path: string[];
+  message: string;
 }
