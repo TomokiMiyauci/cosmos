@@ -17,8 +17,9 @@ export interface UseFieldsReturn {
 
 export type Path = (string | number)[];
 
-export function useFields(): UseFieldsReturn {
-  const form = useForm<FormValues>();
+export function useFields(init?: Value): UseFieldsReturn {
+  const values = init ? { content: init } : undefined;
+  const form = useForm<FormValues>({ values });
 
   return {
     getValues(): Value | null {
