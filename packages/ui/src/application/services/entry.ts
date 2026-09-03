@@ -1,16 +1,20 @@
 import type { Result } from "@miyauci/util";
 
 export interface EntryService {
-  create(entry: Entry): Promise<Result<void, EntryCreateError>>;
-  save(entry: Entry & { id: string }): Promise<Result<void, EntryCreateError>>;
+  save(entry: SaveEntry): Promise<Result<void, EntrySaveError>>;
 }
 
 export interface Entry {
+  id: string;
   modelId: string;
   content: any;
 }
 
-export type EntryCreateError = ValidationFailure;
+type NewEntry = Omit<Entry, "id">;
+
+type SaveEntry = Entry | NewEntry;
+
+export type EntrySaveError = ValidationFailure;
 
 export interface ValidationFailure {
   type: "VALIDATION";

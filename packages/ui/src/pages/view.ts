@@ -111,7 +111,7 @@ class EntryContentService implements ContentService {
   constructor(private modelId: string, private service: EntryService) {}
   async create(content: Content): Promise<Result<void, ValidationError[]>> {
     const entry = { modelId: this.modelId, content };
-    const [_, failure] = await this.service.create(entry);
+    const [_, failure] = await this.service.save(entry);
 
     if (failure) {
       const errors = failure.errors.map((error) => ({
