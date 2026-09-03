@@ -1,7 +1,7 @@
 import ResourcePage, { type ResourcePageProps } from "./resource.tsx";
 import HomePage from "./home.tsx";
 import NotFoundPage from "./not_found.tsx";
-import ContentPage, { type ContentPageProps } from "./content.tsx";
+import ContentPage, { type EntryPageProps } from "./content.tsx";
 import ContentCreationPage, {
   type Content,
   type ContentCreatePageProps,
@@ -42,24 +42,31 @@ export const views = {
     },
   },
   [Page.Content]: {
-    async getStaticProps(params: Params): Promise<ContentPageProps | null> {
-      const { service } = params;
-
+    async getStaticProps(params: Params): Promise<EntryPageProps | null> {
       const id = params.params.id;
 
       if (!id) return null;
 
-      const contentId = id;
+      const entry = await params.queries.entry.findById(id);
 
-      // const data = await service.findContent(contentId);
+      if (!entry) return null;
 
-      // if (!data) return null;
+      const modelId = entry.modelId;
+
+      const definition = await params.queries.definition.findFor(modelId);
+
+      if (!definition) return null;
+
+      const service = new EntryContentUpdateService(
+        params.services.entry,
+        id,
+        modelId,
+      );
 
       return {
-        // onAction: (entry) => service.saveEntry(entry),
-        onRemove: (id) => service.eraseNodeById(id),
-        contentId,
-        // data,
+        definition,
+        formData: entry.content,
+        service,
       };
     },
     component: ContentPage,
@@ -105,6 +112,32 @@ class EntryContentService implements ContentService {
   async create(content: Content): Promise<Result<void, ValidationError[]>> {
     const entry = { modelId: this.modelId, content };
     const [_, failure] = await this.service.create(entry);
+
+    if (failure) {
+      const errors = failure.errors.map((error) => ({
+        path: error.path,
+        message: error.message,
+      }));
+
+      return Result.error(errors);
+    }
+
+    return Result.ok(undefined);
+  }
+}
+
+class EntryContentUpdateService {
+  constructor(
+    private service: EntryService,
+    private id: string,
+    private modelId: string,
+  ) {}
+  async save(content: Content): Promise<Result<void, ValidationError[]>> {
+    const [_, failure] = await this.service.save({
+      id: this.id,
+      modelId: this.modelId,
+      content,
+    });
 
     if (failure) {
       const errors = failure.errors.map((error) => ({
