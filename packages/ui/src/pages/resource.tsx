@@ -1,44 +1,34 @@
-import { type JSX, Suspense, use } from "react";
-import type { CmsService, Resource, Summary } from "../type.ts";
+import type { JSX } from "react";
 import { Page, resolvePath } from "../router.ts";
 
-export interface ResourcePageProps {
-  resource: Resource;
-  service: CmsService;
+export interface EntriesPageProps {
+  summaries: EntrySummary[];
+  modelId: string;
 }
 
-export default function ResourcePage(props: ResourcePageProps): JSX.Element {
-  const { resource, service } = props;
+export interface EntrySummary {
+  id: string;
+  title: string;
+}
 
-  const promise = service.findSummaries({ resource: resource.id });
+export default function EntriesPage(props: EntriesPageProps): JSX.Element {
+  const { summaries, modelId } = props;
 
   return (
     <div>
-      <h1>{resource.id}</h1>
+      {/* <h1>{resource.id}</h1> */}
 
-      <a href={resolvePath(Page.ContentCreation, { id: resource.id })}>
+      <a href={resolvePath(Page.ContentCreation, { id: modelId })}>
         Create
       </a>
 
-      <Suspense>
-        <MainPage promise={promise} />
-      </Suspense>
-    </div>
-  );
-}
-
-function MainPage(props: { promise: Promise<Summary[]> }): JSX.Element {
-  const result = use(props.promise);
-
-  return (
-    <div>
       <ul>
-        {result.map(({ id, name }) => {
+        {summaries.map(({ id, title }) => {
           const href = resolvePath(Page.Content, { id });
 
           return (
             <li key={id}>
-              <a href={href}>{name}</a>
+              <a href={href}>{title}</a>
             </li>
           );
         })}
