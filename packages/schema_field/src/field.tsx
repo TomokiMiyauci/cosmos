@@ -55,7 +55,7 @@ function normalize(value: FormValues): Value | null {
 
 function normalizeNativeFormValue(value: NativeFormValue): Value {
   if (Array.isArray(value)) {
-    return value.map(normalizeNativeFormValue);
+    return value.filter(isNonNullable).map(normalizeNativeFormValue);
   } else if (typeof value === "object") {
     const result: Record<string, Value> = {};
 
@@ -86,7 +86,7 @@ type NativeFormPrimitiveValue = Primitive;
 
 type NativeFormValue = NativeFormPrimitiveValue | {
   [k: string]: NativeFormValue | undefined;
-} | NativeFormValue[];
+} | (NativeFormValue | null)[];
 
 export type Value = Value[] | Primitive | {
   [k: string]: Value;
@@ -187,4 +187,8 @@ function _Field(props: _FieldProps): JSX.Element {
       return <UnionField {...fieldProps} />;
     }
   }
+}
+
+function isNonNullable<T>(value: T): value is NonNullable<T> {
+  return !!value;
 }
