@@ -4,17 +4,7 @@
   },
   "workspace": [
     "packages/*",
-    "packages/codecs/*",
-    "packages/locators/*",
-    "packages/protocols/*",
-    "packages/stores/*",
-    "packages/storages/*",
-    "packages/formatters/*",
-    "packages/node/*",
-    "packages/graphql/*",
-    "packages/converters/*",
-    "packages/indexers/*",
-    "packages/repositories/*",
+    "packages/content/*",
     "examples/*"
   ],
   "lint": {
