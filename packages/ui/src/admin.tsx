@@ -1,21 +1,21 @@
 import type { JSX } from "react";
-import type { CmsService } from "./type.ts";
 import type { TranslationService } from "./translation.ts";
 import Html from "./html.tsx";
 import { Page, type RouteResult } from "./router.ts";
 import { views } from "./pages/view.ts";
+import type { Queries } from "./application/query.ts";
 
 export interface AdminProps {
   route: RouteResult;
-  service: CmsService;
+  queries: Queries;
   translation: TranslationService;
 }
 
 export function Admin(props: AdminProps): JSX.Element {
-  const { service, translation, route } = props;
+  const { translation, route, queries } = props;
 
   return (
-    <Html route={route} service={service} translation={translation}>
+    <Html route={route} queries={queries} translation={translation}>
       <PageMatcher {...props} />
     </Html>
   );

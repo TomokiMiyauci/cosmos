@@ -1,4 +1,4 @@
-import ResourcePage, { type ResourcePageProps } from "./resource.tsx";
+import ResourcePage, { type EntriesPageProps } from "./resource.tsx";
 import HomePage from "./home.tsx";
 import NotFoundPage from "./not_found.tsx";
 import ContentPage, { type EntryPageProps } from "./content.tsx";
@@ -9,7 +9,7 @@ import ContentCreationPage, {
   type ValidationError,
 } from "./content_creation.tsx";
 import { Page } from "./symbol.ts";
-import type { CmsService, Router } from "../type.ts";
+import type { Router } from "../type.ts";
 import AssetsPage, { type AssetsPageProps } from "./assets.tsx";
 import type { Queries } from "../application/query.ts";
 import type { EntryService, Services } from "../application/service.ts";
@@ -25,20 +25,15 @@ export const views = {
   [Page.Resource]: {
     component: ResourcePage,
     async getStaticProps(
-      { params, service }: Params,
-    ): Promise<ResourcePageProps | null> {
-      const id = params.id;
+      { params, queries }: Params,
+    ): Promise<EntriesPageProps | null> {
+      const modelId = params.id;
 
-      if (!id) return null;
+      if (!modelId) return null;
 
-      const resource = await service.findResource(id);
+      const summaries = await queries.entrySummary.listByModel(modelId);
 
-      if (!resource) return null;
-
-      return {
-        resource,
-        service,
-      };
+      return { modelId, summaries };
     },
   },
   [Page.Content]: {
@@ -91,9 +86,7 @@ export const views = {
   },
   [Page.Assets]: {
     getStaticProps(parapms: Params): AssetsPageProps {
-      return {
-        service: parapms.service,
-      };
+      return {};
     },
     component: AssetsPage,
   },
@@ -101,7 +94,6 @@ export const views = {
 
 interface Params {
   params: Record<string, string>;
-  service: CmsService;
   router: Router;
   queries: Queries;
   services: Services;

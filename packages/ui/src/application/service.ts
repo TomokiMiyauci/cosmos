@@ -6,7 +6,7 @@ export interface Services {
 
 export type {
   Entry,
-  EntryCreateError,
+  EntrySaveError,
   EntryService,
   ValidationError,
   ValidationFailure,

@@ -4,10 +4,9 @@ import { mapValues } from "@std/collections/map-values";
 import { filterValues } from "@std/collections/filter-values";
 import { Page } from "./pages/symbol.ts";
 import type { ContentCreatePageProps } from "./pages/content_creation.tsx";
-import type { ContentPageProps } from "./pages/content.tsx";
+import type { EntryPageProps } from "./pages/content.tsx";
 import { views } from "./pages/view.ts";
-import type { CmsService } from "@cosmos/ui";
-import type { ResourcePageProps } from "./pages/resource.tsx";
+import type { EntriesPageProps } from "./pages/resource.tsx";
 import type { Router as R } from "./type.ts";
 import type { Queries } from "./application/query.ts";
 import type { Services } from "./application/service.ts";
@@ -23,7 +22,6 @@ export class Router {
   #router: R = new DefaultRouter();
 
   constructor(
-    private service: CmsService,
     private queries: Queries,
     private services: Services,
   ) {
@@ -49,7 +47,6 @@ export class Router {
         if (entry.getStaticProps) {
           const data = await entry.getStaticProps({
             params: decodedParams,
-            service: this.service,
             router: this.#router,
             queries: this.queries,
             services: this.services,
@@ -118,10 +115,10 @@ export type RouteResult = {
   data: ContentCreatePageProps;
 } | {
   type: Page.Content;
-  data: ContentPageProps;
+  data: EntryPageProps;
 } | {
   type: Page.Resource;
-  data: ResourcePageProps;
+  data: EntriesPageProps;
 } | {
   type: Page.NotFound;
 } | {

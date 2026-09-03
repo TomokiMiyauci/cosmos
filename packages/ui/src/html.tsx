@@ -1,19 +1,19 @@
 import { type JSX, type ReactNode, Suspense, use } from "react";
 import { Page, resolvePath, type RouteResult } from "./router.ts";
-import type { CmsService, Identity } from "./type.ts";
 import type { TranslationService } from "./translation.ts";
+import type { Model, Queries } from "./application/query.ts";
 
 export interface HtmlProps {
   route: RouteResult;
-  service: CmsService;
   translation: TranslationService;
   children?: ReactNode;
+  queries: Queries;
 }
 
 export default function Html(props: HtmlProps): JSX.Element {
-  const { service, translation, children } = props;
+  const { translation, children, queries } = props;
 
-  const resourcesPromise = service.findResources();
+  const modelsPromise = queries.model.list();
 
   return (
     <html>
@@ -27,7 +27,7 @@ export default function Html(props: HtmlProps): JSX.Element {
         </header>
 
         <Suspense>
-          <Aside promise={resourcesPromise} translation={translation} />
+          <Aside promise={modelsPromise} translation={translation} />
         </Suspense>
 
         <aside>
@@ -47,7 +47,7 @@ export default function Html(props: HtmlProps): JSX.Element {
 }
 
 function Aside(
-  props: { promise: Promise<Identity[]>; translation: TranslationService },
+  props: { promise: Promise<Model[]>; translation: TranslationService },
 ): JSX.Element {
   const { promise, translation } = props;
 
@@ -58,10 +58,10 @@ function Aside(
       <h2>{translation.translate("page.resources.title")}</h2>
 
       <ul>
-        {identifies.map(({ id }) => {
+        {identifies.map(({ id, title }) => {
           return (
             <li key={id}>
-              <a href={resolvePath(Page.Resource, { id })}>{id}</a>
+              <a href={resolvePath(Page.Resource, { id })}>{title}</a>
             </li>
           );
         })}
