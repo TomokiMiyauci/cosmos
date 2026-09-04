@@ -7,15 +7,24 @@ export interface CreateCommand {
   contents: InputContent;
 }
 
+export interface UpdateCommand extends CreateCommand {
+  id: string;
+}
+
 export type InputContent = string | number | boolean | InputContent[] | {
   [k: string]: InputContent;
 };
 
 export type CreationError =
+  | InvalidIdError
   | ModelNotFoundError
   | SchemaNotFoundError
   | ContentViolationError
   | InvalidModelError;
+
+export interface InvalidIdError {
+  type: "INVALID_ID";
+}
 
 export interface ModelNotFoundError {
   type: "MODEL_NOT_FOUND";
@@ -43,7 +52,7 @@ export type Path = (string | number)[];
 
 export type ContentViolation = "INVALID_TYPE";
 
-export class EntryCreateUseCase {
+export class EntryRegisterUseCase {
   constructor(
     private entryRepo: Entry.Repositry,
     private modelRepo: Model.Repositry,
@@ -51,9 +60,19 @@ export class EntryCreateUseCase {
   ) {}
 
   async execute(
-    command: CreateCommand,
+    command: CreateCommand | UpdateCommand,
   ): Promise<Result<string, CreationError>> {
-    const id = Entry.Id.new();
+    let id: Entry.Id;
+
+    if ("id" in command) {
+      const [entryId, entryIdError] = Entry.Id.from(command.id);
+
+      if (entryIdError) return new Result.error();
+
+      id = entryId;
+    } else {
+      id = Entry.Id.new();
+    }
 
     const [modelId, modelConstructError] = Model.Id.of(command.model);
 

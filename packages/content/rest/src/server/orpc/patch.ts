@@ -27,6 +27,9 @@ const postEntry = oc.postEntry.errors({
   INTERNAL_SERVER_ERROR: {
     data: zod.zProblemDetails,
   },
+  BAD_REQUEST: {
+    data: zod.zProblemDetails,
+  },
 });
 
 const getModel = oc.getModel.errors({

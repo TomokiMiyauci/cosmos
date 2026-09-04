@@ -89,7 +89,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateEntryInput"
+              $ref: "#/components/schemas/EntryInput"
       responses:
         "204":
           description: OK
@@ -242,14 +242,6 @@ components:
         - pointer
         - detail
         - code
-
-    UpdateEntryInput:
-      type: object
-      properties:
-        contents:
-          $ref: "#/components/schemas/Contents"
-      required:
-        - contents
 
     EntryInput:
       type: object

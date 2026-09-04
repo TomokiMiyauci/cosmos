@@ -105,10 +105,6 @@ export const zBooleanContents = z.boolean();
 
 export const zDatetimeContents = z.string();
 
-export const zUpdateEntryInput = z.object({
-    contents: z.lazy((): any => zContents)
-});
-
 export const zEntryInput = z.object({
     model: z.string().min(1),
     contents: z.lazy((): any => zContents)
@@ -198,7 +194,7 @@ export const zGetEntryResponse = zEntryResponse;
 /**
  * OK
  */
-export const zPutEntryBody = zUpdateEntryInput;
+export const zPutEntryBody = zEntryInput;
 
 export const zPutEntryPath = z.object({
     id: z.string()

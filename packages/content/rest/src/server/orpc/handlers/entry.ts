@@ -6,7 +6,6 @@ import type {
   EntryInput,
   EntryResponse,
   EntrySummaryResponse,
-  UpdateEntryInput,
   ValidationError as EntryValicationError,
 } from "../../../generated/types.gen.ts";
 import type { EntryView } from "../../application/query.ts";
@@ -44,7 +43,7 @@ export const postEntry = os.postEntry.handler(async (options) => {
   const { body } = input;
   const { model, contents } = body as EntryInput;
 
-  const [id, error] = await context.usecases.entry.create.execute({
+  const [id, error] = await context.usecases.entry.register.execute({
     model,
     contents,
   });
@@ -64,10 +63,11 @@ export const postEntry = os.postEntry.handler(async (options) => {
         });
       }
 
-      case "INVALID_MODEL": {
-        throw errors.INTERNAL_SERVER_ERROR({
+      case "INVALID_MODEL":
+      case "INVALID_ID": {
+        throw errors.BAD_REQUEST({
           data: {
-            status: 500,
+            status: 400,
             detail: "",
             instance: "/",
             type: "about:blank",
@@ -169,15 +169,61 @@ function toEntryResponse(view: EntryView): EntryResponse {
 }
 
 export const putEntry = os.putEntry.handler(async (options) => {
-  const { input, context } = options;
+  const { input, context, errors } = options;
   const { params, body } = input;
-  const { contents } = body as UpdateEntryInput;
+  const { contents, model } = body as EntryInput;
   const { id } = params;
 
-  const [dto] = await context.usecases.entry.update.execute({ id, contents });
+  const [_, error] = await context.usecases.entry.register.execute({
+    id,
+    contents,
+    model,
+  });
 
-  if (!dto) {
-    throw new Error();
+  if (error) {
+    if (error) {
+      switch (error.type) {
+        case "MODEL_NOT_FOUND":
+        case "SCHEMA_NOT_FOUND": {
+          throw errors.CONFLICT({
+            data: {
+              status: 409,
+              detail: "Model not found",
+              instance: "/",
+              type: "about:blank",
+              title: "Model not found",
+            },
+          });
+        }
+
+        case "INVALID_MODEL":
+        case "INVALID_ID": {
+          throw errors.BAD_REQUEST({
+            data: {
+              status: 400,
+              detail: "",
+              instance: "/",
+              type: "about:blank",
+              title: "",
+            },
+          });
+        }
+        case "INVALID_CONTENT": {
+          const e = error.violations.map(violation2ValidationError);
+
+          throw errors.UNPROCESSABLE_CONTENT({
+            data: {
+              status: 422,
+              detail: "",
+              instance: "/",
+              type: "about:blank",
+              title: "Validation failure",
+              errors: e,
+            },
+          });
+        }
+      }
+    }
   }
 });
 

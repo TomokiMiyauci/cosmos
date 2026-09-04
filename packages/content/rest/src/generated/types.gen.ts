@@ -46,10 +46,6 @@ export type ValidationError = {
     detail: string;
 };
 
-export type UpdateEntryInput = {
-    contents: Contents;
-};
-
 export type EntryInput = {
     model: string;
     contents: Contents;
@@ -252,7 +248,7 @@ export type PutEntryData = {
     /**
      * OK
      */
-    body: UpdateEntryInput;
+    body: EntryInput;
     path: {
         id: string;
     };
