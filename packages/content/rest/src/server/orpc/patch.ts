@@ -32,6 +32,18 @@ const postEntry = oc.postEntry.errors({
   },
 });
 
+const putEntry = oc.putEntry.errors({
+  UNPROCESSABLE_CONTENT: {
+    data: zod.zValidationProblemDetails,
+  },
+  CONFLICT: {
+    data: zod.zProblemDetails,
+  },
+  BAD_REQUEST: {
+    data: zod.zProblemDetails,
+  },
+});
+
 const getModel = oc.getModel.errors({
   NOT_FOUND: {
     data: zod.zProblemDetails,
@@ -44,4 +56,5 @@ export const contract = {
   getEntry,
   getSchema,
   getModel,
+  putEntry,
 };

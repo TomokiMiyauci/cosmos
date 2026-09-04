@@ -42,15 +42,13 @@ paths:
                 $ref: "#/components/schemas/Identitiy"
         "400":
           $ref: "#/components/responses/ErrorResponse"
+
         "409":
           $ref: "#/components/responses/ErrorResponse"
 
         "422":
-          description: Validation failure
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ValidationProblemDetails"
+          $ref: "#/components/responses/ValidationErrorResponse"
+
         "500":
           $ref: "#/components/responses/ErrorResponse"
 
@@ -93,6 +91,15 @@ paths:
       responses:
         "204":
           description: OK
+
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+
+        "422":
+          $ref: "#/components/responses/ValidationErrorResponse"
 
     delete:
       summary: Delete entry
@@ -479,6 +486,13 @@ components:
     ErrorResponse:
       description: Error
       content:
-        application:json:
+        application/problem+json:
           schema:
             $ref: "#/components/schemas/ProblemDetails"
+
+    ValidationErrorResponse:
+      description: Validation Error
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ValidationProblemDetails"

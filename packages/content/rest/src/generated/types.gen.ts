@@ -179,7 +179,7 @@ export type PostEntryErrors = {
      */
     409: ProblemDetails;
     /**
-     * Validation failure
+     * Validation Error
      */
     422: ValidationProblemDetails;
     /**
@@ -255,6 +255,23 @@ export type PutEntryData = {
     query?: never;
     url: '/entries/{id}';
 };
+
+export type PutEntryErrors = {
+    /**
+     * Error
+     */
+    400: ProblemDetails;
+    /**
+     * Error
+     */
+    409: ProblemDetails;
+    /**
+     * Validation Error
+     */
+    422: ValidationProblemDetails;
+};
+
+export type PutEntryError = PutEntryErrors[keyof PutEntryErrors];
 
 export type PutEntryResponses = {
     /**
