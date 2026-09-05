@@ -1,6 +1,11 @@
 import { Entry, Model, type Schema } from "@cosmos/core";
 import { Result } from "@miyauci/util";
-import { validate, type ValidationError } from "@cosmos/validator";
+import {
+  type ErrorReason,
+  type Identifier,
+  validate,
+  type ValidationError,
+} from "@cosmos/validator";
 
 export interface CreateCommand {
   model: string;
@@ -53,7 +58,8 @@ export type Path = (string | number)[];
 export type ContentViolation =
   | "INVALID_TYPE"
   | "REQUIRED"
-  | "REFERENCE_NOT_FOUND";
+  | "REFERENCE_NOT_FOUND"
+  | "INVALID_VALUE";
 
 export class EntryRegisterUseCase {
   constructor(
@@ -100,10 +106,7 @@ export class EntryRegisterUseCase {
       schema.definition,
       (context) => {
         if (context.type === "reference") {
-          const [id, error] = Entry.Id.from(context.content);
-
-          // id is checked by validator
-          if (error) throw new Error("unreachable");
+          const id = toEntryId(context.content);
 
           references.push({ id, path: context.path });
         }
@@ -133,11 +136,33 @@ export class EntryRegisterUseCase {
   }
 }
 
+function toEntryId(identifier: Identifier): Entry.Id {
+  const [id, error] = Entry.Id.from(identifier.value);
+  // identifier is same value as Entry Id
+
+  if (error) throw new Error("unreachable");
+
+  return id;
+}
+
 function vilidationError2Violation(error: ValidationError): Violation {
+  const kind = reason2Kind(error.reason);
+
   return {
-    kind: error.reason === "invalid_type" ? "INVALID_TYPE" : "REQUIRED",
+    kind,
     path: error.path,
   };
+}
+
+function reason2Kind(reason: ErrorReason): ContentViolation {
+  switch (reason) {
+    case "invalid_type":
+      return "INVALID_TYPE";
+    case "required":
+      return "REQUIRED";
+    case "invalid_value":
+      return "INVALID_VALUE";
+  }
 }
 
 function isNonNullable<T>(value: T): value is NonNullable<T> {
