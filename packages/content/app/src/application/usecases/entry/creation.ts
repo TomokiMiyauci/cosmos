@@ -50,7 +50,7 @@ export interface Violation {
 
 export type Path = (string | number)[];
 
-export type ContentViolation = "INVALID_TYPE";
+export type ContentViolation = "INVALID_TYPE" | "REFERENCE_NOT_FOUND";
 
 export class EntryRegisterUseCase {
   constructor(
@@ -67,7 +67,7 @@ export class EntryRegisterUseCase {
     if ("id" in command) {
       const [entryId, entryIdError] = Entry.Id.from(command.id);
 
-      if (entryIdError) return new Result.error();
+      if (entryIdError) return Result.error({ type: "INVALID_ID" });
 
       id = entryId;
     } else {
@@ -90,12 +90,34 @@ export class EntryRegisterUseCase {
       return Result.error({ type: "SCHEMA_NOT_FOUND" });
     }
 
-    const [_, errors] = validate(command.contents, schema.definition);
+    const references: IdPath[] = [];
 
-    if (errors) {
-      const violations = errors.map(vilidationError2Violation);
+    const [_, errors] = validate(
+      command.contents,
+      schema.definition,
+      (context) => {
+        if (context.type === "reference") {
+          const [id, error] = Entry.Id.from(context.content);
 
-      return Result.error({ type: "INVALID_CONTENT", violations });
+          // id is checked by validator
+          if (error) throw new Error("unreachable");
+
+          references.push({ id, path: context.path });
+        }
+      },
+    );
+
+    const notFounds = await validateReferenceExistence(
+      references,
+      this.entryRepo,
+    );
+    const allErrors = [
+      ...errors?.map(vilidationError2Violation) ?? [],
+      ...notFounds,
+    ];
+
+    if (allErrors.length) {
+      return Result.error({ type: "INVALID_CONTENT", violations: allErrors });
     }
 
     const content = Entry.Content.of(command.contents);
@@ -113,4 +135,28 @@ function vilidationError2Violation(error: ValidationError): Violation {
     kind: "INVALID_TYPE",
     path: error.path,
   };
+}
+
+function isNonNullable<T>(value: T): value is NonNullable<T> {
+  return !!value;
+}
+
+interface IdPath {
+  id: Entry.Id;
+  path: Path;
+}
+
+async function validateReferenceExistence(
+  idPaths: IdPath[],
+  repository: Entry.Repositry,
+): Promise<Violation[]> {
+  const result = await Promise.all(idPaths.map(async ({ id, path }) => {
+    const isExists = await repository.findById(id);
+
+    if (isExists) return null;
+
+    return { kind: "REFERENCE_NOT_FOUND", path } satisfies Violation;
+  }));
+
+  return result.filter(isNonNullable);
 }
