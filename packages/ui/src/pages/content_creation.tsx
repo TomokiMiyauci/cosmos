@@ -40,9 +40,7 @@ export default function ContentCreationPage(
     const [_, errors] = await service.create(content);
 
     if (errors) {
-      for (const error of errors) {
-        fields.setError({ path: error.path, message: error.message });
-      }
+      fields.setErrors(errors);
     }
   }
 
