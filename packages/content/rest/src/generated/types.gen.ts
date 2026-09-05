@@ -40,6 +40,7 @@ export type ValidationError = {
      * | ---- | ------- |
      * | `1` | Invalid format |
      * | `2` | Required value |
+     * | `3` | Reference not found |
      *
      */
     code: string;
@@ -94,7 +95,6 @@ export type TemporalSchemaResponse = BaseSchemaResponse & {
 
 export type ReferenceSchemaResponse = BaseSchemaResponse & {
     type: 'reference';
-    schema: SchemaReference;
 };
 
 export type MapSchemaResponse = BaseSchemaResponse & {

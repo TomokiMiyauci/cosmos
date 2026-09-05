@@ -67,9 +67,9 @@ function toSchemaResopnse(view: SchemaView): SchemaResponse {
       return { id, type: "list", item };
     }
     case "reference": {
-      const schema = schemaView2SchemaReference(view.schema);
+      // const schema = schemaView2SchemaReference(view.schema);
 
-      return { id, type: "reference", schema };
+      return { id, type: "reference" };
     }
     case "union": {
       const schemas = view.schemas.map(schemaView2SchemaReference);

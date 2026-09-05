@@ -64,8 +64,7 @@ export const zTemporalSchemaResponse = zBaseSchemaResponse.and(z.object({
 }));
 
 export const zReferenceSchemaResponse = zBaseSchemaResponse.and(z.object({
-    type: z.enum(['reference']),
-    schema: zSchemaReference
+    type: z.enum(['reference'])
 }));
 
 export const zMapSchemaResponse = zBaseSchemaResponse.and(z.object({

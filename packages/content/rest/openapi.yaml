@@ -242,6 +242,7 @@ components:
             | ---- | ------- |
             | `1` | Invalid format |
             | `2` | Required value |
+            | `3` | Reference not found |
 
         detail:
           type: string
@@ -374,8 +375,8 @@ components:
         type:
           enum: ["reference"]
 
-        schema:
-          $ref: "#/components/schemas/SchemaReference"
+        # schema:
+        #   $ref: "#/components/schemas/SchemaReference"
       required:
         - type
         - schema

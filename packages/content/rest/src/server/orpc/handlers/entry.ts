@@ -113,12 +113,19 @@ function getErrorMessage(kind: ContentViolation): {
     case "INVALID_TYPE": {
       return { code: ErrorCode.InvalidType, detail: "Invalid type" };
     }
+    case "REFERENCE_NOT_FOUND": {
+      return {
+        code: ErrorCode.ReferenceNotFound,
+        detail: "Referene not found",
+      };
+    }
   }
 }
 
 enum ErrorCode {
   InvalidType = "1",
   Required = "2",
+  ReferenceNotFound = "3",
 }
 
 export const deleteEntry = os.deleteEntry.handler(async (options) => {

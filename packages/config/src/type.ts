@@ -55,5 +55,5 @@ export interface UnionSchemaDefinition {
 
 export interface ReferenceSchemaDefintion {
   type: "reference";
-  to: SchemaId;
+  // to: SchemaId;
 }
