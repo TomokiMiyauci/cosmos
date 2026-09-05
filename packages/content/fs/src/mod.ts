@@ -30,7 +30,7 @@ export class StoreEntryRepository implements Entry.Repositry {
   }
 
   #fromView(view: EntryView): Entry {
-    const [entryId, entryIdError] = Entry.Id.from(view.id);
+    const [entryId, entryIdError] = Entry.Id.of(view.id);
 
     if (entryIdError) throw new Error();
     const [modelId, modelIdError] = Model.Id.of(view.modelId);

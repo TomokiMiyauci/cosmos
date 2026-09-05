@@ -74,7 +74,7 @@ export class EntryRegisterUseCase {
     let id: Entry.Id;
 
     if ("id" in command) {
-      const [entryId, entryIdError] = Entry.Id.from(command.id);
+      const [entryId, entryIdError] = Entry.Id.of(command.id);
 
       if (entryIdError) return Result.error({ type: "INVALID_ID" });
 
@@ -137,7 +137,7 @@ export class EntryRegisterUseCase {
 }
 
 function toEntryId(identifier: Identifier): Entry.Id {
-  const [id, error] = Entry.Id.from(identifier.value);
+  const [id, error] = Entry.Id.of(identifier.value);
   // identifier is same value as Entry Id
 
   if (error) throw new Error("unreachable");

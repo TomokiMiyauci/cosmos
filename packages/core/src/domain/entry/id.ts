@@ -14,7 +14,7 @@ export class EntryId {
     return new EntryId(id);
   }
 
-  static from(id: string): Result<EntryId, Error> {
+  static of(id: string): Result<EntryId, Error> {
     if (!id) {
       return Result.error(new Error("id is empty"));
     }
