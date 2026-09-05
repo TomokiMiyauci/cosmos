@@ -1,4 +1,5 @@
 import { Result } from "@miyauci/util";
+import type { Identifier } from "@cosmos/validator";
 
 export class EntryId {
   private constructor(value: string) {
@@ -20,6 +21,10 @@ export class EntryId {
     }
 
     return Result.ok(new EntryId(id));
+  }
+
+  static fromIdentifier(identity: Identifier): EntryId {
+    return new EntryId(identity.value);
   }
 
   get value(): string {
