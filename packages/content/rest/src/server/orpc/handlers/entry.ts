@@ -122,6 +122,12 @@ function getErrorMessage(kind: ContentViolation): {
         detail: "Referene not found",
       };
     }
+    case "INVALID_VALUE": {
+      return {
+        code: ErrorCode.InvalidValue,
+        detail: "Invalid value",
+      };
+    }
   }
 }
 
@@ -129,6 +135,7 @@ enum ErrorCode {
   InvalidType = "1",
   Required = "2",
   ReferenceNotFound = "3",
+  InvalidValue = "4",
 }
 
 export const deleteEntry = os.deleteEntry.handler(async (options) => {

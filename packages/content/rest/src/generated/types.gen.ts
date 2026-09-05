@@ -38,9 +38,10 @@ export type ValidationError = {
      *
      * | Code | Meaning |
      * | ---- | ------- |
-     * | `1` | Invalid format |
+     * | `1` | Invalid type |
      * | `2` | Required value |
      * | `3` | Reference not found |
+     * | `4` | Invalid value |
      *
      */
     code: string;
