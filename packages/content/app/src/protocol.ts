@@ -1,4 +1,4 @@
-import type { EntryRegisterUseCase } from "./application/usecases/entry/creation.ts";
+import type { EntryRegisterUseCase } from "./application/usecases/entry/register.ts";
 import type { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 
 export interface Usecases {

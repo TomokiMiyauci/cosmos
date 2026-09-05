@@ -14,4 +14,4 @@ export type {
 export {
   type ContentViolation,
   type Violation,
-} from "./application/usecases/entry/creation.ts";
+} from "./application/usecases/entry/register.ts";

@@ -1,6 +1,6 @@
 import type { Entry, Model, Schema } from "@cosmos/core";
 import type { EntryUsecase, Protocol, Usecases } from "./protocol.ts";
-import { EntryRegisterUseCase } from "./application/usecases/entry/creation.ts";
+import { EntryRegisterUseCase } from "./application/usecases/entry/register.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 
 export interface Config {
