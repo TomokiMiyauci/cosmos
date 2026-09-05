@@ -1,4 +1,6 @@
 export {
+  type ErrorReason,
+  Identifier,
   type Input,
   type Path,
   validate,

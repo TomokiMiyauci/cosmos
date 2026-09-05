@@ -12,9 +12,11 @@ import type {
 } from "@cosmos/schema";
 
 export interface ValidationError {
-  reason: "invalid_type" | "required";
+  reason: ErrorReason;
   path: Path;
 }
+
+export type ErrorReason = "invalid_type" | "required" | "invalid_value";
 
 type PathSegment = string | number;
 
@@ -32,7 +34,7 @@ interface ContentValueMap {
   number: number;
   boolean: boolean;
   temporal: string;
-  reference: string;
+  reference: Identifier;
   map: Record<string, Input>;
   sequence: Input[];
   union: Input;
@@ -243,10 +245,35 @@ function validateReference(
     return Result.error([{ reason: "invalid_type", path: [] }]);
   }
 
-  onValidated?.({ type: "reference", content: input, schema, path: [] });
+  const [id, error] = Identifier.of(input);
+
+  if (error) {
+    return Result.error([{ reason: "invalid_value", path: [] }]);
+  }
+
+  onValidated?.({ type: "reference", content: id, schema, path: [] });
 
   return Result.ok(void 0);
 }
+
+export class Identifier {
+  #value: NonEmptryString;
+  private constructor(value: NonEmptryString) {
+    this.#value = value;
+  }
+
+  static of(value: string): Result<Identifier, SyntaxError> {
+    if (!value) return Result.error(new SyntaxError("invalid input"));
+
+    return Result.ok(new Identifier(value));
+  }
+
+  get value(): NonEmptryString {
+    return this.#value;
+  }
+}
+
+type NonEmptryString = string;
 
 function validateUnion(
   input: Input,
