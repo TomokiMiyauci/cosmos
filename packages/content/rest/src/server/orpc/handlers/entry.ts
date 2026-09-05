@@ -113,6 +113,9 @@ function getErrorMessage(kind: ContentViolation): {
     case "INVALID_TYPE": {
       return { code: ErrorCode.InvalidType, detail: "Invalid type" };
     }
+    case "REQUIRED": {
+      return { code: ErrorCode.Required, detail: "Required" };
+    }
     case "REFERENCE_NOT_FOUND": {
       return {
         code: ErrorCode.ReferenceNotFound,

@@ -50,7 +50,10 @@ export interface Violation {
 
 export type Path = (string | number)[];
 
-export type ContentViolation = "INVALID_TYPE" | "REFERENCE_NOT_FOUND";
+export type ContentViolation =
+  | "INVALID_TYPE"
+  | "REQUIRED"
+  | "REFERENCE_NOT_FOUND";
 
 export class EntryRegisterUseCase {
   constructor(
@@ -132,7 +135,7 @@ export class EntryRegisterUseCase {
 
 function vilidationError2Violation(error: ValidationError): Violation {
   return {
-    kind: "INVALID_TYPE",
+    kind: error.reason === "invalid_type" ? "INVALID_TYPE" : "REQUIRED",
     path: error.path,
   };
 }
