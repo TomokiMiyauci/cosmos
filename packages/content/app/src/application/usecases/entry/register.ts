@@ -2,7 +2,6 @@ import { Entry, Model, type Schema } from "@cosmos/core";
 import { Result } from "@miyauci/util";
 import {
   type ErrorReason,
-  type Identifier,
   validate,
   type ValidationError,
 } from "@cosmos/validator";
@@ -106,7 +105,7 @@ export class EntryRegisterUseCase {
       schema.definition,
       (context) => {
         if (context.type === "reference") {
-          const id = toEntryId(context.content);
+          const id = Entry.Id.fromIdentifier(context.content);
 
           references.push({ id, path: context.path });
         }
@@ -134,15 +133,6 @@ export class EntryRegisterUseCase {
 
     return Result.ok(entry.id.value);
   }
-}
-
-function toEntryId(identifier: Identifier): Entry.Id {
-  const [id, error] = Entry.Id.of(identifier.value);
-  // identifier is same value as Entry Id
-
-  if (error) throw new Error("unreachable");
-
-  return id;
 }
 
 function vilidationError2Violation(error: ValidationError): Violation {
