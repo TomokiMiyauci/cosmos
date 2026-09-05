@@ -58,15 +58,19 @@ function normalize(value: FormValues): Value | null {
   return normalizeNativeFormValue(content);
 }
 
-function normalizeNativeFormValue(value: NativeFormValue): Value {
+function normalizeNativeFormValue(value: NativeFormValue): Value | null {
+  if (value === null) return null;
+
   if (Array.isArray(value)) {
-    return value.filter(isNonNullable).map(normalizeNativeFormValue);
+    return value.map(normalizeNativeFormValue).filter(isNonNullable);
   } else if (typeof value === "object") {
     const result: Record<string, Value> = {};
 
     for (const [key, val] of Object.entries(value)) {
       if (val !== undefined) {
-        result[key] = normalizeNativeFormValue(val);
+        const value = normalizeNativeFormValue(val);
+
+        if (value !== null) result[key] = value;
       }
     }
 
@@ -87,11 +91,11 @@ interface FormValues {
   content: undefined | NativeFormValue;
 }
 
-type NativeFormPrimitiveValue = Primitive;
+type NativeFormPrimitiveValue = Primitive | null;
 
 type NativeFormValue = NativeFormPrimitiveValue | {
   [k: string]: NativeFormValue | undefined;
-} | (NativeFormValue | null)[];
+} | NativeFormValue[];
 
 export type Value = Value[] | Primitive | {
   [k: string]: Value;
