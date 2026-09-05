@@ -12,7 +12,7 @@ import type { FieldLayoutProps, FieldProps } from "./fields/type.ts";
 
 export interface UseFieldsReturn {
   getValues(): Value | null;
-  setError(error: FieldError): void;
+  setErrors(error: FieldError[]): void;
   form: UseFormReturn<FormValues, unknown, FormValues>;
 }
 
@@ -27,10 +27,14 @@ export function useFields(init?: Value): UseFieldsReturn {
       return normalize(form.getValues());
     },
 
-    setError(error: FieldError): void {
-      const name = path2Name([`content`, ...error.path]) as `content`;
+    setErrors(errors: FieldError[]): void {
+      form.clearErrors();
 
-      form.setError(name, { message: error.message });
+      for (const error of errors) {
+        const name = path2Name([`content`, ...error.path]) as `content`;
+
+        form.setError(name, { message: error.message });
+      }
     },
 
     form,
