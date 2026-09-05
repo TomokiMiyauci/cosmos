@@ -82,10 +82,13 @@ export class Client {
     return Result.ok(data as EntryResponse);
   }
 
+  /**
+   * @throws
+   */
   async putEntry(
     params: EntryInput & Identitiy,
-  ): Promise<Result<null, ApiError<Problem>>> {
-    const result = await this.#client.putEntry({
+  ): Promise<Result<null, PostEntryError>> {
+    const [error] = await this.#client.putEntry({
       params: { id: params.id },
       body: {
         model: params.model,
@@ -93,13 +96,25 @@ export class Client {
       },
     });
 
-    return Result.ok(null);
-    // switch (result.status) {
-    //   case 204: {
-    //   }
-    // }
+    if (error) {
+      if (!isDefinedError(error)) throw error;
 
-    // throw new Error("Unknon status");
+      switch (error.code) {
+        case "CONFLICT": {
+          throw new Error();
+        }
+        case "UNPROCESSABLE_CONTENT": {
+          const errors = error.data.errors;
+
+          return Result.error({ type: "VALIDATION", errors });
+        }
+        case "BAD_REQUEST": {
+          throw new Error();
+        }
+      }
+    }
+
+    return Result.ok(null);
   }
 
   async deleteEntry(id: string): Promise<Result<null, ApiError<Problem>>> {
