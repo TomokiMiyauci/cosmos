@@ -115,9 +115,9 @@ function resolveSchemaConfig(
       case "reference": {
         if (config.type !== "reference") throw new Error();
 
-        const schema = getSchema(config.to);
+        // const schema = getSchema(config.to);
 
-        definition.target = schema;
+        // definition.target = schema;
 
         break;
       }
@@ -168,7 +168,8 @@ function createContainerSchema(
       return Schema.of(id, { type: "union", members: [] });
     }
     case "reference": {
-      return Schema.of(id, { type: "reference", target: PLACEHOLDER });
+      // return Schema.of(id, { type: "reference", target: PLACEHOLDER });
+      return Schema.of(id, { type: "reference" });
     }
   }
 }
@@ -346,9 +347,9 @@ function resolveConfig2SchemaView(
       case "reference": {
         if (config.type !== "reference") throw new Error();
 
-        const schema = getSchema(config.to);
+        // const schema = getSchema(config.to);
 
-        definition.schema = schema;
+        // definition.schema = schema;
 
         break;
       }

@@ -7,6 +7,7 @@ import BooleanField from "./fields/boolean.tsx";
 import MapField from "./fields/map.tsx";
 import UnionField from "./fields/union.tsx";
 import SequenseField from "./fields/sequence.tsx";
+import ReferenceField from "./fields/reference.tsx";
 import type { FieldLayoutProps, FieldProps } from "./fields/type.ts";
 
 export interface UseFieldsReturn {
@@ -185,6 +186,9 @@ function _Field(props: _FieldProps): JSX.Element {
     }
     case "union": {
       return <UnionField {...fieldProps} />;
+    }
+    case "reference": {
+      return <ReferenceField {...fieldProps} />;
     }
   }
 }

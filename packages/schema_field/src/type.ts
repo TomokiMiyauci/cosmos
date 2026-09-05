@@ -3,6 +3,7 @@ import type {
   BooleanSchema,
   MapSchema,
   NumberSchema,
+  ReferenceSchema,
   SequenceSchema,
   StringSchema,
   UnionSchema,
@@ -42,7 +43,8 @@ export type Definition =
   | BooleanDefinition
   | ListDefinition
   | MapDefinition
-  | UnionDefinition;
+  | UnionDefinition
+  | ReferenceDefinition;
 
 interface ListDefinition extends SequenceSchema, BaseDefinition {
   item: Definition;
@@ -64,6 +66,9 @@ interface MapDefinition extends MapSchema, BaseDefinition {
 
 interface UnionDefinition extends UnionSchema, BaseDefinition {
   members: Definition[];
+}
+
+interface ReferenceDefinition extends ReferenceSchema, BaseDefinition {
 }
 
 export interface Presentation {

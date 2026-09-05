@@ -37,7 +37,6 @@ export interface TemporalSchema {
 
 export interface ReferenceSchema {
   type: "reference";
-  target: Schema;
 }
 
 export interface UnionSchema {
