@@ -1,12 +1,10 @@
 import { Admin, en, I18n, Page, Router } from "@cosmos/ui";
-import { RestCmsService } from "@cosmos/ui/rest";
 import { renderToReadableStream } from "react-dom/server";
 import { createElement } from "react";
-import { API_ENDPOINT } from "./constant.ts";
 import { Route, route } from "@std/http/unstable-route";
 import { default as config } from "./config.ts";
 import { createHandler } from "@cosmos/content";
-import { RestProtocol } from "@cosmos/content-rest/server";
+import { RestProtocol } from "@cosmos/content-openapi/server";
 import {
   ConfigModelQuery,
   ConfigSchemaQuery,
@@ -20,7 +18,7 @@ import {
   ReaderEntryQuery,
   StoreEntryRepository,
 } from "@cosmos/content-fs";
-import { queries } from "./query.ts";
+import { queries, services } from "./query.ts";
 
 const locator = new BaseLocator(
   new URL(import.meta.resolve("./contents/posts/")),
@@ -75,7 +73,7 @@ const routes = [
       const result = await router.route(url);
       let status = 200;
       const node = createElement(Admin, {
-        service,
+        queries,
         route: result,
         translation: i18n,
       });
@@ -109,9 +107,7 @@ const bundleResult = await Deno.bundle({
   platform: "browser",
 });
 
-const endpoint = new URL(API_ENDPOINT);
-const service = new RestCmsService(endpoint);
-const router = new Router(service, queries);
+const router = new Router(queries, services);
 const i18n = new I18n(en);
 
 export default {

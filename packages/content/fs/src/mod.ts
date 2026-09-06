@@ -2,7 +2,7 @@ import { Entry, Model } from "@cosmos/core";
 import type {
   EntryQuery,
   EntryView as ServerEntryView,
-} from "@cosmos/content-rest/server";
+} from "@cosmos/content-openapi/server";
 import { mapValues } from "@std/collections/map-values";
 
 export class StoreEntryRepository implements Entry.Repositry {
