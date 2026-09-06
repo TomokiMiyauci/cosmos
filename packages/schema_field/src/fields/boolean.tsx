@@ -34,10 +34,11 @@ export default function BooleanField(props: FieldProps): JSX.Element {
     <Layout
       title={def.presentation.title}
       control={
-        <def.presentation.widget
+        <def.presentation.control
           definition={def}
           render={(def) => render({ name, definition: def })}
           api={api}
+          required
         />
       }
       error={error?.message ?? null}

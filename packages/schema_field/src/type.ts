@@ -13,6 +13,7 @@ export interface ControlProps {
   render(def: Definition, group?: string): ReactNode;
   definition: Definition;
   api: Api;
+  required: boolean;
 }
 
 export type Primitive = string;
@@ -60,7 +61,7 @@ interface NumberDefinition extends NumberSchema, BaseDefinition {}
 
 interface BooleanDefinition extends BooleanSchema, BaseDefinition {}
 
-interface MapDefinition extends MapSchema, BaseDefinition {
+export interface MapDefinition extends MapSchema, BaseDefinition {
   properties: Record<string, Definition>;
 }
 

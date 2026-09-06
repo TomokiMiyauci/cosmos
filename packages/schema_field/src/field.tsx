@@ -117,6 +117,7 @@ interface _FieldProps {
   definition: Definition;
   name: string;
   ancestors: Set<Definition>;
+  required?: boolean;
 }
 
 function FieldLayout(props: FieldLayoutProps): JSX.Element {
@@ -151,16 +152,21 @@ function RecursiveField(props: FieldProps): JSX.Element {
 }
 
 function _Field(props: _FieldProps): JSX.Element {
-  const { definition, name, ancestors } = props;
+  const { definition, name, ancestors, required } = props;
 
-  const baseFieldProps = { name, definition, layout: FieldLayout };
+  const baseFieldProps = { name, definition, layout: FieldLayout, required };
 
   if (ancestors.has(definition)) {
     return (
       <RecursiveField
         {...baseFieldProps}
-        render={({ name, definition }) => (
-          <_Field ancestors={new Set()} name={name} definition={definition} />
+        render={({ name, definition, required }) => (
+          <_Field
+            ancestors={new Set()}
+            name={name}
+            definition={definition}
+            required={required}
+          />
         )}
       />
     );
@@ -171,8 +177,13 @@ function _Field(props: _FieldProps): JSX.Element {
 
   const fieldProps = {
     ...baseFieldProps,
-    render: ({ name, definition }) => (
-      <_Field ancestors={nextAncestors} name={name} definition={definition} />
+    render: ({ name, definition, required }) => (
+      <_Field
+        ancestors={nextAncestors}
+        name={name}
+        definition={definition}
+        required={required}
+      />
     ),
   } satisfies FieldProps;
 
@@ -190,7 +201,7 @@ function _Field(props: _FieldProps): JSX.Element {
       return <SequenseField {...fieldProps} />;
     }
     case "map": {
-      return <MapField {...fieldProps} />;
+      return <MapField {...fieldProps} definition={definition} />;
     }
     case "union": {
       return <UnionField {...fieldProps} />;

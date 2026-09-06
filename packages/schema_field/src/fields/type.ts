@@ -1,11 +1,14 @@
 import type { JSX, ReactNode } from "react";
 import type { Definition } from "../type.ts";
 
-export interface FieldProps {
+export interface FieldProps<T extends Definition = Definition> {
   name: string;
-  definition: Definition;
-  render(props: { name: string; definition: Definition }): JSX.Element;
+  definition: T;
+  render(
+    props: { name: string; definition: Definition; required?: boolean },
+  ): JSX.Element;
   layout(props: FieldLayoutProps): JSX.Element;
+  required?: boolean;
 }
 
 export interface PrimitiveFieldValue {
