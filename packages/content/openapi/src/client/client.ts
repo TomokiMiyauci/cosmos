@@ -1,25 +1,86 @@
 import { contract } from "../server/orpc/contract.ts";
 import type {
-  EntryInput,
-  EntryResponse,
-  EntrySummaryResponse,
-  Identitiy,
-  ModelResponse,
-  PostEntryResponse,
-  SchemaResponse,
+  DeleteEntryData,
+  DeleteEntryResponses,
+  GetEntryData,
+  GetEntryErrors,
+  GetEntryResponses,
+  GetModelData,
+  GetModelErrors,
+  GetModelResponses,
+  GetModelsResponses,
+  GetSchemaData,
+  GetSchemaErrors,
+  GetSchemaResponses,
+  GetSchemasResponses,
+  GetSummariesData,
+  GetSummariesResponses,
+  PostEntryData,
+  PostEntryErrors,
+  PostEntryResponses,
+  PutEntryData,
+  PutEntryErrors,
+  PutEntryResponses,
 } from "../generated/types.gen.ts";
 import type { JsonifiedClient } from "@orpc/openapi-client";
-import type { ContractRouterClient } from "@orpc/contract";
+import type { ContractRouterClient, ORPCError } from "@orpc/contract";
 import {
+  COMMON_ORPC_ERROR_DEFS,
+  type CommonORPCErrorCode,
   createORPCClient,
   createSafeClient,
   isDefinedError,
   type SafeClient,
 } from "@orpc/client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
-import { Result } from "@miyauci/util";
 
-export type PostEntryError = ValidationError;
+type ToResponse<T> = { [S in keyof T]: { status: S; body: T[S] } }[keyof T];
+
+type OmitOptionalNever<T> = {
+  [
+    // deno-lint-ignore ban-types
+    K in keyof T as {} extends Pick<T, K>
+      ? [Exclude<T[K], undefined>] extends [never] ? never
+      : K
+      : K
+  ]: T[K];
+};
+
+type ToInput<T> = Omit<OmitOptionalNever<T>, "url">;
+
+export type GetEntryInput = ToInput<GetEntryData>;
+
+export type GetEntryResponse = ToResponse<GetEntryResponses & GetEntryErrors>;
+
+export type PostEntryInput = ToInput<PostEntryData>;
+
+export type PostEntryResponse = ToResponse<
+  PostEntryResponses & PostEntryErrors
+>;
+
+export type PutEntryInput = ToInput<PutEntryData>;
+
+export type PutEntryResponse = ToResponse<PutEntryResponses & PutEntryErrors>;
+
+export type GetSchemaResponse = ToResponse<
+  GetSchemaResponses & GetSchemaErrors
+>;
+
+export type GetSchemaInput = ToInput<GetSchemaData>;
+
+export type GetSchemasResponse = ToResponse<GetSchemasResponses>;
+
+export type GetModelInput = ToInput<GetModelData>;
+
+export type GetModelResponse = ToResponse<GetModelResponses & GetModelErrors>;
+
+export type GetModelsResponse = ToResponse<GetModelsResponses>;
+
+export type DeleteEntryInput = ToInput<DeleteEntryData>;
+export type DeleteEntryResponse = ToResponse<DeleteEntryResponses>;
+
+export type GetSummariesInput = ToInput<GetSummariesData>;
+export type GetSummariesResponse = ToResponse<GetSummariesResponses>;
 
 export class Client {
   #client: SafeClient<JsonifiedClient<ContractRouterClient<typeof contract>>>;
@@ -34,205 +95,155 @@ export class Client {
     this.#client = createSafeClient(client);
   }
 
+  /**
+   * @throws
+   */
   async getEntrySummaries(
-    optinos?: { model?: string },
-  ): Promise<EntrySummaryResponse[]> {
-    const [error, data] = await this.#client.getSummaries({
-      query: { model: optinos?.model },
-    });
+    input: GetSummariesInput,
+  ): Promise<GetSummariesResponse> {
+    const [error, data] = await this.#client.getSummaries(input);
 
     if (error) throw error;
 
-    return data;
+    return { status: 200, body: data };
   }
 
   /**
    * @throws
    */
-  async postEntry(
-    params: EntryInput,
-  ): Promise<Result<PostEntryResponse, PostEntryError>> {
-    const [error, data] = await this.#client.postEntry({ body: params });
+  async postEntry(input: PostEntryInput): Promise<PostEntryResponse> {
+    const [error, data] = await this.#client.postEntry(input);
 
     if (error) {
       if (!isDefinedError(error)) throw error;
 
-      switch (error.code) {
-        case "CONFLICT": {
-          throw new Error();
-        }
-        case "UNPROCESSABLE_CONTENT": {
-          const errors = error.data.errors;
-
-          return Result.error({ type: "VALIDATION", errors });
-        }
-        case "BAD_REQUEST": {
-          throw new Error();
-        }
-      }
+      return fromError(error);
     }
 
-    return Result.ok(data);
-  }
-
-  async getEntry(
-    id: string,
-  ): Promise<Result<EntryResponse, ApiError<NotFoundProblem>>> {
-    const [error, data] = await this.#client.getEntry({ params: { id } });
-
-    if (error) throw error;
-
-    return Result.ok(data as EntryResponse);
+    return { status: 201, body: data };
   }
 
   /**
    * @throws
    */
-  async putEntry(
-    params: EntryInput & Identitiy,
-  ): Promise<Result<void, PostEntryError>> {
+  async getEntry(input: GetEntryInput): Promise<GetEntryResponse> {
+    const [error, data] = await this.#client.getEntry({ params: input.path });
+
+    if (error) {
+      if (!isDefinedError(error)) throw error;
+
+      return fromError(error);
+    }
+
+    return {
+      status: 200,
+      body: { id: data.id, model: data.model, contents: data.contents },
+    };
+  }
+
+  /**
+   * @throws
+   */
+  async putEntry(input: PutEntryInput): Promise<PutEntryResponse> {
     const [error] = await this.#client.putEntry({
-      params: { id: params.id },
-      body: {
-        model: params.model,
-        contents: params.contents,
-      },
+      body: input.body,
+      params: input.path,
     });
 
     if (error) {
       if (!isDefinedError(error)) throw error;
 
-      switch (error.code) {
-        case "CONFLICT": {
-          throw new Error();
-        }
-        case "UNPROCESSABLE_CONTENT": {
-          const errors = error.data.errors;
-
-          return Result.error({ type: "VALIDATION", errors });
-        }
-        case "BAD_REQUEST": {
-          throw new Error();
-        }
-      }
+      return fromError(error);
     }
 
-    return Result.ok(void 0);
+    return { status: 204, body: void 0 };
   }
 
-  async deleteEntry(id: string): Promise<Result<null, ApiError<Problem>>> {
-    const [error, data, is] = await this.#client.deleteEntry({
-      params: { id },
-    });
+  /**
+   * @throws
+   */
+  async deleteEntry(
+    input: DeleteEntryInput,
+  ): Promise<DeleteEntryResponse> {
+    const [error] = await this.#client.deleteEntry({ params: input.path });
 
-    if (error) {
-      error;
-    }
+    if (error) throw error;
 
-    return Result.ok(null);
-    // switch (result.status) {
-    //   case 204: {
-    //   }
-    // }
-
-    // throw new Error("Unknon status");
+    return { status: 204, body: void 0 };
   }
 
-  async getSchemas(): Promise<SchemaResponse[]> {
+  /**
+   * @throws
+   */
+  async getSchemas(): Promise<GetSchemasResponse> {
     const [error, data] = await this.#client.getSchemas();
 
     if (error) throw error;
 
-    return data;
+    return { status: 200, body: data };
   }
 
   /**
-   * @throws {Error}
+   * @throws
    */
-  async getSchema(
-    id: string,
-  ): Promise<Result<SchemaResponse, ApiError<NotFoundProblem>>> {
-    const [error, data] = await this.#client.getSchema({ params: { id } });
+  async getSchema(input: GetSchemaInput): Promise<GetSchemaResponse> {
+    const [error, data] = await this.#client.getSchema({ params: input.path });
 
-    if (isDefinedError(error)) {
-      switch (error.code) {
-        case "NOT_FOUND": {
-          return Result.error(new ApiError({ status: 404 }));
-        }
+    if (error) {
+      if (!isDefinedError(error)) {
+        throw error;
       }
+
+      return fromError(error);
     }
 
-    if (error) throw error;
-
-    return Result.ok(data);
+    return { status: 200, body: data };
   }
 
-  async getModels(): Promise<
-    ModelResponse[]
-  > {
+  /**
+   * @throws
+   */
+  async getModels(): Promise<GetModelsResponse> {
     const [error, data] = await this.#client.getModels();
 
     if (error) throw error;
 
-    return data;
+    return { status: 200, body: data };
   }
 
-  async getModel(
-    id: string,
-  ): Promise<Result<ModelResponse, ApiError<Problem>>> {
-    const [error, data] = await this.#client.getModel({ params: { id } });
+  /**
+   * @throws
+   */
+  async getModel(input: GetModelInput): Promise<GetModelResponse> {
+    const [error, data] = await this.#client.getModel({ params: input.path });
 
-    if (error) throw error;
+    if (error) {
+      if (!isDefinedError(error)) {
+        throw error;
+      }
 
-    return Result.ok(data);
+      return fromError(error);
+    }
+
+    return { status: 200, body: data };
   }
 }
 
-export class ApiError<T extends Problem> extends Error {
-  constructor(problem: T) {
-    super();
-
-    this.problem = problem;
-  }
-
-  readonly problem: T;
+function toStatus<T extends CommonORPCErrorCode>(
+  code: T,
+): typeof COMMON_ORPC_ERROR_DEFS[T]["status"] {
+  return COMMON_ORPC_ERROR_DEFS[code].status;
 }
 
-type Problem =
-  | InvalidArgumentProblem
-  | ValidationErrorProblem
-  | NotFoundProblem
-  | ConflictProblem
-  | InternalServerErrorProblem;
+type ToStatus<T extends CommonORPCErrorCode> =
+  typeof COMMON_ORPC_ERROR_DEFS[T]["status"];
 
-interface InvalidArgumentProblem {
-  status: 400;
-}
-
-interface NotFoundProblem {
-  status: 404;
-}
-
-interface ConflictProblem {
-  status: 409;
-}
-
-interface ValidationErrorProblem {
-  status: 422;
-  errors: unknown;
-}
-
-interface InternalServerErrorProblem {
-  status: 500;
-}
-
-interface ValidationError {
-  type: "VALIDATION";
-  errors: ValidationFailure[];
-}
-
-interface ValidationFailure {
-  pointer: string;
-  code: string;
-  detail: string;
+// deno-lint-ignore no-explicit-any
+function fromError<T extends ORPCError<any, any>>(
+  error: T,
+): T extends ORPCError<infer U extends CommonORPCErrorCode, infer V>
+  ? { status: ToStatus<U>; body: V }
+  : never {
+  // deno-lint-ignore no-explicit-any
+  return { status: toStatus(error.code), body: error.data } as any;
 }
