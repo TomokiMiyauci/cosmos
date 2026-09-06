@@ -5,6 +5,7 @@ import type {
   EntrySummaryResponse,
   Identitiy,
   ModelResponse,
+  PostEntryResponse,
   SchemaResponse,
 } from "../generated/types.gen.ts";
 import type { JsonifiedClient } from "@orpc/openapi-client";
@@ -48,8 +49,10 @@ export class Client {
   /**
    * @throws
    */
-  async postEntry(params: EntryInput): Promise<Result<void, PostEntryError>> {
-    const [error] = await this.#client.postEntry({ body: params });
+  async postEntry(
+    params: EntryInput,
+  ): Promise<Result<PostEntryResponse, PostEntryError>> {
+    const [error, data] = await this.#client.postEntry({ body: params });
 
     if (error) {
       if (!isDefinedError(error)) throw error;
@@ -63,13 +66,13 @@ export class Client {
 
           return Result.error({ type: "VALIDATION", errors });
         }
-        case "INTERNAL_SERVER_ERROR": {
+        case "BAD_REQUEST": {
           throw new Error();
         }
       }
     }
 
-    return Result.ok(undefined);
+    return Result.ok(data);
   }
 
   async getEntry(

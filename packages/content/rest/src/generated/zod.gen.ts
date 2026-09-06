@@ -177,9 +177,11 @@ export const zGetModelResponse = zModelResponse;
 export const zPostEntryBody = zEntryInput;
 
 /**
- * OK
+ * The resource was created successfully.
  */
-export const zPostEntryResponse = zIdentitiy;
+export const zPostEntryResponse = z.object({
+    id: z.string()
+});
 
 export const zGetEntryPath = z.object({
     id: z.string()

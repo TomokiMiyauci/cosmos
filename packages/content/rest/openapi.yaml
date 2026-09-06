@@ -1,4 +1,3 @@
-# yaml-language-server: $schema=https://spec.openapis.org/oas/3.1/schema/2025-11-23
 openapi: 3.1.1
 info:
   title: Content management system API
@@ -35,11 +34,8 @@ paths:
               $ref: "#/components/schemas/EntryInput"
       responses:
         "201":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Identitiy"
+          $ref: "#/components/responses/CreatedResponse"
+
         "400":
           $ref: "#/components/responses/ErrorResponse"
 
@@ -48,9 +44,6 @@ paths:
 
         "422":
           $ref: "#/components/responses/ValidationErrorResponse"
-
-        "500":
-          $ref: "#/components/responses/ErrorResponse"
 
   /entries/{id}:
     get:
@@ -498,3 +491,15 @@ components:
         application/problem+json:
           schema:
             $ref: "#/components/schemas/ValidationProblemDetails"
+
+    CreatedResponse:
+      description: The resource was created successfully.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+            required:
+              - id

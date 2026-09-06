@@ -183,19 +183,17 @@ export type PostEntryErrors = {
      * Validation Error
      */
     422: ValidationProblemDetails;
-    /**
-     * Error
-     */
-    500: ProblemDetails;
 };
 
 export type PostEntryError = PostEntryErrors[keyof PostEntryErrors];
 
 export type PostEntryResponses = {
     /**
-     * OK
+     * The resource was created successfully.
      */
-    201: Identitiy;
+    201: {
+        id: string;
+    };
 };
 
 export type PostEntryResponse = PostEntryResponses[keyof PostEntryResponses];
