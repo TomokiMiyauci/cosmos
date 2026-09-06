@@ -90,7 +90,7 @@ export class Client {
    */
   async putEntry(
     params: EntryInput & Identitiy,
-  ): Promise<Result<null, PostEntryError>> {
+  ): Promise<Result<void, PostEntryError>> {
     const [error] = await this.#client.putEntry({
       params: { id: params.id },
       body: {
@@ -117,7 +117,7 @@ export class Client {
       }
     }
 
-    return Result.ok(null);
+    return Result.ok(void 0);
   }
 
   async deleteEntry(id: string): Promise<Result<null, ApiError<Problem>>> {

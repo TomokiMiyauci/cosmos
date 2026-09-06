@@ -83,7 +83,7 @@ paths:
               $ref: "#/components/schemas/EntryInput"
       responses:
         "204":
-          description: OK
+          $ref: "#/components/responses/NoContentResponse"
 
         "400":
           $ref: "#/components/responses/ErrorResponse"
@@ -503,3 +503,6 @@ components:
                 type: string
             required:
               - id
+
+    NoContentResponse:
+      description: No content

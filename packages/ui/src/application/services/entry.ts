@@ -1,7 +1,7 @@
 import type { Result } from "@miyauci/util";
 
 export interface EntryService {
-  save(entry: SaveEntry): Promise<Result<void, EntrySaveError>>;
+  save(entry: SaveEntry): Promise<Result<Entry["id"], EntrySaveError>>;
 }
 
 export interface Entry {

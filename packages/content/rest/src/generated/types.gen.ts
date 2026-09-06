@@ -274,7 +274,7 @@ export type PutEntryError = PutEntryErrors[keyof PutEntryErrors];
 
 export type PutEntryResponses = {
     /**
-     * OK
+     * No content
      */
     204: void;
 };

@@ -202,6 +202,6 @@ export const zPutEntryPath = z.object({
 });
 
 /**
- * OK
+ * No content
  */
 export const zPutEntryResponse = z.void();
