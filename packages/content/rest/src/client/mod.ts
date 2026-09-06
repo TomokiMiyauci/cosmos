@@ -4,5 +4,6 @@ export type {
   EntryResponse,
   EntrySummaryResponse,
   ModelResponse,
+  SchemaReference,
   SchemaResponse,
 } from "../generated/types.gen.ts";
