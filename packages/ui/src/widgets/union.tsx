@@ -1,7 +1,7 @@
 import type { JSX } from "react";
-import type { WidgetProps } from "@cosmos/schema-field";
+import type { ControlProps } from "@cosmos/schema-field";
 
-export default function UnionControl(props: WidgetProps): JSX.Element {
+export default function UnionControl(props: ControlProps): JSX.Element {
   const { definition, render } = props;
 
   if (definition.type !== "union") throw new Error();

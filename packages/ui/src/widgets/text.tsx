@@ -1,8 +1,8 @@
 "use client";
 import type { JSX } from "react";
-import type { WidgetProps } from "@cosmos/schema-field";
+import type { ControlProps } from "@cosmos/schema-field";
 
-export default function TextWidget(props: WidgetProps): JSX.Element {
+export default function TextControl(props: ControlProps): JSX.Element {
   const [value, onChange] = props.api.useValue();
 
   return (
@@ -10,7 +10,10 @@ export default function TextWidget(props: WidgetProps): JSX.Element {
       type="text"
       value={value ?? ""}
       onChange={(ev) => {
-        onChange(ev.target.value);
+        const value = ev.target.value;
+        const input = value ? value : null;
+
+        onChange(input);
       }}
     />
   );

@@ -1,8 +1,8 @@
 "use client";
 import type { JSX } from "react";
-import type { WidgetProps } from "@cosmos/schema-field";
+import type { ControlProps } from "@cosmos/schema-field";
 
-export default function CheckboxWidget(props: WidgetProps): JSX.Element {
+export default function CheckboxControl(props: ControlProps): JSX.Element {
   const [value, onChange] = props.api.useValue();
 
   return (

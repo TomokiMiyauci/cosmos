@@ -1,8 +1,8 @@
 "use client";
 import type { JSX } from "react";
-import type { WidgetProps } from "@cosmos/schema-field";
+import type { ControlProps } from "@cosmos/schema-field";
 
-export default function NumberWidget(props: WidgetProps): JSX.Element {
+export default function NumericControl(props: ControlProps): JSX.Element {
   const [value, onChange] = props.api.useValue();
 
   return (
