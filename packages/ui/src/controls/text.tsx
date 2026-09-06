@@ -3,7 +3,8 @@ import type { JSX } from "react";
 import type { ControlProps } from "@cosmos/schema-field";
 
 export default function TextControl(props: ControlProps): JSX.Element {
-  const [value, onChange] = props.api.useValue();
+  const { api, required } = props;
+  const [value, onChange] = api.useValue();
 
   return (
     <input
@@ -15,6 +16,7 @@ export default function TextControl(props: ControlProps): JSX.Element {
 
         onChange(input);
       }}
+      required={required}
     />
   );
 }

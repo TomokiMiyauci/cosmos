@@ -3,6 +3,7 @@ import type { JSX } from "react";
 import type { ControlProps } from "@cosmos/schema-field";
 
 export default function CheckboxControl(props: ControlProps): JSX.Element {
+  const { required } = props;
   const [value, onChange] = props.api.useValue();
 
   return (
@@ -14,6 +15,7 @@ export default function CheckboxControl(props: ControlProps): JSX.Element {
 
         onChange(checked.toString());
       }}
+      required={required}
     />
   );
 }
