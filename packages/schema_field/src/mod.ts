@@ -7,4 +7,4 @@ export {
   type UseFieldsReturn,
   type Value,
 } from "./field.tsx";
-export type { Definition, Widget, WidgetProps } from "./type.ts";
+export type { Control, ControlProps, Definition } from "./type.ts";

@@ -9,7 +9,7 @@ import type {
   UnionSchema,
 } from "@cosmos/schema";
 
-export interface WidgetProps {
+export interface ControlProps {
   render(def: Definition, group?: string): ReactNode;
   definition: Definition;
   api: Api;
@@ -33,8 +33,8 @@ export interface List {
 
 type Id = string;
 
-export interface Widget {
-  (props: WidgetProps): ReactNode;
+export interface Control {
+  (props: ControlProps): ReactNode;
 }
 
 export type Definition =
@@ -73,5 +73,5 @@ interface ReferenceDefinition extends ReferenceSchema, BaseDefinition {
 
 export interface Presentation {
   title: string;
-  widget: Widget;
+  control: Control;
 }
