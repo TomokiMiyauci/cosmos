@@ -8,6 +8,7 @@ import {
   type Value,
 } from "@cosmos/schema-field";
 import type { Result } from "@miyauci/util";
+import { Page, resolvePath } from "../router.ts";
 
 export interface ContentCreatePageProps {
   definition: Definition;
@@ -17,7 +18,7 @@ export interface ContentCreatePageProps {
 export type Content = Value;
 
 export interface ContentService {
-  create(content: Content): Promise<Result<void, ValidationError[]>>;
+  create(content: Content): Promise<Result<string, ValidationError[]>>;
 }
 
 export interface ValidationError {
@@ -37,10 +38,12 @@ export default function ContentCreationPage(
 
     if (!content) return;
 
-    const [_, errors] = await service.create(content);
+    const [id, errors] = await service.create(content);
 
     if (errors) {
       fields.setErrors(errors);
+    } else {
+      location.href = resolvePath(Page.Content, { id });
     }
   }
 
