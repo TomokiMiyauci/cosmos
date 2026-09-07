@@ -1,30 +1,40 @@
-import type { JSX } from "react";
-import type { FieldProps, PrimitiveFieldValue } from "./type.ts";
+import { type JSX, useState } from "react";
+import type { FieldProps } from "./type.ts";
+import type { FieldValue } from "../type.ts";
 import { createUseList } from "./util.ts";
-import { useController } from "react-hook-form";
+import { useController, useFormContext } from "react-hook-form";
 
 export default function NumberField(props: FieldProps): JSX.Element {
   const { name, definition: def, render, layout: Layout, required = true } =
     props;
   const useList = createUseList(name);
-  const { fieldState: { error } } = useController({ name });
+  const { fieldState: { error }, field: { value = null, onChange } } =
+    useController<FieldValue>({ name });
+  const form = useFormContext();
+
+  const [presentaion, setPresentation] = useState<string | null>(
+    value === null ? null : String(value),
+  );
+
+  if (!(typeof value === "number" || value === null)) {
+    // TODO
+    throw new Error();
+  }
 
   const api = {
     useList,
     useValue(): [string | null, (value: string | null) => void] {
-      const { field } = useController<PrimitiveFieldValue>({ name });
-      const value = field.value ?? null;
+      return [presentaion, (value: string | null) => {
+        setPresentation(value);
 
-      if (!(value === null || typeof value === "number")) {
-        throw new Error();
-      }
-
-      const v = typeof value === "number" ? value.toString() : value;
-
-      return [v, (value: string | null) => {
         const v = typeof value === "string" ? Number(value) : null;
 
-        field.onChange(v);
+        if (typeof v === "number" && !Number.isFinite(v)) {
+          form.setError(name, { message: "Invalid value" });
+        } else {
+          form.clearErrors(name);
+          onChange(v);
+        }
       }];
     },
   };

@@ -11,12 +11,6 @@ export interface FieldProps<T extends Definition = Definition> {
   required?: boolean;
 }
 
-export interface PrimitiveFieldValue {
-  [k: string]: Primitive | undefined;
-}
-
-export type Primitive = string | number | boolean;
-
 export interface FieldLayoutProps {
   title: string;
   control: ReactNode;

@@ -16,7 +16,15 @@ export interface ControlProps {
   required: boolean;
 }
 
-export type Primitive = string;
+export type Primitive = string | number | boolean;
+
+export type NativeFormPrimitiveValue = Primitive | null;
+
+export type NativeFormValue = NativeFormPrimitiveValue | {
+  [k: string]: NativeFormValue | undefined;
+} | NativeFormValue[];
+
+export type FieldValue = Record<string, NativeFormValue>;
 
 interface Api {
   useList(): List;

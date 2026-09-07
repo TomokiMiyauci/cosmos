@@ -1,6 +1,6 @@
 import { type JSX, useState } from "react";
 import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
-import type { Definition } from "./type.ts";
+import type { Definition, NativeFormValue, Primitive } from "./type.ts";
 import StringField from "./fields/string.tsx";
 import NumberField from "./fields/number.tsx";
 import BooleanField from "./fields/boolean.tsx";
@@ -85,17 +85,9 @@ export interface FieldsProps {
   definition: Definition;
 }
 
-type Primitive = string | number | boolean;
-
 interface FormValues {
   content: undefined | NativeFormValue;
 }
-
-type NativeFormPrimitiveValue = Primitive | null;
-
-type NativeFormValue = NativeFormPrimitiveValue | {
-  [k: string]: NativeFormValue | undefined;
-} | NativeFormValue[];
 
 export type Value = Value[] | Primitive | {
   [k: string]: Value;
