@@ -1,17 +1,18 @@
 import { type JSX, type ReactNode, Suspense, use } from "react";
 import { Page, resolvePath, type RouteResult } from "./router.ts";
-import type { TranslationService } from "./translation.ts";
 import type { Model, Queries } from "./application/query.ts";
+import { useMessenger } from "./context/messenger.ts";
 
 export interface HtmlProps {
   route: RouteResult;
-  translation: TranslationService;
   children?: ReactNode;
   queries: Queries;
 }
 
 export default function Html(props: HtmlProps): JSX.Element {
-  const { translation, children, queries } = props;
+  const { children, queries } = props;
+
+  const messenger = useMessenger();
 
   const modelsPromise = queries.model.list();
 
@@ -22,18 +23,18 @@ export default function Html(props: HtmlProps): JSX.Element {
       <body>
         <header>
           <a href={resolvePath(Page.Home)}>
-            {translation.translate("page.home.title")}
+            {messenger.message({ type: "page-title", page: "Home" })}
           </a>
         </header>
 
         <Suspense>
-          <Aside promise={modelsPromise} translation={translation} />
+          <Aside promise={modelsPromise} />
         </Suspense>
 
         <aside>
           <h2>
             <a href={resolvePath(Page.Assets)}>
-              {translation.translate("page.assets.title")}
+              {messenger.message({ type: "page-title", page: "Home" })}
             </a>
           </h2>
         </aside>
@@ -47,15 +48,16 @@ export default function Html(props: HtmlProps): JSX.Element {
 }
 
 function Aside(
-  props: { promise: Promise<Model[]>; translation: TranslationService },
+  props: { promise: Promise<Model[]> },
 ): JSX.Element {
-  const { promise, translation } = props;
+  const { promise } = props;
 
   const identifies = use(promise);
+  const messenger = useMessenger();
 
   return (
     <aside>
-      <h2>{translation.translate("page.resources.title")}</h2>
+      <h2>{messenger.message({ type: "page-title", page: "Entry" })}</h2>
 
       <ul>
         {identifies.map(({ id, title }) => {

@@ -1,23 +1,30 @@
-import type { JSX } from "react";
-import type { TranslationService } from "./translation.ts";
+import { type JSX, useMemo } from "react";
 import Html from "./html.tsx";
 import { Page, type RouteResult } from "./router.ts";
 import { views } from "./pages/view.ts";
 import type { Queries } from "./application/query.ts";
+import { EnMessenger, type Messenger } from "./messenger.ts";
+import { MessengerContext } from "./context/messenger.ts";
 
 export interface AdminProps {
   route: RouteResult;
   queries: Queries;
-  translation: TranslationService;
+  messenger?: Messenger;
 }
 
 export function Admin(props: AdminProps): JSX.Element {
-  const { translation, route, queries } = props;
+  const { route, queries } = props;
+
+  const messenger = useMemo(() => props.messenger ?? new EnMessenger(), [
+    props.messenger,
+  ]);
 
   return (
-    <Html route={route} queries={queries} translation={translation}>
-      <PageMatcher {...props} />
-    </Html>
+    <MessengerContext.Provider value={messenger}>
+      <Html route={route} queries={queries}>
+        <PageMatcher {...props} />
+      </Html>
+    </MessengerContext.Provider>
   );
 }
 
