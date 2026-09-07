@@ -152,7 +152,7 @@ function createContainerSchema(
       return Schema.of(id, { type: "boolean" });
     }
     case "temporal": {
-      throw new Error();
+      return Schema.of(id, { type: "temporal" });
     }
     case "map": {
       const required = Object.entries(config.props).map(([key, prop]) =>

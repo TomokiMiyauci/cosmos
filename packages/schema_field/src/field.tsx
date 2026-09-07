@@ -4,6 +4,7 @@ import type { Definition, NativeFormValue, Primitive } from "./type.ts";
 import StringField from "./fields/string.tsx";
 import NumberField from "./fields/number.tsx";
 import BooleanField from "./fields/boolean.tsx";
+import TemporalField from "./fields/temporal.tsx";
 import MapField from "./fields/map.tsx";
 import UnionField from "./fields/union.tsx";
 import SequenseField from "./fields/sequence.tsx";
@@ -188,6 +189,9 @@ function _Field(props: _FieldProps): JSX.Element {
     }
     case "boolean": {
       return <BooleanField {...fieldProps} />;
+    }
+    case "temporal": {
+      return <TemporalField {...fieldProps} />;
     }
     case "sequence": {
       return <SequenseField {...fieldProps} />;
