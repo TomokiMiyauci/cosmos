@@ -1,6 +1,6 @@
 "use client";
 
-import type { JSX } from "react";
+import type { JSX, SubmitEvent } from "react";
 import {
   type Definition,
   Fields,
@@ -33,7 +33,8 @@ export default function ContentCreationPage(
 
   const fields = useFields();
 
-  async function handleSubmit(): Promise<void> {
+  async function handleSubmit(e: SubmitEvent): Promise<void> {
+    e.preventDefault();
     const content = fields.getValues();
 
     if (!content) return;
@@ -49,10 +50,9 @@ export default function ContentCreationPage(
 
   return (
     <div>
-      <form action={handleSubmit}>
-        <Fields definition={definition} form={fields.form} />
-
+      <form onSubmit={handleSubmit}>
         <button type="submit">Create</button>
+        <Fields definition={definition} form={fields.form} />
       </form>
     </div>
   );

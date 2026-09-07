@@ -1,6 +1,6 @@
 "use client";
 
-import type { JSX } from "react";
+import type { JSX, SubmitEvent } from "react";
 import type { Result } from "@miyauci/util";
 import {
   type Definition,
@@ -22,7 +22,8 @@ export default function EntryPage(
 
   const fields = useFields(formData);
 
-  async function handleSubmit(): Promise<void> {
+  async function handleSubmit(e: SubmitEvent): Promise<void> {
+    e.preventDefault();
     const content = fields.getValues();
 
     if (!content) return;
@@ -36,7 +37,7 @@ export default function EntryPage(
 
   return (
     <div>
-      <form action={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <Fields definition={definition} form={fields.form} />
 
         <button type="submit">Update</button>
