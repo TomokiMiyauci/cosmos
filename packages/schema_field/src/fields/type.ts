@@ -9,10 +9,12 @@ export interface FieldProps<T extends Definition = Definition> {
   ): JSX.Element;
   layout(props: FieldLayoutProps): JSX.Element;
   required?: boolean;
+  id: string;
 }
 
 export interface FieldLayoutProps {
   title: string;
   control: ReactNode;
   error: string | null;
+  id: string;
 }

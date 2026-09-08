@@ -15,6 +15,7 @@ export interface ControlProps {
   definition: Definition;
   api: Api;
   required: boolean;
+  id: string;
 }
 
 export type Primitive = string | number | boolean;

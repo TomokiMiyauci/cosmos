@@ -1,4 +1,4 @@
-import { type JSX, useState } from "react";
+import { type JSX, useId, useState } from "react";
 import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
 import type { Definition, NativeFormValue, Primitive } from "./type.ts";
 import StringField from "./fields/string.tsx";
@@ -114,15 +114,15 @@ interface _FieldProps {
 }
 
 function FieldLayout(props: FieldLayoutProps): JSX.Element {
-  const { title, control, error } = props;
+  const { title, control, error, id } = props;
 
   return (
     <>
-      <label>
+      <label htmlFor={id}>
         <p>{title}</p>
-
-        {control}
       </label>
+
+      {control}
 
       {error && <p>{error}</p>}
     </>
@@ -147,7 +147,15 @@ function RecursiveField(props: FieldProps): JSX.Element {
 function _Field(props: _FieldProps): JSX.Element {
   const { definition, name, ancestors, required } = props;
 
-  const baseFieldProps = { name, definition, layout: FieldLayout, required };
+  const id = useId();
+
+  const baseFieldProps = {
+    name,
+    definition,
+    layout: FieldLayout,
+    required,
+    id,
+  };
 
   if (ancestors.has(definition)) {
     return (

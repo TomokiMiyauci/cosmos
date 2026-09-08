@@ -1,10 +1,11 @@
 import type { JSX } from "react";
-import type { FieldProps, PrimitiveFieldValue } from "./type.ts";
+import type { FieldProps } from "./type.ts";
+import type { FieldValue } from "../type.ts";
 import { createUseList } from "./util.ts";
 import { useController } from "react-hook-form";
 
 export default function StringField(props: FieldProps): JSX.Element {
-  const { name, definition: def, render, layout: Layout, required = true } =
+  const { name, definition: def, render, layout: Layout, required = true, id } =
     props;
 
   const useList = createUseList(name);
@@ -14,7 +15,7 @@ export default function StringField(props: FieldProps): JSX.Element {
   const api = {
     useList,
     useValue(): [string | null, (value: string | null) => void] {
-      const { field } = useController<PrimitiveFieldValue>({ name });
+      const { field } = useController<FieldValue>({ name });
       const value = field.value ?? null;
 
       const v: string | null = value === null ? null : String(value);
@@ -34,9 +35,11 @@ export default function StringField(props: FieldProps): JSX.Element {
           render={(def) => render({ name, definition: def })}
           api={api}
           required={required}
+          id={id}
         />
       }
       error={error?.message ?? null}
+      id={id}
     >
     </Layout>
   );

@@ -5,7 +5,7 @@ import { useController } from "react-hook-form";
 import type { FieldValue } from "../type.ts";
 
 export default function BooleanField(props: FieldProps): JSX.Element {
-  const { name, definition: def, render, layout: Layout, required = true } =
+  const { name, definition: def, render, layout: Layout, required = true, id } =
     props;
   const useList = createUseList(name);
   const { fieldState: { error } } = useController({ name });
@@ -43,9 +43,11 @@ export default function BooleanField(props: FieldProps): JSX.Element {
           render={(def) => render({ name, definition: def })}
           api={api}
           required={required}
+          id={id}
         />
       }
       error={error?.message ?? null}
+      id={id}
     >
     </Layout>
   );
