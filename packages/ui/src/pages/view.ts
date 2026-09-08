@@ -101,9 +101,9 @@ interface Params {
 
 class EntryContentService implements ContentService {
   constructor(private modelId: string, private service: EntryService) {}
-  async create(content: Content): Promise<Result<void, ValidationError[]>> {
+  async create(content: Content): Promise<Result<string, ValidationError[]>> {
     const entry = { modelId: this.modelId, content };
-    const [_, failure] = await this.service.save(entry);
+    const [id, failure] = await this.service.save(entry);
 
     if (failure) {
       const errors = failure.errors.map((error) => ({
@@ -114,7 +114,7 @@ class EntryContentService implements ContentService {
       return Result.error(errors);
     }
 
-    return Result.ok(undefined);
+    return Result.ok(id);
   }
 }
 
