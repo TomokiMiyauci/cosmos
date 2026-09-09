@@ -5,6 +5,7 @@ import {
   validate,
   type ValidationError,
 } from "@cosmos/validator";
+import { JsonInterpreter } from "@cosmos/validator/json";
 
 export interface CreateCommand {
   model: string;
@@ -61,6 +62,7 @@ export type ContentViolation =
   | "INVALID_VALUE";
 
 export class EntryRegisterUseCase {
+  #interpreter = new JsonInterpreter();
   constructor(
     private entryRepo: Entry.Repositry,
     private modelRepo: Model.Repositry,
@@ -100,8 +102,13 @@ export class EntryRegisterUseCase {
 
     const references: IdPath[] = [];
 
-    const [_, errors] = validate(
+    const value = this.#interpreter.interpret(
       command.contents,
+      schema.definition,
+    );
+
+    const [_, errors] = validate(
+      value,
       schema.definition,
       (context) => {
         if (context.type === "reference") {
