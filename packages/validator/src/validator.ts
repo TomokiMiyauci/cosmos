@@ -11,6 +11,98 @@ import type {
   UnionSchema,
 } from "@cosmos/schema";
 
+export class Identifier {
+  #value: string;
+  private constructor(value: string) {
+    this.#value = value;
+  }
+
+  static of(value: string): Result<Identifier, SyntaxError> {
+    if (!value) return Result.error(new SyntaxError("invalid input"));
+
+    return Result.ok(new Identifier(value));
+  }
+
+  get value(): string {
+    return this.#value;
+  }
+}
+
+export class NumberValue {
+  #value: number;
+  private constructor(value: number) {
+    this.#value = value;
+  }
+
+  static of(value: number): Result<NumberValue, SyntaxError> {
+    if (!Number.isFinite(value)) return Result.error(new SyntaxError(""));
+
+    return Result.ok(new NumberValue(value));
+  }
+
+  get value(): number {
+    return this.#value;
+  }
+}
+
+export class TemporalValue {
+  private constructor(
+    private readonly date: Date,
+  ) {}
+
+  static of(date: Date): Result<TemporalValue, SyntaxError> {
+    if (Number.isNaN(date.getTime())) {
+      return Result.error(new SyntaxError("Invalid date"));
+    }
+
+    return Result.ok(new TemporalValue(date));
+  }
+
+  get value(): Date {
+    return new Date(this.date.getTime());
+  }
+}
+
+export class Unknown {
+  #value: unknown;
+
+  constructor(value: unknown) {
+    this.#value = value;
+  }
+
+  get value(): unknown {
+    return this.#value;
+  }
+}
+
+export type RawValue =
+  | string
+  | NumberValue
+  | boolean
+  | TemporalValue
+  | Identifier
+  | RawValue[]
+  | MapValue<RawValue>
+  | Unknown;
+
+interface MapValue<T> {
+  [k: string]: T;
+}
+
+export interface Interpreter<T> {
+  interpret(input: T, schema: Schema): RawValue;
+}
+
+export class Parser<T> {
+  constructor(private interpreter: Interpreter<T>) {}
+
+  parse(input: T, schema: Schema): Result<void, ValidationError[]> {
+    const rawValue = this.interpreter.interpret(input, schema);
+
+    return validate(rawValue, schema);
+  }
+}
+
 export interface ValidationError {
   reason: ErrorReason;
   path: Path;
@@ -22,22 +114,15 @@ type PathSegment = string | number;
 
 export type Path = PathSegment[];
 
-export type Input =
-  | string
-  | number
-  | boolean
-  | Input[]
-  | { [k: string]: Input };
-
 interface ContentValueMap {
   string: string;
-  number: number;
+  number: NumberValue;
   boolean: boolean;
-  temporal: string;
+  temporal: TemporalValue;
   reference: Identifier;
-  map: Record<string, Input>;
-  sequence: Input[];
-  union: Input;
+  map: MapValue<Value>;
+  sequence: Value[];
+  union: Value;
 }
 
 export type ValidationContext = {
@@ -54,7 +139,7 @@ export interface ValidationCallback {
 }
 
 export function validate(
-  input: Input,
+  input: RawValue,
   schema: Schema,
   onValidated?: ValidationCallback,
 ): Result<void, ValidationError[]> {
@@ -86,7 +171,7 @@ export function validate(
 }
 
 function validateString(
-  input: Input,
+  input: RawValue,
   schema: StringSchema,
   onValidated?: ValidationCallback,
 ): Result<void, ValidationError[]> {
@@ -102,13 +187,13 @@ function validateString(
 }
 
 function validateNumber(
-  input: Input,
+  input: RawValue,
   schema: NumberSchema,
   onValidated?: ValidationCallback,
 ): Result<void, ValidationError[]> {
   const path = [] satisfies Path;
 
-  if (typeof input !== "number") {
+  if (!isNumberValue(input)) {
     return Result.error([{ reason: "invalid_type", path }]);
   }
 
@@ -117,8 +202,20 @@ function validateNumber(
   return Result.ok(void 0);
 }
 
+function isNumberValue(value: unknown): value is NumberValue {
+  return value instanceof NumberValue;
+}
+
+function isDateValue(value: unknown): value is TemporalValue {
+  return value instanceof TemporalValue;
+}
+
+function isIdentifier(value: unknown): value is Identifier {
+  return value instanceof Identifier;
+}
+
 function validateBoolean(
-  input: Input,
+  input: RawValue,
   schema: BooleanSchema,
   onValidated?: ValidationCallback,
 ): Result<void, ValidationError[]> {
@@ -134,14 +231,13 @@ function validateBoolean(
 }
 
 function validateTemporal(
-  input: Input,
+  input: RawValue,
   schema: TemporalSchema,
   onValidated?: ValidationCallback,
 ): Result<void, ValidationError[]> {
   const path = [] satisfies Path;
 
-  // TODO: format check
-  if (typeof input !== "string") {
+  if (!isDateValue(input)) {
     return Result.error([{ reason: "invalid_type", path }]);
   }
 
@@ -151,13 +247,17 @@ function validateTemporal(
 }
 
 function validateMap(
-  input: Input,
+  input: RawValue,
   schema: MapSchema,
   onValidated?: ValidationCallback,
 ): Result<void, ValidationError[]> {
   if (
     typeof input !== "object" ||
-    Array.isArray(input)
+    Array.isArray(input) ||
+    isDateValue(input) ||
+    isIdentifier(input) ||
+    isNumberValue(input) ||
+    input instanceof Unknown
   ) {
     return Result.error([{ reason: "invalid_type", path: [] }]);
   }
@@ -168,12 +268,17 @@ function validateMap(
     return Result.error(errors);
   }
 
-  onValidated?.({ type: "map", content: input, schema, path: [] });
+  onValidated?.({
+    type: "map",
+    content: input as MapValue<Value>,
+    schema,
+    path: [],
+  });
 
   return Result.ok(void 0);
 }
 function* collectMapSchemaViolations(
-  input: Record<string, Input>,
+  input: MapValue<RawValue>,
   schema: MapSchema,
   onValidated?: ValidationCallback,
 ): IterableIterator<ValidationError> {
@@ -198,7 +303,7 @@ function* collectMapSchemaViolations(
 }
 
 function validateSequence(
-  input: unknown,
+  input: RawValue,
   schema: SequenceSchema,
   onValidated?: ValidationCallback,
 ): Result<void, ValidationError[]> {
@@ -214,13 +319,18 @@ function validateSequence(
     return Result.error(errors);
   }
 
-  onValidated?.({ type: "sequence", content: input, schema, path: [] });
+  onValidated?.({
+    type: "sequence",
+    content: input as Value[],
+    schema,
+    path: [],
+  });
 
   return Result.ok(void 0);
 }
 
 function* collectSequenseSchemaViolations(
-  input: Input[],
+  input: RawValue[],
   schema: SequenceSchema,
   onValidated?: ValidationCallback,
 ): IterableIterator<ValidationError> {
@@ -237,46 +347,21 @@ function* collectSequenseSchemaViolations(
 }
 
 function validateReference(
-  input: Input,
+  input: RawValue,
   schema: ReferenceSchema,
   onValidated?: ValidationCallback,
 ): Result<void, ValidationError[]> {
-  if (typeof input !== "string") {
+  if (!isIdentifier(input)) {
     return Result.error([{ reason: "invalid_type", path: [] }]);
   }
 
-  const [id, error] = Identifier.of(input);
-
-  if (error) {
-    return Result.error([{ reason: "invalid_value", path: [] }]);
-  }
-
-  onValidated?.({ type: "reference", content: id, schema, path: [] });
+  onValidated?.({ type: "reference", content: input, schema, path: [] });
 
   return Result.ok(void 0);
 }
 
-export class Identifier {
-  #value: NonEmptryString;
-  private constructor(value: NonEmptryString) {
-    this.#value = value;
-  }
-
-  static of(value: string): Result<Identifier, SyntaxError> {
-    if (!value) return Result.error(new SyntaxError("invalid input"));
-
-    return Result.ok(new Identifier(value));
-  }
-
-  get value(): NonEmptryString {
-    return this.#value;
-  }
-}
-
-type NonEmptryString = string;
-
 function validateUnion(
-  input: Input,
+  input: RawValue,
   schema: UnionSchema,
   onValidated?: ValidationCallback,
 ): Result<void, ValidationError[]> {
@@ -285,7 +370,12 @@ function validateUnion(
     const [_, memberErrors] = validate(input, member, onValidated);
 
     if (!memberErrors) {
-      onValidated?.({ type: "union", content: input, schema, path: [] });
+      onValidated?.({
+        type: "union",
+        content: input as Value,
+        schema,
+        path: [],
+      });
 
       return Result.ok(void 0);
     }
@@ -294,6 +384,14 @@ function validateUnion(
   // TODO
   return Result.error([]);
 }
+
+export type Value =
+  | string
+  | NumberValue
+  | boolean
+  | Value[]
+  | MapValue<Value>
+  | TemporalValue;
 
 function withPath(
   onValidated: ValidationCallback,

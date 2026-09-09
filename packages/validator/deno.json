@@ -1,4 +1,7 @@
 {
   "name": "@cosmos/validator",
-  "exports": "./src/mod.ts"
+  "exports": {
+    ".": "./src/mod.ts",
+    "./json": "./src/interpreters/json.ts"
+  }
 }
