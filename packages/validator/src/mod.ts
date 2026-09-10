@@ -7,6 +7,7 @@ export {
   type Path,
   type RawValue,
   TemporalValue,
+  Unknown,
   validate,
   type ValidationCallback,
   type ValidationContext,
