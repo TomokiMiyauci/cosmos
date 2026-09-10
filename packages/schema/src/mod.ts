@@ -5,6 +5,7 @@ export type {
   ReferenceSchema,
   Schema,
   SequenceSchema,
+  StringFormat,
   StringSchema,
   TemporalSchema,
   UnionSchema,

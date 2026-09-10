@@ -10,7 +10,10 @@ export type Schema =
 
 export interface StringSchema {
   type: "string";
+  format: StringFormat | null;
 }
+
+export type StringFormat = "date" | "datetime";
 
 export interface NumberSchema {
   type: "number";
