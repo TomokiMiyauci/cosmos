@@ -9,7 +9,6 @@ export type SchemaView =
   | StringSchemaView
   | NumberSchemaView
   | BooleanSchemaView
-  | TemporalSchemaView
   | ListSchemaView
   | MapSchemaView
   | RefernceSchemaView
@@ -30,10 +29,6 @@ export interface NumberSchemaView extends BaseSchemaView {
 
 export interface BooleanSchemaView extends BaseSchemaView {
   type: "boolean";
-}
-
-export interface TemporalSchemaView extends BaseSchemaView {
-  type: "temporal";
 }
 
 export interface MapSchemaView extends BaseSchemaView {

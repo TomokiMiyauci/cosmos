@@ -6,7 +6,6 @@ import type {
   ReferenceSchema,
   SequenceSchema,
   StringSchema,
-  TemporalSchema,
   UnionSchema,
 } from "@cosmos/schema";
 
@@ -55,8 +54,7 @@ export type Definition =
   | ListDefinition
   | MapDefinition
   | UnionDefinition
-  | ReferenceDefinition
-  | TemporalDefinition;
+  | ReferenceDefinition;
 
 interface ListDefinition extends SequenceSchema, BaseDefinition {
   item: Definition;
@@ -71,8 +69,6 @@ interface StringDefinition extends StringSchema, BaseDefinition {}
 interface NumberDefinition extends NumberSchema, BaseDefinition {}
 
 interface BooleanDefinition extends BooleanSchema, BaseDefinition {}
-
-interface TemporalDefinition extends TemporalSchema, BaseDefinition {}
 
 export interface MapDefinition extends MapSchema, BaseDefinition {
   properties: Record<string, Definition>;

@@ -58,9 +58,6 @@ function toSchemaResopnse(view: SchemaView): SchemaResponse {
     case "boolean": {
       return { id, type: "boolean" };
     }
-    case "temporal": {
-      return { id, type: "temporal" };
-    }
     case "list": {
       const item = schemaView2SchemaReference(view.item);
 

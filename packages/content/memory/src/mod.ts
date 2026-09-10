@@ -79,8 +79,7 @@ function resolveSchemaConfig(
     switch (definition.type) {
       case "string":
       case "number":
-      case "boolean":
-      case "temporal": {
+      case "boolean": {
         break;
       }
       case "map": {
@@ -151,9 +150,6 @@ function createContainerSchema(
     case "boolean": {
       return Schema.of(id, { type: "boolean" });
     }
-    case "temporal": {
-      return Schema.of(id, { type: "temporal" });
-    }
     case "map": {
       const required = Object.entries(config.props).map(([key, prop]) =>
         prop.required ? key : null
@@ -178,7 +174,6 @@ export type SchemaDefinition =
   | StringSchemaDefinition
   | NumberSchemaDefinition
   | BooleanSchemaDefinition
-  | TemporalSchemaDefinition
   | ListSchemaDefinition
   | MapSchemaDefiinition
   | UnionSchemaDefinition
@@ -198,10 +193,6 @@ export interface NumberSchemaDefinition extends BaseSchemaDefinition {
 
 export interface BooleanSchemaDefinition extends BaseSchemaDefinition {
   type: "boolean";
-}
-
-export interface TemporalSchemaDefinition extends BaseSchemaDefinition {
-  type: "temporal";
 }
 
 export interface ListSchemaDefinition extends BaseSchemaDefinition {
@@ -308,8 +299,7 @@ function resolveConfig2SchemaView(
     switch (definition.type) {
       case "string":
       case "number":
-      case "boolean":
-      case "temporal": {
+      case "boolean": {
         break;
       }
       case "map": {
@@ -378,9 +368,6 @@ function createContainerSchemaView(
     }
     case "boolean": {
       return { id, type: "boolean" };
-    }
-    case "temporal": {
-      return { id, type: "temporal" };
     }
     case "map": {
       return { id, type: "map", properties: {} };

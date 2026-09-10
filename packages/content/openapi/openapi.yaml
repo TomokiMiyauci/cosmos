@@ -315,7 +315,6 @@ components:
         - $ref: "#/components/schemas/StringSchemaResponse"
         - $ref: "#/components/schemas/NumberSchemaResponse"
         - $ref: "#/components/schemas/BooleanSchemaResponse"
-        - $ref: "#/components/schemas/TemporalSchemaResponse"
         - $ref: "#/components/schemas/ReferenceSchemaResponse"
         - $ref: "#/components/schemas/MapSchemaResponse"
         - $ref: "#/components/schemas/ListSchemaResponse"
@@ -353,16 +352,6 @@ components:
       properties:
         type:
           enum: ["boolean"]
-      required:
-        - type
-
-    TemporalSchemaResponse:
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/BaseSchemaResponse"
-      properties:
-        type:
-          enum: ["temporal"]
       required:
         - type
 

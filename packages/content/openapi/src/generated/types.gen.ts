@@ -76,7 +76,7 @@ export type SchemaReference = {
     id: string;
 };
 
-export type SchemaResponse = StringSchemaResponse | NumberSchemaResponse | BooleanSchemaResponse | TemporalSchemaResponse | ReferenceSchemaResponse | MapSchemaResponse | ListSchemaResponse | UnionSchemaResponse;
+export type SchemaResponse = StringSchemaResponse | NumberSchemaResponse | BooleanSchemaResponse | ReferenceSchemaResponse | MapSchemaResponse | ListSchemaResponse | UnionSchemaResponse;
 
 export type StringSchemaResponse = BaseSchemaResponse & {
     type: 'string';
@@ -89,10 +89,6 @@ export type NumberSchemaResponse = BaseSchemaResponse & {
 
 export type BooleanSchemaResponse = BaseSchemaResponse & {
     type: 'boolean';
-};
-
-export type TemporalSchemaResponse = BaseSchemaResponse & {
-    type: 'temporal';
 };
 
 export type ReferenceSchemaResponse = BaseSchemaResponse & {

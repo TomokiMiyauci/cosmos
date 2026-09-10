@@ -13,7 +13,6 @@ import type {
   Schema,
   SequenceSchema,
   StringSchema,
-  TemporalSchema,
   UnionSchema,
 } from "@cosmos/schema";
 
@@ -33,9 +32,6 @@ export class JsonInterpreter implements Interpreter<Json> {
 
       case "boolean":
         return this.interpretBoolean(input, schema);
-
-      case "temporal":
-        return this.interpretTemporal(input, schema);
 
       case "reference":
         return this.interpretReference(input, schema);
@@ -86,23 +82,6 @@ export class JsonInterpreter implements Interpreter<Json> {
     }
 
     return input;
-  }
-
-  private interpretTemporal(
-    input: Json,
-    _: TemporalSchema,
-  ): RawValue {
-    if (typeof input !== "string") {
-      return new Unknown(input);
-    }
-
-    try {
-      const data = Temporal.Instant.from(input);
-
-      return data;
-    } catch {
-      return new Unknown(input);
-    }
   }
 
   private interpretReference(

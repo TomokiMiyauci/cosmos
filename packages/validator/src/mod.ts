@@ -2,7 +2,6 @@ export {
   type ErrorReason,
   Identifier,
   type Interpreter,
-  isDateValue,
   isIdentifier,
   isNumberValue,
   NumberValue,

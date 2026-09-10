@@ -63,10 +63,6 @@ export const zBooleanSchemaResponse = zBaseSchemaResponse.and(z.object({
     type: z.enum(['boolean'])
 }));
 
-export const zTemporalSchemaResponse = zBaseSchemaResponse.and(z.object({
-    type: z.enum(['temporal'])
-}));
-
 export const zReferenceSchemaResponse = zBaseSchemaResponse.and(z.object({
     type: z.enum(['reference'])
 }));
@@ -93,7 +89,6 @@ export const zSchemaResponse = z.union([
     zStringSchemaResponse,
     zNumberSchemaResponse,
     zBooleanSchemaResponse,
-    zTemporalSchemaResponse,
     zReferenceSchemaResponse,
     zMapSchemaResponse,
     zListSchemaResponse,

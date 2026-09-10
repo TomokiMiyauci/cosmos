@@ -16,7 +16,6 @@ export type SchemaConfig =
   | StringSchemaDefinition
   | NumberSchemaDefinition
   | BooleanSchemaDefinition
-  | TemporalSchemaDefinition
   | ListSchemaDefinition
   | MapSchemaDefiinition
   | UnionSchemaDefinition
@@ -33,10 +32,6 @@ export interface NumberSchemaDefinition {
 
 export interface BooleanSchemaDefinition {
   type: "boolean";
-}
-
-export interface TemporalSchemaDefinition {
-  type: "temporal";
 }
 
 export interface ListSchemaDefinition {

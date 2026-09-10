@@ -7,7 +7,6 @@ import type {
   Schema,
   SequenceSchema,
   StringSchema,
-  TemporalSchema,
   UnionSchema,
 } from "@cosmos/schema";
 
@@ -61,7 +60,6 @@ export type RawValue =
   | string
   | NumberValue
   | boolean
-  | Temporal.Instant
   | Identifier
   | RawValue[]
   | MapValue<RawValue>
@@ -100,7 +98,6 @@ interface ContentValueMap {
   string: string;
   number: NumberValue;
   boolean: boolean;
-  temporal: Temporal.Instant;
   reference: Identifier;
   map: MapValue<Value>;
   sequence: Value[];
@@ -134,9 +131,6 @@ export function validate(
 
     case "boolean":
       return validateBoolean(input, schema, onValidated);
-
-    case "temporal":
-      return validateTemporal(input, schema, onValidated);
 
     case "map":
       return validateMap(input, schema, onValidated);
@@ -188,10 +182,6 @@ export function isNumberValue(value: unknown): value is NumberValue {
   return value instanceof NumberValue;
 }
 
-export function isDateValue(value: unknown): value is Temporal.Instant {
-  return value instanceof Temporal.Instant;
-}
-
 export function isIdentifier(value: unknown): value is Identifier {
   return value instanceof Identifier;
 }
@@ -212,22 +202,6 @@ function validateBoolean(
   return Result.ok(input);
 }
 
-function validateTemporal(
-  input: RawValue,
-  schema: TemporalSchema,
-  onValidated?: ValidationCallback,
-): Result<Temporal.Instant, ValidationError[]> {
-  const path = [] satisfies Path;
-
-  if (!isDateValue(input)) {
-    return Result.error([{ reason: "invalid_type", path }]);
-  }
-
-  onValidated?.({ type: "temporal", content: input, schema, path });
-
-  return Result.ok(input);
-}
-
 function validateMap(
   input: RawValue,
   schema: MapSchema,
@@ -236,7 +210,6 @@ function validateMap(
   if (
     typeof input !== "object" ||
     Array.isArray(input) ||
-    isDateValue(input) ||
     isIdentifier(input) ||
     isNumberValue(input) ||
     input instanceof Unknown
@@ -379,8 +352,7 @@ export type Value =
   | boolean
   | Value[]
   | Identifier
-  | MapValue<Value>
-  | Temporal.Instant;
+  | MapValue<Value>;
 
 function withPath(
   onValidated: ValidationCallback,

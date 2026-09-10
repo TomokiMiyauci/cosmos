@@ -7,6 +7,5 @@ export type {
   SequenceSchema,
   StringFormat,
   StringSchema,
-  TemporalSchema,
   UnionSchema,
 } from "./schema.ts";

@@ -2,7 +2,6 @@ export type Schema =
   | StringSchema
   | NumberSchema
   | BooleanSchema
-  | TemporalSchema
   | MapSchema
   | SequenceSchema
   | ReferenceSchema
@@ -32,10 +31,6 @@ export interface MapSchema {
 export interface SequenceSchema {
   type: "sequence";
   item: Schema;
-}
-
-export interface TemporalSchema {
-  type: "temporal";
 }
 
 export interface ReferenceSchema {
