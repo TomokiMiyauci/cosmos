@@ -3,7 +3,6 @@ import {
   type Interpreter,
   NumberValue,
   type RawValue,
-  TemporalValue,
   Unknown,
 } from "../validator.ts";
 import type {
@@ -97,14 +96,13 @@ export class JsonInterpreter implements Interpreter<Json> {
       return new Unknown(input);
     }
 
-    const date = new Date(input);
-    const [data, error] = TemporalValue.of(date);
+    try {
+      const data = Temporal.Instant.from(input);
 
-    if (error) {
+      return data;
+    } catch {
       return new Unknown(input);
     }
-
-    return data;
   }
 
   private interpretReference(

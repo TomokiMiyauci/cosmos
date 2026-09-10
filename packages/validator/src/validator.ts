@@ -45,24 +45,6 @@ export class NumberValue {
   }
 }
 
-export class TemporalValue {
-  private constructor(
-    private readonly date: Date,
-  ) {}
-
-  static of(date: Date): Result<TemporalValue, SyntaxError> {
-    if (Number.isNaN(date.getTime())) {
-      return Result.error(new SyntaxError("Invalid date"));
-    }
-
-    return Result.ok(new TemporalValue(date));
-  }
-
-  get value(): Date {
-    return new Date(this.date.getTime());
-  }
-}
-
 export class Unknown {
   #value: unknown;
 
@@ -79,7 +61,7 @@ export type RawValue =
   | string
   | NumberValue
   | boolean
-  | TemporalValue
+  | Temporal.Instant
   | Identifier
   | RawValue[]
   | MapValue<RawValue>
@@ -96,7 +78,7 @@ export interface Interpreter<T> {
 export class Parser<T> {
   constructor(private interpreter: Interpreter<T>) {}
 
-  parse(input: T, schema: Schema): Result<void, ValidationError[]> {
+  parse(input: T, schema: Schema): Result<Value, ValidationError[]> {
     const rawValue = this.interpreter.interpret(input, schema);
 
     return validate(rawValue, schema);
@@ -118,7 +100,7 @@ interface ContentValueMap {
   string: string;
   number: NumberValue;
   boolean: boolean;
-  temporal: TemporalValue;
+  temporal: Temporal.Instant;
   reference: Identifier;
   map: MapValue<Value>;
   sequence: Value[];
@@ -142,7 +124,7 @@ export function validate(
   input: RawValue,
   schema: Schema,
   onValidated?: ValidationCallback,
-): Result<void, ValidationError[]> {
+): Result<Value, ValidationError[]> {
   switch (schema.type) {
     case "string":
       return validateString(input, schema, onValidated);
@@ -174,7 +156,7 @@ function validateString(
   input: RawValue,
   schema: StringSchema,
   onValidated?: ValidationCallback,
-): Result<void, ValidationError[]> {
+): Result<string, ValidationError[]> {
   const path = [] satisfies Path;
 
   if (typeof input !== "string") {
@@ -183,14 +165,14 @@ function validateString(
 
   onValidated?.({ content: input, type: "string", schema, path });
 
-  return Result.ok(void 0);
+  return Result.ok(input);
 }
 
 function validateNumber(
   input: RawValue,
   schema: NumberSchema,
   onValidated?: ValidationCallback,
-): Result<void, ValidationError[]> {
+): Result<NumberValue, ValidationError[]> {
   const path = [] satisfies Path;
 
   if (!isNumberValue(input)) {
@@ -199,18 +181,18 @@ function validateNumber(
 
   onValidated?.({ type: "number", content: input, schema, path });
 
-  return Result.ok(void 0);
+  return Result.ok(input);
 }
 
-function isNumberValue(value: unknown): value is NumberValue {
+export function isNumberValue(value: unknown): value is NumberValue {
   return value instanceof NumberValue;
 }
 
-function isDateValue(value: unknown): value is TemporalValue {
-  return value instanceof TemporalValue;
+export function isDateValue(value: unknown): value is Temporal.Instant {
+  return value instanceof Temporal.Instant;
 }
 
-function isIdentifier(value: unknown): value is Identifier {
+export function isIdentifier(value: unknown): value is Identifier {
   return value instanceof Identifier;
 }
 
@@ -218,7 +200,7 @@ function validateBoolean(
   input: RawValue,
   schema: BooleanSchema,
   onValidated?: ValidationCallback,
-): Result<void, ValidationError[]> {
+): Result<boolean, ValidationError[]> {
   const path = [] satisfies Path;
 
   if (typeof input !== "boolean") {
@@ -227,14 +209,14 @@ function validateBoolean(
 
   onValidated?.({ type: "boolean", content: input, schema, path });
 
-  return Result.ok(void 0);
+  return Result.ok(input);
 }
 
 function validateTemporal(
   input: RawValue,
   schema: TemporalSchema,
   onValidated?: ValidationCallback,
-): Result<void, ValidationError[]> {
+): Result<Temporal.Instant, ValidationError[]> {
   const path = [] satisfies Path;
 
   if (!isDateValue(input)) {
@@ -243,14 +225,14 @@ function validateTemporal(
 
   onValidated?.({ type: "temporal", content: input, schema, path });
 
-  return Result.ok(void 0);
+  return Result.ok(input);
 }
 
 function validateMap(
   input: RawValue,
   schema: MapSchema,
   onValidated?: ValidationCallback,
-): Result<void, ValidationError[]> {
+): Result<MapValue<Value>, ValidationError[]> {
   if (
     typeof input !== "object" ||
     Array.isArray(input) ||
@@ -268,14 +250,16 @@ function validateMap(
     return Result.error(errors);
   }
 
+  const map = input as MapValue<Value>;
+
   onValidated?.({
     type: "map",
-    content: input as MapValue<Value>,
+    content: map,
     schema,
     path: [],
   });
 
-  return Result.ok(void 0);
+  return Result.ok(map);
 }
 function* collectMapSchemaViolations(
   input: MapValue<RawValue>,
@@ -306,7 +290,7 @@ function validateSequence(
   input: RawValue,
   schema: SequenceSchema,
   onValidated?: ValidationCallback,
-): Result<void, ValidationError[]> {
+): Result<Value[], ValidationError[]> {
   if (!Array.isArray(input)) {
     return Result.error([{ reason: "invalid_type", path: [] }]);
   }
@@ -319,14 +303,16 @@ function validateSequence(
     return Result.error(errors);
   }
 
+  const content = input as Value[];
+
   onValidated?.({
     type: "sequence",
-    content: input as Value[],
+    content,
     schema,
     path: [],
   });
 
-  return Result.ok(void 0);
+  return Result.ok(content);
 }
 
 function* collectSequenseSchemaViolations(
@@ -350,34 +336,36 @@ function validateReference(
   input: RawValue,
   schema: ReferenceSchema,
   onValidated?: ValidationCallback,
-): Result<void, ValidationError[]> {
+): Result<Identifier, ValidationError[]> {
   if (!isIdentifier(input)) {
     return Result.error([{ reason: "invalid_type", path: [] }]);
   }
 
   onValidated?.({ type: "reference", content: input, schema, path: [] });
 
-  return Result.ok(void 0);
+  return Result.ok(input);
 }
 
 function validateUnion(
   input: RawValue,
   schema: UnionSchema,
   onValidated?: ValidationCallback,
-): Result<void, ValidationError[]> {
+): Result<Value, ValidationError[]> {
   for (const member of schema.members) {
     // TODO
     const [_, memberErrors] = validate(input, member, onValidated);
 
+    const content = input as Value;
+
     if (!memberErrors) {
       onValidated?.({
         type: "union",
-        content: input as Value,
+        content,
         schema,
         path: [],
       });
 
-      return Result.ok(void 0);
+      return Result.ok(content);
     }
   }
 
@@ -390,8 +378,9 @@ export type Value =
   | NumberValue
   | boolean
   | Value[]
+  | Identifier
   | MapValue<Value>
-  | TemporalValue;
+  | Temporal.Instant;
 
 function withPath(
   onValidated: ValidationCallback,
