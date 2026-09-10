@@ -1,4 +1,5 @@
 import type { Result } from "@miyauci/util";
+import type { Value } from "@cosmos/validator";
 
 export interface EntryService {
   save(entry: SaveEntry): Promise<Result<Entry["id"], EntrySaveError>>;
@@ -7,7 +8,7 @@ export interface EntryService {
 export interface Entry {
   id: string;
   modelId: string;
-  content: any;
+  content: Value;
 }
 
 type NewEntry = Omit<Entry, "id">;
