@@ -18,7 +18,7 @@ export interface ControlProps {
   id: string;
 }
 
-export type Primitive = string | number | boolean;
+export type Primitive = string;
 
 export type NativeFormPrimitiveValue = Primitive | null;
 

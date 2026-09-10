@@ -16,20 +16,10 @@ export default function BooleanField(props: FieldProps): JSX.Element {
       const { field } = useController<FieldValue>({ name });
       const value = field.value ?? null;
 
-      if (!(value === null || typeof value === "boolean")) {
-        throw new Error();
-      }
-
-      const v: string | null = typeof value === "boolean"
-        ? value.toString()
-        : value;
+      const v: string | null = value === null ? null : String(value);
 
       return [v, (value: string | null) => {
-        const v = typeof value === "string"
-          ? value === "true" ? true : value === "false" ? false : null
-          : null;
-
-        field.onChange(v);
+        field.onChange(value);
       }];
     },
   };
