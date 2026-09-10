@@ -1,3 +1,5 @@
+import type { StringFormat } from "@cosmos/schema";
+
 export interface SchemaQuery {
   findById(id: string): Promise<SchemaView | null>;
   findAll(): Promise<SchemaView[]>;
@@ -19,6 +21,7 @@ export interface BaseSchemaView {
 
 export interface StringSchemaView extends BaseSchemaView {
   type: "string";
+  format: StringFormat | null;
 }
 
 export interface NumberSchemaView extends BaseSchemaView {

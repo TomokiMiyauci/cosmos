@@ -1,3 +1,5 @@
+import type { StringFormat } from "@cosmos/schema";
+
 export interface ModelConfig {
   schema: string;
   type: "collection" | "singleton";
@@ -22,6 +24,7 @@ export type SchemaConfig =
 
 export interface StringSchemaDefinition {
   type: "string";
+  format?: StringFormat;
 }
 
 export interface NumberSchemaDefinition {

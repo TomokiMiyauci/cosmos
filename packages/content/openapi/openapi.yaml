@@ -328,8 +328,13 @@ components:
       properties:
         type:
           enum: ["string"]
+        format:
+          oneOf:
+            - type: "null"
+            - enum: ["date", "datetime"]
       required:
         - type
+        - format
 
     NumberSchemaResponse:
       type: object

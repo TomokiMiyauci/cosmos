@@ -11,7 +11,7 @@ import type {
   ModelView,
   SchemaQuery,
   SchemaView,
-} from "@cosmos/content-rest/server";
+} from "@cosmos/content-openapi/server";
 export interface ModelDefinitionMap {
   [k: string]: ModelDefinition;
 }
@@ -143,7 +143,7 @@ function createContainerSchema(
 
   switch (config.type) {
     case "string": {
-      return Schema.of(id, { type: "string" });
+      return Schema.of(id, { type: "string", format: config.format ?? null });
     }
     case "number": {
       return Schema.of(id, { type: "number" });
@@ -371,7 +371,7 @@ function createContainerSchemaView(
 ): SchemaView {
   switch (config.type) {
     case "string": {
-      return { id, type: "string" };
+      return { id, type: "string", format: config.format ?? null };
     }
     case "number": {
       return { id, type: "number" };

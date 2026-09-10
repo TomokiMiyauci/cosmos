@@ -41,7 +41,7 @@ function toSchemaResopnse(view: SchemaView): SchemaResponse {
 
   switch (view.type) {
     case "string": {
-      return { id, type: "string" };
+      return { id, type: "string", format: view.format };
     }
     case "number": {
       return { id, type: "number" };

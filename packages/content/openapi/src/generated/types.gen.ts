@@ -80,6 +80,7 @@ export type SchemaResponse = StringSchemaResponse | NumberSchemaResponse | Boole
 
 export type StringSchemaResponse = BaseSchemaResponse & {
     type: 'string';
+    format: null | 'date' | 'datetime';
 };
 
 export type NumberSchemaResponse = BaseSchemaResponse & {

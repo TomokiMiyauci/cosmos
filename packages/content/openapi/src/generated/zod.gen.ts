@@ -48,7 +48,11 @@ export const zBaseSchemaResponse = z.object({
 });
 
 export const zStringSchemaResponse = zBaseSchemaResponse.and(z.object({
-    type: z.enum(['string'])
+    type: z.enum(['string']),
+    format: z.union([
+        z.literal('date'),
+        z.literal('datetime')
+    ]).nullable()
 }));
 
 export const zNumberSchemaResponse = zBaseSchemaResponse.and(z.object({
