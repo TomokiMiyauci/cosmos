@@ -12,6 +12,8 @@ import type {
   SchemaQuery,
   SchemaView,
 } from "@cosmos/content-openapi/server";
+import { resolve, type SchemaId, type SchemaNode } from "@cosmos/schema";
+
 export interface ModelDefinitionMap {
   [k: string]: ModelDefinition;
 }
@@ -41,133 +43,73 @@ export class ConfigSchemaRepository implements Schema.Repository {
   constructor(config: SchemaConfigMap) {
     const resolved = resolveSchemaConfig(config);
 
-    this.#store = resolved;
+    this.#store = new Map(
+      resolved.values().map((schema) => [schema.id.value, schema]),
+    );
   }
 
-  #store: Record<string, Schema>;
+  #store: ReadonlyMap<string, Schema>;
 
   findById(id: Schema.Id): Promise<Schema | null> {
-    return Promise.resolve(this.#store[id.value] ?? null);
+    return Promise.resolve(this.#store.get(id.value) ?? null);
   }
 }
 
-function resolveSchemaConfig(
-  store: Record<string, SchemaConfig>,
-): Record<string, Schema> {
-  const definitions = new Map<string, Schema>();
-
-  for (const [id, schema] of Object.entries(store)) {
-    definitions.set(id, createContainerSchema(schema, id));
-  }
-
-  for (const [id, config] of Object.entries(store)) {
-    linkSchema(config, id);
-  }
-
-  return Object.fromEntries(definitions);
-
-  function linkSchema(
-    config: SchemaConfig,
-    id: string,
-  ): void {
-    const schema = definitions.get(id);
-
-    if (!schema) throw new Error();
-
-    const definition = schema.definition;
-
-    switch (definition.type) {
-      case "string":
-      case "number":
-      case "boolean": {
-        break;
-      }
-      case "map": {
-        if (config.type !== "map") throw new Error();
-
-        const properties = mapValues(config.props, (prop) => {
-          return getSchema(prop.to);
-        });
-
-        definition.properties = properties;
-
-        break;
-      }
-      case "sequence": {
-        if (config.type !== "list") throw new Error();
-
-        const item = getSchema(config.item);
-
-        definition.item = item;
-
-        break;
-      }
-      case "union": {
-        if (config.type !== "union") throw new Error();
-
-        const members = config.schemas.map(getSchema);
-
-        definition.members = members;
-
-        break;
-      }
-      case "reference": {
-        if (config.type !== "reference") throw new Error();
-
-        // const schema = getSchema(config.to);
-
-        // definition.target = schema;
-
-        break;
-      }
-    }
-  }
-
-  function getSchema(id: string): Schema.Definition {
-    const definition = definitions.get(id);
-
-    if (!definition) throw new Error();
-
-    return definition.definition;
-  }
-}
-
-function createContainerSchema(
+function schemaConfigToSchemaNode(
+  id: SchemaId,
   config: SchemaConfig,
-  rawId: string,
-): Schema {
-  const [id, idError] = Schema.Id.of(rawId);
-
-  if (idError) throw new Error();
-
+): SchemaNode {
   switch (config.type) {
     case "string": {
-      return Schema.of(id, { type: "string", format: config.format ?? null });
+      return { id, type: "string", format: config.format ?? null };
     }
     case "number": {
-      return Schema.of(id, { type: "number" });
+      return { id, type: "number" };
     }
     case "boolean": {
-      return Schema.of(id, { type: "boolean" });
+      return { id, type: "boolean" };
     }
     case "map": {
       const required = Object.entries(config.props).map(([key, prop]) =>
         prop.required ? key : null
       ).filter(isNonNullable);
 
-      return Schema.of(id, { type: "map", properties: {}, required });
+      const properties = mapValues(config.props, (prop) => prop.to);
+
+      return { id, type: "map", properties, required };
     }
     case "list": {
-      return Schema.of(id, { type: "sequence", item: PLACEHOLDER });
+      return { id, type: "sequence", item: config.item };
     }
     case "union": {
-      return Schema.of(id, { type: "union", members: [] });
+      return { id, type: "union", members: config.schemas };
     }
     case "reference": {
-      // return Schema.of(id, { type: "reference", target: PLACEHOLDER });
-      return Schema.of(id, { type: "reference" });
+      return { id, type: "reference" };
     }
   }
+}
+
+function resolveSchemaConfig(
+  store: Record<string, SchemaConfig>,
+): Set<Schema> {
+  const set = new Set(
+    Object.entries(store).map(([id, config]) =>
+      schemaConfigToSchemaNode(id, config)
+    ),
+  );
+
+  const map = resolve(set);
+
+  const schemas = map.entries().map(([key, s]) => {
+    const [id, e] = Schema.Id.of(key);
+
+    if (e) throw e;
+
+    return Schema.of(id, s);
+  });
+
+  return new Set(schemas);
 }
 
 export type SchemaDefinition =
@@ -384,6 +326,7 @@ function createContainerSchemaView(
   }
 }
 
+// deno-lint-ignore no-explicit-any
 const PLACEHOLDER = undefined as any;
 
 function isNonNullable<T>(value: T): value is NonNullable<T> {
