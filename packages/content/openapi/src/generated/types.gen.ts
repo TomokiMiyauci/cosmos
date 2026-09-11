@@ -38,6 +38,7 @@ export type ValidationError = {
      *
      * | Code | Meaning |
      * | ---- | ------- |
+     * | `0` | Unknown type |
      * | `1` | Invalid type |
      * | `2` | Required value |
      * | `3` | Reference not found |

@@ -59,7 +59,8 @@ export type ContentViolation =
   | "INVALID_TYPE"
   | "REQUIRED"
   | "REFERENCE_NOT_FOUND"
-  | "INVALID_VALUE";
+  | "INVALID_VALUE"
+  | "UNKNOWN";
 
 export class EntryRegisterUseCase {
   #interpreter = new JsonInterpreter();
@@ -159,6 +160,8 @@ function reason2Kind(reason: ErrorReason): ContentViolation {
       return "REQUIRED";
     case "invalid_value":
       return "INVALID_VALUE";
+    case "unknown":
+      return "UNKNOWN";
   }
 }
 

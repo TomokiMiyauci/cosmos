@@ -128,10 +128,17 @@ function getErrorMessage(kind: ContentViolation): {
         detail: "Invalid value",
       };
     }
+    case "UNKNOWN": {
+      return {
+        code: ErrorCode.Unknown,
+        detail: "Unknown value",
+      };
+    }
   }
 }
 
 enum ErrorCode {
+  Unknown = "0",
   InvalidType = "1",
   Required = "2",
   ReferenceNotFound = "3",
