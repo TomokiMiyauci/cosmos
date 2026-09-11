@@ -1,17 +1,15 @@
 export {
   type ErrorReason,
-  Identifier,
   type Interpreter,
   isIdentifier,
   isNumberValue,
-  NumberValue,
   Parser,
   type Path,
   type RawValue,
-  Unknown,
   validate,
   type ValidationCallback,
   type ValidationContext,
   type ValidationError,
   type Value,
 } from "./validator.ts";
+export { Identifier, NumberValue, Unknown } from "./value.ts";

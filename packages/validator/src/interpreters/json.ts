@@ -1,10 +1,5 @@
-import {
-  Identifier,
-  type Interpreter,
-  NumberValue,
-  type RawValue,
-  Unknown,
-} from "../validator.ts";
+import { Identifier, NumberValue, Unknown } from "../value.ts";
+import type { Interpreter, RawValue } from "../validator.ts";
 import type {
   BooleanSchema,
   MapSchema,

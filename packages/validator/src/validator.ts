@@ -9,65 +9,24 @@ import type {
   StringSchema,
   UnionSchema,
 } from "@cosmos/schema";
-
-export class Identifier {
-  #value: string;
-  private constructor(value: string) {
-    this.#value = value;
-  }
-
-  static of(value: string): Result<Identifier, SyntaxError> {
-    if (!value) return Result.error(new SyntaxError("invalid input"));
-
-    return Result.ok(new Identifier(value));
-  }
-
-  get value(): string {
-    return this.#value;
-  }
-}
-
-export class NumberValue {
-  #value: number;
-  private constructor(value: number) {
-    this.#value = value;
-  }
-
-  static of(value: number): Result<NumberValue, SyntaxError> {
-    if (!Number.isFinite(value)) return Result.error(new SyntaxError(""));
-
-    return Result.ok(new NumberValue(value));
-  }
-
-  get value(): number {
-    return this.#value;
-  }
-}
-
-export class Unknown {
-  #value: unknown;
-
-  constructor(value: unknown) {
-    this.#value = value;
-  }
-
-  get value(): unknown {
-    return this.#value;
-  }
-}
+import {
+  type BooleanValue,
+  Identifier,
+  type MapValue,
+  NumberValue,
+  type SequenseValue,
+  type StringValue,
+  Unknown,
+} from "./value.ts";
 
 export type RawValue =
-  | string
+  | StringValue
   | NumberValue
-  | boolean
+  | BooleanValue
   | Identifier
-  | RawValue[]
+  | SequenseValue<RawValue>
   | MapValue<RawValue>
   | Unknown;
-
-interface MapValue<T> {
-  [k: string]: T;
-}
 
 export interface Interpreter<T> {
   interpret(input: T, schema: Schema): RawValue;
@@ -88,19 +47,23 @@ export interface ValidationError {
   path: Path;
 }
 
-export type ErrorReason = "invalid_type" | "required" | "invalid_value";
+export type ErrorReason =
+  | "invalid_type"
+  | "required"
+  | "invalid_value"
+  | "unknown";
 
 type PathSegment = string | number;
 
 export type Path = PathSegment[];
 
 interface ContentValueMap {
-  string: string;
+  string: StringValue;
   number: NumberValue;
-  boolean: boolean;
+  boolean: BooleanValue;
   reference: Identifier;
   map: MapValue<Value>;
-  sequence: Value[];
+  sequence: SequenseValue<Value>;
   union: Value;
 }
 
@@ -117,11 +80,17 @@ export interface ValidationCallback {
   (context: ValidationContext): void;
 }
 
+type WithoutUnknown = Exclude<RawValue, Unknown>;
+
 export function validate(
   input: RawValue,
   schema: Schema,
   onValidated?: ValidationCallback,
 ): Result<Value, ValidationError[]> {
+  if (input instanceof Unknown) {
+    return Result.error([{ reason: "unknown", path: [] }]);
+  }
+
   switch (schema.type) {
     case "string":
       return validateString(input, schema, onValidated);
@@ -150,7 +119,7 @@ function validateString(
   input: RawValue,
   schema: StringSchema,
   onValidated?: ValidationCallback,
-): Result<string, ValidationError[]> {
+): Result<StringValue, ValidationError[]> {
   const path = [] satisfies Path;
 
   if (typeof input !== "string") {
@@ -190,7 +159,7 @@ function validateBoolean(
   input: RawValue,
   schema: BooleanSchema,
   onValidated?: ValidationCallback,
-): Result<boolean, ValidationError[]> {
+): Result<BooleanValue, ValidationError[]> {
   const path = [] satisfies Path;
 
   if (typeof input !== "boolean") {
@@ -203,7 +172,7 @@ function validateBoolean(
 }
 
 function validateMap(
-  input: RawValue,
+  input: WithoutUnknown,
   schema: MapSchema,
   onValidated?: ValidationCallback,
 ): Result<MapValue<Value>, ValidationError[]> {
@@ -211,8 +180,7 @@ function validateMap(
     typeof input !== "object" ||
     Array.isArray(input) ||
     isIdentifier(input) ||
-    isNumberValue(input) ||
-    input instanceof Unknown
+    isNumberValue(input)
   ) {
     return Result.error([{ reason: "invalid_type", path: [] }]);
   }
@@ -263,7 +231,7 @@ function validateSequence(
   input: RawValue,
   schema: SequenceSchema,
   onValidated?: ValidationCallback,
-): Result<Value[], ValidationError[]> {
+): Result<SequenseValue<Value>, ValidationError[]> {
   if (!Array.isArray(input)) {
     return Result.error([{ reason: "invalid_type", path: [] }]);
   }
@@ -347,10 +315,10 @@ function validateUnion(
 }
 
 export type Value =
-  | string
+  | StringValue
   | NumberValue
-  | boolean
-  | Value[]
+  | BooleanValue
+  | SequenseValue<Value>
   | Identifier
   | MapValue<Value>;
 
