@@ -9,36 +9,13 @@ import {
   NumberValue,
   type ReferenceSchema,
   type Schema,
+  type SchemaValue,
   type SequenceSchema,
   type SequenseValue,
   type StringSchema,
   type StringValue,
   type UnionSchema,
 } from "@cosmos/schema";
-import { Unknown } from "./value.ts";
-
-export type RawValue =
-  | StringValue
-  | NumberValue
-  | BooleanValue
-  | Identifier
-  | SequenseValue<RawValue>
-  | MapValue<RawValue>
-  | Unknown;
-
-export interface Interpreter<T> {
-  interpret(input: T, schema: Schema): RawValue;
-}
-
-export class Parser<T> {
-  constructor(private interpreter: Interpreter<T>) {}
-
-  parse(input: T, schema: Schema): Result<Value, ValidationError[]> {
-    const rawValue = this.interpreter.interpret(input, schema);
-
-    return validate(rawValue, schema);
-  }
-}
 
 export interface ValidationError {
   reason: ErrorReason;
@@ -48,8 +25,7 @@ export interface ValidationError {
 export type ErrorReason =
   | "invalid_type"
   | "required"
-  | "invalid_value"
-  | "unknown";
+  | "invalid_value";
 
 type PathSegment = string | number;
 
@@ -60,9 +36,9 @@ interface ContentValueMap {
   number: NumberValue;
   boolean: BooleanValue;
   reference: Identifier;
-  map: MapValue<Value>;
-  sequence: SequenseValue<Value>;
-  union: Value;
+  map: MapValue<SchemaValue>;
+  sequence: SequenseValue<SchemaValue>;
+  union: SchemaValue;
 }
 
 export type ValidationContext = {
@@ -78,17 +54,11 @@ export interface ValidationCallback {
   (context: ValidationContext): void;
 }
 
-type WithoutUnknown = Exclude<RawValue, Unknown>;
-
 export function validate(
-  input: RawValue,
+  input: SchemaValue,
   schema: Schema,
   onValidated?: ValidationCallback,
-): Result<Value, ValidationError[]> {
-  if (input instanceof Unknown) {
-    return Result.error([{ reason: "unknown", path: [] }]);
-  }
-
+): Result<void, ValidationError[]> {
   switch (schema.type) {
     case "string":
       return validateString(input, schema, onValidated);
@@ -114,10 +84,10 @@ export function validate(
 }
 
 function validateString(
-  input: RawValue,
+  input: SchemaValue,
   schema: StringSchema,
   onValidated?: ValidationCallback,
-): Result<StringValue, ValidationError[]> {
+): Result<void, ValidationError[]> {
   const path = [] satisfies Path;
 
   if (typeof input !== "string") {
@@ -126,14 +96,14 @@ function validateString(
 
   onValidated?.({ content: input, type: "string", schema, path });
 
-  return Result.ok(input);
+  return Result.ok(void 0);
 }
 
 function validateNumber(
-  input: RawValue,
+  input: SchemaValue,
   schema: NumberSchema,
   onValidated?: ValidationCallback,
-): Result<NumberValue, ValidationError[]> {
+): Result<void, ValidationError[]> {
   const path = [] satisfies Path;
 
   if (!isNumberValue(input)) {
@@ -142,7 +112,7 @@ function validateNumber(
 
   onValidated?.({ type: "number", content: input, schema, path });
 
-  return Result.ok(input);
+  return Result.ok(void 0);
 }
 
 export function isNumberValue(value: unknown): value is NumberValue {
@@ -154,10 +124,10 @@ export function isIdentifier(value: unknown): value is Identifier {
 }
 
 function validateBoolean(
-  input: RawValue,
+  input: SchemaValue,
   schema: BooleanSchema,
   onValidated?: ValidationCallback,
-): Result<BooleanValue, ValidationError[]> {
+): Result<void, ValidationError[]> {
   const path = [] satisfies Path;
 
   if (typeof input !== "boolean") {
@@ -166,14 +136,14 @@ function validateBoolean(
 
   onValidated?.({ type: "boolean", content: input, schema, path });
 
-  return Result.ok(input);
+  return Result.ok(void 0);
 }
 
 function validateMap(
-  input: WithoutUnknown,
+  input: SchemaValue,
   schema: MapSchema,
   onValidated?: ValidationCallback,
-): Result<MapValue<Value>, ValidationError[]> {
+): Result<void, ValidationError[]> {
   if (
     typeof input !== "object" ||
     Array.isArray(input) ||
@@ -189,7 +159,7 @@ function validateMap(
     return Result.error(errors);
   }
 
-  const map = input as MapValue<Value>;
+  const map = input as MapValue<SchemaValue>;
 
   onValidated?.({
     type: "map",
@@ -198,10 +168,10 @@ function validateMap(
     path: [],
   });
 
-  return Result.ok(map);
+  return Result.ok(void 0);
 }
 function* collectMapSchemaViolations(
-  input: MapValue<RawValue>,
+  input: MapValue<SchemaValue>,
   schema: MapSchema,
   onValidated?: ValidationCallback,
 ): IterableIterator<ValidationError> {
@@ -226,10 +196,10 @@ function* collectMapSchemaViolations(
 }
 
 function validateSequence(
-  input: RawValue,
+  input: SchemaValue,
   schema: SequenceSchema,
   onValidated?: ValidationCallback,
-): Result<SequenseValue<Value>, ValidationError[]> {
+): Result<void, ValidationError[]> {
   if (!Array.isArray(input)) {
     return Result.error([{ reason: "invalid_type", path: [] }]);
   }
@@ -242,20 +212,13 @@ function validateSequence(
     return Result.error(errors);
   }
 
-  const content = input as Value[];
+  onValidated?.({ type: "sequence", content: input, schema, path: [] });
 
-  onValidated?.({
-    type: "sequence",
-    content,
-    schema,
-    path: [],
-  });
-
-  return Result.ok(content);
+  return Result.ok(void 0);
 }
 
 function* collectSequenseSchemaViolations(
-  input: RawValue[],
+  input: SequenseValue<SchemaValue>,
   schema: SequenceSchema,
   onValidated?: ValidationCallback,
 ): IterableIterator<ValidationError> {
@@ -272,53 +235,43 @@ function* collectSequenseSchemaViolations(
 }
 
 function validateReference(
-  input: RawValue,
+  input: SchemaValue,
   schema: ReferenceSchema,
   onValidated?: ValidationCallback,
-): Result<Identifier, ValidationError[]> {
+): Result<void, ValidationError[]> {
   if (!isIdentifier(input)) {
     return Result.error([{ reason: "invalid_type", path: [] }]);
   }
 
   onValidated?.({ type: "reference", content: input, schema, path: [] });
 
-  return Result.ok(input);
+  return Result.ok(void 0);
 }
 
 function validateUnion(
-  input: RawValue,
+  input: SchemaValue,
   schema: UnionSchema,
   onValidated?: ValidationCallback,
-): Result<Value, ValidationError[]> {
+): Result<void, ValidationError[]> {
   for (const member of schema.members) {
     // TODO
     const [_, memberErrors] = validate(input, member, onValidated);
 
-    const content = input as Value;
-
     if (!memberErrors) {
       onValidated?.({
         type: "union",
-        content,
+        content: input,
         schema,
         path: [],
       });
 
-      return Result.ok(content);
+      return Result.ok(void 0);
     }
   }
 
   // TODO
   return Result.error([]);
 }
-
-export type Value =
-  | StringValue
-  | NumberValue
-  | BooleanValue
-  | SequenseValue<Value>
-  | Identifier
-  | MapValue<Value>;
 
 function withPath(
   onValidated: ValidationCallback,
