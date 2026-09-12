@@ -5,7 +5,7 @@ import { type Definition, Fields, useFields } from "@cosmos/schema-field";
 import type { Result } from "@miyauci/util";
 import { Page, resolvePath } from "../router.ts";
 import { Parser, type Value } from "@cosmos/validator";
-import { HtmlIoInterpreter } from "./a.ts";
+import { HtmlIoInterpreter } from "./interpreter.ts";
 
 const parser = new Parser(new HtmlIoInterpreter());
 
