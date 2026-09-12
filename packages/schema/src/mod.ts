@@ -10,3 +10,12 @@ export type {
   UnionSchema,
 } from "./schema.ts";
 export { resolve, type SchemaId, type SchemaNode } from "./node.ts";
+export {
+  type BooleanValue,
+  Identifier,
+  type MapValue,
+  NumberValue,
+  type SchemaValue,
+  type SequenseValue,
+  type StringValue,
+} from "./value.ts";
