@@ -32,22 +32,19 @@ function PageMatcher(props: AdminProps): JSX.Element {
   const { route } = props;
 
   switch (route.type) {
-    case Page.ContentCreation: {
+    case Page.Entry: {
       return views[route.type].component(route.data);
     }
-    case Page.Content: {
+    case Page.EntryCreation: {
       return views[route.type].component(route.data);
     }
-    case Page.Resource: {
+    case Page.EntryList: {
       return views[route.type].component(route.data);
     }
     case Page.NotFound: {
       return views[route.type].component();
     }
     case Page.Home: {
-      return views[route.type].component();
-    }
-    case Page.Assets: {
       return views[route.type].component();
     }
   }

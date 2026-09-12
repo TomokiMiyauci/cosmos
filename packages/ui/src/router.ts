@@ -50,6 +50,7 @@ export class Router {
             router: this.#router,
             queries: this.queries,
             services: this.services,
+            url,
           });
 
           if (!data) {
@@ -111,18 +112,16 @@ export const resolvePath = createResolve(routes);
 export { Page };
 
 export type RouteResult = {
-  type: Page.ContentCreation;
+  type: Page.EntryCreation;
   data: ContentCreatePageProps;
 } | {
-  type: Page.Content;
+  type: Page.Entry;
   data: EntryPageProps;
 } | {
-  type: Page.Resource;
+  type: Page.EntryList;
   data: EntriesPageProps;
 } | {
   type: Page.NotFound;
 } | {
   type: Page.Home;
-} | {
-  type: Page.Assets;
 };

@@ -10,7 +10,6 @@ import ContentCreationPage, {
 } from "./content_creation.tsx";
 import { Page } from "./symbol.ts";
 import type { Router } from "../type.ts";
-import AssetsPage, { type AssetsPageProps } from "./assets.tsx";
 import type { Queries } from "../application/query.ts";
 import type { EntryService, Services } from "../application/service.ts";
 import { Result } from "@miyauci/util";
@@ -22,12 +21,12 @@ export const views = {
   [Page.Home]: {
     component: HomePage,
   },
-  [Page.Resource]: {
+  [Page.EntryList]: {
     component: ResourcePage,
     async getStaticProps(
-      { params, queries }: Params,
+      { queries, url }: Params,
     ): Promise<EntriesPageProps | null> {
-      const modelId = params.id;
+      const modelId = url.searchParams.get("model");
 
       if (!modelId) return null;
 
@@ -36,7 +35,7 @@ export const views = {
       return { modelId, summaries };
     },
   },
-  [Page.Content]: {
+  [Page.Entry]: {
     async getStaticProps(params: Params): Promise<EntryPageProps | null> {
       const id = params.params.id;
 
@@ -66,11 +65,13 @@ export const views = {
     },
     component: ContentPage,
   },
-  [Page.ContentCreation]: {
+  [Page.EntryCreation]: {
     async getStaticProps(
       params: Params,
     ): Promise<ContentCreatePageProps | null> {
-      const modelId = params.params.id;
+      const { url } = params;
+
+      const modelId = url.searchParams.get("model");
 
       if (!modelId) return null;
 
@@ -84,12 +85,6 @@ export const views = {
     },
     component: ContentCreationPage,
   },
-  [Page.Assets]: {
-    getStaticProps(parapms: Params): AssetsPageProps {
-      return {};
-    },
-    component: AssetsPage,
-  },
 };
 
 interface Params {
@@ -97,6 +92,7 @@ interface Params {
   router: Router;
   queries: Queries;
   services: Services;
+  url: URL;
 }
 
 class EntryContentService implements ContentService {

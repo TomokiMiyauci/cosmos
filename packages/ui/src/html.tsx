@@ -2,6 +2,7 @@ import { type JSX, type ReactNode, Suspense, use } from "react";
 import { Page, resolvePath, type RouteResult } from "./router.ts";
 import type { Model, Queries } from "./application/query.ts";
 import { useMessenger } from "./context/messenger.ts";
+import { resolveEntryListByModel } from "./pages/route.ts";
 
 export interface HtmlProps {
   route: RouteResult;
@@ -33,9 +34,11 @@ export default function Html(props: HtmlProps): JSX.Element {
 
         <aside>
           <h2>
-            <a href={resolvePath(Page.Assets)}>
+            {
+              /* <a href={resolvePath(Page.Assets)}>
               {messenger.message({ type: "page-title", page: "Home" })}
-            </a>
+            </a> */
+            }
           </h2>
         </aside>
 
@@ -63,7 +66,7 @@ function Aside(
         {identifies.map(({ id, title }) => {
           return (
             <li key={id}>
-              <a href={resolvePath(Page.Resource, { id })}>{title}</a>
+              <a href={resolveEntryListByModel(id)}>{title}</a>
             </li>
           );
         })}

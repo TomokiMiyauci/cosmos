@@ -52,7 +52,7 @@ export default function ContentCreationPage(
     if (errors) {
       fields.setErrors(errors);
     } else {
-      location.href = resolvePath(Page.Content, { id });
+      location.href = resolvePath(Page.Entry, { id });
     }
   }
 
