@@ -1,11 +1,11 @@
+import { type Interpreter, type RawValue, Unknown } from "@cosmos/validator";
 import {
   Identifier,
-  type Interpreter,
+  type MapSchema,
   NumberValue,
-  type RawValue,
-  Unknown,
-} from "@cosmos/validator";
-import type { MapSchema, Schema, SequenceSchema } from "@cosmos/schema";
+  type Schema,
+  type SequenceSchema,
+} from "@cosmos/schema";
 import { Result } from "@miyauci/util";
 
 export type Input = string | Input[] | { [k: string]: Input };

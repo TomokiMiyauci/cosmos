@@ -3,6 +3,7 @@ import { os } from "../contract.ts";
 // import z from "zod";
 import location from "../middleware/location.ts";
 import type {
+  Contents,
   EntryInput,
   EntryResponse,
   EntrySummaryResponse,
@@ -10,6 +11,16 @@ import type {
 } from "../../../generated/types.gen.ts";
 import type { EntryView } from "../../application/query.ts";
 import type { ContentViolation, Violation } from "@cosmos/content";
+import { Result } from "@miyauci/util";
+import {
+  Identifier,
+  type MapValue,
+  NumberValue,
+  type SchemaValue,
+  type SequenseValue,
+} from "@cosmos/schema";
+import { isIdentifier, isNumberValue } from "@cosmos/validator";
+import { mapValues } from "@std/collections/map-values";
 
 // const e = onError((error) => {
 //   if (
@@ -43,9 +54,23 @@ export const postEntry = os.postEntry.handler(async (options) => {
   const { body } = input;
   const { model, contents } = body as EntryInput;
 
+  const [node, contentError] = node2SchemaValue(contents);
+
+  if (contentError) {
+    throw errors.BAD_REQUEST({
+      data: {
+        status: 400,
+        detail: "",
+        instance: "/",
+        type: "about:blank",
+        title: "",
+      },
+    });
+  }
+
   const [id, error] = await context.usecases.entry.register.execute({
     model,
-    contents,
+    contents: node,
   });
 
   if (error) {
@@ -188,7 +213,7 @@ function toEntryResponse(view: EntryView): EntryResponse {
     model: {
       id: view.modelId,
     },
-    contents: view.content,
+    contents: schemaValue2Node(view.content),
   };
 }
 
@@ -197,10 +222,23 @@ export const putEntry = os.putEntry.handler(async (options) => {
   const { params, body } = input;
   const { contents, model } = body as EntryInput;
   const { id } = params;
+  const [node, contentError] = node2SchemaValue(contents);
+
+  if (contentError) {
+    throw errors.BAD_REQUEST({
+      data: {
+        status: 400,
+        detail: "",
+        instance: "/",
+        type: "about:blank",
+        title: "",
+      },
+    });
+  }
 
   const [_, error] = await context.usecases.entry.register.execute({
     id,
-    contents,
+    contents: node,
     model,
   });
 
@@ -264,5 +302,74 @@ function toSummaryResponse(view: EntryView): EntrySummaryResponse {
   return {
     id: view.id,
     model: { id: view.modelId },
+  };
+}
+
+function node2SchemaValue(node: Contents): Result<SchemaValue, Error> {
+  switch (node.type) {
+    case "string": {
+      return Result.ok(node.value);
+    }
+    case "number": {
+      return NumberValue.of(node.value);
+    }
+    case "boolean": {
+      return Result.ok(node.value);
+    }
+    case "id": {
+      return Identifier.of(node.value);
+    }
+    case "map": {
+      const map: MapValue<SchemaValue> = {};
+
+      for (const [key, value] of Object.entries(node.value)) {
+        const [child, error] = node2SchemaValue(value);
+
+        if (error) return Result.error(error);
+
+        map[key] = child;
+      }
+
+      return Result.ok(map);
+    }
+    case "sequense": {
+      const set: SequenseValue<SchemaValue> = [];
+      for (const value of node.value) {
+        const [child, error] = node2SchemaValue(value);
+
+        if (error) return Result.error(error);
+
+        set.push(child);
+      }
+
+      return Result.ok(set);
+    }
+  }
+}
+
+function schemaValue2Node(value: SchemaValue): Contents {
+  if (typeof value === "string") {
+    return { type: "string", value };
+  }
+
+  if (isNumberValue(value)) {
+    return { type: "number", value: value.value };
+  }
+
+  if (typeof value === "boolean") {
+    return { type: "boolean", value };
+  }
+
+  if (isIdentifier(value)) {
+    return { type: "id", value: value.value };
+  }
+
+  if (Array.isArray(value)) {
+    return { type: "sequense", value: value.map(schemaValue2Node) };
+  }
+
+  return {
+    type: "map",
+    value: mapValues(value, schemaValue2Node),
   };
 }

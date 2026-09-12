@@ -3,6 +3,15 @@ import type {
   EntryQuery,
   EntryView as ServerEntryView,
 } from "@cosmos/content-openapi/server";
+import {
+  Identifier,
+  type MapValue,
+  NumberValue,
+  type SchemaValue,
+  type SequenseValue,
+} from "@cosmos/schema";
+import { isIdentifier, isNumberValue } from "@cosmos/validator";
+import { Result } from "@miyauci/util";
 import { mapValues } from "@std/collections/map-values";
 
 export class StoreEntryRepository implements Entry.Repositry {
@@ -24,9 +33,11 @@ export class StoreEntryRepository implements Entry.Repositry {
   }
 
   #toView(entry: Entry): EntryView {
-    const content = to(entry.content);
-
-    return { id: entry.id.value, modelId: entry.modelId.value, content };
+    return {
+      id: entry.id.value,
+      modelId: entry.modelId.value,
+      content: entry.content,
+    };
   }
 
   #fromView(view: EntryView): Entry {
@@ -37,27 +48,8 @@ export class StoreEntryRepository implements Entry.Repositry {
 
     if (modelIdError) throw new Error();
 
-    const content = Entry.Content.of(view.content);
-
-    return Entry.of(entryId, modelId, content);
+    return Entry.of(entryId, modelId, view.content);
   }
-}
-
-function to(
-  content: Entry.Content,
-): EntryViewContent {
-  if (Array.isArray(content)) {
-    return content.map(to);
-  }
-
-  if (typeof content === "string") return content;
-  if (typeof content === "boolean") return content;
-
-  if (content instanceof Entry.Content.FiniteNumber) {
-    return content.value;
-  }
-
-  return mapValues(content, to);
 }
 
 export interface Store {
@@ -69,17 +61,8 @@ export interface Store {
 interface EntryView {
   id: string;
   modelId: string;
-  content: EntryViewContent;
+  content: SchemaValue;
 }
-
-export type EntryViewContent =
-  | string
-  | number
-  | boolean
-  | EntryViewContent[]
-  | {
-    [k: string]: EntryViewContent;
-  };
 
 export class DenoStore implements Store {
   constructor(private locator: Locator) {}
@@ -89,7 +72,9 @@ export class DenoStore implements Store {
     try {
       const text = await Deno.readTextFile(url);
 
-      return this.#parse(text);
+      const parsed = parseText(text);
+
+      return parsed;
     } catch (e) {
       if (e instanceof Deno.errors.NotFound) {
         return null;
@@ -101,7 +86,7 @@ export class DenoStore implements Store {
 
   async set(id: string, view: EntryView): Promise<void> {
     const url = this.locator.resolve(id);
-    const text = this.#stringify(view);
+    const text = stringify(view);
 
     await Deno.writeTextFile(url, text);
   }
@@ -111,15 +96,140 @@ export class DenoStore implements Store {
 
     await Deno.remove(url);
   }
+}
 
-  #parse(text: string): EntryView {
-    return JSON.parse(text);
-  }
+function parseText(value: string): EntryView {
+  const json = JSON.parse(value);
 
-  #stringify(view: EntryView): string {
-    return JSON.stringify(view);
+  const [content, error] = node2SchemaValue(json.content);
+
+  if (error) throw new Error("invalid content");
+
+  return {
+    id: json.id,
+    modelId: json.modelId,
+    content,
+  };
+}
+
+function stringify(view: EntryView): string {
+  const json = {
+    id: view.id,
+    modelId: view.modelId,
+    content: schemaValue2Node(view.content),
+  };
+
+  return JSON.stringify(json);
+}
+
+function node2SchemaValue(node: SchemaNode): Result<SchemaValue, Error> {
+  switch (node.type) {
+    case "string": {
+      return Result.ok(node.value);
+    }
+    case "number": {
+      return NumberValue.of(node.value);
+    }
+    case "boolean": {
+      return Result.ok(node.value);
+    }
+    case "id": {
+      return Identifier.of(node.value);
+    }
+    case "map": {
+      const map: MapValue<SchemaValue> = {};
+
+      for (const [key, value] of Object.entries(node.value)) {
+        const [child, error] = node2SchemaValue(value);
+
+        if (error) return Result.error(error);
+
+        map[key] = child;
+      }
+
+      return Result.ok(map);
+    }
+    case "sequense": {
+      const set: SequenseValue<SchemaValue> = [];
+      for (const value of node.value) {
+        const [child, error] = node2SchemaValue(value);
+
+        if (error) return Result.error(error);
+
+        set.push(child);
+      }
+
+      return Result.ok(set);
+    }
   }
 }
+
+function schemaValue2Node(value: SchemaValue): SchemaNode {
+  if (typeof value === "string") {
+    return { type: "string", value };
+  }
+
+  if (isNumberValue(value)) {
+    return { type: "number", value: value.value };
+  }
+
+  if (typeof value === "boolean") {
+    return { type: "boolean", value };
+  }
+
+  if (isIdentifier(value)) {
+    return { type: "id", value: value.value };
+  }
+
+  if (Array.isArray(value)) {
+    return { type: "sequense", value: value.map(schemaValue2Node) };
+  }
+
+  return {
+    type: "map",
+    value: mapValues(value, schemaValue2Node),
+  };
+}
+
+export type SchemaNode =
+  | StringNode
+  | NumberNode
+  | BooleanNode
+  | IdentifierNode
+  | MapNode
+  | SequenseNode;
+
+export type StringNode = {
+  type: "string";
+  value: string;
+};
+
+export type NumberNode = {
+  type: "number";
+  value: number;
+};
+
+export type BooleanNode = {
+  type: "boolean";
+  value: boolean;
+};
+
+export type IdentifierNode = {
+  type: "id";
+  value: string;
+};
+
+export type MapNode = {
+  type: "map";
+  value: {
+    [key: string]: SchemaNode;
+  };
+};
+
+export type SequenseNode = {
+  type: "sequense";
+  value: Array<SchemaNode>;
+};
 
 export class ReaderEntryQuery implements EntryQuery {
   constructor(private reader: Reader) {}
@@ -159,12 +269,12 @@ export class DenoReader implements Reader {
     try {
       const result = await Deno.readTextFile(url);
 
-      const parsed = this.#parse(result);
+      const parsed = parseText(result);
 
       return {
-        id,
-        modelId: parsed.model,
-        content: parsed.contents,
+        id: parsed.id,
+        modelId: parsed.modelId,
+        content: parsed.content,
       };
     } catch (e) {
       if (e instanceof Deno.errors.NotFound) {
@@ -192,25 +302,12 @@ export class DenoReader implements Reader {
     const texts = await Promise.all(urls.map(async (url) => {
       const text = await Deno.readTextFile(url.url);
 
-      const { model, contents } = this.#parse(text);
+      const { id, modelId, content } = parseText(text);
 
-      return {
-        id: url.id,
-        modelId: model,
-        content: contents,
-      };
+      return { id, modelId, content };
     }));
 
     return texts;
-  }
-
-  #parse(value: string): { model: string; contents: any } {
-    const result = JSON.parse(value);
-
-    return {
-      model: result.modelId,
-      contents: result.content,
-    };
   }
 }
 

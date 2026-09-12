@@ -12,4 +12,4 @@ export {
   type ValidationError,
   type Value,
 } from "./validator.ts";
-export { Identifier, NumberValue, Unknown } from "./value.ts";
+export { Unknown } from "./value.ts";

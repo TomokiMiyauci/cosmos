@@ -124,21 +124,39 @@ export type EntryResponse = EntrySummaryResponse & {
     contents: Contents;
 };
 
-export type Contents = StringContents | NumberContents | BooleanContents | MapContents | ListContents;
+export type Contents = StringNode | NumberNode | BooleanNode | IdentifierNode | MapNode | SequenseNode;
 
-export type StringContents = string;
-
-export type NumberContents = number;
-
-export type BooleanContents = boolean;
-
-export type DatetimeContents = string;
-
-export type MapContents = {
-    [key: string]: Contents;
+export type StringNode = {
+    type: 'string';
+    value: string;
 };
 
-export type ListContents = Array<Contents>;
+export type NumberNode = {
+    type: 'number';
+    value: number;
+};
+
+export type BooleanNode = {
+    type: 'boolean';
+    value: boolean;
+};
+
+export type IdentifierNode = {
+    type: 'id';
+    value: string;
+};
+
+export type MapNode = {
+    type: 'map';
+    value: {
+        [key: string]: Contents;
+    };
+};
+
+export type SequenseNode = {
+    type: 'sequense';
+    value: Array<Contents>;
+};
 
 export type GetSummariesData = {
     body?: never;

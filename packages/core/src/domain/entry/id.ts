@@ -1,5 +1,5 @@
 import { Result } from "@miyauci/util";
-import type { Identifier } from "@cosmos/validator";
+import type { Identifier } from "@cosmos/schema";
 
 export class EntryId {
   private constructor(value: string) {

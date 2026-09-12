@@ -1,23 +1,21 @@
 import { Result } from "@miyauci/util";
-import type {
-  BooleanSchema,
-  MapSchema,
-  NumberSchema,
-  ReferenceSchema,
-  Schema,
-  SequenceSchema,
-  StringSchema,
-  UnionSchema,
-} from "@cosmos/schema";
 import {
+  type BooleanSchema,
   type BooleanValue,
   Identifier,
+  type MapSchema,
   type MapValue,
+  type NumberSchema,
   NumberValue,
+  type ReferenceSchema,
+  type Schema,
+  type SequenceSchema,
   type SequenseValue,
+  type StringSchema,
   type StringValue,
-  Unknown,
-} from "./value.ts";
+  type UnionSchema,
+} from "@cosmos/schema";
+import { Unknown } from "./value.ts";
 
 export type RawValue =
   | StringValue

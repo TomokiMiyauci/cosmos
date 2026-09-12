@@ -1,14 +1,16 @@
-import { Identifier, NumberValue, Unknown } from "../value.ts";
+import { Unknown } from "../value.ts";
 import type { Interpreter, RawValue } from "../validator.ts";
-import type {
-  BooleanSchema,
-  MapSchema,
-  NumberSchema,
-  ReferenceSchema,
-  Schema,
-  SequenceSchema,
-  StringSchema,
-  UnionSchema,
+import {
+  type BooleanSchema,
+  Identifier,
+  type MapSchema,
+  type NumberSchema,
+  NumberValue,
+  type ReferenceSchema,
+  type Schema,
+  type SequenceSchema,
+  type StringSchema,
+  type UnionSchema,
 } from "@cosmos/schema";
 
 export type Json = string | number | boolean | Json[] | { [k: string]: Json };

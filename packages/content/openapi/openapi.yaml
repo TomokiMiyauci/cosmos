@@ -449,29 +449,77 @@ components:
 
     Contents:
       oneOf:
-        - $ref: "#/components/schemas/StringContents"
-        - $ref: "#/components/schemas/NumberContents"
-        - $ref: "#/components/schemas/BooleanContents"
-        - $ref: "#/components/schemas/MapContents"
-        - $ref: "#/components/schemas/ListContents"
+        - $ref: "#/components/schemas/StringNode"
+        - $ref: "#/components/schemas/NumberNode"
+        - $ref: "#/components/schemas/BooleanNode"
+        - $ref: "#/components/schemas/IdentifierNode"
+        - $ref: "#/components/schemas/MapNode"
+        - $ref: "#/components/schemas/SequenseNode"
 
-    StringContents:
-      type: string
-    NumberContents:
-      type: number
-    BooleanContents:
-      type: boolean
-    DatetimeContents:
-      type: string
-    MapContents:
+    StringNode:
       type: object
-      additionalProperties:
-        $ref: "#/components/schemas/Contents"
-    ListContents:
-      type: array
-      items:
-        $ref: "#/components/schemas/Contents"
-
+      properties:
+        type:
+          enum: ["string"]
+        value:
+          type: string
+      required:
+        - type
+        - value
+    NumberNode:
+      type: object
+      properties:
+        type:
+          enum: ["number"]
+        value:
+          type: number
+      required:
+        - type
+        - value
+    BooleanNode:
+      type: object
+      properties:
+        type:
+          enum: ["boolean"]
+        value:
+          type: boolean
+      required:
+        - type
+        - value
+    IdentifierNode:
+      type: object
+      properties:
+        type:
+          enum: ["id"]
+        value:
+          type: string
+      required:
+        - type
+        - value
+    MapNode:
+      type: object
+      properties:
+        type:
+          enum: ["map"]
+        value:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Contents"
+      required:
+        - type
+        - value
+    SequenseNode:
+      type: object
+      properties:
+        type:
+          enum: ["sequense"]
+        value:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contents"
+      required:
+        - type
+        - value
   responses:
     ErrorResponse:
       description: Error

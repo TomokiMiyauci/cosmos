@@ -1,4 +1,5 @@
 import type { Definition } from "@cosmos/schema-field";
+import type { SchemaValue } from "@cosmos/schema";
 
 export interface Queries {
   definition: DefinitionQuery;
@@ -17,7 +18,7 @@ export interface EntryQuery {
 
 export interface Entry {
   modelId: string;
-  content: any;
+  content: SchemaValue;
 }
 
 export interface EntrySummary {

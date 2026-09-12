@@ -95,13 +95,25 @@ export const zSchemaResponse = z.union([
     zUnionSchemaResponse
 ]);
 
-export const zStringContents = z.string();
+export const zStringNode = z.object({
+    type: z.enum(['string']),
+    value: z.string()
+});
 
-export const zNumberContents = z.number();
+export const zNumberNode = z.object({
+    type: z.enum(['number']),
+    value: z.number()
+});
 
-export const zBooleanContents = z.boolean();
+export const zBooleanNode = z.object({
+    type: z.enum(['boolean']),
+    value: z.boolean()
+});
 
-export const zDatetimeContents = z.string();
+export const zIdentifierNode = z.object({
+    type: z.enum(['id']),
+    value: z.string()
+});
 
 export const zEntryInput = z.object({
     model: z.string().min(1),
@@ -113,16 +125,23 @@ export const zEntryResponse = zEntrySummaryResponse.and(z.lazy(() => z.object({
 })));
 
 export const zContents = z.union([
-    zStringContents,
-    zNumberContents,
-    zBooleanContents,
-    z.lazy((): any => zMapContents),
-    z.lazy((): any => zListContents)
+    zStringNode,
+    zNumberNode,
+    zBooleanNode,
+    zIdentifierNode,
+    z.lazy((): any => zMapNode),
+    z.lazy((): any => zSequenseNode)
 ]);
 
-export const zMapContents = z.record(z.string(), zContents);
+export const zMapNode = z.object({
+    type: z.enum(['map']),
+    value: z.record(z.string(), zContents)
+});
 
-export const zListContents = z.array(zContents);
+export const zSequenseNode = z.object({
+    type: z.enum(['sequense']),
+    value: z.array(zContents)
+});
 
 export const zGetSummariesQuery = z.object({
     model: z.string().optional()

@@ -5,20 +5,16 @@ import {
   validate,
   type ValidationError,
 } from "@cosmos/validator";
-import { JsonInterpreter } from "@cosmos/validator/json";
+import type { SchemaValue } from "@cosmos/schema";
 
 export interface CreateCommand {
   model: string;
-  contents: InputContent;
+  contents: SchemaValue;
 }
 
 export interface UpdateCommand extends CreateCommand {
   id: string;
 }
-
-export type InputContent = string | number | boolean | InputContent[] | {
-  [k: string]: InputContent;
-};
 
 export type CreationError =
   | InvalidIdError
@@ -63,7 +59,6 @@ export type ContentViolation =
   | "UNKNOWN";
 
 export class EntryRegisterUseCase {
-  #interpreter = new JsonInterpreter();
   constructor(
     private entryRepo: Entry.Repositry,
     private modelRepo: Model.Repositry,
@@ -103,13 +98,8 @@ export class EntryRegisterUseCase {
 
     const references: IdPath[] = [];
 
-    const value = this.#interpreter.interpret(
-      command.contents,
-      schema.definition,
-    );
-
     const [_, errors] = validate(
-      value,
+      command.contents,
       schema.definition,
       (context) => {
         if (context.type === "reference") {
@@ -133,9 +123,7 @@ export class EntryRegisterUseCase {
       return Result.error({ type: "INVALID_CONTENT", violations: allErrors });
     }
 
-    const content = Entry.Content.of(command.contents);
-
-    const entry = Entry.of(id, modelId, content);
+    const entry = Entry.of(id, modelId, command.contents);
 
     await this.entryRepo.save(entry);
 
