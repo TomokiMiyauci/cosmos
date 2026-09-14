@@ -1,17 +1,31 @@
-import { type Interpreter, type RawValue, Unknown } from "@cosmos/validator";
 import {
   Identifier,
   type MapSchema,
   NumberValue,
   type Schema,
+  type SchemaValue,
   type SequenceSchema,
+  type SequenseValue,
 } from "@cosmos/schema";
 import { Result } from "@miyauci/util";
 
 export type Input = string | Input[] | { [k: string]: Input };
 
-export class HtmlIoInterpreter implements Interpreter<Input> {
-  interpret(input: Input, schema: Schema): RawValue {
+type ParsedResult = SchemaValue | Unknown;
+
+export class Unknown {
+  #value: unknown;
+  constructor(value: unknown) {
+    this.#value = value;
+  }
+
+  get value(): unknown {
+    return this.#value;
+  }
+}
+
+export class HtmlIoInterpreter {
+  interpret(input: Input, schema: Schema): ParsedResult {
     switch (schema.type) {
       case "string": {
         if (typeof input !== "string") return new Unknown(input);
@@ -42,7 +56,7 @@ export class HtmlIoInterpreter implements Interpreter<Input> {
     }
   }
 
-  private interpretNumber(input: Input): RawValue {
+  private interpretNumber(input: Input): ParsedResult {
     if (typeof input !== "string") return new Unknown(input);
 
     const [num, numError] = parseNumber(input);
@@ -56,7 +70,7 @@ export class HtmlIoInterpreter implements Interpreter<Input> {
     return value;
   }
 
-  private interpretReference(input: Input): RawValue {
+  private interpretReference(input: Input): ParsedResult {
     if (typeof input !== "string") return new Unknown(input);
 
     const [data, error] = Identifier.of(input);
@@ -66,15 +80,28 @@ export class HtmlIoInterpreter implements Interpreter<Input> {
     return data;
   }
 
-  private interpretSequense(input: Input, schema: SequenceSchema): RawValue {
+  private interpretSequense(
+    input: Input,
+    schema: SequenceSchema,
+  ): ParsedResult {
     if (!Array.isArray(input)) return new Unknown(input);
 
-    return input.map((child) => this.interpret(child, schema.item));
+    const items: SequenseValue<SchemaValue> = [];
+
+    for (const item of input) {
+      const result = this.interpret(item, schema.item);
+
+      if (result instanceof Unknown) return new Unknown(input);
+
+      items.push(result);
+    }
+
+    return items;
   }
 
-  private interpretMap(input: Input, schema: MapSchema): RawValue {
+  private interpretMap(input: Input, schema: MapSchema): ParsedResult {
     if (typeof input === "object" && !Array.isArray(input)) {
-      const value: Record<string, RawValue> = {};
+      const value: Record<string, SchemaValue> = {};
 
       for (const [key, childSchema] of Object.entries(schema.properties)) {
         const childValue = input[key];
@@ -82,6 +109,8 @@ export class HtmlIoInterpreter implements Interpreter<Input> {
         if (childValue === undefined) continue;
 
         const result = this.interpret(childValue, childSchema);
+
+        if (result instanceof Unknown) return new Unknown(input);
 
         value[key] = result;
       }

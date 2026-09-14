@@ -1,5 +1,6 @@
-import { type JSX, useId, useState } from "react";
+import { type JSX, useId, useMemo, useState } from "react";
 import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
+import type { SchemaValue } from "@cosmos/schema";
 import type { Definition, NativeFormValue, Primitive } from "./type.ts";
 import StringField from "./fields/string.tsx";
 import NumberField from "./fields/number.tsx";
@@ -9,22 +10,41 @@ import UnionField from "./fields/union.tsx";
 import SequenseField from "./fields/sequence.tsx";
 import ReferenceField from "./fields/reference.tsx";
 import type { FieldLayoutProps, FieldProps } from "./fields/type.ts";
+import { cosmosResolver } from "./resolver.ts";
+import { isIdentifier, isNumberValue } from "@cosmos/validator";
+import { mapValues } from "@std/collections/map-values";
 
 export interface UseFieldsReturn {
-  getValues(): Value | null;
   setErrors(error: FieldError[]): void;
-  form: UseFormReturn<FormValues, unknown, FormValues>;
+  finalize(): Promise<SchemaValue | null>;
+  render(): JSX.Element;
 }
 
 export type Path = (string | number)[];
 
-export function useFields(init?: Value): UseFieldsReturn {
-  const values = init ? { content: init } : undefined;
-  const form = useForm<FormValues>({ values });
+export function useFields(
+  schema: Definition,
+  init?: SchemaValue,
+): UseFieldsReturn {
+  const values = useMemo(() => {
+    if (!init) return undefined;
+
+    const value = toFormValues(init);
+
+    return value;
+  }, [init]);
+  const form = useForm<FormValues, unknown, SchemaValue>({
+    values,
+    resolver: cosmosResolver(schema),
+  });
 
   return {
-    getValues(): Value | null {
-      return normalize(form.getValues());
+    finalize(): Promise<SchemaValue | null> {
+      const result = form.handleSubmit((data) => {
+        return data;
+      });
+
+      return result().then((result) => result ?? null);
     },
 
     setErrors(errors: FieldError[]): void {
@@ -37,8 +57,30 @@ export function useFields(init?: Value): UseFieldsReturn {
       }
     },
 
-    form,
+    render(): JSX.Element {
+      return <Fields definition={schema} controller={form} />;
+    },
   };
+}
+
+function toFormValues(value: SchemaValue): FormValues {
+  return {
+    content: toNativeFormValue(value),
+  };
+}
+
+function toNativeFormValue(value: SchemaValue): NativeFormValue {
+  if (typeof value === "string") return value;
+
+  if (isNumberValue(value)) return value.value.toString();
+
+  if (typeof value === "boolean") return value.toString();
+
+  if (isIdentifier(value)) return value.value;
+
+  if (Array.isArray(value)) return value.map(toNativeFormValue);
+
+  return mapValues(value, toNativeFormValue);
 }
 
 function path2Name(path: Path): string {
@@ -50,38 +92,8 @@ export interface FieldError {
   message: string;
 }
 
-function normalize(value: FormValues): Value | null {
-  const { content } = value;
-
-  if (content === undefined) return null;
-
-  return normalizeNativeFormValue(content);
-}
-
-function normalizeNativeFormValue(value: NativeFormValue): Value | null {
-  if (value === null) return null;
-
-  if (Array.isArray(value)) {
-    return value.map(normalizeNativeFormValue).filter(isNonNullable);
-  } else if (typeof value === "object") {
-    const result: Record<string, Value> = {};
-
-    for (const [key, val] of Object.entries(value)) {
-      if (val !== undefined) {
-        const value = normalizeNativeFormValue(val);
-
-        if (value !== null) result[key] = value;
-      }
-    }
-
-    return result;
-  } else {
-    return value;
-  }
-}
-
 export interface FieldsProps {
-  form: UseFormReturn<FormValues, unknown, FormValues>;
+  controller: UseFormReturn<FormValues, unknown, SchemaValue>;
   definition: Definition;
 }
 
@@ -95,7 +107,7 @@ export type Value = Value[] | Primitive | {
 
 export function Fields(props: FieldsProps): JSX.Element {
   return (
-    <FormProvider {...props.form}>
+    <FormProvider {...props.controller}>
       <_Field
         definition={props.definition}
         name="content"
@@ -210,8 +222,4 @@ function _Field(props: _FieldProps): JSX.Element {
       return <ReferenceField {...fieldProps} />;
     }
   }
-}
-
-function isNonNullable<T>(value: T): value is NonNullable<T> {
-  return !!value;
 }
