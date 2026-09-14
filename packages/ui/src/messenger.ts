@@ -2,7 +2,14 @@ export interface Messenger {
   message(subject: Subject): string;
 }
 
-export type Subject = SaveSubject | PageTitleSubject;
+export type Subject = SaveSubject | ActionSubject | PageTitleSubject;
+
+interface ActionSubject {
+  type: "action";
+  action: Action;
+}
+
+type Action = "create";
 
 export interface SaveSubject {
   type: "save";
@@ -32,6 +39,13 @@ export class EnMessenger implements Messenger {
           case "Entry": {
             return "Entry";
           }
+        }
+        break;
+      }
+      case "action": {
+        switch (subject.action) {
+          case "create":
+            return "Create";
         }
       }
     }

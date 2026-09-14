@@ -5,10 +5,12 @@ import { type Definition, useFields } from "@cosmos/schema-field";
 import type { Result } from "@miyauci/util";
 import { Page, resolvePath } from "../router.ts";
 import type { SchemaValue } from "@cosmos/schema";
+import type { Messenger } from "../messenger.ts";
 
 export interface ContentCreatePageProps {
   definition: Definition;
   service: ContentService;
+  messenger: Messenger;
 }
 
 export type Content = SchemaValue;
@@ -25,7 +27,7 @@ export interface ValidationError {
 export default function ContentCreationPage(
   props: ContentCreatePageProps,
 ): JSX.Element {
-  const { definition, service } = props;
+  const { definition, service, messenger } = props;
 
   const fields = useFields(definition);
 
@@ -48,7 +50,10 @@ export default function ContentCreationPage(
     <div>
       <form onSubmit={handleSubmit}>
         {fields.render()}
-        <button type="submit">Create</button>
+
+        <button type="submit">
+          {messenger.message({ type: "action", action: "create" })}
+        </button>
       </form>
     </div>
   );

@@ -13,6 +13,7 @@ import type { Router } from "../type.ts";
 import type { Queries } from "../application/query.ts";
 import type { EntryService, Services } from "../application/service.ts";
 import { Result } from "@miyauci/util";
+import type { Messenger } from "../messenger.ts";
 
 export const views = {
   [Page.NotFound]: {
@@ -81,7 +82,7 @@ export const views = {
 
       const service = new EntryContentService(modelId, params.services.entry);
 
-      return { definition, service };
+      return { definition, service, messenger: params.messenger };
     },
     component: ContentCreationPage,
   },
@@ -93,6 +94,7 @@ interface Params {
   queries: Queries;
   services: Services;
   url: URL;
+  messenger: Messenger;
 }
 
 class EntryContentService implements ContentService {
