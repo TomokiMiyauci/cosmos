@@ -55,8 +55,7 @@ export type ContentViolation =
   | "INVALID_TYPE"
   | "REQUIRED"
   | "REFERENCE_NOT_FOUND"
-  | "INVALID_VALUE"
-  | "UNKNOWN";
+  | "INVALID_VALUE";
 
 export class EntryRegisterUseCase {
   constructor(
@@ -148,8 +147,6 @@ function reason2Kind(reason: ErrorReason): ContentViolation {
       return "REQUIRED";
     case "invalid_value":
       return "INVALID_VALUE";
-    case "unknown":
-      return "UNKNOWN";
   }
 }
 
