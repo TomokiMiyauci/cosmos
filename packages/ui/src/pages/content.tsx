@@ -2,12 +2,8 @@
 
 import type { JSX, SubmitEvent } from "react";
 import type { Result } from "@miyauci/util";
-import {
-  type Definition,
-  Fields,
-  useFields,
-  type Value,
-} from "@cosmos/schema-field";
+import { type Definition, useFields } from "@cosmos/schema-field";
+import type { SchemaValue } from "@cosmos/schema";
 
 export interface EntryPageProps {
   definition: Definition;
@@ -20,11 +16,11 @@ export default function EntryPage(
 ): JSX.Element {
   const { definition, service, formData } = props;
 
-  const fields = useFields(formData);
+  const fields = useFields(definition, formData);
 
   async function handleSubmit(e: SubmitEvent): Promise<void> {
     e.preventDefault();
-    const content = fields.getValues();
+    const content = await fields.finalize();
 
     if (!content) return;
 
@@ -38,7 +34,7 @@ export default function EntryPage(
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <Fields definition={definition} form={fields.form} />
+        {fields.render()}
 
         <button type="submit">Update</button>
       </form>
@@ -46,7 +42,7 @@ export default function EntryPage(
   );
 }
 
-export type Content = Value;
+export type Content = SchemaValue;
 
 export interface ContentService {
   save(content: Content): Promise<Result<void, ValidationError[]>>;

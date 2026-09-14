@@ -1,20 +1,17 @@
 "use client";
 
 import type { JSX, SubmitEvent } from "react";
-import { type Definition, Fields, useFields } from "@cosmos/schema-field";
+import { type Definition, useFields } from "@cosmos/schema-field";
 import type { Result } from "@miyauci/util";
 import { Page, resolvePath } from "../router.ts";
-import { Parser, type Value } from "@cosmos/validator";
-import { HtmlIoInterpreter } from "./interpreter.ts";
-
-const parser = new Parser(new HtmlIoInterpreter());
+import type { SchemaValue } from "@cosmos/schema";
 
 export interface ContentCreatePageProps {
   definition: Definition;
   service: ContentService;
 }
 
-export type Content = Value;
+export type Content = SchemaValue;
 
 export interface ContentService {
   create(content: Content): Promise<Result<string, ValidationError[]>>;
@@ -30,22 +27,13 @@ export default function ContentCreationPage(
 ): JSX.Element {
   const { definition, service } = props;
 
-  const fields = useFields();
+  const fields = useFields(definition);
 
   async function handleSubmit(e: SubmitEvent): Promise<void> {
     e.preventDefault();
-    const content = fields.getValues();
+    const data = await fields.finalize();
 
-    if (!content) return;
-
-    const [data, error] = parser.parse(content, definition);
-
-    if (error) {
-      const errors = error.map((e) => ({ message: e.reason, path: e.path }));
-
-      fields.setErrors(errors);
-      return;
-    }
+    if (!data) return;
 
     const [id, errors] = await service.create(data);
 
@@ -59,7 +47,7 @@ export default function ContentCreationPage(
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <Fields definition={definition} form={fields.form} />
+        {fields.render()}
         <button type="submit">Create</button>
       </form>
     </div>
