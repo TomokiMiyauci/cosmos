@@ -38,7 +38,7 @@ export interface MapValue<T> {
   [k: string]: T;
 }
 
-export interface SequenseValue<T> extends Array<T> {}
+export interface SequenceValue<T> extends Array<T> {}
 
 export type StringValue = string;
 
@@ -49,5 +49,5 @@ export type SchemaValue =
   | NumberValue
   | BooleanValue
   | Identifier
-  | SequenseValue<SchemaValue>
+  | SequenceValue<SchemaValue>
   | MapValue<SchemaValue>;

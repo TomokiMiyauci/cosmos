@@ -5,7 +5,7 @@ import {
   type Schema,
   type SchemaValue,
   type SequenceSchema,
-  type SequenseValue,
+  type SequenceValue,
 } from "@cosmos/schema";
 import { Result } from "@miyauci/util";
 
@@ -45,7 +45,7 @@ export class HtmlIoInterpreter {
         return this.interpretMap(input, schema);
       }
       case "sequence": {
-        return this.interpretSequense(input, schema);
+        return this.interpretSequence(input, schema);
       }
       case "reference": {
         return this.interpretReference(input);
@@ -80,13 +80,13 @@ export class HtmlIoInterpreter {
     return data;
   }
 
-  private interpretSequense(
+  private interpretSequence(
     input: Input,
     schema: SequenceSchema,
   ): ParsedResult {
     if (!Array.isArray(input)) return new Unknown(input);
 
-    const items: SequenseValue<SchemaValue> = [];
+    const items: SequenceValue<SchemaValue> = [];
 
     for (const item of input) {
       const result = this.interpret(item, schema.item);

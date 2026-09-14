@@ -453,7 +453,7 @@ components:
         - $ref: "#/components/schemas/BooleanNode"
         - $ref: "#/components/schemas/IdentifierNode"
         - $ref: "#/components/schemas/MapNode"
-        - $ref: "#/components/schemas/SequenseNode"
+        - $ref: "#/components/schemas/SequenceNode"
 
     StringNode:
       type: object
@@ -507,11 +507,11 @@ components:
       required:
         - type
         - value
-    SequenseNode:
+    SequenceNode:
       type: object
       properties:
         type:
-          enum: ["sequense"]
+          enum: ["sequence"]
         value:
           type: array
           items:

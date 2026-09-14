@@ -4,7 +4,7 @@ import type { FieldValue } from "../type.ts";
 import { createUseList } from "./util.ts";
 import { useController } from "react-hook-form";
 
-export default function SequenseField(props: FieldProps): JSX.Element {
+export default function SequenceField(props: FieldProps): JSX.Element {
   const { name, definition: def, render, layout: Layout, required = true, id } =
     props;
   const useList = createUseList(name);

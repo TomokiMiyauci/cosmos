@@ -130,7 +130,7 @@ export const zContents = z.union([
     zBooleanNode,
     zIdentifierNode,
     z.lazy((): any => zMapNode),
-    z.lazy((): any => zSequenseNode)
+    z.lazy((): any => zSequenceNode)
 ]);
 
 export const zMapNode = z.object({
@@ -138,8 +138,8 @@ export const zMapNode = z.object({
     value: z.record(z.string(), zContents)
 });
 
-export const zSequenseNode = z.object({
-    type: z.enum(['sequense']),
+export const zSequenceNode = z.object({
+    type: z.enum(['sequence']),
     value: z.array(zContents)
 });
 

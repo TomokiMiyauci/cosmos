@@ -17,7 +17,7 @@ import {
   type MapValue,
   NumberValue,
   type SchemaValue,
-  type SequenseValue,
+  type SequenceValue,
 } from "@cosmos/schema";
 import { isIdentifier, isNumberValue } from "@cosmos/validator";
 import { mapValues } from "@std/collections/map-values";
@@ -325,8 +325,8 @@ function node2SchemaValue(node: Contents): Result<SchemaValue, Error> {
 
       return Result.ok(map);
     }
-    case "sequense": {
-      const set: SequenseValue<SchemaValue> = [];
+    case "sequence": {
+      const set: SequenceValue<SchemaValue> = [];
       for (const value of node.value) {
         const [child, error] = node2SchemaValue(value);
 
@@ -358,7 +358,7 @@ function schemaValue2Node(value: SchemaValue): Contents {
   }
 
   if (Array.isArray(value)) {
-    return { type: "sequense", value: value.map(schemaValue2Node) };
+    return { type: "sequence", value: value.map(schemaValue2Node) };
   }
 
   return {

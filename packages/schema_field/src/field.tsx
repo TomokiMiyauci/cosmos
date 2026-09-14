@@ -7,7 +7,7 @@ import NumberField from "./fields/number.tsx";
 import BooleanField from "./fields/boolean.tsx";
 import MapField from "./fields/map.tsx";
 import UnionField from "./fields/union.tsx";
-import SequenseField from "./fields/sequence.tsx";
+import SequenceField from "./fields/sequence.tsx";
 import ReferenceField from "./fields/reference.tsx";
 import type { FieldLayoutProps, FieldProps } from "./fields/type.ts";
 import { cosmosResolver } from "./resolver.ts";
@@ -210,7 +210,7 @@ function _Field(props: _FieldProps): JSX.Element {
       return <BooleanField {...fieldProps} />;
     }
     case "sequence": {
-      return <SequenseField {...fieldProps} />;
+      return <SequenceField {...fieldProps} />;
     }
     case "map": {
       return <MapField {...fieldProps} definition={definition} />;

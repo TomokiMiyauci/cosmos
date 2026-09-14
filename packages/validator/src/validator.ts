@@ -11,7 +11,7 @@ import {
   type Schema,
   type SchemaValue,
   type SequenceSchema,
-  type SequenseValue,
+  type SequenceValue,
   type StringSchema,
   type StringValue,
   type UnionSchema,
@@ -37,7 +37,7 @@ interface ContentValueMap {
   boolean: BooleanValue;
   reference: Identifier;
   map: MapValue<SchemaValue>;
-  sequence: SequenseValue<SchemaValue>;
+  sequence: SequenceValue<SchemaValue>;
   union: SchemaValue;
 }
 
@@ -205,7 +205,7 @@ function validateSequence(
   }
 
   const errors = [
-    ...collectSequenseSchemaViolations(input, schema, onValidated),
+    ...collectSequenceSchemaViolations(input, schema, onValidated),
   ];
 
   if (errors.length) {
@@ -217,8 +217,8 @@ function validateSequence(
   return Result.ok(void 0);
 }
 
-function* collectSequenseSchemaViolations(
-  input: SequenseValue<SchemaValue>,
+function* collectSequenceSchemaViolations(
+  input: SequenceValue<SchemaValue>,
   schema: SequenceSchema,
   onValidated?: ValidationCallback,
 ): IterableIterator<ValidationError> {

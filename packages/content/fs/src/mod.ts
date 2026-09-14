@@ -8,7 +8,7 @@ import {
   type MapValue,
   NumberValue,
   type SchemaValue,
-  type SequenseValue,
+  type SequenceValue,
 } from "@cosmos/schema";
 import { isIdentifier, isNumberValue } from "@cosmos/validator";
 import { Result } from "@miyauci/util";
@@ -149,8 +149,8 @@ function node2SchemaValue(node: SchemaNode): Result<SchemaValue, Error> {
 
       return Result.ok(map);
     }
-    case "sequense": {
-      const set: SequenseValue<SchemaValue> = [];
+    case "sequence": {
+      const set: SequenceValue<SchemaValue> = [];
       for (const value of node.value) {
         const [child, error] = node2SchemaValue(value);
 
@@ -182,7 +182,7 @@ function schemaValue2Node(value: SchemaValue): SchemaNode {
   }
 
   if (Array.isArray(value)) {
-    return { type: "sequense", value: value.map(schemaValue2Node) };
+    return { type: "sequence", value: value.map(schemaValue2Node) };
   }
 
   return {
@@ -197,7 +197,7 @@ export type SchemaNode =
   | BooleanNode
   | IdentifierNode
   | MapNode
-  | SequenseNode;
+  | SequenceNode;
 
 export type StringNode = {
   type: "string";
@@ -226,8 +226,8 @@ export type MapNode = {
   };
 };
 
-export type SequenseNode = {
-  type: "sequense";
+export type SequenceNode = {
+  type: "sequence";
   value: Array<SchemaNode>;
 };
 

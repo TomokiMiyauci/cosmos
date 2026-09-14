@@ -38,7 +38,6 @@ export type ValidationError = {
      *
      * | Code | Meaning |
      * | ---- | ------- |
-     * | `0` | Unknown type |
      * | `1` | Invalid type |
      * | `2` | Required value |
      * | `3` | Reference not found |
@@ -124,7 +123,7 @@ export type EntryResponse = EntrySummaryResponse & {
     contents: Contents;
 };
 
-export type Contents = StringNode | NumberNode | BooleanNode | IdentifierNode | MapNode | SequenseNode;
+export type Contents = StringNode | NumberNode | BooleanNode | IdentifierNode | MapNode | SequenceNode;
 
 export type StringNode = {
     type: 'string';
@@ -153,8 +152,8 @@ export type MapNode = {
     };
 };
 
-export type SequenseNode = {
-    type: 'sequense';
+export type SequenceNode = {
+    type: 'sequence';
     value: Array<Contents>;
 };
 

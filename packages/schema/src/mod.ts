@@ -16,6 +16,6 @@ export {
   type MapValue,
   NumberValue,
   type SchemaValue,
-  type SequenseValue,
+  type SequenceValue,
   type StringValue,
 } from "./value.ts";
