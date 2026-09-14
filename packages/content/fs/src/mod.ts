@@ -1,4 +1,4 @@
-import { Entry, Model } from "@cosmos/core";
+import { Entry, Model } from "@cosmos/content";
 import type {
   EntryQuery,
   EntryView as ServerEntryView,

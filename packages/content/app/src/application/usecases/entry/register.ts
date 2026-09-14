@@ -1,4 +1,4 @@
-import { Entry, Model, type Schema } from "@cosmos/core";
+import { Entry, Model, type Schema } from "~domain";
 import { Result } from "@miyauci/util";
 import {
   type ErrorReason,

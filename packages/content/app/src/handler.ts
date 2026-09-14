@@ -1,4 +1,4 @@
-import type { Entry, Model, Schema } from "@cosmos/core";
+import type { Entry, Model, Schema } from "~domain";
 import type { EntryUsecase, Protocol, Usecases } from "./protocol.ts";
 import { EntryRegisterUseCase } from "./application/usecases/entry/register.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";

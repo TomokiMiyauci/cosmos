@@ -1,4 +1,4 @@
-import { Model, Schema } from "@cosmos/core";
+import { Model, Schema } from "@cosmos/content";
 import { mapValues } from "@std/collections/map-values";
 import type {
   Config,

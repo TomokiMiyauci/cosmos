@@ -15,3 +15,4 @@ export {
   type ContentViolation,
   type Violation,
 } from "./application/usecases/entry/register.ts";
+export { Entry, Model, Schema } from "./domain/mod.ts";

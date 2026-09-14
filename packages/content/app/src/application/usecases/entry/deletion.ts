@@ -1,4 +1,4 @@
-import { Entry } from "@cosmos/core";
+import { Entry } from "~domain";
 import { Result } from "@miyauci/util";
 
 export type DeletionError = InvalidIdError;
