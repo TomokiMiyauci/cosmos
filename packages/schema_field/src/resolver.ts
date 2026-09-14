@@ -1,49 +1,58 @@
 import type { Resolver } from "react-hook-form";
 import type { Schema, SchemaValue } from "@cosmos/schema";
 import { HtmlIoInterpreter, Unknown } from "./interpreter.ts";
-import { validate } from "@cosmos/validator";
+import { type ErrorReason, validate } from "@cosmos/validator";
 
 const interpreter = new HtmlIoInterpreter();
 
-export function cosmosResolver(
-  schema: Schema,
-): Resolver<FormValues, unknown, SchemaValue> {
-  return (values) => {
-    const normalized = normalize(values);
+export interface ResolverContext {
+  messenger: Messenger;
+  schema: Schema;
+}
 
-    if (normalized === null) {
-      return { values: {}, errors: { content: { message: "Error" } } as any };
-    }
+export interface Messenger {
+  message(reason: ErrorReason): string;
+}
 
-    const result = interpreter.interpret(normalized, schema);
+export const cosmosResolver = ((
+  values,
+  context,
+) => {
+  if (!context) throw new Error();
 
-    if (result instanceof Unknown) {
-      return { values: {}, errors: { content: { message: "Error" } } as any };
-    }
+  const { messenger, schema } = context;
+  const normalized = normalize(values);
 
-    const [_, errors] = validate(result, schema);
+  if (normalized === null) {
+    return { values: {}, errors: {} as unknown };
+  }
 
-    if (errors) {
-      const e = errors.map((error) => ({
-        message: error.reason,
-        path: error.path,
-      }));
-      const errorMap = toErrors(e);
+  const result = interpreter.interpret(normalized, schema);
 
-      return {
-        values: {},
-        errors: {
-          content: errorMap,
-        } as any,
-      };
-    }
+  if (result instanceof Unknown) {
+    return { values: {}, errors: { content: { message: "Error" } } as any };
+  }
+
+  const [_, errors] = validate(result, schema);
+
+  if (errors) {
+    const e = errors.map((error) => ({
+      message: messenger.message(error.reason),
+      path: error.path,
+    }));
+    const errorMap = toErrors(e);
 
     return {
-      values: result,
-      errors: {} as any,
+      values: {},
+      errors: { content: errorMap } as unknown,
     };
+  }
+
+  return {
+    values: result,
+    errors: {} as any,
   };
-}
+}) satisfies Resolver<FormValues, ResolverContext, SchemaValue>;
 
 interface ErrorNode {
   message?: string;

@@ -10,7 +10,11 @@ import UnionField from "./fields/union.tsx";
 import SequenceField from "./fields/sequence.tsx";
 import ReferenceField from "./fields/reference.tsx";
 import type { FieldLayoutProps, FieldProps } from "./fields/type.ts";
-import { cosmosResolver } from "./resolver.ts";
+import {
+  cosmosResolver,
+  type Messenger,
+  type ResolverContext,
+} from "./resolver.ts";
 import { isIdentifier, isNumberValue } from "@cosmos/validator";
 import { mapValues } from "@std/collections/map-values";
 
@@ -20,12 +24,34 @@ export interface UseFieldsReturn {
   render(): JSX.Element;
 }
 
+const defaultMessenger = {
+  message(reason): string {
+    switch (reason) {
+      case "required": {
+        return "Required";
+      }
+      case "invalid_type": {
+        return "Invalid type";
+      }
+      case "invalid_value": {
+        return "Invalid value";
+      }
+    }
+  },
+} satisfies Messenger;
+
 export type Path = (string | number)[];
+
+export interface FieldsOptions {
+  messenger?: Messenger;
+}
 
 export function useFields(
   schema: Definition,
   init?: SchemaValue,
+  options?: FieldsOptions,
 ): UseFieldsReturn {
+  const { messenger = defaultMessenger } = options ?? {};
   const values = useMemo(() => {
     if (!init) return undefined;
 
@@ -33,9 +59,10 @@ export function useFields(
 
     return value;
   }, [init]);
-  const form = useForm<FormValues, unknown, SchemaValue>({
+  const form = useForm<FormValues, ResolverContext, SchemaValue>({
     values,
-    resolver: cosmosResolver(schema),
+    resolver: cosmosResolver,
+    context: { schema, messenger },
   });
 
   return {
