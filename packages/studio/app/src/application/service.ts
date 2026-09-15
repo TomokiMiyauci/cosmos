@@ -8,6 +8,7 @@ export type {
   Entry,
   EntrySaveError,
   EntryService,
+  SaveEntry,
   ValidationError,
   ValidationFailure,
 } from "./services/entry.ts";

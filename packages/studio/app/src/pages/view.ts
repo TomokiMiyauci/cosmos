@@ -41,7 +41,7 @@ export const views = {
 
       if (!id) return null;
 
-      const entry = await params.queries.entry.findById(id);
+      const entry = await params.services.entry.findById(id);
 
       if (!entry) return null;
 

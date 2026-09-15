@@ -3,6 +3,7 @@ import type { SchemaValue } from "@cosmos/schema";
 
 export interface EntryService {
   save(entry: SaveEntry): Promise<Result<Entry["id"], EntrySaveError>>;
+  findById(id: Entry["id"]): Promise<Entry | null>;
 }
 
 export interface Entry {
@@ -13,7 +14,7 @@ export interface Entry {
 
 type NewEntry = Omit<Entry, "id">;
 
-type SaveEntry = Entry | NewEntry;
+export type SaveEntry = Entry | NewEntry;
 
 export type EntrySaveError = ValidationFailure;
 
