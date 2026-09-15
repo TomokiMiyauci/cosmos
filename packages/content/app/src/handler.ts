@@ -9,6 +9,7 @@ export interface Config {
 }
 
 export interface Ports {
+  protocol: Protocol;
   repositories: Repositories;
 }
 
@@ -18,8 +19,8 @@ export interface Repositories {
   schema: Schema.Repository;
 }
 
-export function createHandler(ports: Ports, protocol: Protocol): Handler {
-  const { repositories } = ports;
+export function createHandler(ports: Ports): Handler {
+  const { repositories, protocol } = ports;
   const entry = {
     register: new EntryRegisterUseCase(
       repositories.entry,
