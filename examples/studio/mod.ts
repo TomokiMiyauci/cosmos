@@ -1,4 +1,4 @@
-import { Admin, en, I18n, Page, Router } from "@cosmos/ui";
+import { Admin, Page, Router } from "@cosmos/studio";
 import { renderToReadableStream } from "react-dom/server";
 import { createElement } from "react";
 import { Route, route } from "@std/http/unstable-route";
@@ -31,15 +31,15 @@ export const contentHandler = createHandler(
       schema: new ConfigSchemaRepository(config.schemas),
       entry: new StoreEntryRepository(new DenoStore(locator)),
     },
+    protocol: new RestProtocol({
+      queries: {
+        model: new ConfigModelQuery(config.models),
+        schema: new ConfigSchemaQuery(config.schemas),
+        entry: new ReaderEntryQuery(new DenoReader(locator)),
+      },
+      prefix: "/api",
+    }),
   },
-  new RestProtocol({
-    queries: {
-      model: new ConfigModelQuery(config.models),
-      schema: new ConfigSchemaQuery(config.schemas),
-      entry: new ReaderEntryQuery(new DenoReader(locator)),
-    },
-    prefix: "/api",
-  }),
 );
 
 const entry = "/main.js";
@@ -75,7 +75,6 @@ const routes = [
       const node = createElement(Admin, {
         queries,
         route: result,
-        translation: i18n,
       });
 
       if (result.type === Page.NotFound) {
@@ -108,7 +107,6 @@ const bundleResult = await Deno.bundle({
 });
 
 const router = new Router(queries, services);
-const i18n = new I18n(en);
 
 export default {
   async fetch(request): Promise<Response> {
