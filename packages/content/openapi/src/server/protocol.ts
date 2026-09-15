@@ -4,13 +4,13 @@ import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { ResponseHeadersPlugin } from "@orpc/server/plugins";
 import type { Queries } from "./application/query.ts";
 
-export interface RestProtocolPorts {
+export interface OpenapiProtocolPorts {
   queries: Queries;
   prefix?: `/${string}`;
 }
 
-export class RestProtocol implements Protocol {
-  constructor(private ports: RestProtocolPorts) {}
+export class OpenapiProtocol implements Protocol {
+  constructor(private ports: OpenapiProtocolPorts) {}
   #handler = new OpenAPIHandler(router, {
     plugins: [new ResponseHeadersPlugin()],
   });

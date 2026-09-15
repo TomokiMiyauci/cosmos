@@ -4,7 +4,7 @@ import { createElement } from "react";
 import { Route, route } from "@std/http/unstable-route";
 import { default as config } from "./config.ts";
 import { createHandler } from "@cosmos/content";
-import { RestProtocol } from "@cosmos/content-openapi/server";
+import { OpenapiProtocol } from "@cosmos/content-openapi/server";
 import {
   ConfigModelQuery,
   ConfigSchemaQuery,
@@ -31,7 +31,7 @@ export const contentHandler = createHandler(
       schema: new ConfigSchemaRepository(config.schemas),
       entry: new StoreEntryRepository(new DenoStore(locator)),
     },
-    protocol: new RestProtocol({
+    protocol: new OpenapiProtocol({
       queries: {
         model: new ConfigModelQuery(config.models),
         schema: new ConfigSchemaQuery(config.schemas),

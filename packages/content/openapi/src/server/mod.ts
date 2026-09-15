@@ -1,4 +1,4 @@
-export { RestProtocol, type RestProtocolPorts } from "./protocol.ts";
+export { OpenapiProtocol, type OpenapiProtocolPorts } from "./protocol.ts";
 export type {
   EntryQuery,
   EntryView,
