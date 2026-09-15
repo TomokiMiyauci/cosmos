@@ -1,5 +1,5 @@
 {
-  "name": "@cosmos/ui",
+  "name": "@cosmos/studio",
   "exports": {
     ".": "./src/mod.ts",
     "./control": "./src/control.ts"
