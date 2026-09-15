@@ -72,10 +72,7 @@ const routes = [
       const url = new URL(request.url);
       const result = await router.route(url);
       let status = 200;
-      const node = createElement(Admin, {
-        queries,
-        route: result,
-      });
+      const node = createElement(Admin, { route: result });
 
       if (result.type === Page.NotFound) {
         status = 404;
