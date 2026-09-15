@@ -9,7 +9,6 @@ import ContentCreationPage, {
   type ValidationError,
 } from "./content_creation.tsx";
 import { Page } from "./symbol.ts";
-import type { Router } from "../type.ts";
 import type { Queries } from "../application/query.ts";
 import type { EntryService, Services } from "../application/service.ts";
 import { Result } from "@miyauci/util";
@@ -90,7 +89,6 @@ export const views = {
 
 interface Params {
   params: Record<string, string>;
-  router: Router;
   queries: Queries;
   services: Services;
   url: URL;

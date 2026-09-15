@@ -7,20 +7,12 @@ import type { ContentCreatePageProps } from "./pages/content_creation.tsx";
 import type { EntryPageProps } from "./pages/content.tsx";
 import { views } from "./pages/view.ts";
 import type { EntriesPageProps } from "./pages/resource.tsx";
-import type { Router as R } from "./type.ts";
 import type { Queries } from "./application/query.ts";
 import type { Services } from "./application/service.ts";
 import { EnMessenger } from "./messenger.ts";
 
-class DefaultRouter implements R {
-  redirect(to: string): void {
-    globalThis.location.href = to;
-  }
-}
-
 export class Router {
   #routes: Record<keyof Routes, URLPattern>;
-  #router: R = new DefaultRouter();
 
   constructor(
     private queries: Queries,
@@ -48,7 +40,6 @@ export class Router {
         if (entry.getStaticProps) {
           const data = await entry.getStaticProps({
             params: decodedParams,
-            router: this.#router,
             queries: this.queries,
             services: this.services,
             url,
