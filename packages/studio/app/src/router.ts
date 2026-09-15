@@ -10,6 +10,10 @@ import type { EntriesPageProps } from "./pages/resource.tsx";
 import type { Queries } from "./application/query.ts";
 import type { Services } from "./application/service.ts";
 import { EnMessenger } from "./messenger.ts";
+import {
+  getStaticProps as getLayoutStaticProps,
+  type LayoutProps,
+} from "./html.tsx";
 
 export class Router {
   #routes: Record<keyof Routes, URLPattern>;
@@ -24,6 +28,8 @@ export class Router {
     );
   }
   async route(url: URL): Promise<RouteResult> {
+    const layoutProps = await getLayoutStaticProps(this.queries.model);
+
     for (const [type, pattern] of Object.entries(this.#routes)) {
       const result = pattern.exec(url);
 
@@ -49,23 +55,35 @@ export class Router {
           if (!data) {
             return {
               type: Page.NotFound,
+              data: {
+                ...layoutProps,
+              },
             };
           }
 
           return {
-            data,
+            data: {
+              ...data,
+              ...layoutProps,
+            },
             type: Number(type),
           };
         }
 
         return {
           type: Number(type),
+          data: {
+            ...layoutProps,
+          },
         };
       }
     }
 
     return {
       type: Page.NotFound,
+      data: {
+        ...layoutProps,
+      },
     };
   }
 }
@@ -106,15 +124,17 @@ export { Page };
 
 export type RouteResult = {
   type: Page.EntryCreation;
-  data: ContentCreatePageProps;
+  data: ContentCreatePageProps & LayoutProps;
 } | {
   type: Page.Entry;
-  data: EntryPageProps;
+  data: EntryPageProps & LayoutProps;
 } | {
   type: Page.EntryList;
-  data: EntriesPageProps;
+  data: EntriesPageProps & LayoutProps;
 } | {
   type: Page.NotFound;
+  data: LayoutProps;
 } | {
   type: Page.Home;
+  data: LayoutProps;
 };

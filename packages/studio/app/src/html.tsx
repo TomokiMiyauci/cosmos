@@ -1,21 +1,27 @@
-import { type JSX, type ReactNode, Suspense, use } from "react";
-import { Page, resolvePath, type RouteResult } from "./router.ts";
-import type { Model, Queries } from "./application/query.ts";
+import type { JSX, ReactNode } from "react";
+import { Page, resolvePath } from "./router.ts";
+import type { Model, ModelQuery } from "./application/query.ts";
 import { useMessenger } from "./context/messenger.ts";
 import { resolveEntryListByModel } from "./pages/route.ts";
 
-export interface HtmlProps {
-  route: RouteResult;
+export interface LayoutProps {
+  models: Model[];
+}
+
+export async function getStaticProps(query: ModelQuery): Promise<LayoutProps> {
+  const models = await query.list();
+
+  return { models };
+}
+
+export interface HtmlProps extends LayoutProps {
   children?: ReactNode;
-  queries: Queries;
 }
 
 export default function Html(props: HtmlProps): JSX.Element {
-  const { children, queries } = props;
+  const { children, models } = props;
 
   const messenger = useMessenger();
-
-  const modelsPromise = queries.model.list();
 
   return (
     <html>
@@ -28,9 +34,7 @@ export default function Html(props: HtmlProps): JSX.Element {
           </a>
         </header>
 
-        <Suspense>
-          <Aside promise={modelsPromise} />
-        </Suspense>
+        <Aside models={models} />
 
         <aside>
           <h2>
@@ -50,12 +54,13 @@ export default function Html(props: HtmlProps): JSX.Element {
   );
 }
 
-function Aside(
-  props: { promise: Promise<Model[]> },
-): JSX.Element {
-  const { promise } = props;
+interface AsideProps {
+  models: Model[];
+}
 
-  const identifies = use(promise);
+function Aside(props: AsideProps): JSX.Element {
+  const { models } = props;
+
   const messenger = useMessenger();
 
   return (
@@ -63,7 +68,7 @@ function Aside(
       <h2>{messenger.message({ type: "page-title", page: "Entry" })}</h2>
 
       <ul>
-        {identifies.map(({ id, title }) => {
+        {models.map(({ id, title }) => {
           return (
             <li key={id}>
               <a href={resolveEntryListByModel(id)}>{title}</a>

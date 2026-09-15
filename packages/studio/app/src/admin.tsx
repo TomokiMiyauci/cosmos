@@ -2,33 +2,34 @@ import { type JSX, useMemo } from "react";
 import Html from "./html.tsx";
 import { Page, type RouteResult } from "./router.ts";
 import { views } from "./pages/view.ts";
-import type { Queries } from "./application/query.ts";
 import { EnMessenger, type Messenger } from "./messenger.ts";
 import { MessengerContext } from "./context/messenger.ts";
 
 export interface AdminProps {
   route: RouteResult;
-  queries: Queries;
   messenger?: Messenger;
 }
 
 export function Admin(props: AdminProps): JSX.Element {
-  const { route, queries } = props;
-
+  const { route } = props;
   const messenger = useMemo(() => props.messenger ?? new EnMessenger(), [
     props.messenger,
   ]);
 
   return (
     <MessengerContext.Provider value={messenger}>
-      <Html route={route} queries={queries}>
-        <PageMatcher {...props} />
+      <Html models={route.data.models}>
+        <PageRenderer route={route} />
       </Html>
     </MessengerContext.Provider>
   );
 }
 
-function PageMatcher(props: AdminProps): JSX.Element {
+interface PageRendererProps {
+  route: RouteResult;
+}
+
+function PageRenderer(props: PageRendererProps): JSX.Element {
   const { route } = props;
 
   switch (route.type) {
