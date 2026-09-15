@@ -18,7 +18,7 @@ import {
   ReaderEntryQuery,
   StoreEntryRepository,
 } from "@cosmos/content-fs";
-import { queries, services } from "./query.ts";
+import { queries, services } from "./studio.ts";
 
 const locator = new BaseLocator(
   new URL(import.meta.resolve("./contents/posts/")),
