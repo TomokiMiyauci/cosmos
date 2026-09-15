@@ -2,16 +2,24 @@
   "name": "@cosmos/ui",
   "exports": {
     ".": "./src/mod.ts",
-    "./rest": "./src/rest/mod.ts"
+    "./control": "./src/control.ts"
   },
   "imports": {
+    "@hookform/resolvers": "npm:@hookform/resolvers@^5.9.1",
     "@std/collections": "jsr:@std/collections@^1.2.0",
     "@types/react": "npm:@types/react@^19.2.14",
     "clsx": "npm:clsx@^2.1.1",
     "react": "npm:react@^19",
+    "react-error-boundary": "npm:react-error-boundary@^6.1.2",
+    "react-hook-form": "npm:react-hook-form@^7.86.0",
+    "yup": "npm:yup@^1.7.1",
     "~usecase/node": "./src/application/usecases/node/mod.ts"
   },
   "compilerOptions": {
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "lib": [
+      "deno.window",
+      "dom"
+    ]
   }
 }
