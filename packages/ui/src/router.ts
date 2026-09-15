@@ -10,6 +10,7 @@ import type { EntriesPageProps } from "./pages/resource.tsx";
 import type { Router as R } from "./type.ts";
 import type { Queries } from "./application/query.ts";
 import type { Services } from "./application/service.ts";
+import { EnMessenger } from "./messenger.ts";
 
 class DefaultRouter implements R {
   redirect(to: string): void {
@@ -51,6 +52,7 @@ export class Router {
             queries: this.queries,
             services: this.services,
             url,
+            messenger: new EnMessenger(),
           });
 
           if (!data) {
