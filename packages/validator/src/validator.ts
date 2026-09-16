@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-undef
 import { Result } from "@miyauci/util";
 import {
   type BooleanSchema,
@@ -12,6 +13,7 @@ import {
   type SchemaValue,
   type SequenceSchema,
   type SequenceValue,
+  type StringFormat,
   type StringSchema,
   type StringValue,
   type UnionSchema,
@@ -94,9 +96,48 @@ function validateString(
     return Result.error([{ reason: "invalid_type", path }]);
   }
 
+  if (schema.format) {
+    const isFormat = isStringFormat(input, schema.format);
+
+    if (!isFormat) {
+      return Result.error([{ reason: "invalid_value", path }]);
+    }
+  }
+
   onValidated?.({ content: input, type: "string", schema, path });
 
   return Result.ok(void 0);
+}
+
+function isStringFormat(value: string, format: StringFormat): boolean {
+  switch (format) {
+    case "date": {
+      return isDateFormat(value);
+    }
+    case "datetime": {
+      return isDateTimeFormat(value);
+    }
+  }
+}
+
+function isDateFormat(value: string): boolean {
+  try {
+    Temporal.PlainDate.from(value);
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isDateTimeFormat(value: string): boolean {
+  try {
+    Temporal.PlainDateTime.from(value);
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function validateNumber(
