@@ -7,10 +7,11 @@ import {
   OpenapiEntrySummaryQuery,
   OpenapiModelQuery,
 } from "@cosmos/studio-openapi";
+import { Router } from "@cosmos/studio";
 
 const url = new URL(API_ENDPOINT);
 
-export const queries = {
+const queries = {
   definition: new OpenapiDefinitionQuery(url, {
     "post": { title: "Post", control: MapControl },
     "title.age": { title: "Title", control: TextControl },
@@ -19,6 +20,8 @@ export const queries = {
   model: new OpenapiModelQuery(url),
 } satisfies Queries;
 
-export const services = {
+const services = {
   entry: new OpenapiEntryService(url),
 } satisfies Services;
+
+export const router = new Router(queries, services);

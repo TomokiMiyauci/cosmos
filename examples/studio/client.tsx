@@ -1,10 +1,9 @@
 /// <reference lib="dom" />
 
-import { Admin, Router } from "@cosmos/studio";
+import { Admin } from "@cosmos/studio";
 import { hydrateRoot } from "react-dom/client";
-import { queries, services } from "./studio.ts";
+import { router } from "./studio.ts";
 
-const router = new Router(queries, services);
 const url = new URL(location.href);
 const result = await router.route(url);
 

@@ -1,4 +1,4 @@
-import { Admin, Page, Router } from "@cosmos/studio";
+import { Admin, Page } from "@cosmos/studio";
 import { renderToReadableStream } from "react-dom/server";
 import { createElement } from "react";
 import { Route, route } from "@std/http/unstable-route";
@@ -18,7 +18,7 @@ import {
   ReaderEntryQuery,
   StoreEntryRepository,
 } from "@cosmos/content-fs";
-import { queries, services } from "./studio.ts";
+import { router } from "./studio.ts";
 
 const locator = new BaseLocator(
   new URL(import.meta.resolve("./contents/posts/")),
@@ -62,9 +62,7 @@ const routes = [
   },
   {
     pattern: new URLPattern({ pathname: "/api/*" }),
-    handler: (request) => {
-      return contentHandler(request);
-    },
+    handler: contentHandler,
   },
   {
     pattern: new URLPattern({ pathname: "*" }),
@@ -102,8 +100,6 @@ const bundleResult = await Deno.bundle({
   format: "esm",
   platform: "browser",
 });
-
-const router = new Router(queries, services);
 
 export default {
   async fetch(request): Promise<Response> {
