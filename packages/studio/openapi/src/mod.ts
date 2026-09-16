@@ -11,6 +11,8 @@ import type {
 } from "@cosmos/studio";
 import {
   CheckboxControl,
+  DateControl,
+  DatetimeControl,
   ListControl,
   MapControl,
   NumericControl,
@@ -273,6 +275,16 @@ function resolvePresentation(
 
   switch (response.type) {
     case "string": {
+      if (response.format) {
+        switch (response.format) {
+          case "date": {
+            return { title, control: DateControl };
+          }
+          case "datetime": {
+            return { title, control: DatetimeControl };
+          }
+        }
+      }
       return { title, control: TextControl };
     }
     case "number": {
