@@ -3,7 +3,7 @@
 import type { JSX, SubmitEvent } from "react";
 import { type Definition, useFields } from "@cosmos/schema-field";
 import type { Result } from "@miyauci/util";
-import { Page, resolvePath } from "../router.ts";
+import { Page, router } from "~router";
 import type { SchemaValue } from "@cosmos/schema";
 import type { Messenger } from "../messenger.ts";
 
@@ -42,7 +42,7 @@ export default function ContentCreationPage(
     if (errors) {
       fields.setErrors(errors);
     } else {
-      location.href = resolvePath(Page.Entry, { id });
+      location.href = router.resolve(Page.Entry, { id });
     }
   }
 

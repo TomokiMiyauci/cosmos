@@ -1,5 +1,5 @@
 import type { JSX } from "react";
-import { Page, resolvePath } from "../router.ts";
+import { Page, router } from "~router";
 import { resolveEntryCreation } from "./route.ts";
 
 export interface EntriesPageProps {
@@ -23,7 +23,7 @@ export default function EntriesPage(props: EntriesPageProps): JSX.Element {
 
       <ul>
         {summaries.map(({ id, title }) => {
-          const href = resolvePath(Page.Entry, { id });
+          const href = router.resolve(Page.Entry, { id });
 
           return (
             <li key={id}>

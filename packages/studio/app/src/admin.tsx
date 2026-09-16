@@ -1,6 +1,7 @@
 import { type JSX, useMemo } from "react";
 import Html from "./html.tsx";
-import { Page, type RouteResult } from "./router.ts";
+import type { RouteResult } from "./router.ts";
+import { Page } from "./pages/symbol.ts";
 import { views } from "./pages/view.ts";
 import { EnMessenger, type Messenger } from "./messenger.ts";
 import { MessengerContext } from "./context/messenger.ts";

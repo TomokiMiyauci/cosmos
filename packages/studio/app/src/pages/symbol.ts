@@ -1,7 +1,7 @@
 export const enum Page {
-  NotFound,
-  Home,
-  EntryList,
-  EntryCreation,
-  Entry,
+  NotFound = "0",
+  Home = "1",
+  EntryList = "2",
+  EntryCreation = "3",
+  Entry = "4",
 }

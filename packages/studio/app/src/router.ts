@@ -1,7 +1,5 @@
-import { routes } from "./pages/route.ts";
+import { router } from "./pages/route.ts";
 import type { ExtractParams, Routes } from "./pages/type.ts";
-import { mapValues } from "@std/collections/map-values";
-import { filterValues } from "@std/collections/filter-values";
 import { Page } from "./pages/symbol.ts";
 import type { ContentCreatePageProps } from "./pages/content_creation.tsx";
 import type { EntryPageProps } from "./pages/content.tsx";
@@ -16,75 +14,100 @@ import {
 } from "./html.tsx";
 
 export class Router {
-  #routes: Record<keyof Routes, URLPattern>;
-
   constructor(
     private queries: Queries,
     private services: Services,
   ) {
-    this.#routes = mapValues(
-      routes,
-      (init) => new URLPattern({ pathname: init }),
-    );
   }
   async route(url: URL): Promise<RouteResult> {
     const layoutProps = await getLayoutStaticProps(this.queries.model);
+    const result = router.match(url.href);
 
-    for (const [type, pattern] of Object.entries(this.#routes)) {
-      const result = pattern.exec(url);
+    if (!result) {
+      return {
+        type: Page.NotFound,
+        data: layoutProps,
+      };
+    }
 
-      if (result) {
-        const entry = views[type];
-        const decodedParams = mapValues(
-          filterValues(
-            result.pathname.groups,
-            (value): value is string => value !== undefined,
-          ) as Record<string, string>,
-          decodeURIComponent,
-        );
+    const props = {
+      queries: this.queries,
+      services: this.services,
+      url,
+      messenger: new EnMessenger(),
+    };
 
-        if (entry.getStaticProps) {
-          const data = await entry.getStaticProps({
-            params: decodedParams,
-            queries: this.queries,
-            services: this.services,
-            url,
-            messenger: new EnMessenger(),
-          });
+    switch (result.key) {
+      case Page.Home: {
+        return { type: Page.Home, data: layoutProps };
+      }
+      case Page.EntryList: {
+        const staticProps = await views[result.key].getStaticProps({
+          ...props,
+          params: result.params,
+        });
 
-          if (!data) {
-            return {
-              type: Page.NotFound,
-              data: {
-                ...layoutProps,
-              },
-            };
-          }
-
+        if (!staticProps) {
           return {
+            type: Page.NotFound,
             data: {
-              ...data,
               ...layoutProps,
             },
-            type: Number(type),
           };
         }
 
         return {
-          type: Number(type),
+          type: Page.EntryList,
+          data: { ...staticProps, ...layoutProps },
+        };
+      }
+      case Page.EntryCreation: {
+        const staticProps = await views[result.key].getStaticProps({
+          ...props,
+          params: result.params,
+        });
+
+        if (!staticProps) {
+          return {
+            type: Page.NotFound,
+            data: {
+              ...layoutProps,
+            },
+          };
+        }
+
+        return {
+          type: Page.EntryCreation,
           data: {
+            ...staticProps,
+            ...layoutProps,
+          },
+        };
+      }
+      case Page.Entry: {
+        const staticProps = await views[result.key].getStaticProps({
+          ...props,
+          params: result.params,
+        });
+
+        if (!staticProps) {
+          return {
+            type: Page.NotFound,
+            data: {
+              ...layoutProps,
+            },
+          };
+        }
+
+        return {
+          type: Page.Entry,
+          data: {
+            ...staticProps,
             ...layoutProps,
           },
         };
       }
     }
-
-    return {
-      type: Page.NotFound,
-      data: {
-        ...layoutProps,
-      },
-    };
   }
 }
 
@@ -118,9 +141,6 @@ export function createResolve<T extends Routes>(
 }
 
 type IsNever<T> = [T] extends [never] ? true : false;
-
-export const resolvePath = createResolve(routes);
-export { Page };
 
 export type RouteResult = {
   type: Page.EntryCreation;

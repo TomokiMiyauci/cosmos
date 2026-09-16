@@ -1,18 +1,19 @@
-import type { Routes } from "./type.ts";
 import { Page } from "./symbol.ts";
-import { resolvePath } from "../router.ts";
+import { route, Router, type Routes } from "@miyauci/url-router";
 
 export const routes = {
-  [Page.EntryList]: "/entries" as const,
-  [Page.Home]: "/" as const,
-  [Page.EntryCreation]: "/entries/new" as const,
-  [Page.Entry]: "/entries/:id" as const,
+  [Page.EntryList]: route("/entries"),
+  [Page.Home]: route("/"),
+  [Page.EntryCreation]: route("/entries/new"),
+  [Page.Entry]: route("/entries/:id"),
 } satisfies Routes;
 
+export const router = new Router(routes);
+
 export function resolveEntryListByModel(modelId: string): string {
-  return resolvePath(Page.EntryList) + "?" + `model=${modelId}`;
+  return router.resolve(Page.EntryList, {}) + "?" + `model=${modelId}`;
 }
 
 export function resolveEntryCreation(modelId: string): string {
-  return resolvePath(Page.EntryCreation) + "?" + `model=${modelId}`;
+  return router.resolve(Page.EntryCreation, {}) + "?" + `model=${modelId}`;
 }

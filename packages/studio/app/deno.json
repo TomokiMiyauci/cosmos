@@ -10,7 +10,8 @@
     "clsx": "npm:clsx@^2.1.1",
     "react": "npm:react@^19",
     "react-error-boundary": "npm:react-error-boundary@^6.1.2",
-    "~usecase/node": "./src/application/usecases/node/mod.ts"
+    "~usecase/node": "./src/application/usecases/node/mod.ts",
+    "~router": "./src/internals/router.ts"
   },
   "compilerOptions": {
     "jsx": "react-jsx",

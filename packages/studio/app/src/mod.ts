@@ -1,5 +1,6 @@
 export { Admin, type AdminProps } from "./admin.tsx";
-export { Page, Router } from "./router.ts";
+export { Router } from "./router.ts";
+export { Page } from "./pages/symbol.ts";
 export {
   type DefinitionQuery,
   type EntrySummary,

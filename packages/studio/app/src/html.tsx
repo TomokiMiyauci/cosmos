@@ -1,5 +1,5 @@
 import type { JSX, ReactNode } from "react";
-import { Page, resolvePath } from "./router.ts";
+import { Page, router } from "~router";
 import type { Model, ModelQuery } from "./application/query.ts";
 import { useMessenger } from "./context/messenger.ts";
 import { resolveEntryListByModel } from "./pages/route.ts";
@@ -29,7 +29,7 @@ export default function Html(props: HtmlProps): JSX.Element {
 
       <body>
         <header>
-          <a href={resolvePath(Page.Home)}>
+          <a href={router.resolve(Page.Home, {})}>
             {messenger.message({ type: "page-title", page: "Home" })}
           </a>
         </header>
