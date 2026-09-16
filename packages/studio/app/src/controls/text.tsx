@@ -12,10 +12,7 @@ export default function TextControl(props: ControlProps): JSX.Element {
       type="text"
       value={value ?? ""}
       onChange={(ev) => {
-        const value = ev.target.value;
-        const input = value ? value : null;
-
-        onChange(input);
+        onChange(ev.target.value ?? null);
       }}
       required={required}
     />

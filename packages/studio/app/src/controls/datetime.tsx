@@ -12,7 +12,7 @@ export default function DatetimeControl(props: ControlProps): JSX.Element {
       type="datetime-local"
       value={value ?? ""}
       onChange={(ev) => {
-        setValue(ev.target.value);
+        setValue(ev.target.value ?? null);
       }}
       required={required}
     />

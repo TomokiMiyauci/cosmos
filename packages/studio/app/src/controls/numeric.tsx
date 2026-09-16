@@ -12,7 +12,7 @@ export default function NumericControl(props: ControlProps): JSX.Element {
       type="number"
       value={value ?? ""}
       onChange={(ev) => {
-        onChange(ev.target.value);
+        onChange(ev.target.value ?? null);
       }}
       required={required}
     />
