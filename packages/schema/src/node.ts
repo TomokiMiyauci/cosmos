@@ -112,7 +112,7 @@ function createContainer(
 ): Schema {
   switch (node.type) {
     case "string":
-      return { type: "string", format: node.format };
+      return { type: "string", term: node.term };
 
     case "number":
       return { type: "number" };

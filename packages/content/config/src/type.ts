@@ -1,4 +1,4 @@
-import type { StringFormat } from "@cosmos/schema";
+import type { StringTerm } from "@cosmos/schema";
 
 export interface ModelConfig {
   schema: string;
@@ -23,7 +23,7 @@ export type SchemaConfig =
 
 export interface StringSchemaDefinition {
   type: "string";
-  format?: StringFormat;
+  term?: StringTerm;
 }
 
 export interface NumberSchemaDefinition {

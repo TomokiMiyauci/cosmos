@@ -36,7 +36,7 @@ const config = {
     "post.author": { type: "reference" },
     "post.flag": { type: "boolean" },
     "title.age": { type: "number" },
-    "post.date": { type: "string", format: "date" },
+    "post.date": { type: "string", term: "date" },
     author,
     setting,
     string: { type: "string" },

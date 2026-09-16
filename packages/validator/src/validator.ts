@@ -13,8 +13,8 @@ import {
   type SchemaValue,
   type SequenceSchema,
   type SequenceValue,
-  type StringFormat,
   type StringSchema,
+  type StringTerm,
   type StringValue,
   type UnionSchema,
 } from "@cosmos/schema";
@@ -96,8 +96,8 @@ function validateString(
     return Result.error([{ reason: "invalid_type", path }]);
   }
 
-  if (schema.format) {
-    const isFormat = isStringFormat(input, schema.format);
+  if (schema.term) {
+    const isFormat = isStringTerm(input, schema.term);
 
     if (!isFormat) {
       return Result.error([{ reason: "invalid_value", path }]);
@@ -109,8 +109,8 @@ function validateString(
   return Result.ok(void 0);
 }
 
-function isStringFormat(value: string, format: StringFormat): boolean {
-  switch (format) {
+function isStringTerm(value: string, term: StringTerm): boolean {
+  switch (term) {
     case "date": {
       return isDateFormat(value);
     }

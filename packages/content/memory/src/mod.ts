@@ -5,7 +5,7 @@ import type {
   ModelConfig,
   SchemaConfig,
   SchemaConfigMap,
-} from "@cosmos/config";
+} from "@cosmos/content-config";
 import type {
   ModelQuery,
   ModelView,
@@ -61,7 +61,7 @@ function schemaConfigToSchemaNode(
 ): SchemaNode {
   switch (config.type) {
     case "string": {
-      return { id, type: "string", format: config.format ?? null };
+      return { id, type: "string", term: config.term ?? null };
     }
     case "number": {
       return { id, type: "number" };
@@ -303,7 +303,7 @@ function createContainerSchemaView(
 ): SchemaView {
   switch (config.type) {
     case "string": {
-      return { id, type: "string", format: config.format ?? null };
+      return { id, type: "string", term: config.term ?? null };
     }
     case "number": {
       return { id, type: "number" };

@@ -9,10 +9,10 @@ export type Schema =
 
 export interface StringSchema {
   type: "string";
-  format: StringFormat | null;
+  term: StringTerm | null;
 }
 
-export type StringFormat = "date" | "datetime";
+export type StringTerm = "date" | "datetime";
 
 export interface NumberSchema {
   type: "number";

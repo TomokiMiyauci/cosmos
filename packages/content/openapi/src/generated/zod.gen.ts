@@ -49,10 +49,10 @@ export const zBaseSchemaResponse = z.object({
 
 export const zStringSchemaResponse = zBaseSchemaResponse.and(z.object({
     type: z.enum(['string']),
-    format: z.union([
+    term: z.union([
         z.literal('date'),
         z.literal('datetime')
-    ]).nullable()
+    ]).nullish()
 }));
 
 export const zNumberSchemaResponse = zBaseSchemaResponse.and(z.object({

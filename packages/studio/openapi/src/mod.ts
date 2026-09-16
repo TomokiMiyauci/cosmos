@@ -275,8 +275,8 @@ function resolvePresentation(
 
   switch (response.type) {
     case "string": {
-      if (response.format) {
-        switch (response.format) {
+      if (response.term) {
+        switch (response.term) {
           case "date": {
             return { title, control: DateControl };
           }
@@ -317,7 +317,7 @@ function createDefinitionContainer(
     case "string":
       return {
         type: "string",
-        format: response.format,
+        term: response.format,
         presentation,
       };
 

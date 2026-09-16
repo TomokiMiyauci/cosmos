@@ -327,7 +327,7 @@ components:
       properties:
         type:
           enum: ["string"]
-        format:
+        term:
           oneOf:
             - type: "null"
             - enum: ["date", "datetime"]

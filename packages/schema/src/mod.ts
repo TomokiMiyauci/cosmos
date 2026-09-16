@@ -5,8 +5,8 @@ export type {
   ReferenceSchema,
   Schema,
   SequenceSchema,
-  StringFormat,
   StringSchema,
+  StringTerm,
   UnionSchema,
 } from "./schema.ts";
 export { resolve, type SchemaId, type SchemaNode } from "./node.ts";
