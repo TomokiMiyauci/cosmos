@@ -1,0 +1,18 @@
+{
+  "name": "@miyauci/react-shadow-dom",
+  "imports": {
+    "@types/react": "npm:@types/react@^19.3.0",
+    "@types/react-dom": "npm:@types/react-dom@^19.3.0",
+    "react": "npm:react@^19.3.0",
+    "react-dom": "npm:react-dom@^19.3.0"
+  },
+  "exports": "./src/mod.tsx",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": [
+      "deno.window",
+      "deno.unstable",
+      "dom"
+    ]
+  }
+}
