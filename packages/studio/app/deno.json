@@ -5,11 +5,10 @@
     "./control": "./src/control.ts"
   },
   "imports": {
-    "@std/collections": "jsr:@std/collections@^1.3.0",
-    "@types/react": "npm:@types/react@^19.2.14",
+    "@types/react": "npm:@types/react@^19.3.0",
     "clsx": "npm:clsx@^2.1.1",
-    "react": "npm:react@^19",
-    "react-error-boundary": "npm:react-error-boundary@^6.1.2",
+    "react": "npm:react@^19.3.0",
+    "react-error-boundary": "npm:react-error-boundary@^6.1.5",
     "~usecase/node": "./src/application/usecases/node/mod.ts",
     "~router": "./src/internals/router.ts"
   },
