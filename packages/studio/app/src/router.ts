@@ -1,5 +1,4 @@
 import { router } from "./pages/route.ts";
-import type { ExtractParams, Routes } from "./pages/type.ts";
 import { Page } from "./pages/symbol.ts";
 import type { ContentCreatePageProps } from "./pages/content_creation.tsx";
 import type { EntryPageProps } from "./pages/content.tsx";
@@ -110,37 +109,6 @@ export class Router {
     }
   }
 }
-
-export interface RouteResultt {
-  type: Page;
-  params: Record<string, string>;
-}
-
-export function createResolve<T extends Routes>(
-  routes: T,
-): <X extends keyof T, Y extends ExtractParams<T[X]>>(
-  key: X,
-  ...params: IsNever<Y> extends true ? [] : [Y]
-) => string {
-  return (key, ...params) => {
-    const pattern = routes[key];
-
-    if (typeof pattern !== "string") throw new Error();
-
-    let url: string = pattern;
-
-    if (params) {
-      for (const object of params) {
-        for (const [pKey, pValue] of Object.entries(object)) {
-          url = url.replace(`:${pKey}`, pValue as unknown as string);
-        }
-      }
-    }
-    return url;
-  };
-}
-
-type IsNever<T> = [T] extends [never] ? true : false;
 
 export type RouteResult = {
   type: Page.EntryCreation;
