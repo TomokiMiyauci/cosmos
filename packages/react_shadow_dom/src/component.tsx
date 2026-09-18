@@ -4,6 +4,7 @@ import {
   type JSX,
   type ReactNode,
   use,
+  useEffectEvent,
   useLayoutEffect,
   useState,
 } from "react";
@@ -32,42 +33,86 @@ export function ShadowHost(props: ShadowHostProps): JSX.Element {
 const HostContext = createContext<Element | null>(null);
 const RenderContext = createContext({ isServer: false });
 
-export interface TemplateProps {
+export interface TemplateProps extends ShadowRootInit {
   children?: ReactNode;
 }
 
 export function Template(props: TemplateProps): JSX.Element {
-  const { children } = props;
+  const {
+    children,
+    mode,
+    clonable,
+    customElementRegistry,
+    delegatesFocus,
+    serializable,
+    slotAssignment,
+  } = props;
 
   const host = use(HostContext);
   const { isServer } = use(RenderContext);
 
   useLayoutEffect(() => {
+    // remove browser DSD shadow root children's.
     host?.shadowRoot?.replaceChildren();
   }, [host]);
+
+  const init = {
+    mode,
+    clonable,
+    customElementRegistry,
+    delegatesFocus,
+    serializable,
+    slotAssignment,
+  } satisfies ShadowRootInit;
+
+  const templateProps = {
+    shadowrootmode: init.mode,
+    shadowrootclonable: init.clonable,
+    // shadowrootcustomelementregistry: init.customElementRegistry,
+    shadowrootdelegatesfocus: init.delegatesFocus,
+    shadowrootserializable: init.serializable,
+    shadowrootslotassignment: init.slotAssignment,
+  };
 
   return (
     <>
       {isServer && (
-        <template shadowrootmode="open">
+        <template {...templateProps}>
           {children}
         </template>
       )}
 
-      <ShadowRoot host={host}>{children}</ShadowRoot>
+      <ShadowRoot host={host} {...init}>{children}</ShadowRoot>
     </>
   );
 }
 
-export interface ShadowRootProps {
+export interface ShadowRootProps extends ShadowRootInit {
   host: Element | null;
   children?: ReactNode;
 }
 
 export function ShadowRoot(props: ShadowRootProps): JSX.Element {
-  const { host, children } = props;
+  const {
+    host,
+    children,
+    mode,
+    clonable,
+    customElementRegistry,
+    delegatesFocus,
+    serializable,
+    slotAssignment,
+  } = props;
+  const init = {
+    mode,
+    clonable,
+    customElementRegistry,
+    delegatesFocus,
+    serializable,
+    slotAssignment,
+  } satisfies ShadowRootInit;
 
-  const shadowRoot = useShadowRoot(host, { mode: "open" });
+  const shadowRoot = useShadowRoot(host, init);
 
   if (shadowRoot) return createPortal(children, shadowRoot);
 
@@ -80,10 +125,14 @@ function useShadowRoot(
 ): ShadowRoot | null {
   const [shadowRoot, setShadowRoot] = useState<ShadowRoot | null>(null);
 
-  useLayoutEffect(() => {
+  const onAttach = useEffectEvent((host: Element | null) => {
     if (!host) return;
 
     setShadowRoot(host.shadowRoot ?? host.attachShadow(init));
+  });
+
+  useLayoutEffect(() => {
+    onAttach(host);
   }, [host]);
 
   return shadowRoot;
