@@ -5,8 +5,12 @@
     "./control": "./src/control.ts"
   },
   "imports": {
+    "@deno/esbuild-plugin": "jsr:@deno/esbuild-plugin@^1.2.1",
+    "@std/path": "jsr:@std/path@^1.1.6",
     "@types/react": "npm:@types/react@^19.3.0",
     "clsx": "npm:clsx@^2.1.1",
+    "esbuild": "npm:esbuild@^0.28.2",
+    "esbuild-plugin-d.ts": "npm:esbuild-plugin-d.ts@^2.0.1",
     "react": "npm:react@^19.3.0",
     "react-error-boundary": "npm:react-error-boundary@^6.1.5",
     "~usecase/node": "./src/application/usecases/node/mod.ts",
@@ -16,7 +20,8 @@
     "jsx": "react-jsx",
     "lib": [
       "deno.window",
-      "dom"
+      "dom",
+      "deno.unstable"
     ]
   }
 }
