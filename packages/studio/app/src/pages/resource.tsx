@@ -1,15 +1,11 @@
 import type { JSX } from "react";
 import { Page, router } from "~router";
 import { resolveEntryCreation } from "./route.ts";
+import type { EntrySummary } from "../application/query.ts";
 
 export interface EntriesPageProps {
   summaries: EntrySummary[];
   modelId: string;
-}
-
-export interface EntrySummary {
-  id: string;
-  title: string;
 }
 
 export default function EntriesPage(props: EntriesPageProps): JSX.Element {
