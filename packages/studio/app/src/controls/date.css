@@ -1,0 +1,38 @@
+@scope ([data-component=date]) {
+  :scope {
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+
+    border: 1px solid #c8ccd1;
+    border-radius: 0.375rem;
+
+    background: white;
+    color: #1f2328;
+    font: inherit;
+    line-height: 1.5;
+
+    outline: none;
+
+    &:hover {
+      border-color: #8c959f;
+    }
+
+    &:focus {
+      border-color: #0969da;
+      box-shadow: 0 0 0 3px rgb(9 105 218 / 15%);
+    }
+
+    &:disabled {
+      background: #f6f8fa;
+      color: #8c959f;
+      cursor: not-allowed;
+    }
+
+    &::placeholder {
+      color: #8c959f;
+    }
+  }
+}
