@@ -317,7 +317,7 @@ function createDefinitionContainer(
     case "string":
       return {
         type: "string",
-        term: response.format,
+        term: response.term ?? null,
         presentation,
       };
 
