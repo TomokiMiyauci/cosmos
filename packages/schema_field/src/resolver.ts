@@ -1,4 +1,4 @@
-import type { Resolver } from "react-hook-form";
+import type { ResolverResult } from "react-hook-form";
 import type { Schema, SchemaValue } from "@cosmos/schema";
 import { HtmlIoInterpreter } from "./interpreter.ts";
 import { type ErrorReason, validate } from "@cosmos/validator";
@@ -16,17 +16,17 @@ export interface Messenger {
 
 type ErrorSource = ErrorReason | "unknown";
 
-export const cosmosResolver = ((
-  values,
-  context,
-) => {
+export function cosmosResolver(
+  values: FormValues,
+  context: ResolverContext,
+): ResolverResult<FormValues, SchemaValue> {
   if (!context) throw new Error();
 
   const { messenger, schema } = context;
   const normalized = normalize(values);
 
   if (normalized === null) {
-    return { values: {}, errors: {} as unknown };
+    return { values: {}, errors: {} };
   }
 
   const [schemaValue, interpretErrors] = interpreter.interpret(
@@ -61,9 +61,9 @@ export const cosmosResolver = ((
 
   return {
     values: schemaValue,
-    errors: {} as any,
+    errors: {},
   };
-}) satisfies Resolver<FormValues, ResolverContext, SchemaValue>;
+}
 
 interface ErrorNode {
   message?: string;

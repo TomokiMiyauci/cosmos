@@ -1,5 +1,10 @@
 import { type FC, type JSX, useId, useMemo, useState } from "react";
-import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
+import {
+  FormProvider,
+  type ResolverResult,
+  useForm,
+  type UseFormReturn,
+} from "react-hook-form";
 import type { SchemaValue } from "@cosmos/schema";
 import type { Definition, NativeFormValue, Primitive } from "./type.ts";
 import StringField from "./fields/string.tsx";
@@ -62,13 +67,27 @@ export function useFields(
 
     return value;
   }, [init]);
+
+  const errors = useMemo(() => {
+    if (values === undefined) return undefined;
+
+    const result = cosmosResolver(values, { schema, messenger });
+
+    function isValid(result: ResolverResult<object, unknown>): boolean {
+      return isEmptyObject(result.errors);
+    }
+
+    if (isValid(result)) return undefined;
+
+    return result.errors;
+  }, []);
+
   const form = useForm<FormValues, ResolverContext, SchemaValue>({
     defaultValues: values as any,
     resolver: cosmosResolver,
     context: { schema, messenger },
+    errors,
   });
-
-  form.trigger();
 
   return {
     finalize(): Promise<SchemaValue | null> {
@@ -263,4 +282,8 @@ function _Field(props: _FieldProps): JSX.Element {
       return <ReferenceField {...fieldProps} />;
     }
   }
+}
+
+function isEmptyObject(value: object): value is Record<string, never> {
+  return !Reflect.ownKeys(value).length;
 }
