@@ -1,4 +1,4 @@
-import type { JSX, ReactNode } from "react";
+import type { FC, JSX, ReactNode } from "react";
 import type { Definition } from "../type.ts";
 
 export interface FieldProps<T extends Definition = Definition> {
@@ -7,7 +7,7 @@ export interface FieldProps<T extends Definition = Definition> {
   render(
     props: { name: string; definition: Definition; required?: boolean },
   ): JSX.Element;
-  layout(props: FieldLayoutProps): JSX.Element;
+  layout: FC<FieldLayoutProps>;
   required?: boolean;
   id: string;
 }

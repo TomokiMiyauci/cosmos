@@ -13,3 +13,4 @@ export type {
   Definition,
   Presentation,
 } from "./type.ts";
+export type { FieldLayoutProps } from "./fields/type.ts";

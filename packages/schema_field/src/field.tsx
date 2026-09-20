@@ -1,4 +1,4 @@
-import { type JSX, useId, useMemo, useState } from "react";
+import { type FC, type JSX, useId, useMemo, useState } from "react";
 import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
 import type { SchemaValue } from "@cosmos/schema";
 import type { Definition, NativeFormValue, Primitive } from "./type.ts";
@@ -21,7 +21,7 @@ import { mapValues } from "@std/collections/map-values";
 export interface UseFieldsReturn {
   setErrors(error: FieldError[]): void;
   finalize(): Promise<SchemaValue | null>;
-  render(): JSX.Element;
+  render(props?: RenderProps): JSX.Element;
 }
 
 const defaultMessenger = {
@@ -84,10 +84,14 @@ export function useFields(
       }
     },
 
-    render(): JSX.Element {
-      return <Fields definition={schema} controller={form} />;
+    render(props?: RenderProps): JSX.Element {
+      return <Fields definition={schema} controller={form} {...props} />;
     },
   };
+}
+
+export interface RenderProps {
+  layout?: FC<FieldLayoutProps>;
 }
 
 function toFormValues(value: SchemaValue): FormValues {
@@ -122,6 +126,7 @@ export interface FieldError {
 export interface FieldsProps {
   controller: UseFormReturn<FormValues, unknown, SchemaValue>;
   definition: Definition;
+  layout?: FC<FieldLayoutProps>;
 }
 
 interface FormValues {
@@ -139,6 +144,7 @@ export function Fields(props: FieldsProps): JSX.Element {
         definition={props.definition}
         name="content"
         ancestors={new Set()}
+        layout={props.layout ?? FieldLayout}
       />
     </FormProvider>
   );
@@ -149,6 +155,7 @@ interface _FieldProps {
   name: string;
   ancestors: Set<Definition>;
   required?: boolean;
+  layout: FC<FieldLayoutProps>;
 }
 
 function FieldLayout(props: FieldLayoutProps): JSX.Element {
@@ -183,14 +190,14 @@ function RecursiveField(props: FieldProps): JSX.Element {
 }
 
 function _Field(props: _FieldProps): JSX.Element {
-  const { definition, name, ancestors, required } = props;
+  const { definition, name, ancestors, required, layout } = props;
 
   const id = useId();
 
   const baseFieldProps = {
     name,
     definition,
-    layout: FieldLayout,
+    layout,
     required,
     id,
   };
@@ -205,6 +212,7 @@ function _Field(props: _FieldProps): JSX.Element {
             name={name}
             definition={definition}
             required={required}
+            layout={layout}
           />
         )}
       />
@@ -222,6 +230,7 @@ function _Field(props: _FieldProps): JSX.Element {
         name={name}
         definition={definition}
         required={required}
+        layout={layout}
       />
     ),
   } satisfies FieldProps;
