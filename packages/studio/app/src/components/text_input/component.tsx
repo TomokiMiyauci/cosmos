@@ -2,7 +2,7 @@ import type { DetailedHTMLProps, InputHTMLAttributes, JSX } from "react";
 import StyleSheet from "~util";
 import style from "./style.css" with { type: "css" };
 
-export default function Input(
+export default function TextInput(
   props: DetailedHTMLProps<
     InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
