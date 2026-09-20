@@ -11,35 +11,26 @@ import { Result } from "@miyauci/util";
 
 export type Input = string | Input[] | { [k: string]: Input };
 
-type ParsedResult = SchemaValue | Unknown;
-
-export class Unknown {
-  #value: unknown;
-  constructor(value: unknown) {
-    this.#value = value;
-  }
-
-  get value(): unknown {
-    return this.#value;
-  }
+interface InterpretError {
+  paths: Path[];
 }
 
+type Path = string;
+
 export class HtmlIoInterpreter {
-  interpret(input: Input, schema: Schema): ParsedResult {
+  interpret(
+    input: Input,
+    schema: Schema,
+  ): Result<SchemaValue, InterpretError[]> {
     switch (schema.type) {
       case "string": {
-        if (typeof input !== "string") return new Unknown(input);
-
-        return input;
+        return this.interpretString(input);
       }
       case "number": {
         return this.interpretNumber(input);
       }
       case "boolean": {
-        if (input === "true") return true;
-        if (input === "false") return false;
-
-        return new Unknown(input);
+        return this.interpretBoolean(input);
       }
       case "map": {
         return this.interpretMap(input, schema);
@@ -56,69 +47,110 @@ export class HtmlIoInterpreter {
     }
   }
 
-  private interpretNumber(input: Input): ParsedResult {
-    if (typeof input !== "string") return new Unknown(input);
+  private interpretString(input: Input): Result<SchemaValue, InterpretError[]> {
+    if (typeof input !== "string") return Result.error([{ paths: [] }]);
+
+    return Result.ok(input);
+  }
+
+  private interpretNumber(input: Input): Result<SchemaValue, InterpretError[]> {
+    if (typeof input !== "string") return Result.error([{ paths: [] }]);
 
     const [num, numError] = parseNumber(input);
 
-    if (numError) return new Unknown(input);
+    if (numError) return Result.error([{ paths: [] }]);
 
     const [value, valueError] = NumberValue.of(num);
 
-    if (valueError) return new Unknown(input);
+    if (valueError) return Result.error([{ paths: [] }]);
 
-    return value;
+    return Result.ok(value);
   }
 
-  private interpretReference(input: Input): ParsedResult {
-    if (typeof input !== "string") return new Unknown(input);
+  private interpretBoolean(
+    input: Input,
+  ): Result<SchemaValue, InterpretError[]> {
+    if (input === "true") return Result.ok(true);
+    if (input === "false") return Result.ok(false);
+
+    return Result.error([{ paths: [] }]);
+  }
+
+  private interpretReference(
+    input: Input,
+  ): Result<SchemaValue, InterpretError[]> {
+    if (typeof input !== "string") return Result.error([{ paths: [] }]);
 
     const [data, error] = Identifier.of(input);
 
-    if (error) return new Unknown(input);
+    if (error) return Result.error([{ paths: [] }]);
 
-    return data;
+    return Result.ok(data);
   }
 
   private interpretSequence(
     input: Input,
     schema: SequenceSchema,
-  ): ParsedResult {
-    if (!Array.isArray(input)) return new Unknown(input);
+  ): Result<SchemaValue, InterpretError[]> {
+    if (!Array.isArray(input)) return Result.error([{ paths: [] }]);
 
     const items: SequenceValue<SchemaValue> = [];
+    const errors: InterpretError[] = [];
 
-    for (const item of input) {
-      const result = this.interpret(item, schema.item);
+    for (const [index, item] of input.entries()) {
+      const [data, error] = this.interpret(item, schema.item);
 
-      if (result instanceof Unknown) return new Unknown(input);
+      if (error) {
+        const thisErrors = error.map(({ paths }) => ({
+          paths: paths.concat(index.toString()),
+        }));
 
-      items.push(result);
+        errors.push(...thisErrors);
+      } else {
+        items.push(data);
+      }
     }
 
-    return items;
+    if (errors.length) {
+      return Result.error(errors);
+    }
+
+    return Result.ok(items);
   }
 
-  private interpretMap(input: Input, schema: MapSchema): ParsedResult {
+  private interpretMap(
+    input: Input,
+    schema: MapSchema,
+  ): Result<SchemaValue, InterpretError[]> {
     if (typeof input === "object" && !Array.isArray(input)) {
       const value: Record<string, SchemaValue> = {};
+      const errors: InterpretError[] = [];
 
       for (const [key, childSchema] of Object.entries(schema.properties)) {
         const childValue = input[key];
 
         if (childValue === undefined) continue;
 
-        const result = this.interpret(childValue, childSchema);
+        const [data, error] = this.interpret(childValue, childSchema);
 
-        if (result instanceof Unknown) return new Unknown(input);
-
-        value[key] = result;
+        if (error) {
+          const thisErrors = error.map(({ paths }) => ({
+            paths: paths.concat(key),
+          }));
+          errors.push(...thisErrors);
+        } else {
+          value[key] = data;
+        }
       }
 
-      return value;
+      if (errors.length) {
+        return Result.error(errors);
+      }
+
+      return Result.ok(value);
     }
 
-    return new Unknown(input);
+    return Result.error([{ paths: [] }]);
   }
 }
 

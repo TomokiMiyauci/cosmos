@@ -1,6 +1,6 @@
 import type { Resolver } from "react-hook-form";
 import type { Schema, SchemaValue } from "@cosmos/schema";
-import { HtmlIoInterpreter, Unknown } from "./interpreter.ts";
+import { HtmlIoInterpreter } from "./interpreter.ts";
 import { type ErrorReason, validate } from "@cosmos/validator";
 
 const interpreter = new HtmlIoInterpreter();
@@ -11,8 +11,10 @@ export interface ResolverContext {
 }
 
 export interface Messenger {
-  message(reason: ErrorReason): string;
+  message(reason: ErrorSource): string;
 }
+
+type ErrorSource = ErrorReason | "unknown";
 
 export const cosmosResolver = ((
   values,
@@ -27,13 +29,22 @@ export const cosmosResolver = ((
     return { values: {}, errors: {} as unknown };
   }
 
-  const result = interpreter.interpret(normalized, schema);
+  const [schemaValue, interpretErrors] = interpreter.interpret(
+    normalized,
+    schema,
+  );
 
-  if (result instanceof Unknown) {
-    return { values: {}, errors: { content: { message: "Error" } } as any };
+  if (interpretErrors) {
+    const e = interpretErrors.map(({ paths }) => ({
+      message: messenger.message("unknown"),
+      path: paths,
+    }));
+    const errorMap = toErrors(e);
+
+    return { values: {}, errors: { content: errorMap } as any };
   }
 
-  const [_, errors] = validate(result, schema);
+  const [_, errors] = validate(schemaValue, schema);
 
   if (errors) {
     const e = errors.map((error) => ({
@@ -49,7 +60,7 @@ export const cosmosResolver = ((
   }
 
   return {
-    values: result,
+    values: schemaValue,
     errors: {} as any,
   };
 }) satisfies Resolver<FormValues, ResolverContext, SchemaValue>;

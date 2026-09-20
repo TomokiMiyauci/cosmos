@@ -36,6 +36,9 @@ const defaultMessenger = {
       case "invalid_value": {
         return "Invalid value";
       }
+      case "unknown": {
+        return "Unknown";
+      }
     }
   },
 } satisfies Messenger;
@@ -60,10 +63,12 @@ export function useFields(
     return value;
   }, [init]);
   const form = useForm<FormValues, ResolverContext, SchemaValue>({
-    values,
+    defaultValues: values as any,
     resolver: cosmosResolver,
     context: { schema, messenger },
   });
+
+  form.trigger();
 
   return {
     finalize(): Promise<SchemaValue | null> {
