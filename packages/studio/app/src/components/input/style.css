@@ -1,4 +1,4 @@
-@scope ([data-component=text]) {
+@scope ([data-component=input]) {
   :scope {
     box-sizing: border-box;
     width: 100%;
