@@ -4,6 +4,7 @@ import type { JSX, SubmitEvent } from "react";
 import type { Result } from "@miyauci/util";
 import { type Definition, useFields } from "@cosmos/schema-field";
 import type { SchemaValue } from "@cosmos/schema";
+import { FieldLayout } from "~component";
 
 export interface EntryPageProps {
   definition: Definition;
@@ -34,7 +35,7 @@ export default function EntryPage(
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        {fields.render()}
+        {fields.render({ layout: FieldLayout })}
 
         <button type="submit">Update</button>
       </form>

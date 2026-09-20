@@ -1,0 +1,11 @@
+@scope ([data-component=field-layout]) {
+  :scope {
+    all: unset;
+    display: grid;
+    row-gap: 8px;
+  }
+
+  > label {
+    all: unset;
+  }
+}

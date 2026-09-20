@@ -6,7 +6,7 @@ import type { Result } from "@miyauci/util";
 import { Page, router } from "~router";
 import type { SchemaValue } from "@cosmos/schema";
 import type { Messenger } from "../messenger.ts";
-import { Button } from "~component";
+import { Button, FieldLayout } from "~component";
 
 export interface ContentCreatePageProps {
   definition: Definition;
@@ -50,7 +50,9 @@ export default function ContentCreationPage(
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        {fields.render()}
+        {fields.render({
+          layout: FieldLayout,
+        })}
 
         <Button type="submit">
           {messenger.message({ type: "action", action: "create" })}
