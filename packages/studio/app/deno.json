@@ -14,7 +14,9 @@
     "react": "npm:react@^19.3.0",
     "react-error-boundary": "npm:react-error-boundary@^6.1.5",
     "~usecase/node": "./src/application/usecases/node/mod.ts",
-    "~router": "./src/internals/router.ts"
+    "~router": "./src/internals/router.ts",
+    "~util": "./src/internals/util.tsx",
+    "~component": "./src/internals/component.ts"
   },
   "compilerOptions": {
     "jsx": "react-jsx",
