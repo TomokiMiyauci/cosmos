@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, DetailedHTMLProps, JSX } from "react";
-import style from "./button.css" with { type: "css" };
+import style from "./style.css" with { type: "css" };
 import StyleSheet from "~util";
 
 export default function Button(
