@@ -15,7 +15,7 @@ export default function FieldLayout(props: FieldLayoutProps): JSX.Element {
 
         {control}
 
-        <p>{error}</p>
+        {error !== null && <p>{error}</p>}
       </div>
     </>
   );
