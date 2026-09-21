@@ -1,15 +1,21 @@
 import type { JSX } from "react";
 import type { FieldProps } from "./type.ts";
+import type { FieldValue } from "../type.ts";
 import { createUseList } from "./util.ts";
 import { useController } from "react-hook-form";
-import type { FieldValue } from "../type.ts";
 
-export default function BooleanField(props: FieldProps): JSX.Element {
-  const { name, definition: def, render, layout: Layout, required = true, id } =
-    props;
+export default function PrimitiveField(props: FieldProps): JSX.Element {
+  const {
+    name,
+    definition: def,
+    render,
+    layout: Layout,
+    required = true,
+    id,
+  } = props;
+
   const useList = createUseList(name);
   const { fieldState: { error } } = useController({ name });
-
   const api = {
     useList,
     useValue(): [string | null, (value: string | null) => void] {

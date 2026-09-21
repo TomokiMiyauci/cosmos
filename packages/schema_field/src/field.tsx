@@ -7,13 +7,10 @@ import {
 } from "react-hook-form";
 import type { SchemaValue } from "@cosmos/schema";
 import type { Definition, NativeFormValue, Primitive } from "./type.ts";
-import StringField from "./fields/string.tsx";
-import NumberField from "./fields/number.tsx";
-import BooleanField from "./fields/boolean.tsx";
+import PrimitiveField from "./fields/primitive.tsx";
 import MapField from "./fields/map.tsx";
 import UnionField from "./fields/union.tsx";
 import SequenceField from "./fields/sequence.tsx";
-import ReferenceField from "./fields/reference.tsx";
 import type { FieldLayoutProps, FieldProps } from "./fields/type.ts";
 import {
   cosmosResolver,
@@ -260,14 +257,11 @@ function _Field(props: _FieldProps): JSX.Element {
   } satisfies FieldProps;
 
   switch (definition.type) {
-    case "string": {
-      return <StringField {...fieldProps} />;
-    }
-    case "number": {
-      return <NumberField {...fieldProps} />;
-    }
-    case "boolean": {
-      return <BooleanField {...fieldProps} />;
+    case "string":
+    case "boolean":
+    case "number":
+    case "reference": {
+      return <PrimitiveField {...fieldProps} />;
     }
     case "sequence": {
       return <SequenceField {...fieldProps} />;
@@ -277,9 +271,6 @@ function _Field(props: _FieldProps): JSX.Element {
     }
     case "union": {
       return <UnionField {...fieldProps} />;
-    }
-    case "reference": {
-      return <ReferenceField {...fieldProps} />;
     }
   }
 }
