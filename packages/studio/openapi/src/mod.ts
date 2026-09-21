@@ -178,6 +178,10 @@ export class OpenapiEntryService implements EntryService {
 
     return { id: data.id, modelId: data.model.id, content };
   }
+
+  async delete(id: Entry["id"]): Promise<void> {
+    await this.#client.deleteEntry({ path: { id } });
+  }
 }
 
 function pointer2Path(pointer: string): string[] {

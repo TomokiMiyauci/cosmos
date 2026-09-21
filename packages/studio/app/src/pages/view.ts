@@ -138,4 +138,8 @@ class EntryContentUpdateService {
 
     return Result.ok(undefined);
   }
+
+  async delete(): Promise<void> {
+    await this.service.delete(this.id);
+  }
 }
