@@ -21,9 +21,7 @@ export default function MapField(
       const v = value === null ? null : String(value);
 
       return [v, (value: string | null) => {
-        const v = typeof value === "string" ? Boolean(value) : null;
-
-        field.onChange(v);
+        field.onChange(value);
       }];
     },
   };
