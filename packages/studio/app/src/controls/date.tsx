@@ -13,7 +13,7 @@ export default function DateControl(props: ControlProps): JSX.Element {
       type="date"
       value={value ?? ""}
       onChange={(ev) => {
-        setValue(ev.target.value ?? null);
+        setValue(ev.target.value || null);
       }}
       required={required}
     />
