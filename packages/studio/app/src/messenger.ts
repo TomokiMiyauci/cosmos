@@ -37,7 +37,7 @@ export class EnMessenger implements Messenger {
             return "Entries";
           }
           case "Entry": {
-            return "Entry";
+            return "Models";
           }
         }
         break;

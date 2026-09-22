@@ -1,0 +1,44 @@
+@scope ([data-component=page-layout]) {
+  :scope {
+    all: unset;
+    display: grid;
+    grid-template:
+      "header" auto
+      "main" auto;
+    --page-layout-padding: 8px;
+  }
+
+  header {
+    all: unset;
+    grid-area: header;
+    padding: var(--page-layout-padding);
+  }
+
+  nav {
+    all: unset;
+    grid-area: nav;
+    display: none;
+    padding-left: var(--page-layout-padding);
+    padding-right: var(--page-layout-padding);
+  }
+
+  main {
+    all: unset;
+    grid-area: main;
+    padding-left: var(--page-layout-padding);
+    padding-right: var(--page-layout-padding);
+  }
+
+  @media (min-width: 40rem) {
+    :scope {
+      grid-template:
+        "header header" auto
+        "nav    main" minmax(0, 1fr)
+        / 16rem minmax(0, 1fr);
+    }
+
+    nav {
+      display: block;
+    }
+  }
+}
