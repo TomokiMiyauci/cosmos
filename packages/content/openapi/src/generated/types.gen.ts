@@ -58,6 +58,8 @@ export type EntrySummaryResponse = {
     model: {
         id: string;
     };
+    created_at: string;
+    updated_at: string;
 };
 
 export type Identitiy = {

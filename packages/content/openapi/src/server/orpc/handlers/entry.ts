@@ -206,6 +206,8 @@ function toEntryResponse(view: EntryView): EntryResponse {
       id: view.modelId,
     },
     contents: schemaValue2Node(view.content),
+    created_at: view.createdAt.toJSON(),
+    updated_at: view.updatedAt.toJSON(),
   };
 }
 
@@ -294,6 +296,8 @@ function toSummaryResponse(view: EntryView): EntrySummaryResponse {
   return {
     id: view.id,
     model: { id: view.modelId },
+    created_at: view.createdAt.toJSON(),
+    updated_at: view.updatedAt.toJSON(),
   };
 }
 

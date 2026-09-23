@@ -137,7 +137,13 @@ export class Client {
 
     return {
       status: 200,
-      body: { id: data.id, model: data.model, contents: data.contents },
+      body: {
+        id: data.id,
+        model: data.model,
+        contents: data.contents,
+        updated_at: data.updated_at,
+        created_at: data.created_at,
+      },
     };
   }
 

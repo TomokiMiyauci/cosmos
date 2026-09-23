@@ -24,7 +24,9 @@ export const zEntrySummaryResponse = z.object({
     id: z.string(),
     model: z.object({
         id: z.string()
-    })
+    }),
+    created_at: z.iso.datetime(),
+    updated_at: z.iso.datetime()
 });
 
 export const zIdentitiy = z.object({

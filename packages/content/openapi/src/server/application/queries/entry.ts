@@ -9,4 +9,6 @@ export interface EntryView {
   id: string;
   modelId: string;
   content: SchemaValue;
+  createdAt: Temporal.Instant;
+  updatedAt: Temporal.Instant;
 }

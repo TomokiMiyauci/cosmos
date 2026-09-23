@@ -269,9 +269,17 @@ components:
               type: string
           required:
             - id
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
       required:
         - id
         - model
+        - created_at
+        - updated_at
       unevaluatedProperties: false
 
     Identitiy:
