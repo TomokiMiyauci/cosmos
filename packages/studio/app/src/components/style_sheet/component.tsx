@@ -13,10 +13,13 @@ export interface StyleSheetProps extends
 
 export default function StyleSheet(props: StyleSheetProps): JSX.Element {
   const { children, ...rest } = props;
+  const css = Object.values(children.cssRules).map((rule) => rule.cssText).join(
+    "\n",
+  );
 
   return (
     <style suppressHydrationWarning {...rest}>
-      {children.cssRules[0]?.cssText}
+      {css}
     </style>
   );
 }
