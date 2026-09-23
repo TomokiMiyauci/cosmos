@@ -1,6 +1,6 @@
 import type { UserConfig } from "@hey-api/openapi-ts";
 export default {
-  input: "./openapi.yaml",
+  input: "./src/openapi.yaml",
   output: {
     path: "src/generated",
     module: {
