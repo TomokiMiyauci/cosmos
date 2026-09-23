@@ -1,10 +1,10 @@
 import { JSX, ReactNode } from "react";
 import type { Model } from "../../application/query.ts";
 import { useMessenger } from "../../context/messenger.ts";
-import { resolveEntryListByModel } from "../../pages/route.ts";
 import { Page, router } from "~router";
 import style from "./style.css" with { type: "css" };
 import StyleSheet from "~util";
+import Navigation from "./navigation/component.tsx";
 
 export interface PageLayoutProps {
   models: Model[];
@@ -26,38 +26,14 @@ export default function PageLayout(props: PageLayoutProps): JSX.Element {
           </a>
         </header>
 
-        <Aside models={models} />
+        <div data-navigation>
+          <Navigation models={models} />
+        </div>
 
         <main>
           {children}
         </main>
       </body>
     </>
-  );
-}
-
-interface AsideProps {
-  models: Model[];
-}
-
-function Aside(props: AsideProps): JSX.Element {
-  const { models } = props;
-
-  const messenger = useMessenger();
-
-  return (
-    <nav>
-      <h2>{messenger.message({ type: "page-title", page: "Entry" })}</h2>
-
-      <ul>
-        {models.map(({ id, title }) => {
-          return (
-            <li key={id}>
-              <a href={resolveEntryListByModel(id)}>{title}</a>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
   );
 }

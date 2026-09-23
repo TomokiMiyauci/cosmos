@@ -1,0 +1,20 @@
+@scope ([data-component=navigation]) {
+  :scope {
+    all: unset;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  > [data-title] {
+    all: unset;
+  }
+
+  > [data-list] {
+    all: unset;
+    display: block;
+
+    > [data-item] {
+      all: unset;
+    }
+  }
+}
