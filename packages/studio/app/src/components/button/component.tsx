@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, DetailedHTMLProps, JSX } from "react";
 import style from "./style.css" with { type: "css" };
-import StyleSheet from "~util";
+import { StyleSheet } from "~component";
 
 export default function Button(
   props: DetailedHTMLProps<

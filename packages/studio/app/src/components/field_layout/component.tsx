@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 import type { FieldLayoutProps } from "@cosmos/schema-field";
 import style from "./style.css" with { type: "css" };
-import StyleSheet from "~util";
+import { StyleSheet } from "~component";
 
 export default function FieldLayout(props: FieldLayoutProps): JSX.Element {
   const { id, title, error, control } = props;

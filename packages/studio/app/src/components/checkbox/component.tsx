@@ -1,5 +1,5 @@
 import type { DetailedHTMLProps, InputHTMLAttributes, JSX } from "react";
-import StyleSheet from "~util";
+import { StyleSheet } from "~component";
 import style from "./style.css" with { type: "css" };
 
 export default function Checkbox(

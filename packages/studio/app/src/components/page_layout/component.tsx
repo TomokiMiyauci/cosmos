@@ -3,7 +3,7 @@ import type { Model } from "../../application/query.ts";
 import { useMessenger } from "../../context/messenger.ts";
 import { Page, router } from "~router";
 import style from "./style.css" with { type: "css" };
-import StyleSheet from "~util";
+import { StyleSheet } from "~component";
 import Navigation from "./navigation/component.tsx";
 
 export interface PageLayoutProps {

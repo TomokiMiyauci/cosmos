@@ -3,7 +3,7 @@ import { useMessenger } from "../../../context/messenger.ts";
 import { resolveEntryListByModel } from "../../../pages/route.ts";
 import type { Model } from "../../../application/query.ts";
 import style from "./style.css" with { type: "css" };
-import StyleSheet from "~util";
+import { StyleSheet } from "~component";
 
 export interface NavigationProps {
   models: Model[];

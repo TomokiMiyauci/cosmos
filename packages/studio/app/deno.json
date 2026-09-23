@@ -15,7 +15,6 @@
     "react-error-boundary": "npm:react-error-boundary@^6.1.5",
     "~usecase/node": "./src/application/usecases/node/mod.ts",
     "~router": "./src/internals/router.ts",
-    "~util": "./src/internals/util.tsx",
     "~component": "./src/internals/component.ts"
   },
   "compilerOptions": {
@@ -25,5 +24,10 @@
       "dom",
       "deno.unstable"
     ]
+  },
+  "lint": {
+    "rules": {
+      "tags": ["react"]
+    }
   }
 }
