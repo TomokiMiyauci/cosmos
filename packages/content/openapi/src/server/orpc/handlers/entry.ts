@@ -68,7 +68,7 @@ export const postEntry = os.postEntry.handler(async (options) => {
     });
   }
 
-  const [id, error] = await context.usecases.entry.register.execute({
+  const [id, error] = await context.usecases.entry.create.execute({
     model,
     contents: node,
   });
@@ -88,8 +88,7 @@ export const postEntry = os.postEntry.handler(async (options) => {
         });
       }
 
-      case "INVALID_MODEL":
-      case "INVALID_ID": {
+      case "INVALID_MODEL": {
         throw errors.BAD_REQUEST({
           data: {
             status: 400,
@@ -229,7 +228,7 @@ export const putEntry = os.putEntry.handler(async (options) => {
     });
   }
 
-  const [_, error] = await context.usecases.entry.register.execute({
+  const [_, error] = await context.usecases.entry.upsert.execute({
     id,
     contents: node,
     model,
