@@ -5,6 +5,7 @@
   "workspace": [
     "packages/*",
     "packages/content/*",
+    "packages/studio/*",
     "examples/*"
   ],
   "lint": {
@@ -38,5 +39,7 @@
   },
   "compilerOptions": {
     "noUncheckedIndexedAccess": true
-  }
+  },
+
+  "nodeModulesDir": "auto"
 }
