@@ -1,0 +1,16 @@
+type Entry {
+  id: String!
+}
+
+type Query {
+  entries: [Entry]!
+}
+
+type Mutation {
+  createEntry(model: ID!): Identifier
+  deleteEntry(id: ID!): Boolean!
+}
+
+type Identifier {
+  id: ID!
+}

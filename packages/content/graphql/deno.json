@@ -1,0 +1,15 @@
+{
+  "name": "@cosmos/content-graphql",
+  "imports": {
+    "@graphql-codegen/cli": "npm:@graphql-codegen/cli@^7.4.2",
+    "@graphql-codegen/typescript": "npm:@graphql-codegen/typescript@^6.1.0",
+    "@graphql-codegen/typescript-resolvers": "npm:@graphql-codegen/typescript-resolvers@^6.1.0",
+    "@graphql-tools/schema": "npm:@graphql-tools/schema@^10.1.1",
+    "graphql": "npm:graphql@^17.0.2",
+    "graphql-yoga": "npm:graphql-yoga@^5.24.1"
+  },
+  "exports": "./src/mod.ts",
+  "tasks": {
+    "generate": "deno x graphql-code-generator --config ./.graphqlrc.yaml"
+  }
+}
