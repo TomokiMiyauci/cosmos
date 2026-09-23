@@ -37,6 +37,8 @@ export class StoreEntryRepository implements Entry.Repositry {
       id: entry.id.value,
       modelId: entry.modelId.value,
       content: entry.content,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
     };
   }
 
@@ -48,7 +50,13 @@ export class StoreEntryRepository implements Entry.Repositry {
 
     if (modelIdError) throw new Error();
 
-    return Entry.of(entryId, modelId, view.content);
+    return Entry.of(
+      entryId,
+      modelId,
+      view.content,
+      view.createdAt,
+      view.updatedAt,
+    );
   }
 }
 
@@ -62,6 +70,8 @@ interface EntryView {
   id: string;
   modelId: string;
   content: SchemaValue;
+  createdAt: Temporal.Instant;
+  updatedAt: Temporal.Instant;
 }
 
 export class DenoStore implements Store {
@@ -105,10 +115,15 @@ function parseText(value: string): EntryView {
 
   if (error) throw new Error("invalid content");
 
+  const createdAt = Temporal.Instant.from(json.createdAt);
+  const updatedAt = Temporal.Instant.from(json.updatedAt);
+
   return {
     id: json.id,
     modelId: json.modelId,
     content,
+    createdAt,
+    updatedAt,
   };
 }
 
@@ -117,6 +132,8 @@ function stringify(view: EntryView): string {
     id: view.id,
     modelId: view.modelId,
     content: schemaValue2Node(view.content),
+    createdAt: view.createdAt.toJSON(),
+    updatedAt: view.updatedAt.toJSON(),
   };
 
   return JSON.stringify(json);
@@ -275,6 +292,8 @@ export class DenoReader implements Reader {
         id: parsed.id,
         modelId: parsed.modelId,
         content: parsed.content,
+        createdAt: parsed.createdAt,
+        updatedAt: parsed.updatedAt,
       };
     } catch (e) {
       if (e instanceof Deno.errors.NotFound) {
@@ -302,9 +321,9 @@ export class DenoReader implements Reader {
     const texts = await Promise.all(urls.map(async (url) => {
       const text = await Deno.readTextFile(url.url);
 
-      const { id, modelId, content } = parseText(text);
+      const { id, modelId, content, createdAt, updatedAt } = parseText(text);
 
-      return { id, modelId, content };
+      return { id, modelId, content, createdAt, updatedAt };
     }));
 
     return texts;

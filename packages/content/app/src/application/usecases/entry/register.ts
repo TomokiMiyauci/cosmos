@@ -17,11 +17,14 @@ export interface UpdateCommand extends CreateCommand {
 }
 
 export type CreationError =
-  | InvalidIdError
   | ModelNotFoundError
   | SchemaNotFoundError
   | ContentViolationError
   | InvalidModelError;
+
+export type UpdatationError =
+  | InvalidIdError
+  | CreationError;
 
 export interface InvalidIdError {
   type: "INVALID_ID";
@@ -57,7 +60,7 @@ export type ContentViolation =
   | "REFERENCE_NOT_FOUND"
   | "INVALID_VALUE";
 
-export class EntryRegisterUseCase {
+export class EntryCreateUseCase {
   constructor(
     private entryRepo: Entry.Repositry,
     private modelRepo: Model.Repositry,
@@ -65,19 +68,10 @@ export class EntryRegisterUseCase {
   ) {}
 
   async execute(
-    command: CreateCommand | UpdateCommand,
+    command: CreateCommand,
   ): Promise<Result<string, CreationError>> {
-    let id: Entry.Id;
-
-    if ("id" in command) {
-      const [entryId, entryIdError] = Entry.Id.of(command.id);
-
-      if (entryIdError) return Result.error({ type: "INVALID_ID" });
-
-      id = entryId;
-    } else {
-      id = Entry.Id.new();
-    }
+    const id: Entry.Id = Entry.Id.new();
+    const now = Temporal.Now.instant();
 
     const [modelId, modelConstructError] = Model.Id.of(command.model);
 
@@ -122,7 +116,83 @@ export class EntryRegisterUseCase {
       return Result.error({ type: "INVALID_CONTENT", violations: allErrors });
     }
 
-    const entry = Entry.of(id, modelId, command.contents);
+    const entry = Entry.of(id, modelId, command.contents, now, now);
+
+    await this.entryRepo.save(entry);
+
+    return Result.ok(entry.id.value);
+  }
+}
+
+export class EntryUpsertUseCase {
+  constructor(
+    private entryRepo: Entry.Repositry,
+    private modelRepo: Model.Repositry,
+    private schemaRepo: Schema.Repository,
+  ) {}
+
+  async execute(
+    command: UpdateCommand,
+  ): Promise<Result<string, UpdatationError>> {
+    const [id, entryIdError] = Entry.Id.of(command.id);
+
+    if (entryIdError) return Result.error({ type: "INVALID_ID" });
+
+    const [modelId, modelConstructError] = Model.Id.of(command.model);
+
+    if (modelConstructError) {
+      return Result.error({ type: "INVALID_MODEL" });
+    }
+
+    const model = await this.modelRepo.findById(modelId);
+
+    if (!model) return Result.error({ type: "MODEL_NOT_FOUND" });
+
+    const schema = await this.schemaRepo.findById(model.schemaId);
+
+    if (!schema) {
+      return Result.error({ type: "SCHEMA_NOT_FOUND" });
+    }
+
+    const references: IdPath[] = [];
+
+    const [_, errors] = validate(
+      command.contents,
+      schema.definition,
+      (context) => {
+        if (context.type === "reference") {
+          const id = Entry.Id.fromIdentifier(context.content);
+
+          references.push({ id, path: context.path });
+        }
+      },
+    );
+
+    const notFounds = await validateReferenceExistence(
+      references,
+      this.entryRepo,
+    );
+    const allErrors = [
+      ...errors?.map(vilidationError2Violation) ?? [],
+      ...notFounds,
+    ];
+
+    if (allErrors.length) {
+      return Result.error({ type: "INVALID_CONTENT", violations: allErrors });
+    }
+
+    const prevEntry = await this.entryRepo.findById(id);
+    const now = Temporal.Now.instant();
+
+    const entry = prevEntry
+      ? prevEntry.update(modelId, command.contents, now)
+      : Entry.of(
+        id,
+        modelId,
+        command.contents,
+        now,
+        now,
+      );
 
     await this.entryRepo.save(entry);
 

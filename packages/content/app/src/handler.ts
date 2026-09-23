@@ -1,6 +1,9 @@
 import type { Entry, Model, Schema } from "~domain";
 import type { EntryUsecase, Protocol, Usecases } from "./protocol.ts";
-import { EntryRegisterUseCase } from "./application/usecases/entry/register.ts";
+import {
+  EntryCreateUseCase,
+  EntryUpsertUseCase,
+} from "./application/usecases/entry/register.ts";
 import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 
 export interface Config {
@@ -22,7 +25,12 @@ export interface Repositories {
 export function createHandler(ports: Ports): Handler {
   const { repositories, protocol } = ports;
   const entry = {
-    register: new EntryRegisterUseCase(
+    create: new EntryCreateUseCase(
+      repositories.entry,
+      repositories.model,
+      repositories.schema,
+    ),
+    upsert: new EntryUpsertUseCase(
       repositories.entry,
       repositories.model,
       repositories.schema,
