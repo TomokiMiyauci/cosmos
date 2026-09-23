@@ -74,6 +74,7 @@ export class OpenapiEntrySummaryQuery implements EntrySummaryQuery {
     return responses.body.map((response) => ({
       id: response.id,
       title: response.id,
+      updatedAt: Temporal.Instant.from(response.updated_at),
     }));
   }
 }

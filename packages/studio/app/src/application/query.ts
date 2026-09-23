@@ -13,6 +13,7 @@ export interface DefinitionQuery {
 export interface EntrySummary {
   id: string;
   title: string;
+  updatedAt: Temporal.Instant;
 }
 
 export interface EntrySummaryQuery {

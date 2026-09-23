@@ -17,17 +17,31 @@ export default function EntriesPage(props: EntriesPageProps): JSX.Element {
         Create
       </a>
 
-      <ul>
-        {summaries.map(({ id, title }) => {
-          const href = router.resolve(Page.Entry, { id });
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Updated At</th>
+          </tr>
+        </thead>
 
-          return (
-            <li key={id}>
-              <a href={href}>{title}</a>
-            </li>
-          );
-        })}
-      </ul>
+        <tbody>
+          {summaries.map(({ id, title, updatedAt }) => {
+            const href = router.resolve(Page.Entry, { id });
+
+            return (
+              <tr key={id}>
+                <td>
+                  <a href={href}>{title}</a>
+                </td>
+                <td>
+                  {updatedAt.toString()}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
