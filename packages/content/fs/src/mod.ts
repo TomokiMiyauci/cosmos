@@ -275,6 +275,8 @@ function toEntryView(source: EntryView): ServerEntryView {
     id: source.id,
     modelId: source.modelId,
     content: source.content,
+    createdAt: source.createdAt,
+    updatedAt: source.updatedAt,
   };
 }
 
