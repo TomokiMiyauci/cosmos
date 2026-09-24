@@ -1,8 +1,9 @@
-import { Entry, Model } from "@cosmos/content";
-import type {
-  EntryQuery,
-  EntryView as ServerEntryView,
-} from "@cosmos/content-openapi/server";
+import {
+  Entry,
+  type EntryReader,
+  type EntryView as ServerEntryView,
+  Model,
+} from "@cosmos/content";
 import {
   Identifier,
   type MapValue,
@@ -248,7 +249,7 @@ export type SequenceNode = {
   value: Array<SchemaNode>;
 };
 
-export class ReaderEntryQuery implements EntryQuery {
+export class ReaderEntryQuery implements EntryReader {
   constructor(private reader: Reader) {}
 
   async findById(id: string): Promise<ServerEntryView | null> {

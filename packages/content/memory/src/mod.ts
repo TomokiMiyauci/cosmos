@@ -1,4 +1,11 @@
-import { Model, Schema } from "@cosmos/content";
+import {
+  Model,
+  type ModelReader,
+  type ModelView,
+  Schema,
+  type SchemaReader,
+  type SchemaView,
+} from "@cosmos/content";
 import { mapValues } from "@std/collections/map-values";
 import type {
   Config,
@@ -6,12 +13,6 @@ import type {
   SchemaConfig,
   SchemaConfigMap,
 } from "@cosmos/content-config";
-import type {
-  ModelQuery,
-  ModelView,
-  SchemaQuery,
-  SchemaView,
-} from "@cosmos/content-openapi/server";
 import { resolve, type SchemaId, type SchemaNode } from "@cosmos/schema";
 
 export interface ModelDefinitionMap {
@@ -172,7 +173,7 @@ function modelDefinition2Model(
   return Model.of(modelId, schemaId, definition.type);
 }
 
-export class ConfigModelQuery implements ModelQuery {
+export class ConfigModelQuery implements ModelReader {
   constructor(definition: Config["models"]) {
     this.store = mapValues(definition, modelDefinitionToModelView);
   }
@@ -187,7 +188,7 @@ export class ConfigModelQuery implements ModelQuery {
   }
 }
 
-export class ConfigSchemaQuery implements SchemaQuery {
+export class ConfigSchemaQuery implements SchemaReader {
   constructor(definition: Config["schemas"]) {
     const resolved = resolveConfig2SchemaView(definition);
 
