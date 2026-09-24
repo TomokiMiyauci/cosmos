@@ -1,8 +1,8 @@
 import type {
   EntryCreateCommand,
   EntryUpsertCommand,
-} from "./application/usecases/entry/register.ts";
-import type { EntryDeleteCommand } from "./application/usecases/entry/deletion.ts";
+} from "./application/commands/entry/register.ts";
+import type { EntryDeleteCommand } from "./application/commands/entry/deletion.ts";
 
 export interface Commands {
   entry: EntryCommands;

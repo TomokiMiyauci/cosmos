@@ -3,8 +3,8 @@ import type { Commands, EntryCommands, Protocol } from "./protocol.ts";
 import {
   EntryCreateCommand,
   EntryUpsertCommand,
-} from "./application/usecases/entry/register.ts";
-import { EntryDeleteCommand } from "./application/usecases/entry/deletion.ts";
+} from "./application/commands/entry/register.ts";
+import { EntryDeleteCommand } from "./application/commands/entry/deletion.ts";
 
 export interface Config {
   protocol: Protocol;

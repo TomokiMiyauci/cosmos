@@ -14,5 +14,5 @@ export type {
 export {
   type ContentViolation,
   type Violation,
-} from "./application/usecases/entry/register.ts";
+} from "./application/commands/entry/register.ts";
 export { Entry, Model, Schema } from "./domain/mod.ts";
