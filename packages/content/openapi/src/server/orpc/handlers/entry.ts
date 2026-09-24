@@ -1,6 +1,4 @@
 import { os } from "../contract.ts";
-// import { onError, ORPCError, ValidationError } from "@orpc/server";
-// import z from "zod";
 import location from "../middleware/location.ts";
 import type {
   Contents,
@@ -9,8 +7,7 @@ import type {
   EntrySummaryResponse,
   ValidationError as EntryValicationError,
 } from "../../../generated/types.gen.ts";
-import type { EntryView } from "../../application/query.ts";
-import type { ContentViolation, Violation } from "@cosmos/content";
+import type { ContentViolation, EntryView, Violation } from "@cosmos/content";
 import { Result } from "@miyauci/util";
 import {
   Identifier,
@@ -21,33 +18,6 @@ import {
 } from "@cosmos/schema";
 import { isIdentifier, isNumberValue } from "@cosmos/validator";
 import { mapValues } from "@std/collections/map-values";
-
-// const e = onError((error) => {
-//   if (
-//     error instanceof ORPCError &&
-//     error.code === "BAD_REQUEST" &&
-//     error.cause instanceof ValidationError
-//   ) {
-//     const zodError = new z.ZodError(error.cause.issues as z.core.$ZodIssue[]);
-
-//     if (zodError.issues.some((issue) => issue.code === "invalid_type")) {
-//       throw new ORPCError("BAD_REQUEST", {
-//         data: {},
-//       });
-//     }
-
-//     throw new ORPCError("UNPROCESSABLE_CONTENT", {
-//       data: {
-//         status: 422,
-//         detail: "",
-//         instance: "/",
-//         type: "about:blank",
-//         title: "Validation Failure",
-//         errors: [],
-//       },
-//     });
-//   }
-// });
 
 export const postEntry = os.postEntry.handler(async (options) => {
   const { context, input, errors } = options;

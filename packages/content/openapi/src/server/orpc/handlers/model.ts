@@ -1,5 +1,5 @@
 import type { ModelResponse } from "../../../generated/types.gen.ts";
-import type { ModelView } from "../../application/queries/model.ts";
+import type { ModelView } from "@cosmos/content";
 import { os } from "../contract.ts";
 
 export const getModel = os.getModel.handler(async (options) => {

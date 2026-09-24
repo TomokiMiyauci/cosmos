@@ -1,4 +1,4 @@
-import type { SchemaView } from "../../application/queries/schema.ts";
+import type { SchemaView } from "@cosmos/content";
 import type {
   SchemaReference,
   SchemaResponse,

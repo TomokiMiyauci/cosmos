@@ -2,10 +2,8 @@ import type { Protocol, ProtocolArgs } from "@cosmos/content";
 import { router } from "./orpc/router.ts";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { ResponseHeadersPlugin } from "@orpc/server/plugins";
-import type { Queries } from "./application/query.ts";
 
 export interface OpenapiProtocolPorts {
-  queries: Queries;
   prefix?: `/${string}`;
 }
 
@@ -17,7 +15,7 @@ export class OpenapiProtocol implements Protocol {
 
   async handle(args: ProtocolArgs): Promise<Response> {
     const result = await this.#handler.handle(args.request, {
-      context: { queries: this.ports.queries, usecases: args.usecases },
+      context: { queries: args.readers, usecases: args.commands },
       prefix: this.ports.prefix,
     });
 
