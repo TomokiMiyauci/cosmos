@@ -7,12 +7,12 @@ import {
 } from "@cosmos/validator";
 import type { SchemaValue } from "@cosmos/schema";
 
-export interface CreateCommand {
+export interface CreateCommandInput {
   model: string;
   contents: SchemaValue;
 }
 
-export interface UpdateCommand extends CreateCommand {
+export interface UpdateCommandInput extends CreateCommandInput {
   id: string;
 }
 
@@ -60,7 +60,7 @@ export type ContentViolation =
   | "REFERENCE_NOT_FOUND"
   | "INVALID_VALUE";
 
-export class EntryCreateUseCase {
+export class EntryCreateCommand {
   constructor(
     private entryRepo: Entry.Repositry,
     private modelRepo: Model.Repositry,
@@ -68,12 +68,12 @@ export class EntryCreateUseCase {
   ) {}
 
   async execute(
-    command: CreateCommand,
+    input: CreateCommandInput,
   ): Promise<Result<string, CreationError>> {
     const id: Entry.Id = Entry.Id.new();
     const now = Temporal.Now.instant();
 
-    const [modelId, modelConstructError] = Model.Id.of(command.model);
+    const [modelId, modelConstructError] = Model.Id.of(input.model);
 
     if (modelConstructError) {
       return Result.error({ type: "INVALID_MODEL" });
@@ -92,7 +92,7 @@ export class EntryCreateUseCase {
     const references: IdPath[] = [];
 
     const [_, errors] = validate(
-      command.contents,
+      input.contents,
       schema.definition,
       (context) => {
         if (context.type === "reference") {
@@ -116,7 +116,7 @@ export class EntryCreateUseCase {
       return Result.error({ type: "INVALID_CONTENT", violations: allErrors });
     }
 
-    const entry = Entry.of(id, modelId, command.contents, now, now);
+    const entry = Entry.of(id, modelId, input.contents, now, now);
 
     await this.entryRepo.save(entry);
 
@@ -124,7 +124,7 @@ export class EntryCreateUseCase {
   }
 }
 
-export class EntryUpsertUseCase {
+export class EntryUpsertCommand {
   constructor(
     private entryRepo: Entry.Repositry,
     private modelRepo: Model.Repositry,
@@ -132,13 +132,13 @@ export class EntryUpsertUseCase {
   ) {}
 
   async execute(
-    command: UpdateCommand,
+    input: UpdateCommandInput,
   ): Promise<Result<string, UpdatationError>> {
-    const [id, entryIdError] = Entry.Id.of(command.id);
+    const [id, entryIdError] = Entry.Id.of(input.id);
 
     if (entryIdError) return Result.error({ type: "INVALID_ID" });
 
-    const [modelId, modelConstructError] = Model.Id.of(command.model);
+    const [modelId, modelConstructError] = Model.Id.of(input.model);
 
     if (modelConstructError) {
       return Result.error({ type: "INVALID_MODEL" });
@@ -157,7 +157,7 @@ export class EntryUpsertUseCase {
     const references: IdPath[] = [];
 
     const [_, errors] = validate(
-      command.contents,
+      input.contents,
       schema.definition,
       (context) => {
         if (context.type === "reference") {
@@ -185,11 +185,11 @@ export class EntryUpsertUseCase {
     const now = Temporal.Now.instant();
 
     const entry = prevEntry
-      ? prevEntry.update(modelId, command.contents, now)
+      ? prevEntry.update(modelId, input.contents, now)
       : Entry.of(
         id,
         modelId,
-        command.contents,
+        input.contents,
         now,
         now,
       );

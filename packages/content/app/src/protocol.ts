@@ -1,6 +1,6 @@
 import type {
-  EntryCreateUseCase,
-  EntryUpsertUseCase,
+  EntryCreateCommand,
+  EntryUpsertCommand,
 } from "./application/usecases/entry/register.ts";
 import type { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
 
@@ -9,8 +9,8 @@ export interface Usecases {
 }
 
 export interface EntryUsecase {
-  create: EntryCreateUseCase;
-  upsert: EntryUpsertUseCase;
+  create: EntryCreateCommand;
+  upsert: EntryUpsertCommand;
   delete: EntryDeleteUseCase;
 }
 
