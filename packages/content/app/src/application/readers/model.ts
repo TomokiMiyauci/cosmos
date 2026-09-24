@@ -1,4 +1,4 @@
-export interface ModelQuery {
+export interface ModelReader {
   findById(id: string): Promise<ModelView | null>;
   findAll(): Promise<ModelView[]>;
 }

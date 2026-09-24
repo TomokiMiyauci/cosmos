@@ -1,19 +1,15 @@
 import type { Entry, Model, Schema } from "~domain";
-import type { Commands, EntryCommands, Protocol } from "./protocol.ts";
+import type { Commands, EntryCommands, Protocol, Readers } from "./protocol.ts";
 import {
   EntryCreateCommand,
   EntryUpsertCommand,
 } from "./application/commands/entry/register.ts";
 import { EntryDeleteCommand } from "./application/commands/entry/deletion.ts";
 
-export interface Config {
-  protocol: Protocol;
-  repositories: Repositories;
-}
-
 export interface Ports {
   protocol: Protocol;
   repositories: Repositories;
+  readers: Readers;
 }
 
 export interface Repositories {
@@ -23,7 +19,7 @@ export interface Repositories {
 }
 
 export function createHandler(ports: Ports): Handler {
-  const { repositories, protocol } = ports;
+  const { repositories, protocol, readers } = ports;
   const entry = {
     create: new EntryCreateCommand(
       repositories.entry,
@@ -40,7 +36,7 @@ export function createHandler(ports: Ports): Handler {
   const commands = { entry } satisfies Commands;
 
   return async (request) => {
-    return await protocol.handle({ request, commands });
+    return await protocol.handle({ request, commands, readers });
   };
 }
 

@@ -1,6 +1,6 @@
 import type { SchemaValue } from "@cosmos/schema";
 
-export interface EntryQuery {
+export interface EntryReader {
   findById(id: string): Promise<EntryView | null>;
   findAll(options: { model?: string }): Promise<EntryView[]>;
 }

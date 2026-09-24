@@ -1,6 +1,6 @@
 import type { StringTerm } from "@cosmos/schema";
 
-export interface SchemaQuery {
+export interface SchemaReader {
   findById(id: string): Promise<SchemaView | null>;
   findAll(): Promise<SchemaView[]>;
 }
