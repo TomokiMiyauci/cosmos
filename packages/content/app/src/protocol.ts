@@ -2,16 +2,16 @@ import type {
   EntryCreateCommand,
   EntryUpsertCommand,
 } from "./application/usecases/entry/register.ts";
-import type { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
+import type { EntryDeleteCommand } from "./application/usecases/entry/deletion.ts";
 
-export interface Usecases {
-  entry: EntryUsecase;
+export interface Commands {
+  entry: EntryCommands;
 }
 
-export interface EntryUsecase {
+export interface EntryCommands {
   create: EntryCreateCommand;
   upsert: EntryUpsertCommand;
-  delete: EntryDeleteUseCase;
+  delete: EntryDeleteCommand;
 }
 
 export interface Protocol {
@@ -20,5 +20,5 @@ export interface Protocol {
 
 export interface ProtocolArgs {
   request: Request;
-  usecases: Usecases;
+  commands: Commands;
 }

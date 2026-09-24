@@ -6,10 +6,10 @@ export {
   type Repositories,
 } from "./handler.ts";
 export type {
-  EntryUsecase,
+  Commands,
+  EntryCommands,
   Protocol,
   ProtocolArgs,
-  Usecases,
 } from "./protocol.ts";
 export {
   type ContentViolation,

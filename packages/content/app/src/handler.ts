@@ -1,10 +1,10 @@
 import type { Entry, Model, Schema } from "~domain";
-import type { EntryUsecase, Protocol, Usecases } from "./protocol.ts";
+import type { Commands, EntryCommands, Protocol } from "./protocol.ts";
 import {
   EntryCreateCommand,
   EntryUpsertCommand,
 } from "./application/usecases/entry/register.ts";
-import { EntryDeleteUseCase } from "./application/usecases/entry/deletion.ts";
+import { EntryDeleteCommand } from "./application/usecases/entry/deletion.ts";
 
 export interface Config {
   protocol: Protocol;
@@ -35,12 +35,12 @@ export function createHandler(ports: Ports): Handler {
       repositories.model,
       repositories.schema,
     ),
-    delete: new EntryDeleteUseCase(repositories.entry),
-  } satisfies EntryUsecase;
-  const usecases = { entry } satisfies Usecases;
+    delete: new EntryDeleteCommand(repositories.entry),
+  } satisfies EntryCommands;
+  const commands = { entry } satisfies Commands;
 
   return async (request) => {
-    return await protocol.handle({ request, usecases });
+    return await protocol.handle({ request, commands });
   };
 }
 

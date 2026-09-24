@@ -7,7 +7,7 @@ export interface InvalidIdError {
   type: "INVALID_ID";
 }
 
-export class EntryDeleteUseCase {
+export class EntryDeleteCommand {
   constructor(private repositry: Entry.Repositry) {}
 
   async execute(id: string): Promise<Result<void, DeletionError>> {
