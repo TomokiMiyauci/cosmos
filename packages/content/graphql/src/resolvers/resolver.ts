@@ -4,11 +4,11 @@ import type {
   Schema,
   Term,
 } from "../generated/resolver_type.ts";
-import type { ModelView, SchemaView } from "@cosmos/content";
-import { type Node, toNode } from "@cosmos/schema-node";
+import type { SchemaView } from "@cosmos/content";
 import { DateTimeResolver } from "graphql-scalars";
 import Mutation from "./mutation.ts";
 import Query from "./query.ts";
+import Entry from "./entry.ts";
 import type { Context } from "./type.ts";
 
 export default {
@@ -25,34 +25,7 @@ export default {
       },
     },
   },
-  Entry: {
-    createdAt: {
-      resolve(view): Date {
-        return new Date(view.createdAt.epochMilliseconds);
-      },
-    },
-    updatedAt: {
-      resolve(view): Date {
-        return new Date(view.updatedAt.epochMilliseconds);
-      },
-    },
-    model: {
-      async resolve(view, _, context): Promise<ModelView> {
-        const model = await context.queries.model.findById(view.modelId);
-
-        if (!model) throw new Error();
-
-        return model;
-      },
-    },
-    content: {
-      resolve(view): Node {
-        const node = toNode(view.content);
-
-        return node;
-      },
-    },
-  },
+  Entry,
   Schema: {
     __resolveType(view): Schema["__typename"] {
       switch (view.type) {
