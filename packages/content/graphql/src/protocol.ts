@@ -1,8 +1,9 @@
 import type { Protocol, ProtocolArgs } from "@cosmos/content";
-import { type Context, resolvers } from "./resolver.ts";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import typeDefs from "./schema.graphql" with { type: "text" };
 import { createYoga, type YogaServerInstance } from "graphql-yoga";
+import resolvers from "./resolvers/resolver.ts";
+import type { Context } from "./resolvers/type.ts";
 
 export interface GraphqlProtocolPorts {
   prefix?: string;
