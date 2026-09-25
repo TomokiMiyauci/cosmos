@@ -1,0 +1,110 @@
+query GetEntry($id: ID!) {
+  entry(id: $id) {
+    id
+    model {
+      id
+    }
+    content
+  }
+}
+
+query GetSummaryEntry($model: ID) {
+  entries(model: $model) {
+    id
+    title: id
+    updatedAt
+  }
+}
+
+query GetModels {
+  models {
+    id
+  }
+}
+
+query GetSchema($modelId: ID!) {
+  model(id: $modelId) {
+    id
+    schema {
+      __typename
+      ... on StringSchema {
+        id
+        term
+      }
+      ... on NumberSchema {
+        id
+      }
+      ... on BooleanSchema {
+        id
+      }
+      ... on SequenseSchema {
+        id
+        item
+      }
+      ... on MapSchema {
+        id
+        properties {
+          key
+          value
+        }
+        required
+      }
+      ... on ReferenceSchema {
+        id
+      }
+      ... on UnionSchema {
+        id
+        schemas
+      }
+    }
+  }
+  schemas {
+    __typename
+
+    ... on StringSchema {
+      id
+      term
+    }
+    ... on NumberSchema {
+      id
+    }
+    ... on BooleanSchema {
+      id
+    }
+    ... on SequenseSchema {
+      id
+      item
+    }
+    ... on MapSchema {
+      id
+      properties {
+        key
+        value
+      }
+      required
+    }
+    ... on ReferenceSchema {
+      id
+    }
+    ... on UnionSchema {
+      id
+      schemas
+    }
+  }
+}
+
+mutation DeleteEntry($id: ID!) {
+  deleteEntry(id: $id)
+}
+
+mutation CreateEntry($modelId: ID!, $content: EntryContent!) {
+  createEntry(input: { model: $modelId, content: $content }) {
+    ... on CreateEntrySuccess {
+      id
+    }
+  }
+}
+
+mutation UpdateEntry($id: ID!, $modelId: ID!, $content: EntryContent!) {
+  updateEntry(input: { id: $id, model: $modelId, content: $content })
+}

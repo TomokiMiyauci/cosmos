@@ -1,0 +1,17 @@
+schema: ../../content/graphql/src/schema.graphql
+documents: ./src/operation.graphql
+generates:
+  ./src/generated/types.ts:
+    plugins:
+      - typescript-operations
+      - typed-document-node
+    config:
+      useTypeImports: true
+      nonOptionalTypename: true
+      enumType: const
+      extractAllFieldsToTypes: true
+      extractAllFieldsToTypesCompact: true
+      strictScalars: true
+      scalars:
+        EntryContent: "@cosmos/schema-node#Node"
+        DateTime: string
