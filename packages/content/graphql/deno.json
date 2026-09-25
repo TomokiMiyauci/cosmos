@@ -5,11 +5,14 @@
     "@graphql-codegen/typescript": "npm:@graphql-codegen/typescript@^6.1.0",
     "@graphql-codegen/typescript-resolvers": "npm:@graphql-codegen/typescript-resolvers@^6.1.0",
     "@graphql-tools/schema": "npm:@graphql-tools/schema@^10.1.1",
+    "@parcel/watcher": "npm:@parcel/watcher@^2.6.0",
     "graphql": "npm:graphql@^17.0.2",
+    "graphql-scalars": "npm:graphql-scalars@^2.0.0",
     "graphql-yoga": "npm:graphql-yoga@^5.24.1"
   },
   "exports": "./src/mod.ts",
   "tasks": {
+    "watch": "deno x graphql-code-generator --config ./.graphqlrc.yaml --watch",
     "generate": "deno x graphql-code-generator --config ./.graphqlrc.yaml"
   }
 }

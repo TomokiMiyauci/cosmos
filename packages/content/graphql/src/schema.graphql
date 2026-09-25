@@ -1,16 +1,99 @@
+scalar DateTime
+scalar EntryContent
+
 type Entry {
-  id: String!
+  id: ID!
+  model: Model!
+  content: EntryContent!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Model {
+  id: ID!
+  schema: Schema!
+}
+
+union Schema =
+  | StringSchema
+  | NumberSchema
+  | BooleanSchema
+  | SequenseSchema
+  | MapSchema
+  | ReferenceSchema
+  | UnionSchema
+
+type StringSchema {
+  id: ID!
+  term: Term
+}
+
+enum Term {
+  DATE
+  DATETIME
+}
+
+type NumberSchema {
+  id: ID!
+}
+
+type BooleanSchema {
+  id: ID!
+}
+
+type SequenseSchema {
+  id: ID!
+  item: ID!
+}
+
+type MapSchema {
+  id: ID!
+  properties: [Property!]!
+  required: [String!]!
+}
+
+type ReferenceSchema {
+  id: ID!
+}
+
+type UnionSchema {
+  id: ID!
+  schemas: [String!]!
+}
+
+type Property {
+  key: String!
+  value: ID!
 }
 
 type Query {
-  entries: [Entry]!
+  entries: [Entry!]!
+  entry(id: ID!): Entry
+  model(id: ID!): Model
+  models: [Model!]!
+  schema(id: ID!): Schema
+  schemas: [Schema!]!
 }
 
 type Mutation {
-  createEntry(model: ID!): Identifier
+  createEntry(input: CreateEntryInput!): CreateEntryResult!
+  updateEntry(input: UpdateEntryInput!): Boolean!
   deleteEntry(id: ID!): Boolean!
 }
 
-type Identifier {
+input CreateEntryInput {
+  model: ID!
+  content: EntryContent!
+}
+
+input UpdateEntryInput {
+  id: ID!
+  model: ID!
+  content: EntryContent!
+}
+
+union CreateEntryResult = CreateEntrySuccess
+
+type CreateEntrySuccess {
   id: ID!
 }

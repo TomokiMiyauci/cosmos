@@ -1,1 +1,1 @@
-export { GraphqlProtocol } from "./protocol.ts";
+export { GraphqlProtocol, type GraphqlProtocolPorts } from "./protocol.ts";
