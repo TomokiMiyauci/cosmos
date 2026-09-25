@@ -1,8 +1,10 @@
 import type {
   CreateEntryResult,
   MutationResolvers,
+  Property,
   QueryResolvers,
   Resolvers,
+  Schema,
   Term,
 } from "./generated/resolver_type.ts";
 import type {
@@ -72,8 +74,10 @@ const Query = {
     },
   },
   entries: {
-    async resolve(_, __, context): Promise<EntryView[]> {
-      const entreis = await context.queries.entry.findAll({});
+    async resolve(_, args, context): Promise<EntryView[]> {
+      const entreis = await context.queries.entry.findAll({
+        model: args.model ?? undefined,
+      });
 
       return entreis;
     },
@@ -147,7 +151,7 @@ export const resolvers = {
     },
   },
   Schema: {
-    __resolveType(view) {
+    __resolveType(view): Schema["__typename"] {
       switch (view.type) {
         case "boolean": {
           return "BooleanSchema";
@@ -205,7 +209,7 @@ export const resolvers = {
       },
     },
     properties: {
-      resolve(parent) {
+      resolve(parent): Property[] {
         const properties = Object.entries(parent.properties).map(
           ([key, prop]) => {
             return {

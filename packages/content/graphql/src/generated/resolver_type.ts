@@ -98,6 +98,11 @@ export type Query = {
 };
 
 
+export type QueryEntriesArgs = {
+  model?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
 export type QueryEntryArgs = {
   id: Scalars['ID']['input'];
 };
@@ -343,7 +348,7 @@ export type PropertyResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  entries?: Resolver<Array<ResolversTypes['Entry']>, ParentType, ContextType>;
+  entries?: Resolver<Array<ResolversTypes['Entry']>, ParentType, ContextType, Partial<QueryEntriesArgs>>;
   entry?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<QueryEntryArgs, 'id'>>;
   model?: Resolver<Maybe<ResolversTypes['Model']>, ParentType, ContextType, RequireFields<QueryModelArgs, 'id'>>;
   models?: Resolver<Array<ResolversTypes['Model']>, ParentType, ContextType>;

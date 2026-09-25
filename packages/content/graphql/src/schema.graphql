@@ -67,7 +67,7 @@ type Property {
 }
 
 type Query {
-  entries: [Entry!]!
+  entries(model: ID): [Entry!]!
   entry(id: ID!): Entry
   model(id: ID!): Model
   models: [Model!]!
