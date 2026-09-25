@@ -1,4 +1,4 @@
-import type { QueryResolvers } from "../generated/resolver_type.ts";
+import type { QueryResolvers } from "~type";
 import type { EntryView, ModelView, SchemaView } from "@cosmos/content";
 import type { Context } from "./type.ts";
 

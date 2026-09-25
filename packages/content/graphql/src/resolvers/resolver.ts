@@ -1,9 +1,4 @@
-import type {
-  Property,
-  Resolvers,
-  Schema,
-  Term,
-} from "../generated/resolver_type.ts";
+import type { Property, Resolvers, Schema, Term } from "~type";
 import type { SchemaView } from "@cosmos/content";
 import { DateTimeResolver } from "graphql-scalars";
 import Mutation from "./mutation.ts";

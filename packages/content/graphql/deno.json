@@ -8,7 +8,8 @@
     "@parcel/watcher": "npm:@parcel/watcher@^2.6.0",
     "graphql": "npm:graphql@^17.0.2",
     "graphql-scalars": "npm:graphql-scalars@^2.0.0",
-    "graphql-yoga": "npm:graphql-yoga@^5.24.1"
+    "graphql-yoga": "npm:graphql-yoga@^5.24.1",
+    "~type": "./src/generated/resolver_type.ts"
   },
   "exports": "./src/mod.ts",
   "tasks": {

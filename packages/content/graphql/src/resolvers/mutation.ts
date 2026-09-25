@@ -1,8 +1,4 @@
-import type {
-  CreateEntryResult,
-  MutationResolvers,
-} from "../generated/resolver_type.ts";
-
+import type { CreateEntryResult, MutationResolvers } from "~type";
 import { fromNode } from "@cosmos/schema-node";
 import type { Context } from "./type.ts";
 
