@@ -11,7 +11,7 @@ export type SchemaView =
   | BooleanSchemaView
   | ListSchemaView
   | MapSchemaView
-  | RefernceSchemaView
+  | ReferenceSchemaView
   | UnionSchemaView;
 
 export interface BaseSchemaView {
@@ -46,7 +46,7 @@ export interface MapShcemaProperty {
   schema: SchemaView;
 }
 
-export interface RefernceSchemaView extends BaseSchemaView {
+export interface ReferenceSchemaView extends BaseSchemaView {
   type: "reference";
   schema: SchemaView;
 }

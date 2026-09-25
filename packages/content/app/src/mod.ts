@@ -18,4 +18,14 @@ export {
 export { Entry, Model, Schema } from "~domain";
 export type { EntryReader, EntryView } from "./application/readers/entry.ts";
 export type { ModelReader, ModelView } from "./application/readers/model.ts";
-export type { SchemaReader, SchemaView } from "./application/readers/schema.ts";
+export type {
+  BooleanSchemaView,
+  ListSchemaView,
+  MapSchemaView,
+  NumberSchemaView,
+  ReferenceSchemaView,
+  SchemaReader,
+  SchemaView,
+  StringSchemaView,
+  UnionSchemaView,
+} from "./application/readers/schema.ts";
