@@ -128,7 +128,21 @@ export class GraphqlEntryService implements EntryService {
       content,
     });
 
-    return Result.ok(createEntry.id);
+    switch (createEntry.__typename) {
+      case "CreateEntrySuccess": {
+        return Result.ok(createEntry.id);
+      }
+      case "ValidationError": {
+        const errors = createEntry.violations.map((violation) => {
+          return {
+            path: violation.path,
+            message: violation.reason,
+          };
+        });
+
+        return Result.error({ type: "VALIDATION", errors });
+      }
+    }
   }
   async findById(id: string): Promise<Entry | null> {
     const { entry } = await this.#client.request(GetEntryDocument, { id });

@@ -25,7 +25,7 @@ export type CreateEntryInput = {
   model: Scalars['ID']['input'];
 };
 
-export type CreateEntryResult = CreateEntrySuccess;
+export type CreateEntryResult = CreateEntrySuccess | ValidationError;
 
 export type CreateEntrySuccess = {
   __typename: 'CreateEntrySuccess';
@@ -152,6 +152,17 @@ export type UpdateEntryInput = {
   model: Scalars['ID']['input'];
 };
 
+export type ValidationError = {
+  __typename: 'ValidationError';
+  violations: Array<Violation>;
+};
+
+export type Violation = {
+  __typename: 'Violation';
+  path: Array<Scalars['String']['output']>;
+  reason: Scalars['String']['output'];
+};
+
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -223,7 +234,10 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 /** Mapping of union types */
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
-  CreateEntryResult: ( CreateEntrySuccess );
+  CreateEntryResult:
+    | ( CreateEntrySuccess )
+    | ( ValidationError )
+  ;
   Schema:
     | ( BooleanSchemaView )
     | ( MapSchemaView )
@@ -261,6 +275,8 @@ export type ResolversTypes = {
   Term: Term;
   UnionSchema: ResolverTypeWrapper<UnionSchemaView>;
   UpdateEntryInput: UpdateEntryInput;
+  ValidationError: ResolverTypeWrapper<ValidationError>;
+  Violation: ResolverTypeWrapper<Violation>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -287,6 +303,8 @@ export type ResolversParentTypes = {
   StringSchema: StringSchemaView;
   UnionSchema: UnionSchemaView;
   UpdateEntryInput: UpdateEntryInput;
+  ValidationError: ValidationError;
+  Violation: Violation;
 };
 
 export type BooleanSchemaResolvers<ContextType = any, ParentType extends ResolversParentTypes['BooleanSchema'] = ResolversParentTypes['BooleanSchema']> = {
@@ -295,7 +313,7 @@ export type BooleanSchemaResolvers<ContextType = any, ParentType extends Resolve
 };
 
 export type CreateEntryResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateEntryResult'] = ResolversParentTypes['CreateEntryResult']> = {
-  __resolveType: TypeResolveFn<'CreateEntrySuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateEntrySuccess' | 'ValidationError', ParentType, ContextType>;
 };
 
 export type CreateEntrySuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateEntrySuccess'] = ResolversParentTypes['CreateEntrySuccess']> = {
@@ -383,6 +401,16 @@ export type UnionSchemaResolvers<ContextType = any, ParentType extends Resolvers
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ValidationErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['ValidationError'] = ResolversParentTypes['ValidationError']> = {
+  violations?: Resolver<Array<ResolversTypes['Violation']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ViolationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Violation'] = ResolversParentTypes['Violation']> = {
+  path?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = any> = {
   BooleanSchema?: BooleanSchemaResolvers<ContextType>;
   CreateEntryResult?: CreateEntryResultResolvers<ContextType>;
@@ -401,5 +429,7 @@ export type Resolvers<ContextType = any> = {
   SequenseSchema?: SequenseSchemaResolvers<ContextType>;
   StringSchema?: StringSchemaResolvers<ContextType>;
   UnionSchema?: UnionSchemaResolvers<ContextType>;
+  ValidationError?: ValidationErrorResolvers<ContextType>;
+  Violation?: ViolationResolvers<ContextType>;
 };
 

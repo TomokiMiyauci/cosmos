@@ -33,9 +33,22 @@ const Mutation = {
       });
 
       if (error) {
+        switch (error.type) {
+          case "INVALID_CONTENT": {
+            const violations = error.violations.map((violation) => {
+              return {
+                __typename: "Violation" as const,
+                path: violation.path.map((value) => value.toString()),
+                reason: violation.kind,
+              };
+            });
+            return {
+              __typename: "ValidationError",
+              violations,
+            };
+          }
+        }
         // switch (error.type) {
-        //   case "INVALID_CONTENT": {
-        //   }
         //   case "INVALID_MODEL": {}
         //   case "MODEL_NOT_FOUND": {}
         //   case "SCHEMA_NOT_FOUND": {}

@@ -92,8 +92,17 @@ input UpdateEntryInput {
   content: EntryContent!
 }
 
-union CreateEntryResult = CreateEntrySuccess
+union CreateEntryResult = CreateEntrySuccess | ValidationError
 
 type CreateEntrySuccess {
   id: ID!
+}
+
+type ValidationError {
+  violations: [Violation!]!
+}
+
+type Violation {
+  path: [String!]!
+  reason: String!
 }

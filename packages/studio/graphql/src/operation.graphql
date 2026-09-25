@@ -99,8 +99,15 @@ mutation DeleteEntry($id: ID!) {
 
 mutation CreateEntry($modelId: ID!, $content: EntryContent!) {
   createEntry(input: { model: $modelId, content: $content }) {
+    __typename
     ... on CreateEntrySuccess {
       id
+    }
+    ... on ValidationError {
+      violations {
+        path
+        reason
+      }
     }
   }
 }
