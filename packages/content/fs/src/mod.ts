@@ -1,6 +1,7 @@
 import {
   Entry,
   type EntryReader,
+  type EntryReaderOptions,
   type EntryView as ServerEntryView,
   Model,
 } from "@cosmos/content";
@@ -259,8 +260,8 @@ export class ReaderEntryQuery implements EntryReader {
 
     return toEntryView(source);
   }
-  async findAll(): Promise<ServerEntryView[]> {
-    const sources = await this.reader.readAll();
+  async findAll(options?: EntryReaderOptions): Promise<ServerEntryView[]> {
+    const sources = await this.reader.readAll(options);
 
     return sources.map(toEntryView);
   }
@@ -268,7 +269,11 @@ export class ReaderEntryQuery implements EntryReader {
 
 export interface Reader {
   read(id: string): Promise<EntryView | null>;
-  readAll(): Promise<EntryView[]>;
+  readAll(options?: ReaderOptions): Promise<EntryView[]>;
+}
+
+interface ReaderOptions {
+  model?: string;
 }
 
 function toEntryView(source: EntryView): ServerEntryView {
@@ -306,7 +311,7 @@ export class DenoReader implements Reader {
       throw e;
     }
   }
-  async readAll(): Promise<EntryView[]> {
+  async readAll(options?: ReaderOptions): Promise<EntryView[]> {
     const url = new URL(this.locator.locate());
 
     const iter = Deno.readDir(url);
@@ -329,7 +334,13 @@ export class DenoReader implements Reader {
       return { id, modelId, content, createdAt, updatedAt };
     }));
 
-    return texts;
+    if (options?.model) {
+      return texts.filter(({ modelId }) => {
+        return options.model === modelId;
+      });
+    } else {
+      return texts;
+    }
   }
 }
 
