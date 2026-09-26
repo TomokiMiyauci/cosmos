@@ -21,6 +21,7 @@ export interface EntrySummaryQuery {
 }
 
 export interface ModelQuery {
+  findById(id: string): Promise<Model | null>;
   list(): Promise<Model[]>;
 }
 

@@ -85,6 +85,22 @@ export class OpenapiModelQuery implements ModelQuery {
     this.#client = new Client(url);
   }
 
+  async findById(id: string): Promise<Model | null> {
+    const response = await this.#client.getModel({ path: { id } });
+
+    switch (response.status) {
+      case 200: {
+        return {
+          id: response.body.id,
+          title: response.body.id,
+        };
+      }
+      case 404: {
+        return null;
+      }
+    }
+  }
+
   async list(): Promise<Model[]> {
     const modelsResponse = await this.#client.getModels();
 

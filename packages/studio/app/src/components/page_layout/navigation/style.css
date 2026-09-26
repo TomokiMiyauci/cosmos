@@ -16,6 +16,7 @@
 
     > [data-item] {
       all: unset;
+      display: block;
     }
   }
 }

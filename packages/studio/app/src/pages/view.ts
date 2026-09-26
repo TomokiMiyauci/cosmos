@@ -30,7 +30,11 @@ export const views = {
 
       if (!modelId) return null;
 
-      const summaries = await queries.entrySummary.listByModel(modelId);
+      const model = await queries.model.findById(modelId);
+
+      if (!model) return null;
+
+      const summaries = await queries.entrySummary.listByModel(model.id);
 
       return { modelId, summaries };
     },

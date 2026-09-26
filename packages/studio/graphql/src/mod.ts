@@ -26,6 +26,7 @@ import {
   CreateEntryDocument,
   DeleteEntryDocument,
   GetEntryDocument,
+  GetModelDocument,
   GetModelsDocument,
   GetSchemaDocument,
   type GetSchemaQuery_schemas as SchemaResponse,
@@ -87,6 +88,12 @@ export class GraphqlModelQuery implements ModelQuery {
   #client: GraphQLClient;
   constructor(url: URL) {
     this.#client = new GraphQLClient(url.href);
+  }
+
+  async findById(id: string): Promise<Model | null> {
+    const { model } = await this.#client.request(GetModelDocument, { id });
+
+    return model;
   }
 
   async list(): Promise<Model[]> {
