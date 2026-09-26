@@ -10,6 +10,7 @@ generates:
       useTypeImports: true
       enumsAsTypes: true
       showUnusedMappers: true
+      avoidOptionals: true
 
       scalars:
         EntryContent: "@cosmos/schema-node#Node"

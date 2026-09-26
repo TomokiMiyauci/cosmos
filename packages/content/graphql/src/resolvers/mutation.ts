@@ -1,5 +1,14 @@
-import type { CreateEntryResult, MutationResolvers } from "~type";
+import type {
+  CreateEntryResult,
+  MutationResolvers,
+  UpdateEntryResult,
+  Violation,
+} from "~type";
 import { fromNode } from "@cosmos/schema-node";
+import type {
+  UpsertCommandInput,
+  Violation as ContentViolation,
+} from "@cosmos/content";
 import type { Context } from "./type.ts";
 
 export default {
@@ -15,13 +24,8 @@ export default {
       if (error) {
         switch (error.type) {
           case "INVALID_CONTENT": {
-            const violations = error.violations.map((violation) => {
-              return {
-                __typename: "Violation" as const,
-                path: violation.path.map((value) => value.toString()),
-                reason: violation.kind,
-              };
-            });
+            const violations = error.violations.map(toViolation);
+
             return {
               __typename: "ValidationError",
               violations,
@@ -41,6 +45,35 @@ export default {
     },
   },
 
+  updateEntry: {
+    async resolve(_, args, context): Promise<UpdateEntryResult> {
+      const contents = fromNode(args.input.content);
+      const input = {
+        id: args.input.id,
+        model: args.input.model,
+        contents,
+      } satisfies UpsertCommandInput;
+      const [data, error] = await context.commands.entry.upsert.execute(input);
+
+      if (error) {
+        switch (error.type) {
+          case "INVALID_CONTENT": {
+            const violations = error.violations.map(toViolation);
+
+            return {
+              __typename: "ValidationError",
+              violations,
+            };
+          }
+        }
+
+        throw new Error();
+      }
+
+      return { __typename: "UpdateEntrySuccess", id: data };
+    },
+  },
+
   deleteEntry: {
     async resolve(_, args, context): Promise<boolean> {
       const [__, error] = await context.commands.entry.delete.execute(args.id);
@@ -57,3 +90,11 @@ export default {
     },
   },
 } satisfies MutationResolvers<Context>;
+
+function toViolation(violation: ContentViolation): Violation {
+  return {
+    __typename: "Violation" as const,
+    path: violation.path.map((value) => value.toString()),
+    reason: violation.kind,
+  };
+}

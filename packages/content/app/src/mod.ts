@@ -13,6 +13,8 @@ export type {
 } from "./protocol.ts";
 export {
   type ContentViolation,
+  type CreateCommandInput,
+  type UpsertCommandInput,
   type Violation,
 } from "./application/commands/entry/register.ts";
 export { Entry, Model, Schema } from "~domain";

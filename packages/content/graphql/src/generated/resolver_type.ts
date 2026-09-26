@@ -58,7 +58,7 @@ export type Mutation = {
   __typename: 'Mutation';
   createEntry: CreateEntryResult;
   deleteEntry: Scalars['Boolean']['output'];
-  updateEntry: Scalars['Boolean']['output'];
+  updateEntry: UpdateEntryResult;
 };
 
 
@@ -90,16 +90,16 @@ export type Property = {
 export type Query = {
   __typename: 'Query';
   entries: Array<Entry>;
-  entry?: Maybe<Entry>;
-  model?: Maybe<Model>;
+  entry: Maybe<Entry>;
+  model: Maybe<Model>;
   models: Array<Model>;
-  schema?: Maybe<Schema>;
+  schema: Maybe<Schema>;
   schemas: Array<Schema>;
 };
 
 
 export type QueryEntriesArgs = {
-  model?: InputMaybe<Scalars['ID']['input']>;
+  model: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -133,7 +133,7 @@ export type SequenseSchema = {
 export type StringSchema = {
   __typename: 'StringSchema';
   id: Scalars['ID']['output'];
-  term?: Maybe<Term>;
+  term: Maybe<Term>;
 };
 
 export type Term =
@@ -150,6 +150,13 @@ export type UpdateEntryInput = {
   content: Scalars['EntryContent']['input'];
   id: Scalars['ID']['input'];
   model: Scalars['ID']['input'];
+};
+
+export type UpdateEntryResult = UpdateEntrySuccess | ValidationError;
+
+export type UpdateEntrySuccess = {
+  __typename: 'UpdateEntrySuccess';
+  id: Scalars['ID']['output'];
 };
 
 export type ValidationError = {
@@ -247,6 +254,10 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
     | ( StringSchemaView )
     | ( UnionSchemaView )
   ;
+  UpdateEntryResult:
+    | ( UpdateEntrySuccess )
+    | ( ValidationError )
+  ;
 };
 
 
@@ -275,6 +286,8 @@ export type ResolversTypes = {
   Term: Term;
   UnionSchema: ResolverTypeWrapper<UnionSchemaView>;
   UpdateEntryInput: UpdateEntryInput;
+  UpdateEntryResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateEntryResult']>;
+  UpdateEntrySuccess: ResolverTypeWrapper<UpdateEntrySuccess>;
   ValidationError: ResolverTypeWrapper<ValidationError>;
   Violation: ResolverTypeWrapper<Violation>;
 };
@@ -303,12 +316,14 @@ export type ResolversParentTypes = {
   StringSchema: StringSchemaView;
   UnionSchema: UnionSchemaView;
   UpdateEntryInput: UpdateEntryInput;
+  UpdateEntryResult: ResolversUnionTypes<ResolversParentTypes>['UpdateEntryResult'];
+  UpdateEntrySuccess: UpdateEntrySuccess;
   ValidationError: ValidationError;
   Violation: Violation;
 };
 
 export type BooleanSchemaResolvers<ContextType = any, ParentType extends ResolversParentTypes['BooleanSchema'] = ResolversParentTypes['BooleanSchema']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -317,7 +332,7 @@ export type CreateEntryResultResolvers<ContextType = any, ParentType extends Res
 };
 
 export type CreateEntrySuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateEntrySuccess'] = ResolversParentTypes['CreateEntrySuccess']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -326,11 +341,11 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 }
 
 export type EntryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Entry'] = ResolversParentTypes['Entry']> = {
-  content?: Resolver<ResolversTypes['EntryContent'], ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  model?: Resolver<ResolversTypes['Model'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  content: Resolver<ResolversTypes['EntryContent'], ParentType, ContextType>;
+  createdAt: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  model: Resolver<ResolversTypes['Model'], ParentType, ContextType>;
+  updatedAt: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
 };
 
 export interface EntryContentScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['EntryContent'], any> {
@@ -338,44 +353,44 @@ export interface EntryContentScalarConfig extends GraphQLScalarTypeConfig<Resolv
 }
 
 export type MapSchemaResolvers<ContextType = any, ParentType extends ResolversParentTypes['MapSchema'] = ResolversParentTypes['MapSchema']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  properties?: Resolver<Array<ResolversTypes['Property']>, ParentType, ContextType>;
-  required?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  properties: Resolver<Array<ResolversTypes['Property']>, ParentType, ContextType>;
+  required: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ModelResolvers<ContextType = any, ParentType extends ResolversParentTypes['Model'] = ResolversParentTypes['Model']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  schema?: Resolver<ResolversTypes['Schema'], ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  schema: Resolver<ResolversTypes['Schema'], ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  createEntry?: Resolver<ResolversTypes['CreateEntryResult'], ParentType, ContextType, RequireFields<MutationCreateEntryArgs, 'input'>>;
-  deleteEntry?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEntryArgs, 'id'>>;
-  updateEntry?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUpdateEntryArgs, 'input'>>;
+  createEntry: Resolver<ResolversTypes['CreateEntryResult'], ParentType, ContextType, RequireFields<MutationCreateEntryArgs, 'input'>>;
+  deleteEntry: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEntryArgs, 'id'>>;
+  updateEntry: Resolver<ResolversTypes['UpdateEntryResult'], ParentType, ContextType, RequireFields<MutationUpdateEntryArgs, 'input'>>;
 };
 
 export type NumberSchemaResolvers<ContextType = any, ParentType extends ResolversParentTypes['NumberSchema'] = ResolversParentTypes['NumberSchema']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type PropertyResolvers<ContextType = any, ParentType extends ResolversParentTypes['Property'] = ResolversParentTypes['Property']> = {
-  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  value?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  entries?: Resolver<Array<ResolversTypes['Entry']>, ParentType, ContextType, Partial<QueryEntriesArgs>>;
-  entry?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<QueryEntryArgs, 'id'>>;
-  model?: Resolver<Maybe<ResolversTypes['Model']>, ParentType, ContextType, RequireFields<QueryModelArgs, 'id'>>;
-  models?: Resolver<Array<ResolversTypes['Model']>, ParentType, ContextType>;
-  schema?: Resolver<Maybe<ResolversTypes['Schema']>, ParentType, ContextType, RequireFields<QuerySchemaArgs, 'id'>>;
-  schemas?: Resolver<Array<ResolversTypes['Schema']>, ParentType, ContextType>;
+  entries: Resolver<Array<ResolversTypes['Entry']>, ParentType, ContextType, QueryEntriesArgs>;
+  entry: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<QueryEntryArgs, 'id'>>;
+  model: Resolver<Maybe<ResolversTypes['Model']>, ParentType, ContextType, RequireFields<QueryModelArgs, 'id'>>;
+  models: Resolver<Array<ResolversTypes['Model']>, ParentType, ContextType>;
+  schema: Resolver<Maybe<ResolversTypes['Schema']>, ParentType, ContextType, RequireFields<QuerySchemaArgs, 'id'>>;
+  schemas: Resolver<Array<ResolversTypes['Schema']>, ParentType, ContextType>;
 };
 
 export type ReferenceSchemaResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReferenceSchema'] = ResolversParentTypes['ReferenceSchema']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -384,52 +399,63 @@ export type SchemaResolvers<ContextType = any, ParentType extends ResolversParen
 };
 
 export type SequenseSchemaResolvers<ContextType = any, ParentType extends ResolversParentTypes['SequenseSchema'] = ResolversParentTypes['SequenseSchema']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  item?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  item: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type StringSchemaResolvers<ContextType = any, ParentType extends ResolversParentTypes['StringSchema'] = ResolversParentTypes['StringSchema']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  term?: Resolver<Maybe<ResolversTypes['Term']>, ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  term: Resolver<Maybe<ResolversTypes['Term']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UnionSchemaResolvers<ContextType = any, ParentType extends ResolversParentTypes['UnionSchema'] = ResolversParentTypes['UnionSchema']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  schemas?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  schemas: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateEntryResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdateEntryResult'] = ResolversParentTypes['UpdateEntryResult']> = {
+  __resolveType: TypeResolveFn<'UpdateEntrySuccess' | 'ValidationError', ParentType, ContextType>;
+};
+
+export type UpdateEntrySuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdateEntrySuccess'] = ResolversParentTypes['UpdateEntrySuccess']> = {
+  id: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ValidationErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['ValidationError'] = ResolversParentTypes['ValidationError']> = {
-  violations?: Resolver<Array<ResolversTypes['Violation']>, ParentType, ContextType>;
+  violations: Resolver<Array<ResolversTypes['Violation']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ViolationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Violation'] = ResolversParentTypes['Violation']> = {
-  path?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  path: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  reason: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
-  BooleanSchema?: BooleanSchemaResolvers<ContextType>;
-  CreateEntryResult?: CreateEntryResultResolvers<ContextType>;
-  CreateEntrySuccess?: CreateEntrySuccessResolvers<ContextType>;
-  DateTime?: GraphQLScalarType;
-  Entry?: EntryResolvers<ContextType>;
-  EntryContent?: GraphQLScalarType;
-  MapSchema?: MapSchemaResolvers<ContextType>;
-  Model?: ModelResolvers<ContextType>;
-  Mutation?: MutationResolvers<ContextType>;
-  NumberSchema?: NumberSchemaResolvers<ContextType>;
-  Property?: PropertyResolvers<ContextType>;
-  Query?: QueryResolvers<ContextType>;
-  ReferenceSchema?: ReferenceSchemaResolvers<ContextType>;
-  Schema?: SchemaResolvers<ContextType>;
-  SequenseSchema?: SequenseSchemaResolvers<ContextType>;
-  StringSchema?: StringSchemaResolvers<ContextType>;
-  UnionSchema?: UnionSchemaResolvers<ContextType>;
-  ValidationError?: ValidationErrorResolvers<ContextType>;
-  Violation?: ViolationResolvers<ContextType>;
+  BooleanSchema: BooleanSchemaResolvers<ContextType>;
+  CreateEntryResult: CreateEntryResultResolvers<ContextType>;
+  CreateEntrySuccess: CreateEntrySuccessResolvers<ContextType>;
+  DateTime: GraphQLScalarType;
+  Entry: EntryResolvers<ContextType>;
+  EntryContent: GraphQLScalarType;
+  MapSchema: MapSchemaResolvers<ContextType>;
+  Model: ModelResolvers<ContextType>;
+  Mutation: MutationResolvers<ContextType>;
+  NumberSchema: NumberSchemaResolvers<ContextType>;
+  Property: PropertyResolvers<ContextType>;
+  Query: QueryResolvers<ContextType>;
+  ReferenceSchema: ReferenceSchemaResolvers<ContextType>;
+  Schema: SchemaResolvers<ContextType>;
+  SequenseSchema: SequenseSchemaResolvers<ContextType>;
+  StringSchema: StringSchemaResolvers<ContextType>;
+  UnionSchema: UnionSchemaResolvers<ContextType>;
+  UpdateEntryResult: UpdateEntryResultResolvers<ContextType>;
+  UpdateEntrySuccess: UpdateEntrySuccessResolvers<ContextType>;
+  ValidationError: ValidationErrorResolvers<ContextType>;
+  Violation: ViolationResolvers<ContextType>;
 };
 

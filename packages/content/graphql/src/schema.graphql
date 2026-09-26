@@ -77,7 +77,7 @@ type Query {
 
 type Mutation {
   createEntry(input: CreateEntryInput!): CreateEntryResult!
-  updateEntry(input: UpdateEntryInput!): Boolean!
+  updateEntry(input: UpdateEntryInput!): UpdateEntryResult!
   deleteEntry(id: ID!): Boolean!
 }
 
@@ -97,6 +97,12 @@ union CreateEntryResult = CreateEntrySuccess | ValidationError
 type CreateEntrySuccess {
   id: ID!
 }
+
+type UpdateEntrySuccess {
+  id: ID!
+}
+
+union UpdateEntryResult = UpdateEntrySuccess | ValidationError
 
 type ValidationError {
   violations: [Violation!]!

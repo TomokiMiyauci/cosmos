@@ -12,7 +12,7 @@ export interface CreateCommandInput {
   contents: SchemaValue;
 }
 
-export interface UpdateCommandInput extends CreateCommandInput {
+export interface UpsertCommandInput extends CreateCommandInput {
   id: string;
 }
 
@@ -132,7 +132,7 @@ export class EntryUpsertCommand {
   ) {}
 
   async execute(
-    input: UpdateCommandInput,
+    input: UpsertCommandInput,
   ): Promise<Result<string, UpdatationError>> {
     const [id, entryIdError] = Entry.Id.of(input.id);
 
