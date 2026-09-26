@@ -120,5 +120,16 @@ mutation CreateEntry($modelId: ID!, $content: EntryContent!) {
 }
 
 mutation UpdateEntry($id: ID!, $modelId: ID!, $content: EntryContent!) {
-  updateEntry(input: { id: $id, model: $modelId, content: $content })
+  updateEntry(input: { id: $id, model: $modelId, content: $content }) {
+    __typename
+    ... on UpdateEntrySuccess {
+      id
+    }
+    ... on ValidationError {
+      violations {
+        path
+        reason
+      }
+    }
+  }
 }

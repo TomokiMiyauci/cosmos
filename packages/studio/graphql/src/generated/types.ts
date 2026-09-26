@@ -10,43 +10,43 @@ export const Term = {
 } as const;
 
 export type Term = typeof Term[keyof typeof Term];
-export type GetEntryQuery_entry_model = { __typename: 'Model', id: string };
+export type GetEntryQuery_entry_model = { id: string };
 
-export type GetEntryQuery_entry = { __typename: 'Entry', id: string, content: Node, model: GetEntryQuery_entry_model };
+export type GetEntryQuery_entry = { id: string, content: Node, model: GetEntryQuery_entry_model };
 
-export type GetEntryQuery = { __typename: 'Query', entry: GetEntryQuery_entry | null };
+export type GetEntryQuery = { entry: GetEntryQuery_entry | null };
 
 
 export type GetEntryQueryVariables = Exact<{
   id: string | number;
 }>;
 
-export type GetSummaryEntryQuery_entries = { __typename: 'Entry', id: string, updatedAt: string, title: string };
+export type GetSummaryEntryQuery_entries = { id: string, updatedAt: string, title: string };
 
-export type GetSummaryEntryQuery = { __typename: 'Query', entries: Array<GetSummaryEntryQuery_entries> };
+export type GetSummaryEntryQuery = { entries: Array<GetSummaryEntryQuery_entries> };
 
 
 export type GetSummaryEntryQueryVariables = Exact<{
   model?: string | number | null | undefined;
 }>;
 
-export type GetModelsQuery_models = { __typename: 'Model', id: string };
+export type GetModelsQuery_models = { id: string };
 
-export type GetModelsQuery = { __typename: 'Query', models: Array<GetModelsQuery_models> };
+export type GetModelsQuery = { models: Array<GetModelsQuery_models> };
 
 
 export type GetModelsQueryVariables = Exact<{ [key: string]: never; }>;
 
-export type GetModelQuery_model = { __typename: 'Model', id: string, title: string };
+export type GetModelQuery_model = { id: string, title: string };
 
-export type GetModelQuery = { __typename: 'Query', model: GetModelQuery_model | null };
+export type GetModelQuery = { model: GetModelQuery_model | null };
 
 
 export type GetModelQueryVariables = Exact<{
   id: string | number;
 }>;
 
-export type GetSchemaQuery_model_schema_MapSchema_properties = { __typename: 'Property', key: string, value: string };
+export type GetSchemaQuery_model_schema_MapSchema_properties = { key: string, value: string };
 
 export type GetSchemaQuery_model_schema_BooleanSchema = { __typename: 'BooleanSchema', id: string };
 
@@ -72,9 +72,9 @@ export type GetSchemaQuery_model_schema =
   | GetSchemaQuery_model_schema_UnionSchema
 ;
 
-export type GetSchemaQuery_model = { __typename: 'Model', id: string, schema: GetSchemaQuery_model_schema };
+export type GetSchemaQuery_model = { id: string, schema: GetSchemaQuery_model_schema };
 
-export type GetSchemaQuery_schemas_MapSchema_properties = { __typename: 'Property', key: string, value: string };
+export type GetSchemaQuery_schemas_MapSchema_properties = { key: string, value: string };
 
 export type GetSchemaQuery_schemas_BooleanSchema = { __typename: 'BooleanSchema', id: string };
 
@@ -100,21 +100,21 @@ export type GetSchemaQuery_schemas =
   | GetSchemaQuery_schemas_UnionSchema
 ;
 
-export type GetSchemaQuery = { __typename: 'Query', model: GetSchemaQuery_model | null, schemas: Array<GetSchemaQuery_schemas> };
+export type GetSchemaQuery = { model: GetSchemaQuery_model | null, schemas: Array<GetSchemaQuery_schemas> };
 
 
 export type GetSchemaQueryVariables = Exact<{
   modelId: string | number;
 }>;
 
-export type DeleteEntryMutation = { __typename: 'Mutation', deleteEntry: boolean };
+export type DeleteEntryMutation = { deleteEntry: boolean };
 
 
 export type DeleteEntryMutationVariables = Exact<{
   id: string | number;
 }>;
 
-export type CreateEntryMutation_createEntry_ValidationError_violations = { __typename: 'Violation', path: Array<string>, reason: string };
+export type CreateEntryMutation_createEntry_ValidationError_violations = { path: Array<string>, reason: string };
 
 export type CreateEntryMutation_createEntry_CreateEntrySuccess = { __typename: 'CreateEntrySuccess', id: string };
 
@@ -125,7 +125,7 @@ export type CreateEntryMutation_createEntry =
   | CreateEntryMutation_createEntry_ValidationError
 ;
 
-export type CreateEntryMutation = { __typename: 'Mutation', createEntry: CreateEntryMutation_createEntry };
+export type CreateEntryMutation = { createEntry: CreateEntryMutation_createEntry };
 
 
 export type CreateEntryMutationVariables = Exact<{
@@ -133,7 +133,18 @@ export type CreateEntryMutationVariables = Exact<{
   content: Node;
 }>;
 
-export type UpdateEntryMutation = { __typename: 'Mutation', updateEntry: boolean };
+export type UpdateEntryMutation_updateEntry_ValidationError_violations = { path: Array<string>, reason: string };
+
+export type UpdateEntryMutation_updateEntry_UpdateEntrySuccess = { __typename: 'UpdateEntrySuccess', id: string };
+
+export type UpdateEntryMutation_updateEntry_ValidationError = { __typename: 'ValidationError', violations: Array<UpdateEntryMutation_updateEntry_ValidationError_violations> };
+
+export type UpdateEntryMutation_updateEntry =
+  | UpdateEntryMutation_updateEntry_UpdateEntrySuccess
+  | UpdateEntryMutation_updateEntry_ValidationError
+;
+
+export type UpdateEntryMutation = { updateEntry: UpdateEntryMutation_updateEntry };
 
 
 export type UpdateEntryMutationVariables = Exact<{
@@ -150,4 +161,4 @@ export const GetModelDocument = {"kind":"Document","definitions":[{"kind":"Opera
 export const GetSchemaDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetSchema"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"modelId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"model"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"modelId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"schema"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"StringSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"term"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"NumberSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BooleanSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SequenseSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"item"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MapSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"properties"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"required"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReferenceSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UnionSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"schemas"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"schemas"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"StringSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"term"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"NumberSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BooleanSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SequenseSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"item"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MapSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"properties"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"required"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReferenceSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UnionSchema"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"schemas"}}]}}]}}]}}]} as unknown as DocumentNode<GetSchemaQuery, GetSchemaQueryVariables>;
 export const DeleteEntryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteEntry"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteEntry"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<DeleteEntryMutation, DeleteEntryMutationVariables>;
 export const CreateEntryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateEntry"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"modelId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EntryContent"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createEntry"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"model"},"value":{"kind":"Variable","name":{"kind":"Name","value":"modelId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CreateEntrySuccess"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ValidationError"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"violations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateEntryMutation, CreateEntryMutationVariables>;
-export const UpdateEntryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateEntry"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"modelId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EntryContent"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateEntry"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"model"},"value":{"kind":"Variable","name":{"kind":"Name","value":"modelId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}]}}]}]}}]} as unknown as DocumentNode<UpdateEntryMutation, UpdateEntryMutationVariables>;
+export const UpdateEntryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateEntry"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"modelId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EntryContent"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateEntry"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"model"},"value":{"kind":"Variable","name":{"kind":"Name","value":"modelId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateEntrySuccess"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ValidationError"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"violations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}}]}}]}}]}}]}}]} as unknown as DocumentNode<UpdateEntryMutation, UpdateEntryMutationVariables>;

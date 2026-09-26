@@ -16,6 +16,7 @@ import {
   ListControl,
   MapControl,
   NumericControl,
+  SelectControl,
   TextControl,
 } from "@cosmos/studio/control";
 import { Result } from "@miyauci/util";
@@ -119,13 +120,27 @@ export class GraphqlEntryService implements EntryService {
     if ("id" in entry) {
       const content = toNode(entry.content);
 
-      await this.#client.request(UpdateEntryDocument, {
+      const { updateEntry } = await this.#client.request(UpdateEntryDocument, {
         id: entry.id,
         modelId: entry.modelId,
         content,
       });
 
-      return Result.ok(entry.id);
+      switch (updateEntry.__typename) {
+        case "UpdateEntrySuccess": {
+          return Result.ok(updateEntry.id);
+        }
+        case "ValidationError": {
+          const errors = updateEntry.violations.map((violation) => {
+            return {
+              path: violation.path,
+              message: violation.reason,
+            };
+          });
+
+          return Result.error({ type: "VALIDATION", errors });
+        }
+      }
     }
 
     const content = toNode(entry.content);
@@ -285,7 +300,7 @@ function resolvePresentation(
     }
 
     case "ReferenceSchema": {
-      return { title, control: TextControl };
+      return { title, control: SelectControl };
     }
     case "MapSchema": {
       return { title, control: MapControl };
@@ -355,6 +370,7 @@ function createDefinitionContainer(
       return {
         type: "reference",
         presentation,
+        allows: [], // TODO
       };
     }
   }

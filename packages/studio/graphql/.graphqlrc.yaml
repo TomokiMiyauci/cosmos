@@ -7,7 +7,6 @@ generates:
       - typed-document-node
     config:
       useTypeImports: true
-      nonOptionalTypename: true
       enumType: const
       extractAllFieldsToTypes: true
       extractAllFieldsToTypesCompact: true
