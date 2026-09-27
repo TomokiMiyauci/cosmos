@@ -98,6 +98,9 @@ query GetSchema($modelId: ID!) {
       schemas
     }
   }
+  entries {
+    id
+  }
 }
 
 mutation DeleteEntry($id: ID!) {

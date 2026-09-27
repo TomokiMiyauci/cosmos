@@ -79,6 +79,7 @@ interface UnionDefinition extends UnionSchema, BaseDefinition {
 }
 
 interface ReferenceDefinition extends ReferenceSchema, BaseDefinition {
+  allows: string[];
 }
 
 export interface Presentation {
