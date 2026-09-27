@@ -35,7 +35,7 @@ export default function EntriesPage(props: EntriesPageProps): JSX.Element {
                   <a href={href}>{title}</a>
                 </td>
                 <td>
-                  {updatedAt.toString()}
+                  {updatedAt.toZonedDateTimeISO("UTC").toPlainDate().toString()}
                 </td>
               </tr>
             );
