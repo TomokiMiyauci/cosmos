@@ -1,6 +1,6 @@
 "use client";
 
-import type { JSX, SubmitEvent } from "react";
+import { type JSX, type SubmitEvent, useId } from "react";
 import { type Definition, useFields } from "@cosmos/schema-field";
 import type { Result } from "@miyauci/util";
 import { Page, router } from "~router";
@@ -31,6 +31,7 @@ export default function ContentCreationPage(
   const { definition, service, messenger } = props;
 
   const fields = useFields(definition);
+  const id = useId();
 
   async function handleSubmit(e: SubmitEvent): Promise<void> {
     e.preventDefault();
@@ -49,14 +50,25 @@ export default function ContentCreationPage(
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        {fields.render({
-          layout: FieldLayout,
-        })}
+      <div
+        style={{
+          top: "0",
+          position: "sticky",
+          padding: "8px",
+          backgroundColor: "white",
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <a></a>
 
-        <Button type="submit">
+        <Button form={id} type="submit">
           {messenger.message({ type: "action", action: "create" })}
         </Button>
+      </div>
+
+      <form id={id} onSubmit={handleSubmit}>
+        {fields.render({ layout: FieldLayout })}
       </form>
     </div>
   );

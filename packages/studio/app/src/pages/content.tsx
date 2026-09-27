@@ -1,6 +1,6 @@
 "use client";
 
-import type { JSX, SubmitEvent } from "react";
+import { type JSX, type SubmitEvent, useId } from "react";
 import type { Result } from "@miyauci/util";
 import { type Definition, useFields } from "@cosmos/schema-field";
 import type { SchemaValue } from "@cosmos/schema";
@@ -19,6 +19,7 @@ export default function EntryPage(
   const { definition, service, formData } = props;
 
   const fields = useFields(definition, formData);
+  const id = useId();
 
   async function handleSubmit(e: SubmitEvent): Promise<void> {
     e.preventDefault();
@@ -35,21 +36,36 @@ export default function EntryPage(
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        {fields.render({ layout: FieldLayout })}
-
-        <Button type="submit">Update</Button>
-      </form>
-
-      <Button
-        type="button"
-        onClick={async () => {
-          await service.delete();
-          location.href = router.resolve(Page.Home, {});
+      <div
+        style={{
+          top: "0",
+          position: "sticky",
+          padding: "8px",
+          backgroundColor: "white",
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
-        Delete
-      </Button>
+        <a></a>
+
+        <Button form={id} type="submit">
+          Update
+        </Button>
+      </div>
+
+      <form id={id} onSubmit={handleSubmit}>
+        {fields.render({ layout: FieldLayout })}
+
+        <Button
+          type="button"
+          onClick={async () => {
+            await service.delete();
+            location.href = router.resolve(Page.Home, {});
+          }}
+        >
+          Delete
+        </Button>
+      </form>
     </div>
   );
 }
