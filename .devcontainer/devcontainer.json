@@ -5,7 +5,9 @@
     "vscode": {
       "extensions": [
         "denoland.vscode-deno",
-        "42crunch.vscode-openapi"
+        "42crunch.vscode-openapi",
+        "graphql.vscode-graphql",
+        "esbenp.prettier-vscode"
       ]
     }
   },
