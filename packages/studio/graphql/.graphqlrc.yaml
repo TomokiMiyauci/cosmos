@@ -4,13 +4,14 @@ generates:
   ./src/generated/types.ts:
     plugins:
       - typescript-operations
-      - typed-document-node
+      - typescript-graphql-request
     config:
       useTypeImports: true
       enumType: const
       extractAllFieldsToTypes: true
       extractAllFieldsToTypesCompact: true
       strictScalars: true
+      documentMode: documentNode
       scalars:
         EntryContent: "@cosmos/schema-node#Node"
         DateTime: string

@@ -24,31 +24,20 @@ import type { Control, Definition, Presentation } from "@cosmos/schema-field";
 import { fromNode, toNode } from "@cosmos/schema-node";
 import { GraphQLClient } from "graphql-request";
 import {
-  CreateEntryDocument,
-  DeleteEntryDocument,
-  GetEntryDocument,
-  GetModelDocument,
-  GetModelsDocument,
-  GetSchemaDocument,
   type GetSchemaQuery_schemas as SchemaResponse,
-  GetSummaryEntryDocument,
-  UpdateEntryDocument,
+  getSdk,
+  type Sdk,
 } from "./generated/types.ts";
 
 export class GraphqlDefinitionQuery implements DefinitionQuery {
-  #client: GraphQLClient;
+  #client: Sdk;
 
   constructor(url: URL, private ui: UiSchemaMap) {
-    this.#client = new GraphQLClient(url.href);
+    this.#client = getSdk(new GraphQLClient(url.href));
   }
   async findFor(modelId: string): Promise<Definition | null> {
     const { model, schemas: schemaResponses, entries } = await this.#client
-      .request(
-        GetSchemaDocument,
-        {
-          modelId,
-        },
-      );
+      .GetSchema({ modelId });
 
     if (!model) return null;
 
@@ -74,12 +63,12 @@ export class GraphqlDefinitionQuery implements DefinitionQuery {
 }
 
 export class GraphqlEntrySummaryQuery implements EntrySummaryQuery {
-  #client: GraphQLClient;
+  #client: Sdk;
   constructor(url: URL) {
-    this.#client = new GraphQLClient(url.href);
+    this.#client = getSdk(new GraphQLClient(url.href));
   }
   async listByModel(modelId: string): Promise<EntrySummary[]> {
-    const { entries } = await this.#client.request(GetSummaryEntryDocument, {
+    const { entries } = await this.#client.GetSummaryEntry({
       model: modelId,
     });
 
@@ -92,19 +81,19 @@ export class GraphqlEntrySummaryQuery implements EntrySummaryQuery {
 }
 
 export class GraphqlModelQuery implements ModelQuery {
-  #client: GraphQLClient;
+  #client: Sdk;
   constructor(url: URL) {
-    this.#client = new GraphQLClient(url.href);
+    this.#client = getSdk(new GraphQLClient(url.href));
   }
 
   async findById(id: string): Promise<Model | null> {
-    const { model } = await this.#client.request(GetModelDocument, { id });
+    const { model } = await this.#client.GetModel({ id });
 
     return model;
   }
 
   async list(): Promise<Model[]> {
-    const { models } = await this.#client.request(GetModelsDocument);
+    const { models } = await this.#client.GetModels();
     return models.map((value) => ({ id: value.id, title: value.id }));
   }
 }
@@ -117,16 +106,16 @@ interface UiSchema {
 }
 
 export class GraphqlEntryService implements EntryService {
-  #client: GraphQLClient;
+  #client: Sdk;
   constructor(url: URL) {
-    this.#client = new GraphQLClient(url.href);
+    this.#client = getSdk(new GraphQLClient(url.href));
   }
 
   async save(entry: SaveEntry): Promise<Result<Entry["id"], EntrySaveError>> {
     if ("id" in entry) {
       const content = toNode(entry.content);
 
-      const { updateEntry } = await this.#client.request(UpdateEntryDocument, {
+      const { updateEntry } = await this.#client.UpdateEntry({
         id: entry.id,
         modelId: entry.modelId,
         content,
@@ -151,7 +140,7 @@ export class GraphqlEntryService implements EntryService {
 
     const content = toNode(entry.content);
 
-    const { createEntry } = await this.#client.request(CreateEntryDocument, {
+    const { createEntry } = await this.#client.CreateEntry({
       modelId: entry.modelId,
       content,
     });
@@ -173,7 +162,7 @@ export class GraphqlEntryService implements EntryService {
     }
   }
   async findById(id: string): Promise<Entry | null> {
-    const { entry } = await this.#client.request(GetEntryDocument, { id });
+    const { entry } = await this.#client.GetEntry({ id });
 
     if (!entry) return null;
 
@@ -183,7 +172,7 @@ export class GraphqlEntryService implements EntryService {
   }
 
   async delete(id: Entry["id"]): Promise<void> {
-    await this.#client.request(DeleteEntryDocument, { id });
+    await this.#client.DeleteEntry({ id });
   }
 }
 
