@@ -20,11 +20,16 @@
   "[css]": {
     "editor.tabSize": 2
   },
+  "[graphql]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
   "deno.codeLens.references": true,
   "deno.codeLens.implementations": true,
-  "deno.codeLens.referencesAllFunctions": true
+  "deno.codeLens.referencesAllFunctions": true,
+  "graphql-config.load.rootDir": "./packages/studio/graphql"
 }
