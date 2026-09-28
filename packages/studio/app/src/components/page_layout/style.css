@@ -2,14 +2,26 @@
   :scope {
     all: unset;
     display: grid;
-    grid-template:
-      "header" auto
-      "main" minmax(0, 1fr);
     --page-layout-padding-x: 8px;
     height: 100dvh;
   }
 
-  > header {
+  :scope {
+    grid-template:
+      "header header" auto
+      "nav    main" minmax(0, 1fr)
+      / 16rem minmax(0, 1fr);
+  }
+
+  > [data-component=aside] {
+    display: block;
+  }
+
+  > main {
+    display: block;
+  }
+
+  > [data-component=header-aria] {
     all: unset;
     grid-area: header;
     padding-left: var(--page-layout-padding-x);
@@ -18,10 +30,9 @@
     padding-bottom: 16px;
   }
 
-  > [data-navigation] {
+  > [data-component=aside] {
     all: unset;
     grid-area: nav;
-    display: none;
   }
 
   > main {
@@ -33,16 +44,33 @@
     overflow: auto;
   }
 
-  @media (min-width: 40rem) {
-    :scope {
+  @media (max-width: 30rem) {
+    :scope:has(> [data-component=aside][data-open=false]) {
       grid-template:
-        "header header" auto
-        "nav    main" minmax(0, 1fr)
-        / 16rem minmax(0, 1fr);
+        "header" auto
+        "main" minmax(0, 1fr);
+
+      > [data-component=aside] {
+        display: none;
+      }
+
+      > main {
+        display: block;
+      }
     }
 
-    > [data-navigation] {
-      display: block;
+    :scope:has(> [data-component=aside][data-open=true]) {
+      grid-template:
+        "header" auto
+        "nav" minmax(0, 1fr);
+
+      > [data-component=aside] {
+        display: block;
+      }
+
+      > main {
+        display: none;
+      }
     }
   }
 }
