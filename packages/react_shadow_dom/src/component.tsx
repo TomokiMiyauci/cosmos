@@ -1,6 +1,5 @@
 import {
   createContext,
-  Fragment,
   type JSX,
   type ReactNode,
   use,
@@ -21,11 +20,11 @@ export function ShadowHost(props: ShadowHostProps): JSX.Element {
 
   return (
     <div ref={setHost}>
-      <HostContext.Provider value={host}>
-        <RenderContext.Provider value={{ isServer }}>
+      <HostContext value={host}>
+        <RenderContext value={{ isServer }}>
           {children}
-        </RenderContext.Provider>
-      </HostContext.Provider>
+        </RenderContext>
+      </HostContext>
     </div>
   );
 }
@@ -68,7 +67,6 @@ export function Template(props: TemplateProps): JSX.Element {
   const templateProps = {
     shadowrootmode: init.mode,
     shadowrootclonable: init.clonable,
-    // shadowrootcustomelementregistry: init.customElementRegistry,
     shadowrootdelegatesfocus: init.delegatesFocus,
     shadowrootserializable: init.serializable,
     shadowrootslotassignment: init.slotAssignment,
@@ -92,31 +90,14 @@ export interface ShadowRootProps extends ShadowRootInit {
   children?: ReactNode;
 }
 
-export function ShadowRoot(props: ShadowRootProps): JSX.Element {
-  const {
-    host,
-    children,
-    mode,
-    clonable,
-    customElementRegistry,
-    delegatesFocus,
-    serializable,
-    slotAssignment,
-  } = props;
-  const init = {
-    mode,
-    clonable,
-    customElementRegistry,
-    delegatesFocus,
-    serializable,
-    slotAssignment,
-  } satisfies ShadowRootInit;
+export function ShadowRoot(props: ShadowRootProps): ReactNode {
+  const { host, children, ...init } = props;
 
   const shadowRoot = useShadowRoot(host, init);
 
   if (shadowRoot) return createPortal(children, shadowRoot);
 
-  return <Fragment />;
+  return null;
 }
 
 function useShadowRoot(
@@ -126,7 +107,10 @@ function useShadowRoot(
   const [shadowRoot, setShadowRoot] = useState<ShadowRoot | null>(null);
 
   const onAttach = useEffectEvent((host: Element | null) => {
-    if (!host) return;
+    if (!host) {
+      setShadowRoot(null);
+      return;
+    }
 
     setShadowRoot(host.shadowRoot ?? host.attachShadow(init));
   });
