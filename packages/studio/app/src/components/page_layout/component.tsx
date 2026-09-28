@@ -1,4 +1,4 @@
-import { JSX, ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import type { Model } from "../../application/query.ts";
 import { useMessenger } from "../../context/messenger.ts";
 import { Page, router } from "~router";
@@ -26,9 +26,9 @@ export default function PageLayout(props: PageLayoutProps): JSX.Element {
           </a>
         </header>
 
-        <div data-navigation>
+        <aside data-navigation>
           <Navigation models={models} />
-        </div>
+        </aside>
 
         <main>
           {children}
