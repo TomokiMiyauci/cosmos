@@ -15,6 +15,5 @@ export interface FieldProps<T extends Definition = Definition> {
 export interface FieldLayoutProps {
   title: string;
   control: ReactNode;
-  error: string | null;
   id: string;
 }

@@ -19,7 +19,7 @@ import {
 } from "./resolver.ts";
 import { isIdentifier, isNumberValue } from "@cosmos/validator";
 import { mapValues } from "@std/collections/map-values";
-import { FieldContext, NameContext } from "./fields/field.ts";
+import { FieldContext, NameContext, useValidity } from "./fields/field.ts";
 
 export interface UseFieldsReturn {
   setErrors(error: FieldError[]): void;
@@ -162,7 +162,8 @@ interface _FieldProps {
 }
 
 function FieldLayout(props: FieldLayoutProps): JSX.Element {
-  const { title, control, error, id } = props;
+  const { title, control, id } = props;
+  const { error } = useValidity();
 
   return (
     <>

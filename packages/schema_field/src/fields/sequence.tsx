@@ -8,7 +8,6 @@ export default function SequenceField(props: FieldProps): JSX.Element {
   const { name, definition: def, render, layout: Layout, required = true, id } =
     props;
   const useList = createUseList(name);
-  const { fieldState: { error } } = useController({ name });
 
   const api = {
     useList,
@@ -39,7 +38,6 @@ export default function SequenceField(props: FieldProps): JSX.Element {
           required={required}
         />
       }
-      error={error?.message ?? null}
       id={id}
     >
     </Layout>

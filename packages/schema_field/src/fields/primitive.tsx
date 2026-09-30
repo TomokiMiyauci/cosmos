@@ -15,7 +15,6 @@ export default function PrimitiveField(props: FieldProps): JSX.Element {
   } = props;
 
   const useList = createUseList(name);
-  const { fieldState: { error } } = useController({ name });
   const api = {
     useList,
     useValue(): [string | null, (value: string | null) => void] {
@@ -41,7 +40,6 @@ export default function PrimitiveField(props: FieldProps): JSX.Element {
           required={required}
         />
       }
-      error={error?.message ?? null}
       id={id}
     >
     </Layout>

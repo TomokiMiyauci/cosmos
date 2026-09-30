@@ -1,12 +1,17 @@
 import type { JSX } from "react";
-import { type FieldLayoutProps, useField } from "@cosmos/schema-field";
+import {
+  type FieldLayoutProps,
+  useField,
+  useValidity,
+} from "@cosmos/schema-field";
 import style from "./style.css" with { type: "css" };
 import { StyleSheet } from "~component";
 
 export default function FieldLayout(props: FieldLayoutProps): JSX.Element {
-  const { title, error, control } = props;
+  const { title, control } = props;
 
   const { id, label, error: { id: errorId } } = useField();
+  const { error } = useValidity();
 
   return (
     <>

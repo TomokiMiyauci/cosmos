@@ -41,9 +41,13 @@ export function useValidity(): Validity {
 
   const { fieldState } = useController({ name: context });
 
-  return { valid: !fieldState.invalid };
+  return {
+    valid: !fieldState.invalid,
+    error: fieldState.error?.message ?? null,
+  };
 }
 
 export interface Validity {
   valid: boolean;
+  error: string | null;
 }
