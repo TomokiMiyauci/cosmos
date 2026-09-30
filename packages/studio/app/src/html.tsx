@@ -1,15 +1,17 @@
 import type { JSX, ReactNode } from "react";
-import type { Model, ModelQuery } from "./application/query.ts";
+import type { Model } from "./application/query.ts";
 import { PageLayout } from "~component";
+import type { Queries } from "~hook";
 
 export interface LayoutProps {
   models: Model[];
+  queries: Queries;
 }
 
-export async function getStaticProps(query: ModelQuery): Promise<LayoutProps> {
-  const models = await query.list();
+export async function getStaticProps(queries: Queries): Promise<LayoutProps> {
+  const models = await queries.model.list();
 
-  return { models };
+  return { models, queries };
 }
 
 export interface HtmlProps extends LayoutProps {

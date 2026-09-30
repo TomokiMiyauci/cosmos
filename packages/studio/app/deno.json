@@ -15,7 +15,8 @@
     "react-error-boundary": "npm:react-error-boundary@^6.1.5",
     "~usecase/node": "./src/application/usecases/node/mod.ts",
     "~router": "./src/internals/router.ts",
-    "~component": "./src/internals/component.ts"
+    "~component": "./src/internals/component.ts",
+    "~hook": "./src/internals/hook.ts"
   },
   "compilerOptions": {
     "jsx": "react-jsx",

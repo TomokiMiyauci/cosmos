@@ -5,6 +5,7 @@ import { Page } from "./pages/symbol.ts";
 import { views } from "./pages/view.ts";
 import { EnMessenger, type Messenger } from "./messenger.ts";
 import { MessengerContext } from "./context/messenger.ts";
+import { QueriesContext } from "~hook";
 
 export interface AdminProps {
   route: RouteResult;
@@ -19,9 +20,11 @@ export function Admin(props: AdminProps): JSX.Element {
 
   return (
     <MessengerContext.Provider value={messenger}>
-      <Html models={route.data.models}>
-        <PageRenderer route={route} />
-      </Html>
+      <QueriesContext value={route.data.queries}>
+        <Html models={route.data.models} queries={route.data.queries}>
+          <PageRenderer route={route} />
+        </Html>
+      </QueriesContext>
     </MessengerContext.Provider>
   );
 }

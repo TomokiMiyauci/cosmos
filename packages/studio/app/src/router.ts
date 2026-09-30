@@ -19,7 +19,7 @@ export class Router {
   ) {
   }
   async route(url: URL): Promise<RouteResult> {
-    const layoutProps = await getLayoutStaticProps(this.queries.model);
+    const layoutProps = await getLayoutStaticProps(this.queries);
     const result = router.match(url.href);
 
     if (!result) {
