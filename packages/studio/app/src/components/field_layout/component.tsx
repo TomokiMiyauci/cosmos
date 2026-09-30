@@ -1,21 +1,23 @@
 import type { JSX } from "react";
-import type { FieldLayoutProps } from "@cosmos/schema-field";
+import { type FieldLayoutProps, useField } from "@cosmos/schema-field";
 import style from "./style.css" with { type: "css" };
 import { StyleSheet } from "~component";
 
 export default function FieldLayout(props: FieldLayoutProps): JSX.Element {
-  const { id, title, error, control } = props;
+  const { title, error, control } = props;
+
+  const { id, label, error: { id: errorId } } = useField();
 
   return (
     <>
       <StyleSheet>{style}</StyleSheet>
 
       <div data-component="field-layout">
-        <label htmlFor={id}>{title}</label>
+        <label id={label.id} htmlFor={id}>{title}</label>
 
         {control}
 
-        {error !== null && <p>{error}</p>}
+        {error !== null && <p id={errorId}>{error}</p>}
       </div>
     </>
   );

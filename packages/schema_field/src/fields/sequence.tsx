@@ -37,7 +37,6 @@ export default function SequenceField(props: FieldProps): JSX.Element {
           )}
           api={api}
           required={required}
-          id={id}
         />
       }
       error={error?.message ?? null}

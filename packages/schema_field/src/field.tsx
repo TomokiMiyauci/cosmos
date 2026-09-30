@@ -2,6 +2,7 @@ import { type FC, type JSX, useId, useMemo, useState } from "react";
 import {
   FormProvider,
   type ResolverResult,
+  useController,
   useForm,
   type UseFormReturn,
 } from "react-hook-form";
@@ -19,31 +20,13 @@ import {
 } from "./resolver.ts";
 import { isIdentifier, isNumberValue } from "@cosmos/validator";
 import { mapValues } from "@std/collections/map-values";
+import { FieldContext, ValidityContext } from "./fields/field.ts";
 
 export interface UseFieldsReturn {
   setErrors(error: FieldError[]): void;
   finalize(): Promise<SchemaValue | null>;
   render(props?: RenderProps): JSX.Element;
 }
-
-const defaultMessenger = {
-  message(reason): string {
-    switch (reason) {
-      case "required": {
-        return "Required";
-      }
-      case "invalid_type": {
-        return "Invalid type";
-      }
-      case "invalid_value": {
-        return "Invalid value";
-      }
-      case "unknown": {
-        return "Unknown";
-      }
-    }
-  },
-} satisfies Messenger;
 
 export type Path = (string | number)[];
 
@@ -214,6 +197,10 @@ function _Field(props: _FieldProps): JSX.Element {
   const { definition, name, ancestors, required, layout } = props;
 
   const id = useId();
+  const labelId = useId();
+  const descriptionId = useId();
+  const errorId = useId();
+  const { fieldState: { error } } = useController({ name });
 
   const baseFieldProps = {
     name,
@@ -256,25 +243,67 @@ function _Field(props: _FieldProps): JSX.Element {
     ),
   } satisfies FieldProps;
 
-  switch (definition.type) {
-    case "string":
-    case "boolean":
-    case "number":
-    case "reference": {
-      return <PrimitiveField {...fieldProps} />;
+  const children = (() => {
+    switch (definition.type) {
+      case "string":
+      case "boolean":
+      case "number":
+      case "reference": {
+        return <PrimitiveField {...fieldProps} />;
+      }
+      case "sequence": {
+        return <SequenceField {...fieldProps} />;
+      }
+      case "map": {
+        return <MapField {...fieldProps} definition={definition} />;
+      }
+      case "union": {
+        return <UnionField {...fieldProps} />;
+      }
     }
-    case "sequence": {
-      return <SequenceField {...fieldProps} />;
-    }
-    case "map": {
-      return <MapField {...fieldProps} definition={definition} />;
-    }
-    case "union": {
-      return <UnionField {...fieldProps} />;
-    }
-  }
+  })();
+
+  return (
+    <FieldContext
+      value={{
+        id,
+        error: {
+          id: errorId,
+        },
+        description: {
+          id: descriptionId,
+        },
+        label: {
+          id: labelId,
+        },
+      }}
+    >
+      <ValidityContext value={{ valid: error === undefined }}>
+        {children}
+      </ValidityContext>
+    </FieldContext>
+  );
 }
 
 function isEmptyObject(value: object): value is Record<string, never> {
   return !Reflect.ownKeys(value).length;
 }
+
+const defaultMessenger = {
+  message(reason): string {
+    switch (reason) {
+      case "required": {
+        return "Required";
+      }
+      case "invalid_type": {
+        return "Invalid type";
+      }
+      case "invalid_value": {
+        return "Invalid value";
+      }
+      case "unknown": {
+        return "Unknown";
+      }
+    }
+  },
+} satisfies Messenger;

@@ -1,11 +1,13 @@
 "use client";
 import type { JSX } from "react";
-import type { ControlProps } from "@cosmos/schema-field";
+import { type ControlProps, useField, useValidity } from "@cosmos/schema-field";
 import { TextInput } from "~component";
 
 export default function TextControl(props: ControlProps): JSX.Element {
-  const { api, required, id } = props;
+  const { api, required } = props;
   const [value, onChange] = api.useValue();
+  const { id, error, description, label } = useField();
+  const { valid } = useValidity();
 
   return (
     <TextInput
@@ -16,6 +18,10 @@ export default function TextControl(props: ControlProps): JSX.Element {
         onChange(ev.target.value || null);
       }}
       required={required}
+      aria-describedby={description.id}
+      aria-labelledby={label.id}
+      aria-errormessage={error.id}
+      aria-invalid={!valid}
     />
   );
 }

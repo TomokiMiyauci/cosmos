@@ -39,7 +39,6 @@ export default function PrimitiveField(props: FieldProps): JSX.Element {
           render={(def) => render({ name, definition: def })}
           api={api}
           required={required}
-          id={id}
         />
       }
       error={error?.message ?? null}

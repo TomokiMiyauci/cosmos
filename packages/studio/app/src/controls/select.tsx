@@ -1,12 +1,13 @@
 "use client";
 import type { JSX } from "react";
-import type { ControlProps } from "@cosmos/schema-field";
+import { type ControlProps, useField } from "@cosmos/schema-field";
 import { Select } from "~component";
 
 export default function SelectControl(props: ControlProps): JSX.Element {
-  const { api, required, id, definition } = props;
+  const { api, required, definition } = props;
   const condidates = definition.type === "reference" ? definition.allows : [];
   const [value, onChange] = api.useValue();
+  const { id, error, description, label } = useField();
 
   return (
     <Select
@@ -16,6 +17,9 @@ export default function SelectControl(props: ControlProps): JSX.Element {
         onChange(ev.target.value || null);
       }}
       required={required}
+      aria-errormessage={error.id}
+      aria-describedby={description.id}
+      aria-labelledby={label.id}
     >
       <option></option>
       {condidates.map((condidate) => {
