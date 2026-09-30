@@ -36,9 +36,14 @@ export default function EntryPage(
 
   return (
     <div>
+      <form id={id} onSubmit={handleSubmit}>
+        {fields.render({ layout: FieldLayout })}
+      </form>
+
       <div
+        role="toolbar"
         style={{
-          top: "0",
+          bottom: "0",
           position: "sticky",
           padding: "8px",
           backgroundColor: "white",
@@ -46,26 +51,24 @@ export default function EntryPage(
           justifyContent: "space-between",
         }}
       >
-        <a></a>
-
         <Button form={id} type="submit">
           Update
         </Button>
-      </div>
-
-      <form id={id} onSubmit={handleSubmit}>
-        {fields.render({ layout: FieldLayout })}
 
         <Button
           type="button"
           onClick={async () => {
-            await service.delete();
-            location.href = router.resolve(Page.Home, {});
+            const yes = confirm(`Delete entry?`);
+
+            if (yes) {
+              await service.delete();
+              location.href = router.resolve(Page.Home, {});
+            }
           }}
         >
           Delete
         </Button>
-      </form>
+      </div>
     </div>
   );
 }
