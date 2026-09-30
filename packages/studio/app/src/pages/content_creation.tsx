@@ -50,9 +50,14 @@ export default function ContentCreationPage(
 
   return (
     <div>
+      <form id={id} onSubmit={handleSubmit}>
+        {fields.render({ layout: FieldLayout })}
+      </form>
+
       <div
+        role="toolbar"
         style={{
-          top: "0",
+          bottom: "0",
           position: "sticky",
           padding: "8px",
           backgroundColor: "white",
@@ -60,16 +65,10 @@ export default function ContentCreationPage(
           justifyContent: "space-between",
         }}
       >
-        <a></a>
-
         <Button form={id} type="submit">
           {messenger.message({ type: "action", action: "create" })}
         </Button>
       </div>
-
-      <form id={id} onSubmit={handleSubmit}>
-        {fields.render({ layout: FieldLayout })}
-      </form>
     </div>
   );
 }
