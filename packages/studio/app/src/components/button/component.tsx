@@ -9,9 +9,10 @@ export default function Button(
   >,
 ): JSX.Element {
   return (
-    <>
-      <StyleSheet href="button" precedence="">{style}</StyleSheet>
-      <button data-component="button" {...props}></button>
-    </>
+    <button {...props}>
+      <StyleSheet>{style}</StyleSheet>
+
+      {props.children}
+    </button>
   );
 }

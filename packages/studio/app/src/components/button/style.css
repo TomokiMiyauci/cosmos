@@ -1,4 +1,4 @@
-@scope ([data-component=button]) {
+@scope {
   :scope {
     all: unset;
     box-sizing: border-box;
