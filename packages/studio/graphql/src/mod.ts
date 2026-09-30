@@ -36,7 +36,7 @@ export class GraphqlDefinitionQuery implements DefinitionQuery {
     this.#client = getSdk(new GraphQLClient(url.href));
   }
   async findFor(modelId: string): Promise<Definition | null> {
-    const { model, schemas: schemaResponses, entries } = await this.#client
+    const { model, schemas: schemaResponses } = await this.#client
       .GetSchema({ modelId });
 
     if (!model) return null;
@@ -55,7 +55,6 @@ export class GraphqlDefinitionQuery implements DefinitionQuery {
       model.schema,
       schemas,
       this.ui,
-      entries.map(({ id }) => id),
     );
 
     return definition;
@@ -189,7 +188,6 @@ function response2Defintion(
   response: SchemaResponse,
   schemas: Record<string, SchemaResponse>,
   presentations: UiSchemaMap,
-  allIds: string[],
 ): Definition {
   const resolved = new Map<string, Definition>();
 
@@ -198,7 +196,7 @@ function response2Defintion(
 
     resolved.set(
       schema.id,
-      createDefinitionContainer(schema, presentation, allIds),
+      createDefinitionContainer(schema, presentation),
     );
   }
 
@@ -316,7 +314,6 @@ function resolvePresentation(
 function createDefinitionContainer(
   response: SchemaResponse,
   presentation: Presentation,
-  allIds: string[],
 ): Definition {
   switch (response.__typename) {
     case "StringSchema": {
@@ -370,7 +367,6 @@ function createDefinitionContainer(
       return {
         type: "reference",
         presentation,
-        allows: allIds,
       };
     }
   }

@@ -55,13 +55,10 @@ export class OpenapiDefinitionQuery implements DefinitionQuery {
       {},
     );
 
-    const { body: entries } = await this.#client.getEntrySummaries({});
-
     const definition = response2Defintion(
       response.body,
       schemas,
       this.ui,
-      entries.map((entry) => entry.id),
     );
 
     return definition;
@@ -221,7 +218,6 @@ function response2Defintion(
   response: SchemaResponse,
   schemas: Record<string, SchemaResponse>,
   presentations: UiSchemaMap,
-  allIds: string[],
 ): Definition {
   const resolved = new Map<string, Definition>();
 
@@ -230,7 +226,7 @@ function response2Defintion(
 
     resolved.set(
       schema.id,
-      createDefinitionContainer(schema, presentation, allIds),
+      createDefinitionContainer(schema, presentation),
     );
   }
 
@@ -344,7 +340,6 @@ function resolvePresentation(
 function createDefinitionContainer(
   response: SchemaResponse,
   presentation: Presentation,
-  allIds: string[],
 ): Definition {
   switch (response.type) {
     case "string":
@@ -395,7 +390,6 @@ function createDefinitionContainer(
       return {
         type: "reference",
         presentation,
-        allows: allIds,
         // target: undefined!,
       };
     }
