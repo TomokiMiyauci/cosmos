@@ -2,7 +2,7 @@
   :scope {
     all: unset;
     display: grid;
-    --page-layout-padding-x: 8px;
+    --page-layout-margin-x: 8px;
     height: 100dvh;
   }
 
@@ -13,10 +13,6 @@
       / 16rem minmax(0, 1fr);
   }
 
-  > [data-component=aside] {
-    display: block;
-  }
-
   > main {
     display: block;
   }
@@ -24,8 +20,8 @@
   > [data-component=header-aria] {
     all: unset;
     grid-area: header;
-    padding-left: var(--page-layout-padding-x);
-    padding-right: var(--page-layout-padding-x);
+    margin-left: var(--page-layout-margin-x);
+    margin-right: var(--page-layout-margin-x);
     padding-top: 16px;
     padding-bottom: 16px;
   }
@@ -33,13 +29,16 @@
   > [data-component=aside] {
     all: unset;
     grid-area: nav;
+    display: block;
+    margin-left: var(--page-layout-margin-x);
+    margin-right: var(--page-layout-margin-x);
   }
 
   > main {
     all: unset;
     grid-area: main;
-    padding-left: var(--page-layout-padding-x);
-    padding-right: var(--page-layout-padding-x);
+    margin-left: var(--page-layout-margin-x);
+    margin-right: var(--page-layout-margin-x);
     min-height: 0;
     overflow: auto;
   }

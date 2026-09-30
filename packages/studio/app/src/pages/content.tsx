@@ -36,7 +36,14 @@ export default function EntryPage(
 
   return (
     <div>
-      <form id={id} onSubmit={handleSubmit}>
+      <form
+        style={{
+          paddingLeft: "8px",
+          paddingRight: "8px",
+        }}
+        id={id}
+        onSubmit={handleSubmit}
+      >
         {fields.render({ layout: FieldLayout })}
       </form>
 
