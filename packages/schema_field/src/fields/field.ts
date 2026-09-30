@@ -1,4 +1,5 @@
 import { createContext, use } from "react";
+import { useController } from "react-hook-form";
 
 export interface Field {
   id: string;
@@ -31,14 +32,16 @@ export function useField(): Field {
   return context;
 }
 
-export const ValidityContext = createContext<Validity | null>(null);
+export const NameContext = createContext<string | null>(null);
 
 export function useValidity(): Validity {
-  const context = use(ValidityContext);
+  const context = use(NameContext);
 
-  if (!context) throw new Error("wrap by <ValidityContext>");
+  if (!context) throw new Error("wrap by <NameContext>");
 
-  return context;
+  const { fieldState } = useController({ name: context });
+
+  return { valid: !fieldState.invalid };
 }
 
 export interface Validity {

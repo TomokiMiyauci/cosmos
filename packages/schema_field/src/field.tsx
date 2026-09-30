@@ -2,7 +2,6 @@ import { type FC, type JSX, useId, useMemo, useState } from "react";
 import {
   FormProvider,
   type ResolverResult,
-  useController,
   useForm,
   type UseFormReturn,
 } from "react-hook-form";
@@ -20,7 +19,7 @@ import {
 } from "./resolver.ts";
 import { isIdentifier, isNumberValue } from "@cosmos/validator";
 import { mapValues } from "@std/collections/map-values";
-import { FieldContext, ValidityContext } from "./fields/field.ts";
+import { FieldContext, NameContext } from "./fields/field.ts";
 
 export interface UseFieldsReturn {
   setErrors(error: FieldError[]): void;
@@ -200,8 +199,6 @@ function _Field(props: _FieldProps): JSX.Element {
   const labelId = useId();
   const descriptionId = useId();
   const errorId = useId();
-  const { fieldState: { error } } = useController({ name });
-
   const baseFieldProps = {
     name,
     definition,
@@ -278,9 +275,7 @@ function _Field(props: _FieldProps): JSX.Element {
         },
       }}
     >
-      <ValidityContext value={{ valid: error === undefined }}>
-        {children}
-      </ValidityContext>
+      <NameContext value={name}>{children}</NameContext>
     </FieldContext>
   );
 }

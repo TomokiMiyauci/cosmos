@@ -1,7 +1,7 @@
 "use client";
-import { type JSX, Suspense, type Usable, use } from "react";
+import { type JSX, Suspense } from "react";
 import { type ControlProps, useField } from "@cosmos/schema-field";
-import { Select } from "~component";
+import { Select, Use } from "~component";
 import { type EntrySummary, useQuerirs } from "~hook";
 
 export default function SelectControl(props: ControlProps): JSX.Element {
@@ -9,26 +9,22 @@ export default function SelectControl(props: ControlProps): JSX.Element {
   const promise = entrySummary.listByModel("posts");
 
   return (
-    <Suspense fallback={<Select />}>
+    <Suspense
+      fallback={
+        <Select>
+          <option>...</option>
+        </Select>
+      }
+    >
       <Use value={promise}>
-        {(value) => {
-          return <SelectView {...props} entries={value} />;
-        }}
+        {(value) => <SelectView {...props} entries={value} />}
       </Use>
     </Suspense>
   );
 }
 
-function Use<T>(
-  props: { value: Usable<T>; children: (value: T) => JSX.Element },
-): JSX.Element {
-  const used = use(props.value);
-
-  return props.children(used);
-}
-
 function SelectView(
-  props: { entries: EntrySummary[]; required: boolean } & ControlProps,
+  props: { entries: EntrySummary[] } & ControlProps,
 ): JSX.Element {
   const { required, api, entries } = props;
   const { id, error, description, label } = useField();
