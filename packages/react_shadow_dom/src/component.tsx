@@ -14,8 +14,10 @@ export interface ShadowHostProps {
   isServer?: boolean;
 }
 
+const hasDocument = "document" in globalThis;
+
 export function ShadowHost(props: ShadowHostProps): JSX.Element {
-  const { children, isServer = !("document" in globalThis) } = props;
+  const { children, isServer = !hasDocument } = props;
   const [host, setHost] = useState<Element | null>(null);
 
   return (
@@ -116,6 +118,7 @@ function useShadowRoot(
   });
 
   useLayoutEffect(() => {
+    // deno-lint-ignore react-hooks/set-state-in-effect
     onAttach(host);
   }, [host]);
 
