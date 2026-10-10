@@ -1,6 +1,8 @@
 {
   "name": "@miyauci/react-shadow-dom",
   "imports": {
+    "@deno-lint/plugin-jsx-a11y": "jsr:@deno-lint/plugin-jsx-a11y@^0.1.0",
+    "@deno-lint/plugin-react-hooks": "jsr:@deno-lint/plugin-react-hooks@^0.1.0",
     "@types/react": "npm:@types/react@^19.3.0",
     "@types/react-dom": "npm:@types/react-dom@^19.3.0",
     "react": "npm:react@^19.3.0",
@@ -13,6 +15,12 @@
       "deno.window",
       "deno.unstable",
       "dom"
+    ]
+  },
+  "lint": {
+    "plugins": [
+      "jsr:@deno-lint/plugin-react-hooks",
+      "jsr:@deno-lint/plugin-jsx-a11y"
     ]
   }
 }
