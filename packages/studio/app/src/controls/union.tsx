@@ -8,10 +8,6 @@ export default function UnionControl(props: ControlProps): JSX.Element {
 
   return (
     <div>
-      <select>
-        <option></option>
-      </select>
-
       {definition.members.map((definition, index) => {
         return <div key={index}>{render(definition)}</div>;
       })}

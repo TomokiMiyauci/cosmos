@@ -42,7 +42,7 @@ function SelectView(
       aria-describedby={description.id}
       aria-labelledby={label.id}
     >
-      <option />
+      <option>---</option>
       {entries.map((entry) => {
         return <option key={entry.id} value={entry.id}>{entry.id}</option>;
       })}
