@@ -14,4 +14,10 @@ export type {
   Presentation,
 } from "./type.ts";
 export type { FieldLayoutProps } from "./fields/type.ts";
-export { type Field, useField, useValidity, useValue } from "./fields/field.ts";
+export {
+  type Field,
+  useField,
+  useList,
+  useValidity,
+  useValue,
+} from "./fields/field.ts";

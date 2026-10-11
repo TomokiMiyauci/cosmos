@@ -1,5 +1,7 @@
 import { createContext, use } from "react";
 import { useController } from "react-hook-form";
+import type { List } from "../type.ts";
+import { createUseList } from "./util.ts";
 
 export interface Field {
   id: string;
@@ -63,4 +65,14 @@ export function useValue(): [
   const { field } = useController<Record<string, string | undefined>>({ name });
 
   return [field.value ?? null, field.onChange];
+}
+
+export function useList(): List {
+  const name = use(NameContext);
+
+  if (!name) throw new Error("wrap by <NameContext>");
+
+  const list = createUseList(name);
+
+  return list();
 }

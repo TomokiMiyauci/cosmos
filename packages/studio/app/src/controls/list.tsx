@@ -1,12 +1,12 @@
 import type { JSX } from "react";
-import type { ControlProps } from "@cosmos/schema-field";
+import { type ControlProps, useList } from "@cosmos/schema-field";
 
 export default function ListControl(props: ControlProps): JSX.Element {
-  const { definition, render, api } = props;
+  const { definition, render } = props;
 
   if (definition.type !== "sequence") throw new Error();
 
-  const list = api.useList();
+  const list = useList();
 
   return (
     <div>
