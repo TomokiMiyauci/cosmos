@@ -1,8 +1,7 @@
 import type { JSX } from "react";
 import type { FieldProps } from "./type.ts";
-import type { FieldValue, MapDefinition } from "../type.ts";
+import type { MapDefinition } from "../type.ts";
 import { createUseList } from "./util.ts";
-import { useController } from "react-hook-form";
 
 export default function MapField(
   props: FieldProps<MapDefinition>,
@@ -13,16 +12,6 @@ export default function MapField(
 
   const api = {
     useList,
-    useValue(): [string | null, (value: string | null) => void] {
-      const { field } = useController<FieldValue>({ name });
-      const value = field.value ?? null;
-
-      const v = value === null ? null : String(value);
-
-      return [v, (value: string | null) => {
-        field.onChange(value);
-      }];
-    },
   };
 
   return (

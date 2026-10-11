@@ -28,10 +28,6 @@ export type FieldValue = Record<string, NativeFormValue>;
 
 interface Api {
   useList(): List;
-  useValue(): [
-    value: string | null,
-    setValue: (value: string | null) => void,
-  ];
 }
 
 export interface List {
