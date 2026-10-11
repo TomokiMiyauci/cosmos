@@ -1,6 +1,5 @@
 import type { JSX } from "react";
 import type { FieldProps } from "./type.ts";
-import { createUseList } from "./util.ts";
 
 export default function PrimitiveField(props: FieldProps): JSX.Element {
   const {
@@ -12,9 +11,6 @@ export default function PrimitiveField(props: FieldProps): JSX.Element {
     id,
   } = props;
 
-  const useList = createUseList(name);
-  const api = { useList };
-
   return (
     <Layout
       title={def.presentation.title}
@@ -22,7 +18,6 @@ export default function PrimitiveField(props: FieldProps): JSX.Element {
         <def.presentation.control
           definition={def}
           render={(def) => render({ name, definition: def })}
-          api={api}
           required={required}
         />
       }

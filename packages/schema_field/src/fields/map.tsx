@@ -1,18 +1,12 @@
 import type { JSX } from "react";
 import type { FieldProps } from "./type.ts";
 import type { MapDefinition } from "../type.ts";
-import { createUseList } from "./util.ts";
 
 export default function MapField(
   props: FieldProps<MapDefinition>,
 ): JSX.Element {
   const { name, definition: def, render, layout: Layout, required = true, id } =
     props;
-  const useList = createUseList(name);
-
-  const api = {
-    useList,
-  };
 
   return (
     <Layout
@@ -33,7 +27,6 @@ export default function MapField(
 
             return render({ definition: def, name });
           }}
-          api={api}
           required={required}
         />
       }

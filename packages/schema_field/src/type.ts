@@ -12,7 +12,6 @@ import type {
 export interface ControlProps {
   render(def: Definition, group?: string): ReactNode;
   definition: Definition;
-  api: Api;
   required: boolean;
 }
 
@@ -25,10 +24,6 @@ export type NativeFormValue = NativeFormPrimitiveValue | {
 } | NativeFormValue[];
 
 export type FieldValue = Record<string, NativeFormValue>;
-
-interface Api {
-  useList(): List;
-}
 
 export interface List {
   [Symbol.iterator](): IterableIterator<Id>;
