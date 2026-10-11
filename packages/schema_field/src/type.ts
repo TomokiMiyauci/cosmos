@@ -25,14 +25,6 @@ export type NativeFormValue = NativeFormPrimitiveValue | {
 
 export type FieldValue = Record<string, NativeFormValue>;
 
-export interface List {
-  [Symbol.iterator](): IterableIterator<Id>;
-  append(): void;
-  remove(id: Id): void;
-}
-
-type Id = string;
-
 export interface Control {
   (props: ControlProps): ReactNode;
 }

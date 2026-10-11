@@ -1,7 +1,5 @@
 import { createContext, use } from "react";
-import { useController } from "react-hook-form";
-import type { List } from "../type.ts";
-import { createUseList } from "./util.ts";
+import { useController, useFieldArray } from "react-hook-form";
 
 export interface Field {
   id: string;
@@ -74,5 +72,37 @@ export function useList(): List {
 
   const list = createUseList(name);
 
-  return list();
+  return list;
+}
+
+export interface List {
+  [Symbol.iterator](): IterableIterator<Id>;
+  append(): void;
+  remove(id: Id): void;
+}
+
+type Id = string;
+
+export function createUseList(name: string): List {
+  const { fields, append, remove } = useFieldArray({ name });
+
+  class ListImpl implements List {
+    *[Symbol.iterator](): IterableIterator<string> {
+      yield* fields.map((value) => value.id);
+    }
+
+    append(): void {
+      append(null);
+    }
+
+    remove(id: string): void {
+      const index = fields.findIndex((value) => value.id === id);
+
+      if (0 <= index) {
+        remove(index);
+      }
+    }
+  }
+
+  return new ListImpl();
 }
