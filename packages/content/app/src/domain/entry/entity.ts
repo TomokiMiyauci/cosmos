@@ -3,6 +3,7 @@ import { EntryId } from "./id.ts";
 import type { EntryRepositry } from "./repositry.ts";
 import type { ModelId } from "../model/id.ts";
 import type { SchemaValue } from "@cosmos/schema";
+import type { Temporal } from "@js-temporal/polyfill";
 
 export class Entry {
   private constructor(

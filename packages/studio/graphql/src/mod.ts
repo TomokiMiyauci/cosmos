@@ -28,6 +28,7 @@ import {
   getSdk,
   type Sdk,
 } from "./generated/types.ts";
+import { Temporal } from "@js-temporal/polyfill";
 
 export class GraphqlDefinitionQuery implements DefinitionQuery {
   #client: Sdk;
@@ -175,14 +176,14 @@ export class GraphqlEntryService implements EntryService {
   }
 }
 
-function pointer2Path(pointer: string): string[] {
-  pointer = pointer.startsWith("/contents")
-    ? pointer.replace("/contents", "")
-    : pointer;
-  pointer = pointer.startsWith("/") ? pointer.slice(1) : pointer;
+// function pointer2Path(pointer: string): string[] {
+//   pointer = pointer.startsWith("/contents")
+//     ? pointer.replace("/contents", "")
+//     : pointer;
+//   pointer = pointer.startsWith("/") ? pointer.slice(1) : pointer;
 
-  return pointer.split("/");
-}
+//   return pointer.split("/");
+// }
 
 function response2Defintion(
   response: SchemaResponse,

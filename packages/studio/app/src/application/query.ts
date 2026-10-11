@@ -1,4 +1,5 @@
 import type { Definition } from "@cosmos/schema-field";
+import type { Temporal } from "@js-temporal/polyfill";
 
 export interface Queries {
   definition: DefinitionQuery;

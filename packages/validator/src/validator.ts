@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-undef
 import { Result } from "@miyauci/util";
 import {
   type BooleanSchema,
@@ -18,6 +17,7 @@ import {
   type StringValue,
   type UnionSchema,
 } from "@cosmos/schema";
+import { Temporal } from "@js-temporal/polyfill";
 
 export interface ValidationError {
   reason: ErrorReason;

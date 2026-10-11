@@ -1,4 +1,5 @@
 import type { SchemaValue } from "@cosmos/schema";
+import type { Temporal } from "@js-temporal/polyfill";
 
 export interface EntryReader {
   findById(id: string): Promise<EntryView | null>;

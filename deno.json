@@ -6,6 +6,7 @@
     "packages/*",
     "packages/content/*",
     "packages/studio/*",
+    "packages/delivery/*",
     "examples/*"
   ],
   "lint": {
@@ -29,10 +30,12 @@
         "no-useless-rename",
         "prefer-ascii",
         "single-var-declarator"
-      ]
+      ],
+      "tags": ["jsr", "recommended", "workspace"]
     }
   },
   "imports": {
+    "@js-temporal/polyfill": "npm:@js-temporal/polyfill@^0.5.1",
     "@miyauci/graphql-builder": "jsr:@miyauci/graphql-builder@^1.0.0-beta.2",
     "@std/expect": "jsr:@std/expect@^1.0.19",
     "@std/testing": "jsr:@std/testing@^1.0.18"

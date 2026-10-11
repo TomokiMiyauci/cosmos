@@ -6,6 +6,7 @@ import {
   type SequenceValue,
 } from "@cosmos/schema";
 import { Result } from "@miyauci/util";
+import { Temporal } from "@js-temporal/polyfill";
 
 export interface EntryView {
   id: string;
@@ -77,6 +78,16 @@ export function parseText(value: string): EntryView {
     createdAt,
     updatedAt,
   };
+}
+
+export function parseContent(value: string): SchemaValue {
+  const json = JSON.parse(value);
+
+  const [content, error] = node2SchemaValue(json.content);
+
+  if (error) throw new Error("invalid content");
+
+  return content;
 }
 
 function node2SchemaValue(node: SchemaNode): Result<SchemaValue, Error> {
