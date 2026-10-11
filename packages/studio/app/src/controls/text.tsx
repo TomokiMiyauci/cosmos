@@ -1,11 +1,16 @@
 "use client";
 import type { JSX } from "react";
-import { type ControlProps, useField, useValidity } from "@cosmos/schema-field";
+import {
+  type ControlProps,
+  useField,
+  useValidity,
+  useValue,
+} from "@cosmos/schema-field";
 import { TextInput } from "~component";
 
 export default function TextControl(props: ControlProps): JSX.Element {
-  const { api, required } = props;
-  const [value, onChange] = api.useValue();
+  const { required } = props;
+  const [value, onChange] = useValue();
   const { id, error, description, label } = useField();
   const { valid } = useValidity();
 

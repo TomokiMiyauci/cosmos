@@ -1,11 +1,11 @@
 "use client";
 import type { JSX } from "react";
-import { type ControlProps, useField } from "@cosmos/schema-field";
+import { type ControlProps, useField, useValue } from "@cosmos/schema-field";
 import { TextInput } from "~component";
 
 export default function DateControl(props: ControlProps): JSX.Element {
   const { required } = props;
-  const [value, setValue] = props.api.useValue();
+  const [value, setValue] = useValue();
   const { id, description, error, label } = useField();
 
   return (

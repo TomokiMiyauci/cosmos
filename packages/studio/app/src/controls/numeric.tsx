@@ -1,11 +1,11 @@
 "use client";
 import type { JSX } from "react";
-import { type ControlProps, useField } from "@cosmos/schema-field";
+import { type ControlProps, useField, useValue } from "@cosmos/schema-field";
 import { TextInput } from "~component";
 
 export default function NumericControl(props: ControlProps): JSX.Element {
   const { required } = props;
-  const [value, onChange] = props.api.useValue();
+  const [value, onChange] = useValue();
   const { id, description, label, error } = useField();
 
   return (

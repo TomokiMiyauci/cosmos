@@ -51,3 +51,16 @@ export interface Validity {
   valid: boolean;
   error: string | null;
 }
+
+export function useValue(): [
+  value: string | null,
+  setValue: (value: string | null) => void,
+] {
+  const name = use(NameContext);
+
+  if (!name) throw new Error("wrap by <NameContext>");
+
+  const { field } = useController<Record<string, string | undefined>>({ name });
+
+  return [field.value ?? null, field.onChange];
+}

@@ -1,6 +1,6 @@
 "use client";
 import { type JSX, Suspense } from "react";
-import { type ControlProps, useField } from "@cosmos/schema-field";
+import { type ControlProps, useField, useValue } from "@cosmos/schema-field";
 import { Select, Use } from "~component";
 import { type EntrySummary, useQuerirs } from "~hook";
 
@@ -26,9 +26,9 @@ export default function SelectControl(props: ControlProps): JSX.Element {
 function SelectView(
   props: { entries: EntrySummary[] } & ControlProps,
 ): JSX.Element {
-  const { required, api, entries } = props;
+  const { required, entries } = props;
   const { id, error, description, label } = useField();
-  const [value, onChange] = api.useValue();
+  const [value, onChange] = useValue();
 
   return (
     <Select
