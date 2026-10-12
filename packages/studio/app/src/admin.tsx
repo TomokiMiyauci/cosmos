@@ -1,11 +1,11 @@
 import { type JSX, useMemo } from "react";
-import Html from "./html.tsx";
 import type { RouteResult } from "./router.ts";
 import { Page } from "./pages/symbol.ts";
 import { views } from "./pages/view.ts";
 import { EnMessenger, type Messenger } from "./messenger.ts";
 import { MessengerContext } from "./context/messenger.ts";
 import { QueriesContext } from "~hook";
+import { PageLayout } from "~component";
 
 export interface AdminProps {
   route: RouteResult;
@@ -21,9 +21,9 @@ export function Admin(props: AdminProps): JSX.Element {
   return (
     <MessengerContext.Provider value={messenger}>
       <QueriesContext value={route.data.queries}>
-        <Html models={route.data.models} queries={route.data.queries}>
+        <PageLayout models={route.data.models}>
           <PageRenderer route={route} />
-        </Html>
+        </PageLayout>
       </QueriesContext>
     </MessengerContext.Provider>
   );

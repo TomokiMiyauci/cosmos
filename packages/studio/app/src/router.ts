@@ -7,10 +7,20 @@ import type { EntriesPageProps } from "./pages/resource.tsx";
 import type { Queries } from "./application/query.ts";
 import type { Services } from "./application/service.ts";
 import { EnMessenger } from "./messenger.ts";
-import {
-  getStaticProps as getLayoutStaticProps,
-  type LayoutProps,
-} from "./html.tsx";
+import type { Model } from "./application/query.ts";
+
+export interface LayoutProps {
+  models: Model[];
+  queries: Queries;
+}
+
+export async function getLayoutStaticProps(
+  queries: Queries,
+): Promise<LayoutProps> {
+  const models = await queries.model.list();
+
+  return { models, queries };
+}
 
 export class Router {
   constructor(

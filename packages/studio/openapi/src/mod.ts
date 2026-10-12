@@ -23,6 +23,7 @@ import { Client, type SchemaResponse } from "@cosmos/content-openapi/client";
 import type { Control, Definition, Presentation } from "@cosmos/schema-field";
 import { mapValues } from "@std/collections/map-values";
 import { fromNode, toNode } from "@cosmos/schema-node";
+import { Temporal } from "@js-temporal/polyfill";
 
 export class OpenapiDefinitionQuery implements DefinitionQuery {
   #client: Client;
