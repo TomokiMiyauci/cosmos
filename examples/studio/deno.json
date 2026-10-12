@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno serve -A --unstable-no-legacy-abort --unstable-bundle --watch mod.ts"
+    "dev": "deno serve -A --unstable-no-legacy-abort --unstable-bundle --unstable-raw-imports --watch mod.ts"
   },
   "imports": {
     "@std/collections": "jsr:@std/collections@^1.3.0",
