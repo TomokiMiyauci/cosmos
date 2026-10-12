@@ -22,13 +22,17 @@
     "jsx": "react-jsx",
     "lib": [
       "deno.window",
-      "dom",
-      "deno.unstable"
+      "dom"
     ]
   },
   "lint": {
+    "plugins": [
+      "jsr:@deno-lint/plugin-react-hooks",
+      "jsr:@deno-lint/plugin-jsx-a11y"
+    ],
     "rules": {
-      "tags": ["react"]
+      "tags": ["react"],
+      "exclude": ["jsx-accessibility/label-has-for"]
     }
   }
 }

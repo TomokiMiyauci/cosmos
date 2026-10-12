@@ -13,7 +13,6 @@
     "jsx": "react-jsx",
     "lib": [
       "deno.window",
-      "deno.unstable",
       "dom"
     ]
   },
