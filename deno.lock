@@ -2,7 +2,9 @@
   "version": "5",
   "specifiers": {
     "jsr:@deno-lint/eslint-compat@0.2": "0.2.1",
+    "jsr:@deno-lint/plugin-jsx-a11y@*": "0.1.0",
     "jsr:@deno-lint/plugin-jsx-a11y@0.1": "0.1.0",
+    "jsr:@deno-lint/plugin-react-hooks@*": "0.1.0",
     "jsr:@deno-lint/plugin-react-hooks@0.1": "0.1.0",
     "jsr:@deno/esbuild-plugin@^1.2.1": "1.2.1",
     "jsr:@deno/loader@~0.3.10": "0.3.14",

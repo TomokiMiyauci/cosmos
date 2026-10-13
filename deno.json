@@ -38,7 +38,6 @@
     "@deno-lint/plugin-jsx-a11y": "jsr:@deno-lint/plugin-jsx-a11y@^0.1.0",
     "@deno-lint/plugin-react-hooks": "jsr:@deno-lint/plugin-react-hooks@^0.1.0",
     "@js-temporal/polyfill": "npm:@js-temporal/polyfill@^0.5.1",
-    "@miyauci/graphql-builder": "jsr:@miyauci/graphql-builder@^1.0.0-beta.2",
     "@std/expect": "jsr:@std/expect@^1.0.20",
     "@std/testing": "jsr:@std/testing@^1.0.21"
   },
