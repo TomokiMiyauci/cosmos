@@ -19,7 +19,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: deno ci
+        run: deno ci --unstable-raw-imports
 
       - name: Lint
         run: deno lint
@@ -36,7 +36,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: deno ci
+        run: deno ci --unstable-raw-imports
 
       - name: Type Check
         run: deno task check
