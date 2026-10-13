@@ -1,4 +1,4 @@
-import type { SchemaConfig } from "@cosmos/config";
+import type { SchemaConfig } from "@cosmos/content-config";
 
 export default {
   type: "map",

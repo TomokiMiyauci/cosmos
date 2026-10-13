@@ -1,4 +1,4 @@
-import { Config } from "@cosmos/content-config";
+import type { Config } from "@cosmos/content-config";
 import { author, setting } from "./schemas/schema.ts";
 
 const config = {
@@ -15,7 +15,7 @@ const config = {
         },
         age: {
           required: true,
-          to: "post.title",
+          to: "post.age",
         },
         authors: {
           to: "post.authors",
@@ -35,7 +35,7 @@ const config = {
     "post.authors": { type: "list", item: "string" },
     "post.author": { type: "reference" },
     "post.flag": { type: "boolean" },
-    "title.age": { type: "number" },
+    "post.age": { type: "number" },
     "post.date": { type: "string", term: "date" },
     author,
     setting,
