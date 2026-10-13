@@ -15,5 +15,10 @@
   "tasks": {
     "watch": "deno x graphql-code-generator --config ./.graphqlrc.yaml --watch",
     "generate": "deno x graphql-code-generator --config ./.graphqlrc.yaml"
+  },
+  "lint": {
+    "exclude": [
+      "./src/generated"
+    ]
   }
 }

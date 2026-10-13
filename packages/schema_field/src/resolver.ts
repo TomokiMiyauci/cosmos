@@ -41,6 +41,7 @@ export function cosmosResolver(
     }));
     const errorMap = toErrors(e);
 
+    // deno-lint-ignore no-explicit-any
     return { values: {}, errors: { content: errorMap } as any };
   }
 

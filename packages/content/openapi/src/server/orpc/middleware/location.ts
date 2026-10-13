@@ -10,6 +10,7 @@ const locationMiddleware: Middleware<
   object,
   unknown,
   Identity,
+  // deno-lint-ignore ban-types
   {},
   object
 > = async (

@@ -16,5 +16,10 @@
     "@orpc/server": "npm:@orpc/server@^1.14.14",
     "@std/collections": "jsr:@std/collections@^1.3.0",
     "zod": "npm:zod@^4.4.3"
+  },
+  "lint": {
+    "exclude": [
+      "./src/generated"
+    ]
   }
 }
