@@ -7,7 +7,6 @@
     "packages/*",
     "packages/content/*",
     "packages/studio/*",
-    "packages/delivery/*",
     "examples/*"
   ],
   "lint": {
