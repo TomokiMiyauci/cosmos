@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import type { ResolverResult } from "react-hook-form";
 import type { Schema, SchemaValue } from "@cosmos/schema";
 import { HtmlIoInterpreter } from "./interpreter.ts";
@@ -26,7 +27,7 @@ export function cosmosResolver(
   const normalized = normalize(values);
 
   if (normalized === null) {
-    return { values: {}, errors: {} };
+    return { values: {}, errors: {} as any };
   }
 
   const [schemaValue, interpretErrors] = interpreter.interpret(
@@ -41,7 +42,6 @@ export function cosmosResolver(
     }));
     const errorMap = toErrors(e);
 
-    // deno-lint-ignore no-explicit-any
     return { values: {}, errors: { content: errorMap } as any };
   }
 
@@ -56,13 +56,13 @@ export function cosmosResolver(
 
     return {
       values: {},
-      errors: { content: errorMap } as unknown,
+      errors: { content: errorMap } as any,
     };
   }
 
   return {
     values: schemaValue,
-    errors: {},
+    errors: {} as any,
   };
 }
 

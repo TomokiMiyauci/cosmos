@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { type FC, type JSX, useId, useMemo, useState } from "react";
 import {
   FormProvider,
@@ -12,11 +13,7 @@ import MapField from "./fields/map.tsx";
 import UnionField from "./fields/union.tsx";
 import SequenceField from "./fields/sequence.tsx";
 import type { FieldLayoutProps, FieldProps } from "./fields/type.ts";
-import {
-  cosmosResolver,
-  type Messenger,
-  type ResolverContext,
-} from "./resolver.ts";
+import { cosmosResolver, type Messenger } from "./resolver.ts";
 import { isIdentifier, isNumberValue } from "@cosmos/validator";
 import { mapValues } from "@std/collections/map-values";
 import { FieldContext, NameContext, useValidity } from "./fields/field.ts";
@@ -58,12 +55,12 @@ export function useFields(
 
     if (isValid(result)) return undefined;
 
-    return result.errors;
+    return result.errors as any;
   }, []);
 
-  const form = useForm<FormValues, ResolverContext, SchemaValue>({
+  const form = useForm({
     defaultValues: values as any,
-    resolver: cosmosResolver,
+    resolver: cosmosResolver as any,
     context: { schema, messenger },
     errors,
   });
