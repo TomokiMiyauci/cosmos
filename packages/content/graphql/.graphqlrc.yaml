@@ -1,0 +1,30 @@
+schema: ./src/schema.graphql
+generates:
+  "./src/generated/resolver_type.ts":
+    plugins:
+      - typescript
+      - typescript-resolvers
+    config:
+      nonOptionalTypename: true
+      strictScalars: true
+      useTypeImports: true
+      enumsAsTypes: true
+      showUnusedMappers: true
+      avoidOptionals:
+        mutation: true
+        query: true
+
+      scalars:
+        EntryContent: "@cosmos/schema-node#Node"
+        DateTime: Date
+      mappers:
+        Model: "@cosmos/content#ModelView"
+        Entry: "@cosmos/content#EntryView"
+        Schema: "@cosmos/content#SchemaView"
+        StringSchema: "@cosmos/content#StringSchemaView"
+        NumberSchema: "@cosmos/content#NumberSchemaView"
+        BooleanSchema: "@cosmos/content#BooleanSchemaView"
+        SequenseSchema: "@cosmos/content#ListSchemaView"
+        MapSchema: "@cosmos/content#MapSchemaView"
+        UnionSchema: "@cosmos/content#UnionSchemaView"
+        ReferenceSchema: "@cosmos/content#ReferenceSchemaView"

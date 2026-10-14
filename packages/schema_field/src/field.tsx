@@ -1,0 +1,302 @@
+// deno-lint-ignore-file no-explicit-any
+import { type FC, type JSX, useId, useMemo, useState } from "react";
+import {
+  FormProvider,
+  type ResolverResult,
+  useForm,
+  type UseFormReturn,
+} from "react-hook-form";
+import type { SchemaValue } from "@cosmos/schema";
+import type { Definition, NativeFormValue, Primitive } from "./type.ts";
+import PrimitiveField from "./fields/primitive.tsx";
+import MapField from "./fields/map.tsx";
+import UnionField from "./fields/union.tsx";
+import SequenceField from "./fields/sequence.tsx";
+import type { FieldLayoutProps, FieldProps } from "./fields/type.ts";
+import { cosmosResolver, type Messenger } from "./resolver.ts";
+import { isIdentifier, isNumberValue } from "@cosmos/validator";
+import { mapValues } from "@std/collections/map-values";
+import { FieldContext, NameContext, useValidity } from "./fields/field.ts";
+
+export interface UseFieldsReturn {
+  setErrors(error: FieldError[]): void;
+  finalize(): Promise<SchemaValue | null>;
+  render(props?: RenderProps): JSX.Element;
+}
+
+export type Path = (string | number)[];
+
+export interface FieldsOptions {
+  messenger?: Messenger;
+}
+
+export function useFields(
+  schema: Definition,
+  init?: SchemaValue,
+  options?: FieldsOptions,
+): UseFieldsReturn {
+  const { messenger = defaultMessenger } = options ?? {};
+  const values = useMemo(() => {
+    if (!init) return undefined;
+
+    const value = toFormValues(init);
+
+    return value;
+  }, [init]);
+
+  const errors = useMemo(() => {
+    if (values === undefined) return undefined;
+
+    const result = cosmosResolver(values, { schema, messenger });
+
+    function isValid(result: ResolverResult<object, unknown>): boolean {
+      return isEmptyObject(result.errors);
+    }
+
+    if (isValid(result)) return undefined;
+
+    return result.errors as any;
+  }, []);
+
+  const form = useForm({
+    defaultValues: values as any,
+    resolver: cosmosResolver as any,
+    context: { schema, messenger },
+    errors,
+  });
+
+  return {
+    finalize(): Promise<SchemaValue | null> {
+      const result = form.handleSubmit((data) => {
+        return data;
+      });
+
+      return result().then((result) => result ?? null);
+    },
+
+    setErrors(errors: FieldError[]): void {
+      form.clearErrors();
+
+      for (const error of errors) {
+        const name = path2Name([`content`, ...error.path]) as `content`;
+
+        form.setError(name, { message: error.message });
+      }
+    },
+
+    render(props?: RenderProps): JSX.Element {
+      return <Fields definition={schema} controller={form} {...props} />;
+    },
+  };
+}
+
+export interface RenderProps {
+  layout?: FC<FieldLayoutProps>;
+}
+
+function toFormValues(value: SchemaValue): FormValues {
+  return {
+    content: toNativeFormValue(value),
+  };
+}
+
+function toNativeFormValue(value: SchemaValue): NativeFormValue {
+  if (typeof value === "string") return value;
+
+  if (isNumberValue(value)) return value.value.toString();
+
+  if (typeof value === "boolean") return value.toString();
+
+  if (isIdentifier(value)) return value.value;
+
+  if (Array.isArray(value)) return value.map(toNativeFormValue);
+
+  return mapValues(value, toNativeFormValue);
+}
+
+function path2Name(path: Path): string {
+  return path.join(".");
+}
+
+export interface FieldError {
+  path: Path;
+  message: string;
+}
+
+export interface FieldsProps {
+  controller: UseFormReturn<FormValues, unknown, SchemaValue>;
+  definition: Definition;
+  layout?: FC<FieldLayoutProps>;
+}
+
+interface FormValues {
+  content: undefined | NativeFormValue;
+}
+
+export type Value = Value[] | Primitive | {
+  [k: string]: Value;
+};
+
+export function Fields(props: FieldsProps): JSX.Element {
+  return (
+    <FormProvider {...props.controller}>
+      <_Field
+        definition={props.definition}
+        name="content"
+        ancestors={new Set()}
+        layout={props.layout ?? FieldLayout}
+      />
+    </FormProvider>
+  );
+}
+
+interface _FieldProps {
+  definition: Definition;
+  name: string;
+  ancestors: Set<Definition>;
+  required?: boolean;
+  layout: FC<FieldLayoutProps>;
+}
+
+function FieldLayout(props: FieldLayoutProps): JSX.Element {
+  const { title, control, id } = props;
+  const { error } = useValidity();
+
+  return (
+    <>
+      <label htmlFor={id}>
+        <p>{title}</p>
+      </label>
+
+      {control}
+
+      {error && <p>{error}</p>}
+    </>
+  );
+}
+
+function RecursiveField(props: FieldProps): JSX.Element {
+  const { name, definition, render: Render } = props;
+  const [expanded, setExpanded] = useState(false);
+
+  if (!expanded) {
+    return (
+      <button type="button" onClick={() => setExpanded(true)}>
+        Open
+      </button>
+    );
+  }
+
+  return <Render name={name} definition={definition} />;
+}
+
+function _Field(props: _FieldProps): JSX.Element {
+  const { definition, name, ancestors, required, layout } = props;
+
+  const id = useId();
+  const labelId = useId();
+  const descriptionId = useId();
+  const errorId = useId();
+  const baseFieldProps = {
+    name,
+    definition,
+    layout,
+    required,
+    id,
+  };
+
+  if (ancestors.has(definition)) {
+    return (
+      <RecursiveField
+        {...baseFieldProps}
+        render={({ name, definition, required }) => (
+          <_Field
+            ancestors={new Set()}
+            name={name}
+            definition={definition}
+            required={required}
+            layout={layout}
+          />
+        )}
+      />
+    );
+  }
+
+  const nextAncestors = new Set(ancestors);
+  nextAncestors.add(definition);
+
+  const fieldProps = {
+    ...baseFieldProps,
+    render: ({ name, definition, required }) => (
+      <_Field
+        ancestors={nextAncestors}
+        name={name}
+        definition={definition}
+        required={required}
+        layout={layout}
+      />
+    ),
+  } satisfies FieldProps;
+
+  const children = (() => {
+    switch (definition.type) {
+      case "string":
+      case "boolean":
+      case "number":
+      case "reference": {
+        return <PrimitiveField {...fieldProps} />;
+      }
+      case "sequence": {
+        return <SequenceField {...fieldProps} />;
+      }
+      case "map": {
+        return <MapField {...fieldProps} definition={definition} />;
+      }
+      case "union": {
+        return <UnionField {...fieldProps} />;
+      }
+    }
+  })();
+
+  return (
+    <FieldContext
+      value={{
+        id,
+        error: {
+          id: errorId,
+        },
+        description: {
+          id: descriptionId,
+        },
+        label: {
+          id: labelId,
+        },
+      }}
+    >
+      <NameContext value={name}>{children}</NameContext>
+    </FieldContext>
+  );
+}
+
+function isEmptyObject(value: object): value is Record<string, never> {
+  return !Reflect.ownKeys(value).length;
+}
+
+const defaultMessenger = {
+  message(reason): string {
+    switch (reason) {
+      case "required": {
+        return "Required";
+      }
+      case "invalid_type": {
+        return "Invalid type";
+      }
+      case "invalid_value": {
+        return "Invalid value";
+      }
+      case "unknown": {
+        return "Unknown";
+      }
+    }
+  },
+} satisfies Messenger;

@@ -1,0 +1,57 @@
+import type { StringTerm } from "@cosmos/schema";
+
+export interface SchemaReader {
+  findById(id: string): Promise<SchemaView | null>;
+  findAll(): Promise<SchemaView[]>;
+}
+
+export type SchemaView =
+  | StringSchemaView
+  | NumberSchemaView
+  | BooleanSchemaView
+  | ListSchemaView
+  | MapSchemaView
+  | ReferenceSchemaView
+  | UnionSchemaView;
+
+export interface BaseSchemaView {
+  id: string;
+}
+
+export interface StringSchemaView extends BaseSchemaView {
+  type: "string";
+  term: StringTerm | null;
+}
+
+export interface NumberSchemaView extends BaseSchemaView {
+  type: "number";
+}
+
+export interface BooleanSchemaView extends BaseSchemaView {
+  type: "boolean";
+}
+
+export interface MapSchemaView extends BaseSchemaView {
+  type: "map";
+  properties: Record<string, MapShcemaProperty>;
+}
+
+export interface ListSchemaView extends BaseSchemaView {
+  type: "list";
+  item: SchemaView;
+}
+
+export interface MapShcemaProperty {
+  required: boolean;
+  schema: SchemaView;
+}
+
+export interface ReferenceSchemaView extends BaseSchemaView {
+  type: "reference";
+  schema: SchemaView;
+}
+
+export interface UnionSchemaView extends BaseSchemaView {
+  type: "union";
+  schemas: SchemaView[];
+}

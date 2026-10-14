@@ -1,0 +1,17 @@
+@scope ([data-component=field-layout]) {
+  :scope {
+    all: unset;
+    display: grid;
+    row-gap: 8px;
+    margin-bottom: 2rem;
+  }
+
+  > label {
+    all: unset;
+  }
+
+  > p {
+    all: unset;
+    color: red;
+  }
+}

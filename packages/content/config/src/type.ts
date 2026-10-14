@@ -1,0 +1,57 @@
+import type { StringTerm } from "@cosmos/schema";
+
+export interface ModelConfig {
+  schema: string;
+  type: "collection" | "singleton";
+}
+
+export interface Config {
+  models: Record<string, ModelConfig>;
+  schemas: SchemaConfigMap;
+}
+
+export type SchemaConfigMap = Record<string, SchemaConfig>;
+
+export type SchemaConfig =
+  | StringSchemaDefinition
+  | NumberSchemaDefinition
+  | BooleanSchemaDefinition
+  | ListSchemaDefinition
+  | MapSchemaDefiinition
+  | UnionSchemaDefinition
+  | ReferenceSchemaDefintion;
+
+export interface StringSchemaDefinition {
+  type: "string";
+  term?: StringTerm;
+}
+
+export interface NumberSchemaDefinition {
+  type: "number";
+}
+
+export interface BooleanSchemaDefinition {
+  type: "boolean";
+}
+
+export interface ListSchemaDefinition {
+  type: "list";
+  item: SchemaId;
+}
+
+type SchemaId = string;
+
+export interface MapSchemaDefiinition {
+  type: "map";
+  props: Record<string, { required?: boolean; to: SchemaId }>;
+}
+
+export interface UnionSchemaDefinition {
+  type: "union";
+  schemas: SchemaId[];
+}
+
+export interface ReferenceSchemaDefintion {
+  type: "reference";
+  // to: SchemaId;
+}

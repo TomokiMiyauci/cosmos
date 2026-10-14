@@ -1,0 +1,7 @@
+@scope ([data-component=header]) {
+  @media (min-width: 30rem) {
+    [data-component=button] {
+      display: none;
+    }
+  }
+}

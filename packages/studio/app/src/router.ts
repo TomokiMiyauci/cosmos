@@ -1,0 +1,138 @@
+import { router } from "./pages/route.ts";
+import { Page } from "./pages/symbol.ts";
+import type { ContentCreatePageProps } from "./pages/content_creation.tsx";
+import type { EntryPageProps } from "./pages/content.tsx";
+import { views } from "./pages/view.ts";
+import type { EntriesPageProps } from "./pages/resource.tsx";
+import type { Queries } from "./application/query.ts";
+import type { Services } from "./application/service.ts";
+import { EnMessenger } from "./messenger.ts";
+import type { Model } from "./application/query.ts";
+
+export interface LayoutProps {
+  models: Model[];
+  queries: Queries;
+}
+
+export async function getLayoutStaticProps(
+  queries: Queries,
+): Promise<LayoutProps> {
+  const models = await queries.model.list();
+
+  return { models, queries };
+}
+
+export class Router {
+  constructor(
+    private queries: Queries,
+    private services: Services,
+  ) {
+  }
+  async route(url: URL): Promise<RouteResult> {
+    const layoutProps = await getLayoutStaticProps(this.queries);
+    const result = router.match(url.href);
+
+    if (!result) {
+      return {
+        type: Page.NotFound,
+        data: layoutProps,
+      };
+    }
+
+    const props = {
+      queries: this.queries,
+      services: this.services,
+      url,
+      messenger: new EnMessenger(),
+    };
+
+    switch (result.key) {
+      case Page.Home: {
+        return { type: Page.Home, data: layoutProps };
+      }
+      case Page.EntryList: {
+        const staticProps = await views[result.key].getStaticProps({
+          ...props,
+          params: result.params,
+        });
+
+        if (!staticProps) {
+          return {
+            type: Page.NotFound,
+            data: {
+              ...layoutProps,
+            },
+          };
+        }
+
+        return {
+          type: Page.EntryList,
+          data: { ...staticProps, ...layoutProps },
+        };
+      }
+      case Page.EntryCreation: {
+        const staticProps = await views[result.key].getStaticProps({
+          ...props,
+          params: result.params,
+        });
+
+        if (!staticProps) {
+          return {
+            type: Page.NotFound,
+            data: {
+              ...layoutProps,
+            },
+          };
+        }
+
+        return {
+          type: Page.EntryCreation,
+          data: {
+            ...staticProps,
+            ...layoutProps,
+          },
+        };
+      }
+      case Page.Entry: {
+        const staticProps = await views[result.key].getStaticProps({
+          ...props,
+          params: result.params,
+        });
+
+        if (!staticProps) {
+          return {
+            type: Page.NotFound,
+            data: {
+              ...layoutProps,
+            },
+          };
+        }
+
+        return {
+          type: Page.Entry,
+          data: {
+            ...staticProps,
+            ...layoutProps,
+          },
+        };
+      }
+    }
+  }
+}
+
+export type RouteResult = {
+  type: Page.EntryCreation;
+  data: ContentCreatePageProps & LayoutProps;
+} | {
+  type: Page.Entry;
+  data: EntryPageProps & LayoutProps;
+} | {
+  type: Page.EntryList;
+  data: EntriesPageProps & LayoutProps;
+} | {
+  type: Page.NotFound;
+  data: LayoutProps;
+} | {
+  type: Page.Home;
+  data: LayoutProps;
+};

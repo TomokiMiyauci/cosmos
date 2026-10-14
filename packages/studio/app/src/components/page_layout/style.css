@@ -1,0 +1,75 @@
+@scope ([data-component=page-layout]) {
+  :scope {
+    all: unset;
+    display: grid;
+    --page-layout-margin-x: 8px;
+    height: 100dvh;
+  }
+
+  :scope {
+    grid-template:
+      "header header" auto
+      "nav    main" minmax(0, 1fr)
+      / 16rem minmax(0, 1fr);
+  }
+
+  > main {
+    display: block;
+  }
+
+  > [data-component=header-aria] {
+    all: unset;
+    grid-area: header;
+    margin-left: var(--page-layout-margin-x);
+    margin-right: var(--page-layout-margin-x);
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  > [data-component=aside] {
+    all: unset;
+    grid-area: nav;
+    display: block;
+    margin-left: var(--page-layout-margin-x);
+    margin-right: var(--page-layout-margin-x);
+  }
+
+  > main {
+    all: unset;
+    grid-area: main;
+    margin-left: var(--page-layout-margin-x);
+    margin-right: var(--page-layout-margin-x);
+    min-height: 0;
+    overflow: auto;
+  }
+
+  @media (max-width: 30rem) {
+    :scope:has(> [data-component=aside][data-open=false]) {
+      grid-template:
+        "header" auto
+        "main" minmax(0, 1fr);
+
+      > [data-component=aside] {
+        display: none;
+      }
+
+      > main {
+        display: block;
+      }
+    }
+
+    :scope:has(> [data-component=aside][data-open=true]) {
+      grid-template:
+        "header" auto
+        "nav" minmax(0, 1fr);
+
+      > [data-component=aside] {
+        display: block;
+      }
+
+      > main {
+        display: none;
+      }
+    }
+  }
+}

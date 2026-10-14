@@ -1,0 +1,7 @@
+{
+  "name": "@cosmos/content",
+  "exports": "./src/mod.ts",
+  "imports": {
+    "~domain": "./src/domain/mod.ts"
+  }
+}
