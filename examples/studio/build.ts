@@ -7,4 +7,21 @@ await Deno.bundle({
   outputDir: "dist",
 });
 
-console.info("build ended");
+await Deno.writeTextFile(
+  "./dist/manifest.json",
+  JSON.stringify(
+    {
+      "assets": [
+        {
+          "media-type": "text/javascript",
+          "path": "./client.js",
+          "entrypoint": true,
+        },
+      ],
+    },
+    null,
+    2,
+  ),
+);
+
+console.info("build completed");
