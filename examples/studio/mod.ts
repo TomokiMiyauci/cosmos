@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-non-null-assertion
 import { Admin, Page } from "@cosmos/studio";
 import { renderToReadableStream } from "react-dom/server";
 import { createElement } from "react";
@@ -19,6 +20,8 @@ import {
   StoreEntryRepository,
 } from "@cosmos/content-fs";
 import { router } from "./studio.ts";
+import { join, relative } from "@std/path";
+import { loadManifest } from "./manifest.ts";
 
 const locator = new BaseLocator(
   new URL(import.meta.resolve("./contents/posts/")),
@@ -40,24 +43,38 @@ export const contentHandler = createHandler(
   },
 );
 
-const entry = "/main.js";
+const distDir = join(import.meta.dirname!, "dist");
+
+const manifest = await loadManifest(
+  join(distDir, "manifest.json"),
+);
+
+const staticFiles = [...manifest.entries()].map((entry) => ({
+  entry: join("/", relative(distDir, entry.path)),
+  path: entry.path,
+  mediaType: entry.mediaType,
+  entrypoint: entry.entrypoint,
+}));
+
+const bootstrapModules = staticFiles.filter((meta) => meta.entrypoint).map((
+  meta,
+) => meta.entry);
 
 const routes = [
-  {
-    pattern: new URLPattern({ pathname: entry }),
-    handler: () => {
-      return new Response(bundleResult.outputFiles?.[0]?.contents, {
-        headers: {
-          "content-type": "application/javascript",
-          "cache-control": "no-store",
-          Vary: "*",
-          "access-control-allow-origin": "*",
-          "access-control-allow-methods": "*",
-          "access-control-allow-headers": "*",
-        },
-      });
-    },
-  },
+  ...staticFiles.map((meta) => {
+    return {
+      pattern: new URLPattern({ pathname: meta.entry }),
+      handler: async () => {
+        const file = await Deno.open(meta.path);
+
+        return new Response(file.readable, {
+          headers: {
+            "content-type": meta.mediaType,
+          },
+        });
+      },
+    };
+  }),
   {
     pattern: new URLPattern({ pathname: "/api" }),
     handler: contentHandler,
@@ -74,9 +91,7 @@ const routes = [
         status = 404;
       }
 
-      const stream = await renderToReadableStream(node, {
-        "bootstrapModules": [entry],
-      });
+      const stream = await renderToReadableStream(node, { bootstrapModules });
 
       await stream.allReady;
 
@@ -91,14 +106,6 @@ const routes = [
 ] satisfies Route[];
 
 const handler = route(routes, () => new Response(null, { status: 404 }));
-
-const bundleResult = await Deno.bundle({
-  entrypoints: ["./client.tsx"],
-  write: false,
-  format: "esm",
-  platform: "browser",
-  minify: false,
-});
 
 export default {
   async fetch(request): Promise<Response> {
