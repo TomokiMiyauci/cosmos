@@ -3,7 +3,7 @@
     "dev": {
       "dependencies": ["watch", "serve"]
     },
-    "serve": "deno serve -A --unstable-no-legacy-abort --unstable-bundle --unstable-raw-imports --watch mod.ts",
+    "serve": "deno serve -A --unstable-no-legacy-abort --unstable-bundle --unstable-raw-imports --watch main.ts",
     "watch": "deno run -A --unstable-bundle --unstable-raw-imports --watch=./client.tsx build.ts"
   },
   "imports": {
